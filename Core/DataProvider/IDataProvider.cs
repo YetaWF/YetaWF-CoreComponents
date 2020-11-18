@@ -83,7 +83,7 @@ namespace YetaWF.Core.DataProvider {
         Task<bool> AddAsync(OBJTYPE obj); // returns false if key already exists
         Task<UpdateStatusEnum> UpdateAsync(KEYTYPE origKey, KEYTYPE newKey, OBJTYPE obj);
         Task<bool> RemoveAsync(KEYTYPE key);// returns false if not found
-        Task<int> RemoveRecordsAsync(List<DataProviderFilterInfo> filters); // returns # of records removed
+        Task<int> RemoveRecordsAsync(List<DataProviderFilterInfo>? filters); // returns # of records removed
 
         Task<OBJTYPE?> GetAsync(KEYTYPE key); // returns null if not found
         Task<OBJTYPE?> GetOneRecordAsync(List<DataProviderFilterInfo>? filters, List<JoinData>? Joins = null); // returns null if not found

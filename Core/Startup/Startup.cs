@@ -192,7 +192,7 @@ namespace YetaWF.Core.Support {
                         if (!info.Success)
                             firstNode = true;
                         else
-                            MultiInstanceStartTime = info.Data.MultiInstanceStartTime;
+                            MultiInstanceStartTime = info.RequiredData.MultiInstanceStartTime;
                     }
                 }
 

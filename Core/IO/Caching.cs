@@ -2,6 +2,8 @@
 
 using System;
 using System.Threading.Tasks;
+using System.Diagnostics.CodeAnalysis;
+using YetaWF.Core.Support;
 
 namespace YetaWF.Core.IO {
 
@@ -160,9 +162,13 @@ namespace YetaWF.Core.IO {
     /// <typeparam name="TYPE">The type of the object.</typeparam>
     public class GetObjectInfo<TYPE> {
         /// <summary>
-        /// The data. May be null if no data is available (Success = false).
+        /// The data. May be null if no data is available.
         /// </summary>
-        public TYPE Data { get; set; } = default!;
+        public TYPE? Data { get; set; } = default!;
+        /// <summary>
+        /// The data. May be null if no data is available.
+        /// </summary>
+        public TYPE RequiredData { get { return Success ? Data! : throw new InternalError($"No data available ({nameof(Success)}=false"); } }
         /// <summary>
         /// true if retrieval was successful, false otherwise.
         /// </summary>

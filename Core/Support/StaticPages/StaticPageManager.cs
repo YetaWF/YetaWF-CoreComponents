@@ -66,7 +66,7 @@ namespace YetaWF.Core.Support.StaticPages {
             SerializableList<SiteEntry> siteEntries;
             GetObjectInfo<SerializableList<SiteEntry>> info = await cacheStaticDP.GetAsync<SerializableList<SiteEntry>>(STATICPAGESKEY);
             if (info.Success) {
-                siteEntries = info.Data;
+                siteEntries = info.RequiredData;
             } else {
                 siteEntries = new SerializableList<SiteEntry>();
             }

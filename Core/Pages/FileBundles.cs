@@ -93,7 +93,7 @@ namespace YetaWF.Core.Pages {
                         SerializableList<Bundle> bundles;
                         GetObjectInfo<SerializableList<Bundle>> info = await cacheStaticDP.GetAsync<SerializableList<Bundle>>(BUNDLEKEY);
                         if (info.Success)
-                            bundles = info.Data;
+                            bundles = info.RequiredData;
                         else
                             bundles = new SerializableList<Bundle>();
                         Bundle? bundle = (from b in bundles where b.BundleName == bundleName select b).FirstOrDefault();

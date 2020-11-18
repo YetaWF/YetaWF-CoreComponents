@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using YetaWF.Core.Support;
 
 namespace YetaWF.Core.IO {
 
@@ -24,7 +25,8 @@ namespace YetaWF.Core.IO {
 
     public interface IFileSystem {
 
-        string RootFolder { get; }
+        string? RootFolder { get; }
+        string RequiredRootFolder { get { return RootFolder ?? throw new InternalError("No root folder defined"); } }
 
         /// <summary>
         /// Locks a file or directory by name (not the folder contents).

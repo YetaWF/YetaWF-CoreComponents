@@ -19,8 +19,8 @@ namespace YetaWF.Core.Upload {
 
         public const string TempId = "temp";
 
-        public static string TempUploadFolder { get { return Path.Combine(FileSystem.TempFileSystemProvider.RootFolder, "Uploads"); } }
-        public static string TempSiteUploadFolder { get { return Path.Combine(FileSystem.TempFileSystemProvider.RootFolder, "Uploads", Manager.CurrentSite.Identity.ToString()); } }
+        public static string TempUploadFolder { get { return Path.Combine(FileSystem.TempFileSystemProvider.RequiredRootFolder, "Uploads"); } }
+        public static string TempSiteUploadFolder { get { return Path.Combine(FileSystem.TempFileSystemProvider.RequiredRootFolder, "Uploads", Manager.CurrentSite.Identity.ToString()); } }
 
         // UPLOAD
         // UPLOAD
