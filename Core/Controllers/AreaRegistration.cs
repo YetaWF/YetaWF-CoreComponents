@@ -17,32 +17,16 @@ namespace YetaWF.Core.Controllers {
         /// <summary>
         /// Constructor.
         /// </summary>
-        public AreaRegistrationBase() {
-            Package = Package.GetPackageFromAssembly(GetType().Assembly);
-        }
-        /// <summary>
-        /// The area name registered by the current package.
-        /// </summary>
-        /// <remarks>Packages define their area name using the PackageAttribute (for the domain portion) and the <see cref="System.Reflection.AssemblyProductAttribute"/> (for the product name). The area name is the concatenation of the domain, followed by an underscore and the product (e.g., YetaWF_Text).</remarks>
-        public string AreaName { get { return Package.AreaName; } }
-
-        /// <summary>
-        /// The current package defined by the object derived from AreaRegistrationBase.
-        /// </summary>
-        protected Package Package { get; set; }
-
-        /// <summary>
-        /// Retrieves the current package defined by the object derived from AreaRegistrationBase.
-        /// </summary>
-        /// <returns>The Package object.</returns>
-        protected Package GetCurrentPackage() { return Package; }
+        public AreaRegistrationBase() { }
 
         /// <summary>
         /// Used internally to register area routes. Don't mess with this.
         /// </summary>
         public void RegisterArea(IEndpointRouteBuilder endpoints) {
-            Logging.AddLog("Found {0} in namespace {1}", AreaName, GetType().Namespace!);
-            endpoints.MapAreaControllerRoute(AreaName, AreaName, AreaName + "/{controller}/{action}/{*whatevz}");
+            Package package = Package.GetPackageFromAssembly(GetType().Assembly);
+            string areaName = package.AreaName;
+            Logging.AddLog("Found {0} in namespace {1}", areaName, GetType().Namespace!);
+            endpoints.MapAreaControllerRoute(areaName, areaName, areaName + "/{controller}/{action}/{*whatevz}");
         }
 
         /// <summary>

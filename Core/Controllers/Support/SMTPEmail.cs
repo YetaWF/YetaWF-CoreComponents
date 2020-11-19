@@ -1,5 +1,6 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Identity;
@@ -7,7 +8,6 @@ using YetaWF.Core.Localize;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.SendEmail;
 using YetaWF.Core.Support;
-using Microsoft.AspNetCore.Mvc;
 
 namespace YetaWF.Core.Controllers {
 

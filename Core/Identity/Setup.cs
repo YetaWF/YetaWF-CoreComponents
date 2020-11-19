@@ -1,9 +1,9 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Reflection;
 using YetaWF.Core.Support;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace YetaWF.Core.Identity {
 

@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using YetaWF.Core.Controllers;
 using YetaWF.Core.DataProvider;
 using YetaWF.Core.IO;
 using YetaWF.Core.PackageSupport;
@@ -67,8 +66,8 @@ namespace YetaWF.Core.Packages {
                     errorList.Add(__ResStr("need400", "This package was created using an earlier YetaWF version {0} - With YetaWF 4.0.0 a new package format was introduced, making older packages incompatible", serPackage.CoreVersion));
                     return false;
                 }
-                if (Package.CompareVersion(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Version, serPackage.CoreVersion) < 0) {
-                    errorList.Add(__ResStr("invCore", "This package requires YetaWF version {0} - Current version found is {1}", serPackage.CoreVersion, YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Version));
+                if (Package.CompareVersion(YetaWF.Core.AreaRegistration.CurrentPackage.Version, serPackage.CoreVersion) < 0) {
+                    errorList.Add(__ResStr("invCore", "This package requires YetaWF version {0} - Current version found is {1}", serPackage.CoreVersion, YetaWF.Core.AreaRegistration.CurrentPackage.Version));
                     return false;
                 }
                 return await ImportAsync(zip, displayFileName, serPackage, errorList);
@@ -84,7 +83,7 @@ namespace YetaWF.Core.Packages {
                 string sourcePath = string.Empty;
                 if (hasSource) {
                     // Determine whether this is a YetaWF instance with source code by inspecting the Core package
-                    if (!await YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.GetHasSourceAsync())
+                    if (!await YetaWF.Core.AreaRegistration.CurrentPackage.GetHasSourceAsync())
                         throw new InternalError("Packages with source code can only be imported on development systems");
                     // set target folder
                     string sourceFolder;

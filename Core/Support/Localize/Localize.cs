@@ -147,14 +147,14 @@ namespace YetaWF.Core.Localize {
             get {
                 if (abortOnFailure == null) {
                     if (!Startup.Started) return false;
-                    abortOnFailure = WebConfigHelper.GetValue<bool>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, AbortOnFailureKey);
+                    abortOnFailure = WebConfigHelper.GetValue<bool>(YetaWF.Core.AreaRegistration.CurrentPackage.AreaName, AbortOnFailureKey);
                 }
                 return (bool) abortOnFailure;
             }
         }
         public async Task SetAbortOnFailureAsync(bool abort) {
             if (AbortOnFailure != abort) {
-                WebConfigHelper.SetValue<bool>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, AbortOnFailureKey, abort);
+                WebConfigHelper.SetValue<bool>(YetaWF.Core.AreaRegistration.CurrentPackage.AreaName, AbortOnFailureKey, abort);
                 await WebConfigHelper.SaveAsync();
                 abortOnFailure = abort;
                 await Auditing.AddAuditAsync($"{nameof(LocalizationSupport)}.{nameof(SetAbortOnFailureAsync)}", "Localization", Guid.Empty,
@@ -168,14 +168,14 @@ namespace YetaWF.Core.Localize {
             get {
                 if (useResources == null) {
                     if (!Startup.Started || !YetaWFManager.HaveManager) return false;
-                    useResources = WebConfigHelper.GetValue<bool>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, UseKey);
+                    useResources = WebConfigHelper.GetValue<bool>(YetaWF.Core.AreaRegistration.CurrentPackage.AreaName, UseKey);
                 }
                 return (bool) useResources;
             }
         }
         public async Task SetUseLocalizationResourcesAsync(bool use) {
             if (UseLocalizationResources != use) {
-                WebConfigHelper.SetValue<bool>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, UseKey, use);
+                WebConfigHelper.SetValue<bool>(YetaWF.Core.AreaRegistration.CurrentPackage.AreaName, UseKey, use);
                 await WebConfigHelper.SaveAsync();
                 useResources = use;
                 await Auditing.AddAuditAsync($"{nameof(LocalizationSupport)}.{nameof(SetUseLocalizationResourcesAsync)}", "Localization", Guid.Empty,

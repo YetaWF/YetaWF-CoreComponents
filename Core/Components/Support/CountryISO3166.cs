@@ -267,7 +267,7 @@ namespace YetaWF.Core.Components {
                 file = "Countries.txt";
 
             } else {
-                Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;// Core package
+                Package package = YetaWF.Core.AreaRegistration.CurrentPackage;// Core package
                 string url = VersionManager.GetAddOnTemplateUrl(package.AreaName, "CountryISO3166");
                 string customUrl = VersionManager.GetCustomUrlFromUrl(url);
 

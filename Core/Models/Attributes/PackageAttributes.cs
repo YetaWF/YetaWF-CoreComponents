@@ -3,8 +3,7 @@
 using System;
 using System.Runtime.CompilerServices;
 
-namespace YetaWF.PackageAttributes
-{
+namespace YetaWF.PackageAttributes {
     /// <summary>
     /// Used with the PackageAttribute assembly attribute to define a package's purpose.
     /// </summary>

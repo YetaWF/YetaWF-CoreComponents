@@ -79,7 +79,7 @@ namespace YetaWF.Core.Pages {
         private YetaWFZipFile MakeZipFile(string zipName, out SerializablePage serPage) {
             serPage = new SerializablePage();
             serPage.PageUrl = this.Url;
-            serPage.CoreVersion = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Version;
+            serPage.CoreVersion = YetaWF.Core.AreaRegistration.CurrentPackage.Version;
 
             return new YetaWFZipFile {
                 FileName = zipName,

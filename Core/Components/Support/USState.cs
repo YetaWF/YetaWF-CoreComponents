@@ -59,7 +59,7 @@ namespace YetaWF.Core.Components {
         /// The list of US states is located at .\CoreComponents\Core\Addons\_Templates\USState\USStates.txt.</remarks>
         public static async Task<Dictionary<string,string>> ReadUSStatesListAsync() {
             if (_usStatesList == null) {
-                Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;// Core package
+                Package package = YetaWF.Core.AreaRegistration.CurrentPackage;// Core package
                 string url = VersionManager.GetAddOnTemplateUrl(package.AreaName, "USState");
                 string path = Utility.UrlToPhysical(url);
                 string file = Path.Combine(path, "USStates.txt");

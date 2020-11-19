@@ -17,7 +17,6 @@ using System.Threading.Tasks;
 using TimeZoneConverter;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Components;
-using YetaWF.Core.Controllers;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Localize;
@@ -339,7 +338,7 @@ namespace YetaWF.Core.Support {
         public static string DefaultSiteName {
             get {
                 if (defaultSiteName == null)
-                    defaultSiteName = WebConfigHelper.GetValue<string>("YetaWF_Core"/*==YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName*/, "DEFAULTSITE");
+                    defaultSiteName = WebConfigHelper.GetValue<string>("YetaWF_Core"/*==YetaWF.Core.AreaRegistration.CurrentPackage.AreaName*/, "DEFAULTSITE");
                 if (defaultSiteName == null)
                     throw new InternalError("Default site must be defined in Appsettings.json");
                 return defaultSiteName;
@@ -464,7 +463,7 @@ namespace YetaWF.Core.Support {
         public static bool DiagnosticsMode {
             get {
                 if (diagnosticsMode == null) {
-                    diagnosticsMode = WebConfigHelper.GetValue<bool>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, "Diagnostics");
+                    diagnosticsMode = WebConfigHelper.GetValue<bool>(YetaWF.Core.AreaRegistration.CurrentPackage.AreaName, "Diagnostics");
                 }
                 return (bool)diagnosticsMode;
             }
@@ -486,7 +485,7 @@ namespace YetaWF.Core.Support {
         public static bool Deployed {
             get {
                 if (deployed == null) {
-                    deployed = WebConfigHelper.GetValue<bool>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, "Deployed");
+                    deployed = WebConfigHelper.GetValue<bool>(YetaWF.Core.AreaRegistration.CurrentPackage.AreaName, "Deployed");
                 }
                 return (bool)deployed;
             }
@@ -500,7 +499,7 @@ namespace YetaWF.Core.Support {
         public static bool CanUseCDN {
             get {
                 if (canUseCDN == null) {
-                    canUseCDN = WebConfigHelper.GetValue<bool>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, "UseCDN");
+                    canUseCDN = WebConfigHelper.GetValue<bool>(YetaWF.Core.AreaRegistration.CurrentPackage.AreaName, "UseCDN");
                 }
                 return (bool)canUseCDN;
             }
@@ -510,7 +509,7 @@ namespace YetaWF.Core.Support {
         public static bool CanUseCDNComponents {
             get {
                 if (canUseCDNComponents == null) {
-                    canUseCDNComponents = WebConfigHelper.GetValue<bool>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, "UseCDNComponents");
+                    canUseCDNComponents = WebConfigHelper.GetValue<bool>(YetaWF.Core.AreaRegistration.CurrentPackage.AreaName, "UseCDNComponents");
                 }
                 return (bool)canUseCDNComponents;
             }
@@ -520,7 +519,7 @@ namespace YetaWF.Core.Support {
         public static bool CanUseStaticDomain {
             get {
                 if (canUseStaticDomain == null) {
-                    canUseStaticDomain = WebConfigHelper.GetValue<bool>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, "UseStaticDomain");
+                    canUseStaticDomain = WebConfigHelper.GetValue<bool>(YetaWF.Core.AreaRegistration.CurrentPackage.AreaName, "UseStaticDomain");
                 }
                 return (bool)canUseStaticDomain;
             }
@@ -539,7 +538,7 @@ namespace YetaWF.Core.Support {
         public static bool IsDemo {
             get {
                 if (isDemo == null)
-                    isDemo = WebConfigHelper.GetValue<bool>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, "Demo");
+                    isDemo = WebConfigHelper.GetValue<bool>(YetaWF.Core.AreaRegistration.CurrentPackage.AreaName, "Demo");
                 return (bool)isDemo;
             }
         }
@@ -589,7 +588,7 @@ namespace YetaWF.Core.Support {
         public static bool IsHTTPSite {
             get {
                 if (_IsHTTPSite == null)
-                    _IsHTTPSite = WebConfigHelper.GetValue<bool>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, "ForceHttp", false);
+                    _IsHTTPSite = WebConfigHelper.GetValue<bool>(YetaWF.Core.AreaRegistration.CurrentPackage.AreaName, "ForceHttp", false);
                 return (bool)_IsHTTPSite;
             }
         }

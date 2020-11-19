@@ -61,7 +61,7 @@ namespace YetaWF.Core.Serializers {
             string asmName = obj.GetType().Assembly.GetName().Name!;
 
             xmlOut.WriteAttributeString("Assembly", asmName);
-            if (asmName != YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Name)// we only save the full name if it's not YetaWF.Core
+            if (asmName != YetaWF.Core.AreaRegistration.CurrentPackage.Name)// we only save the full name if it's not YetaWF.Core
                 xmlOut.WriteAttributeString("AssemblyFull", obj.GetType().Assembly.FullName);
 
             xmlOut.WriteStartElement("Properties");

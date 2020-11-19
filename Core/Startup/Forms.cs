@@ -27,7 +27,7 @@ namespace YetaWF.Core.Addons {
         public async Task AddSupportAsync(YetaWFManager manager) {
 
             ScriptManager scripts = manager.ScriptManager;
-            Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
+            Package package = YetaWF.Core.AreaRegistration.CurrentPackage;
             SkinImages skinImages = new SkinImages();
 
             // Global form related items (not implementation specific)

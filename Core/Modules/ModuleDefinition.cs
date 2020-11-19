@@ -1,9 +1,11 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using YetaWF.Core.Components;
 using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Models;
@@ -11,8 +13,6 @@ using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Skins;
-using YetaWF.Core.Components;
-using Newtonsoft.Json;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it can properly return module company/name for localization

@@ -3,8 +3,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using YetaWF.Core.Addons;
 using YetaWF.Core.DataProvider.Attributes;
+using YetaWF.Core.Identity;
 using YetaWF.Core.Language;
+using YetaWF.Core.Localize;
 using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Modules;
@@ -12,9 +15,6 @@ using YetaWF.Core.Serializers;
 using YetaWF.Core.Site;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
-using YetaWF.Core.Localize;
-using YetaWF.Core.Identity;
-using YetaWF.Core.Addons;
 
 namespace YetaWF.Core.Pages {
 

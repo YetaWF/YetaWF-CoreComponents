@@ -5,21 +5,20 @@
 
 #nullable disable
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
-namespace YetaWF2.Middleware
-{
+namespace YetaWF2.Middleware {
     public class YetaWFForwardedHeadersMiddleware
     {
         private static readonly bool[] HostCharValidity = new bool[127];

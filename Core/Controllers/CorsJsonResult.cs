@@ -1,8 +1,8 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-using YetaWF.Core.Support;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Controllers {
 

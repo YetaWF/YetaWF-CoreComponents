@@ -28,7 +28,7 @@ namespace YetaWF.Core.Components {
         /// </remarks>
         public static async Task<List<SelectionItem<string>>> ReadProvincesListAsync() {
             if (_provincesList == null) {
-                Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;// Core package
+                Package package = YetaWF.Core.AreaRegistration.CurrentPackage;// Core package
                 string url = VersionManager.GetAddOnTemplateUrl(package.AreaName, "CAProvince");
                 string path = Utility.UrlToPhysical(url);
                 string file = Path.Combine(path, "CAProvinces.txt");

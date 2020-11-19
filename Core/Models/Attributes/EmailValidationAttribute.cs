@@ -3,9 +3,9 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Support;
-using System.Text.RegularExpressions;
 
 namespace YetaWF.Core.Models.Attributes {
 

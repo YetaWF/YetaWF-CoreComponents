@@ -2,7 +2,7 @@
 
 using YetaWF.Core.Packages;
 
-namespace YetaWF.Core.Controllers {
+namespace YetaWF.Core {
     /// <summary>
     /// MVC area registration class.
     /// </summary>
@@ -20,12 +20,9 @@ namespace YetaWF.Core.Controllers {
     /// </remarks>
     public class AreaRegistration : YetaWF.Core.Controllers.AreaRegistrationBase {
         /// <summary>
-        /// Constructor.
-        /// </summary>
-        public AreaRegistration() : base() { CurrentPackage = this.GetCurrentPackage(); }
-        /// <summary>
         /// Defines the current package, used by applications that need access to the YetaWF.Core.Packages.Package instance.
         /// </summary>
-        public static Package CurrentPackage = null!;
+        public static Package CurrentPackage { get { return _CachedCurrentPackage ??= (_CachedCurrentPackage = Package.GetPackageFromAssembly(typeof(AreaRegistration).Assembly)); } }
+        private static Package? _CachedCurrentPackage;
     }
 }

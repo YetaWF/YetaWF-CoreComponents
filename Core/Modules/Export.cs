@@ -69,7 +69,7 @@ namespace YetaWF.Core.Modules {
             serModule = new SerializableModule();
             serModule.ModuleName = this.ModuleDisplayName;
             serModule.ModuleVersion = this.Version;
-            serModule.CoreVersion = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Version;
+            serModule.CoreVersion = YetaWF.Core.AreaRegistration.CurrentPackage.Version;
 
             return new YetaWFZipFile {
                 FileName = zipName,

@@ -110,7 +110,7 @@ namespace YetaWF.Core.Packages {
             serPackage = new SerializablePackage();
             serPackage.PackageName = this.Name;
             serPackage.PackageVersion = this.Version;
-            serPackage.CoreVersion = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Version;
+            serPackage.CoreVersion = YetaWF.Core.AreaRegistration.CurrentPackage.Version;
             serPackage.AspNetMvcVersion = this.AspNetMvc;
 
             return new YetaWFZipFile {

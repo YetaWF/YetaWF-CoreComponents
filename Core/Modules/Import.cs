@@ -52,8 +52,8 @@ namespace YetaWF.Core.Modules {
                 }
                 await FileSystem.TempFileSystemProvider.DeleteFileAsync(jsonFile);
 
-                if (Package.CompareVersion(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Version, serModule.CoreVersion) < 0) {
-                    errorList.Add(__ResStr("invCore", "This module requires YetaWF version {0} - Current version found is {1}", serModule.CoreVersion, YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.Version));
+                if (Package.CompareVersion(YetaWF.Core.AreaRegistration.CurrentPackage.Version, serModule.CoreVersion) < 0) {
+                    errorList.Add(__ResStr("invCore", "This module requires YetaWF version {0} - Current version found is {1}", serModule.CoreVersion, YetaWF.Core.AreaRegistration.CurrentPackage.Version));
                     return false;
                 }
 

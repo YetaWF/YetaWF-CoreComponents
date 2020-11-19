@@ -32,7 +32,7 @@ namespace YetaWF.Core.Components {
             public long MenuVersion { get; set; }
         }
         private static string GetCacheName(Guid moduleGuid) {
-            Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
+            Package package = YetaWF.Core.AreaRegistration.CurrentPackage;
             return string.Format("{0}_MenuCache_{1}_{2}", package.AreaName, Manager.CurrentSite.Identity, moduleGuid);
         }
         public static SavedCacheInfo? GetCache(Guid moduleGuid) {
@@ -49,7 +49,7 @@ namespace YetaWF.Core.Components {
             session.Save();
         }
         public static void ClearCachedMenus() {
-            Package package = YetaWF.Core.Controllers.AreaRegistration.CurrentPackage;
+            Package package = YetaWF.Core.AreaRegistration.CurrentPackage;
             string prefix = string.Format("{0}_MenuCache_{1}_", package.AreaName, Manager.CurrentSite.Identity);
             List<string> keys = new List<string>();
             foreach (string name in Manager.CurrentSession.Keys) {

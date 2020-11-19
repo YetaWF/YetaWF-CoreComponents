@@ -244,7 +244,7 @@ namespace YetaWF.Core.Site {
         public PageSecurityType EvaluatedPageSecurity {
             get {
                 if (_PageSecurityHaveOverride == null) {
-                    PageSecurityType pageSec = WebConfigHelper.GetValue<PageSecurityType>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, nameof(PageSecurity));
+                    PageSecurityType pageSec = WebConfigHelper.GetValue<PageSecurityType>(YetaWF.Core.AreaRegistration.CurrentPackage.AreaName, nameof(PageSecurity));
                     _PageSecurityOverride = pageSec;
                     _PageSecurityHaveOverride = (pageSec != PageSecurityType.AsProvided); // only allow override if != AsProvided
                 }
@@ -460,7 +460,7 @@ namespace YetaWF.Core.Site {
 
         public static bool GetDEBUGMODE() {
             if (debugMode == null) {
-                debugMode = WebConfigHelper.GetValue<bool>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, "DEBUG-MODE");
+                debugMode = WebConfigHelper.GetValue<bool>(YetaWF.Core.AreaRegistration.CurrentPackage.AreaName, "DEBUG-MODE");
             }
             return (bool)debugMode;
         }

@@ -1,11 +1,11 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using YetaWF.Core.Support;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace YetaWF.Core.Models.Attributes {
 

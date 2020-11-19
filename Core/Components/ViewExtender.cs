@@ -1,11 +1,11 @@
 ﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
-using System.Threading.Tasks;
-using YetaWF.Core.Support;
 using System.Reflection;
-using YetaWF.Core.Modules;
+using System.Threading.Tasks;
 using YetaWF.Core.Extensions;
+using YetaWF.Core.Modules;
+using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Components {
 

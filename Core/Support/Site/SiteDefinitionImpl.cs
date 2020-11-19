@@ -393,7 +393,7 @@ namespace YetaWF.Core.Site {
         public static bool INITIAL_INSTALL {
             get {
                 if (_initial_install == null) {
-                    _initial_install = WebConfigHelper.GetValue<bool>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, "INITIAL-INSTALL");
+                    _initial_install = WebConfigHelper.GetValue<bool>(YetaWF.Core.AreaRegistration.CurrentPackage.AreaName, "INITIAL-INSTALL");
                 }
                 return (bool)_initial_install;
             }
@@ -406,7 +406,7 @@ namespace YetaWF.Core.Site {
         /// Some data providers are still marked as not installed until the site is restarted.
         /// </remarks>
         public static async Task RemoveInitialInstallAsync() {
-            WebConfigHelper.SetValue<string>(YetaWF.Core.Controllers.AreaRegistration.CurrentPackage.AreaName, "INITIAL-INSTALL", "0");
+            WebConfigHelper.SetValue<string>(YetaWF.Core.AreaRegistration.CurrentPackage.AreaName, "INITIAL-INSTALL", "0");
             await WebConfigHelper.SaveAsync();
             _initial_install_ended = true;
         }
