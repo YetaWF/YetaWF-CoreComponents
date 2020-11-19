@@ -224,17 +224,6 @@ namespace YetaWF.Core.Pages {
             return pageGuid.ToString();
         }
 
-        // FIND
-        // FIND
-        // FIND
-
-        // Returns the user defined Url (Url property) or if none has been defined, a system generated Url.
-        public string PageUrl { //$$$$$ REMOVE
-            get {
-                return Url;
-            }
-        }
-
         public string? CanonicalUrlLink {
             get {
                 return EvaluatedCanonicalUrl != null ? string.Format("<link rel=\"canonical\" href=\"{0}\">", EvaluatedCanonicalUrl) : null;

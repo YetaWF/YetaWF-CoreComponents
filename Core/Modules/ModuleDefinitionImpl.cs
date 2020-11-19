@@ -423,14 +423,6 @@ namespace YetaWF.Core.Modules {
         }
         public static string BaseFolderName { get { return "YetaWF_Modules"; } }
 
-        [Category("Variables"), Description("The Url of the module's addon folder"), Caption("AddOn Folder")]
-        [UIHint("String"), ReadOnly]
-        public string AddOnModuleUrl { //$$$$ remove, not used
-            get {
-                return VersionManager.TryGetAddOnPackageUrl(AreaName);
-            }
-        }
-
         // ACTIONS
         // ACTIONS
         // ACTIONS
