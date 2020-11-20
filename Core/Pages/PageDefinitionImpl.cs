@@ -569,6 +569,7 @@ namespace YetaWF.Core.Pages {
                     return;
                 }
 
+                paneHtml = PageViewResult.ProcessInlineScripts(paneHtml);
                 PageProcessing pageProc = new PageProcessing(Manager);
                 paneHtml = pageProc.PostProcessContentHtml(paneHtml);
                 if (!string.IsNullOrWhiteSpace(paneHtml)) {
