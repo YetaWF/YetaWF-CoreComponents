@@ -169,7 +169,7 @@ namespace YetaWF.Core.DataProvider {
     /// <typeparam name="KEYTYPE">The type of the primary key property.</typeparam>
     /// <typeparam name="KEY2TYPE">The type of the second primary key property. If only one key is used, specify "object".</typeparam>
     /// <typeparam name="OBJTYPE">The type of the object (one record) in the dataset.</typeparam>
-    public interface IDataProviderIdentity<KEYTYPE, KEY2TYPE, OBJTYPE> {
+    public interface IDataProviderIdentity<KEYTYPE, KEY2TYPE, OBJTYPE> where KEYTYPE : notnull where OBJTYPE : notnull {
 
         /// <summary>
         /// Starts a transaction that can be committed, saving all updates, or aborted to abandon all updates.
@@ -186,13 +186,13 @@ namespace YetaWF.Core.DataProvider {
         void AbortTransaction();
 
         Task<bool> AddAsync(OBJTYPE obj); // returns false if key already exists
-        Task<UpdateStatusEnum> UpdateAsync(KEYTYPE origKey, KEY2TYPE origKey2, KEYTYPE newKey, KEY2TYPE newKey2, OBJTYPE obj);
+        Task<UpdateStatusEnum> UpdateAsync(KEYTYPE origKey, KEY2TYPE? origKey2, KEYTYPE newKey, KEY2TYPE? newKey2, OBJTYPE obj);
         Task<UpdateStatusEnum> UpdateByIdentityAsync(int id, OBJTYPE obj);
-        Task<bool> RemoveAsync(KEYTYPE key, KEY2TYPE key2);// returns false if not found
+        Task<bool> RemoveAsync(KEYTYPE key, KEY2TYPE? key2);// returns false if not found
         Task<bool> RemoveByIdentityAsync(int id);// returns false if not found
         Task<int> RemoveRecordsAsync(List<DataProviderFilterInfo>? filters); // returns # of records removed
 
-        Task<OBJTYPE?> GetAsync(KEYTYPE key, KEY2TYPE key2); // returns null if not found
+        Task<OBJTYPE?> GetAsync(KEYTYPE key, KEY2TYPE? key2); // returns null if not found
         Task<OBJTYPE?> GetByIdentityAsync(int id); // returns null if not found
         Task<OBJTYPE?> GetOneRecordAsync(List<DataProviderFilterInfo>? filters, List<JoinData>? Joins = null); // returns null if not found
         Task<DataProviderGetRecords<OBJTYPE>> GetRecordsAsync(int skip, int take, List<DataProviderSortInfo>? sort, List<DataProviderFilterInfo>? filters, List<JoinData>? Joins = null);
