@@ -38,6 +38,9 @@ var YetaWF;
                 js.type = "text/javascript";
                 js.async = false; // need to preserve execution order
                 js.src = urlEntry.Url;
+                // eslint-disable-next-line guard-for-in
+                for (var attr in urlEntry.Attributes)
+                    $YetaWF.setAttribute(js, attr, urlEntry.Attributes[attr]);
                 js.setAttribute("data-name", name);
                 js.onload = js.onerror = js["onreadystatechange"] = function (ev) {
                     if ((js["readyState"] && !(/^c|loade/.test(js["readyState"]))) || loaded)

@@ -136,6 +136,7 @@ namespace YetaWF.Core.Pages {
             public bool Last { get; set; } // after all addons
             public bool Async { get; set; }
             public bool Defer { get; set; }
+            public object? HtmlAttributes { get; set; }
         }
         private readonly List<string> _ScriptFiles = new List<string>(); // already processed script files (not necessarily added to page yet)
         private readonly List<ScriptEntry> _Scripts = new List<ScriptEntry>(); // all scripts to be added to page
@@ -290,9 +291,9 @@ namespace YetaWF.Core.Pages {
         /// <summary>
         /// Adds a JavaScript file explicitly. This is rarely used because JavaScript files are automatically added for modules, templates, etc.
         /// </summary>
-        public async Task AddScriptAsync(string areaName, string relativePath, int dummy = 0, bool Minify = true, bool Bundle = true, bool Async = false, bool Defer = false) {
+        public async Task AddScriptAsync(string areaName, string relativePath, int dummy = 0, bool Minify = true, bool Bundle = true, bool Async = false, bool Defer = false, object? HtmlAttributes = null) {
             VersionManager.AddOnProduct addon = VersionManager.FindPackageVersion(areaName);
-            await AddAsync(addon.GetAddOnJsUrl() + relativePath, Minify, Bundle, false, false, false);
+            await AddAsync(addon.GetAddOnJsUrl() + relativePath, Minify, Bundle, false, false, false, HtmlAttributes);
         }
         /// <summary>
         /// Adds a JavaScript file explicitly. This is rarely used because JavaScript files are automatically added for modules, templates, etc.
@@ -304,7 +305,7 @@ namespace YetaWF.Core.Pages {
         /// <param name="async">Defines whether async is added to the &lt;script&gt; tag.</param>
         /// <param name="defer">Defines whether defer is added to the &lt;script&gt; tag.</param>
         /// <returns></returns>
-        public async Task<bool> AddAsync(string fullUrl, bool minify = true, bool bundle = true, bool last = false, bool async = false, bool defer = false) {
+        public async Task<bool> AddAsync(string fullUrl, bool minify = true, bool bundle = true, bool last = false, bool async = false, bool defer = false, object? HtmlAttributes = null) {
             string key = fullUrl.ToLower();
 
             if (fullUrl.IsAbsoluteUrl()) {
@@ -349,7 +350,7 @@ namespace YetaWF.Core.Pages {
                     }
                 }
                 _ScriptFiles.Add(key);
-                _Scripts.Add(new Pages.ScriptManager.ScriptEntry { Url = fullUrl, Bundle = bundle, Last = last, Async = async, Defer = defer });
+                _Scripts.Add(new Pages.ScriptManager.ScriptEntry { Url = fullUrl, Bundle = bundle, Last = last, Async = async, Defer = defer, HtmlAttributes = HtmlAttributes });
             }
             return true;
         }
@@ -693,16 +694,17 @@ namespace YetaWF.Core.Pages {
                 string url = entry.Url;
                 url = Manager.GetCDNUrl(url);
                 if (cr == null) {
-                    string opts = "";
-                    opts += entry.Async ? " async" : "";
-                    opts += entry.Defer ? " defer" : "";
-                    hb.Append(string.Format("<script data-name='{0}' src='{1}'{2}></script>",
-                        Utility.UrlEncodePath(entry.Url), Utility.UrlEncodePath(url), opts));
+                    string async = entry.Async ? " async" : string.Empty;
+                    string defer = entry.Defer ? " defer" : string.Empty;
+                    IDictionary<string, object?> attrs = YHtmlHelper.AnonymousObjectToHtmlAttributes(entry.HtmlAttributes);
+                    string attr = YHtmlHelper.HtmlAttributesToString(attrs);
+                    hb.Append($"<script data-name='{Utility.UrlEncodePath(entry.Url)}' src='{Utility.UrlEncodePath(url)}'{async}{defer}{attr}></script>");
                 } else {
                     if (KnownScripts == null || !KnownScripts.Contains(entry.Url)) {
                         cr.ScriptFiles.Add(new Controllers.PageContentController.UrlEntry {
                             Name = entry.Url,
                             Url = url,
+                            Attributes = YHtmlHelper.AnonymousObjectToHtmlAttributes(entry.HtmlAttributes),
                         });
                         if (entry.Bundle) {
                             string file = Utility.UrlToPhysical(entry.Url);

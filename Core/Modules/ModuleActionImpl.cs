@@ -117,7 +117,7 @@ namespace YetaWF.Core.Modules {
                 url = query.ToUrl(urlOnly);
 
                 // schema and anchor
-                if (url.StartsWith("/")) {
+                if (url.StartsWith("/") && !url.StartsWith("//")) {
                     url = Manager.CurrentSite.MakeUrl(url, PagePageSecurity: PageSecurity);
                     if (OnPage && PageSecurity == PageDefinition.PageSecurityType.Any)
                         url = url.Split(new char[] { ':' }, 2)[1];// remove http: or https:

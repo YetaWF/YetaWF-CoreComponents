@@ -135,6 +135,10 @@ namespace YetaWF.Core.Controllers {
         internal class UrlEntry {
             public string Name { get; set; } = null!;
             public string Url { get; set; } = null!;
+            /// <summary>
+            /// Dictionary of HTML attributes. Only used for external scripts.
+            /// </summary>
+            public IDictionary<string, object?> Attributes { get; set; } = null!;
         }
 
         /// <summary>

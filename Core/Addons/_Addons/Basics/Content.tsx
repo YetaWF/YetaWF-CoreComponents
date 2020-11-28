@@ -64,6 +64,7 @@ namespace YetaWF {
     export interface UrlEntry {
         Name: string;
         Url: string;
+        Attributes: object;
     }
     export interface AddonDescription {
         AreaName: string;
@@ -110,6 +111,9 @@ namespace YetaWF {
                 js.type = "text/javascript";
                 js.async = false; // need to preserve execution order
                 js.src = urlEntry.Url;
+                // eslint-disable-next-line guard-for-in
+                for (let attr in urlEntry.Attributes)
+                    $YetaWF.setAttribute(js, attr, urlEntry.Attributes[attr]);
                 js.setAttribute("data-name", name);
                 js.onload = js.onerror = js["onreadystatechange"] = (ev: any) : void => {
                     if ((js["readyState"] && !(/^c|loade/.test(js["readyState"]))) || loaded) return;

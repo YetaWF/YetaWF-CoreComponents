@@ -172,7 +172,7 @@ namespace YetaWF.Core.Components {
             } else {
                 FieldName = fieldName;
             }
-            HtmlAttributes = htmlAttributes != null ? YHtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes) : new Dictionary<string, object?>();
+            HtmlAttributes = YHtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes);
             Validation = validation;
         }
 
@@ -321,7 +321,7 @@ namespace YetaWF.Core.Components {
         /// </summary>
         /// <param name="text">The string to encode.</param>
         /// <returns>Returns an encoded HTML attribute data value.</returns>
-        public static string HAE(string text) {
+        public static string HAE(string? text) {
             return Utility.HtmlAttributeEncode(text);
         }
         /// <summary>
@@ -329,7 +329,7 @@ namespace YetaWF.Core.Components {
         /// </summary>
         /// <param name="text">The string to encode.</param>
         /// <returns>Returns encoded HTML.</returns>
-        public static string HE(string text) {
+        public static string HE(string? text) {
             return Utility.HtmlEncode(text);
         }
         /// <summary>
@@ -340,7 +340,7 @@ namespace YetaWF.Core.Components {
         /// The string to encode should not use surrounding quotes.
         /// These must be added after encoding.
         /// </returns>
-        public static string JE(string text) {
+        public static string JE(string? text) {
             return Utility.JserEncode(text);
         }
         /// <summary>

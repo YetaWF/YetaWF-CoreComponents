@@ -35,10 +35,24 @@ namespace YetaWF.Core.Support {
         /// This is intended for use with HTML attributes that may use different containers (an anonymous object, a RouteValueDictionary or a Dictionary&lt;string, object&gt; object).
         ///
         /// If an anonymous object is used, underscore characters (_) are replaced with hyphens (-) in the keys of the specified HTML attributes.</remarks>
-        public static IDictionary<string, object?> AnonymousObjectToHtmlAttributes(object htmlAttributes) {
+        public static IDictionary<string, object?> AnonymousObjectToHtmlAttributes(object? htmlAttributes) {
+            if (htmlAttributes == null) return new Dictionary<string, object?>();
             if (htmlAttributes as RouteValueDictionary != null) return (RouteValueDictionary)htmlAttributes;
             if (htmlAttributes as Dictionary<string, object> != null) return (Dictionary<string, object?>)htmlAttributes;
             return Microsoft.AspNetCore.Mvc.ViewFeatures.HtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes);
+        }
+
+        /// <summary>
+        /// Converts a dictionary of HTML attributes to a string.
+        /// </summary>
+        /// <param name="dict">The dictionary of HTML attributes.</param>
+        /// <returns>Any keys containing "_" are replaced with "-".</returns>
+        public static string HtmlAttributesToString(IDictionary<string, object?> dict) {
+            HtmlBuilder hb = new HtmlBuilder();
+            foreach(string key in dict.Keys) {
+                hb.Append($" {key.Replace("_", "-")}={Utility.HtmlAttributeEncode((string?)dict[key])}");
+            }
+            return hb.ToString();
         }
     }
     /// <summary>
