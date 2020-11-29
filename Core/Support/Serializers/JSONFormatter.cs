@@ -44,6 +44,7 @@ namespace YetaWF.Core.Serializers {
             }
         }
 
+        // TODO: Async
         public void Serialize(FileStream fs, object? obj, bool typed = false) {
             byte[] btes = Serialize(obj, typed);
             fs.Write(btes, 0, btes.Length);

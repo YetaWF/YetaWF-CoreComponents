@@ -22,6 +22,7 @@ namespace YetaWF.Core.Serializers {
 
     public static class StreamExtender {
 
+        // TODO: Async
         public static void Write(this Stream stream, string? text, params object[]? parms) {
             if (text == null) {
                 int len = -1;

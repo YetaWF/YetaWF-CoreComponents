@@ -660,7 +660,7 @@ namespace YetaWF.Core.Controllers {
                     if (!string.IsNullOrWhiteSpace(data)) {
                         byte[] buffer = System.Text.Encoding.ASCII.GetBytes(data.ToString());
                         Stream body = context.HttpContext.Response.Body;
-                        body.Write(buffer, 0, buffer.Length);
+                        await body.WriteAsync(buffer, 0, buffer.Length);
                     }
                 }
             }
