@@ -99,6 +99,10 @@ namespace YetaWF {
          */
         message(message: string, title?: string, onOK?: () => void, options?: MessageOptions): void;
         /**
+         * Displays an warning message, usually in a popup.
+         */
+        warning(message: string, title?: string, onOK?: () => void, options?: MessageOptions): void;
+        /**
          * Displays an error message, usually in a popup.
          */
         error(message: string, title?: string, onOK?: () => void, options?: MessageOptions): void;
@@ -177,6 +181,10 @@ namespace YetaWF {
          * Displays an informational message, usually in a popup.
          */
         public message(message: string, title?: string, onOK?: () => void, options?: MessageOptions): void { YetaWF_BasicsImpl.message(message, title, onOK, options); }
+        /**
+         * Displays an error message, usually in a popup.
+         */
+        public warning(message: string, title?: string, onOK?: () => void, options?: MessageOptions): void { YetaWF_BasicsImpl.warning(message, title, onOK, options); }
         /**
          * Displays an error message, usually in a popup.
          */

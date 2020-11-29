@@ -68,6 +68,10 @@ var YetaWF;
         /**
          * Displays an error message, usually in a popup.
          */
+        BasicsServices.prototype.warning = function (message, title, onOK, options) { YetaWF_BasicsImpl.warning(message, title, onOK, options); };
+        /**
+         * Displays an error message, usually in a popup.
+         */
         BasicsServices.prototype.error = function (message, title, onOK, options) { YetaWF_BasicsImpl.error(message, title, onOK, options); };
         /**
          * Displays a confirmation message, usually in a popup.
