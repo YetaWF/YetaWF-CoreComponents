@@ -724,7 +724,7 @@ namespace YetaWF.Core.Controllers {
                 popupText = Utility.JsonSerialize(popupText);
                 popupTitle = Utility.JsonSerialize(popupTitle ?? __ResStr("completeTitle", "Success"));
                 sb.Append(Basics.AjaxJavascriptReturn);
-                sb.Append("$YetaWF.alert({0}, {1}, function() {{ $YetaWF.reloadModule(); }});", popupText, popupTitle);
+                sb.Append("$YetaWF.message({0}, {1}, function() {{ $YetaWF.reloadModule(); }});", popupText, popupTitle);
                 return new YJsonResult { Data = sb.ToString() };
             }
         }
@@ -738,7 +738,7 @@ namespace YetaWF.Core.Controllers {
                 popupText = Utility.JsonSerialize(popupText);
                 popupTitle = Utility.JsonSerialize(popupTitle ?? __ResStr("completeTitle", "Success"));
                 sb.Append(Basics.AjaxJavascriptReloadModuleParts);
-                sb.Append("$YetaWF.alert({0}, {1});", popupText, popupTitle);
+                sb.Append("$YetaWF.message({0}, {1});", popupText, popupTitle);
                 return new YJsonResult { Data = sb.ToString() };
             }
         }
@@ -928,7 +928,7 @@ namespace YetaWF.Core.Controllers {
                         } else {
                             sb.Append($@"
 {(ForcePopup ? "YVolatile.Basics.ForcePopup = true;" : null)}
-$YetaWF.alert({popupText}, {popupTitle}, function() {{ $YetaWF.setLoading(); window.parent.location.assign({url}); }}, {PopupOptions});");
+$YetaWF.message({popupText}, {popupTitle}, function() {{ $YetaWF.setLoading(); window.parent.location.assign({url}); }}, {PopupOptions});");
                         }
                     } else if (string.IsNullOrWhiteSpace(popupText)) {
                         sb.Append($@"
@@ -941,7 +941,7 @@ if (window.parent.$YetaWF.ContentHandling.setContent($YetaWF.parseUrl({url}), tr
                     } else {
                         sb.Append($@"
 {(ForcePopup ? "YVolatile.Basics.ForcePopup = true;" : null)}
-$YetaWF.alert({popupText}, {popupTitle}, function() {{
+$YetaWF.message({popupText}, {popupTitle}, function() {{
     $YetaWF.setLoading();
     if (window.parent.$YetaWF.ContentHandling.setContent($YetaWF.parseUrl({url}), true, null, null, function (res) {{ {PostSaveJavaScript} }})) {{
 
@@ -954,7 +954,7 @@ $YetaWF.alert({popupText}, {popupTitle}, function() {{
                         if (isApply) {
                             sb.Append($@"
 {(ForcePopup ? "YVolatile.Basics.ForcePopup = true;" : null)}
-$YetaWF.alert({popupText}, {popupTitle}, function() {{ $YetaWF.setLoading(); window.location.reload(true); }}, {PopupOptions});");
+$YetaWF.message({popupText}, {popupTitle}, function() {{ $YetaWF.setLoading(); window.location.reload(true); }}, {PopupOptions});");
                         } else {
                             if (string.IsNullOrWhiteSpace(popupText)) {
                                 sb.Append($@"
@@ -962,7 +962,7 @@ $YetaWF.setLoading();window.location.assign({url});");
                             } else {
                                 sb.Append($@"
 {(ForcePopup ? "YVolatile.Basics.ForcePopup = true;" : null)}
-$YetaWF.alert({popupText}, {popupTitle}, function() {{ $YetaWF.setLoading(); window.location.assign({url}); }}, {PopupOptions});");
+$YetaWF.message({popupText}, {popupTitle}, function() {{ $YetaWF.setLoading(); window.location.assign({url}); }}, {PopupOptions});");
                             }
                         }
                     } else if (string.IsNullOrWhiteSpace(popupText)) {
@@ -975,7 +975,7 @@ if ($YetaWF.ContentHandling.setContent($YetaWF.parseUrl({url}), true, null, null
                     } else {
                         sb.Append($@"
 {(ForcePopup ? "YVolatile.Basics.ForcePopup = true;" : null)}
-$YetaWF.alert({popupText}, {popupTitle}, function() {{
+$YetaWF.message({popupText}, {popupTitle}, function() {{
     $YetaWF.setLoading();
     if ($YetaWF.ContentHandling.setContent($YetaWF.parseUrl({url}), true, null, null, function (res) {{ {PostSaveJavaScript} }})) {{
 
@@ -1017,15 +1017,15 @@ $YetaWF.closePopup(false);");
                                 throw new InternalError("No next page");
                             case OnPopupCloseEnum.Nothing:
                                 if (ForcePopup) sb.Append($@"YVolatile.Basics.ForcePopup = true;");
-                                sb.Append($@"$YetaWF.alert({popupText}, {popupTitle}, function() {{ {PostSaveJavaScript} }}, {PopupOptions});");
+                                sb.Append($@"$YetaWF.message({popupText}, {popupTitle}, function() {{ {PostSaveJavaScript} }}, {PopupOptions});");
                                 break;
                             case OnPopupCloseEnum.ReloadNothing:
                                 if (ForcePopup) sb.Append($@"YVolatile.Basics.ForcePopup = true;");
-                                sb.Append($@"$YetaWF.alert({popupText}, {popupTitle}, function() {{ $YetaWF.closePopup(false);{PostSaveJavaScript} }}, {PopupOptions});");
+                                sb.Append($@"$YetaWF.message({popupText}, {popupTitle}, function() {{ $YetaWF.closePopup(false);{PostSaveJavaScript} }}, {PopupOptions});");
                                 break;
                             case OnPopupCloseEnum.ReloadParentPage:
                                 if (ForcePopup) sb.Append($@"YVolatile.Basics.ForcePopup = true;");
-                                sb.Append($@"$YetaWF.alert({popupText}, {popupTitle}, function() {{ $YetaWF.closePopup(true);{PostSaveJavaScript} }}, {PopupOptions});");
+                                sb.Append($@"$YetaWF.message({popupText}, {popupTitle}, function() {{ $YetaWF.closePopup(true);{PostSaveJavaScript} }}, {PopupOptions});");
                                 break;
                             case OnPopupCloseEnum.UpdateInPlace:
                                 isApply = true;
@@ -1033,7 +1033,7 @@ $YetaWF.closePopup(false);");
                             case OnPopupCloseEnum.ReloadModule:
                                 // reload page, which reloads all modules (that are registered)
                                 if (ForcePopup) sb.Append($@"YVolatile.Basics.ForcePopup = true;");
-                                sb.Append($@"$YetaWF.alert({popupText}, {popupTitle}, function() {{ window.parent.$YetaWF.refreshPage(); $YetaWF.closePopup(false); }}, {PopupOptions});");
+                                sb.Append($@"$YetaWF.message({popupText}, {popupTitle}, function() {{ window.parent.$YetaWF.refreshPage(); $YetaWF.closePopup(false); }}, {PopupOptions});");
                                 break;
                             default:
                                 throw new InternalError("Invalid OnPopupClose value {0}", OnPopupClose);
@@ -1046,7 +1046,7 @@ $YetaWF.closePopup(false);");
                         case OnCloseEnum.Nothing:
                             if (!string.IsNullOrWhiteSpace(popupText)) {
                                 if (ForcePopup) sb.Append($@"YVolatile.Basics.ForcePopup = true;");
-                                sb.Append($@"$YetaWF.alert({popupText}, {popupTitle}, function() {{ {PostSaveJavaScript} }}, {PopupOptions});");
+                                sb.Append($@"$YetaWF.message({popupText}, {popupTitle}, function() {{ {PostSaveJavaScript} }}, {PopupOptions});");
                             }
                             if (PageChanged != null)
                                 sb.Append($@"$YetaWF.pageChanged = {((bool)PageChanged ? "true" : "false")} ;");
@@ -1060,7 +1060,7 @@ $YetaWF.closePopup(false);");
                                     sb.Append($@"window.close();{PostSaveJavaScript}");
                                 else {
                                     if (ForcePopup) sb.Append($@"YVolatile.Basics.ForcePopup = true;");
-                                    sb.Append($@"$YetaWF.alert({popupText}, {popupTitle}, function() {{ window.close();{PostSaveJavaScript} }}, {PopupOptions});");
+                                    sb.Append($@"$YetaWF.message({popupText}, {popupTitle}, function() {{ window.close();{PostSaveJavaScript} }}, {PopupOptions});");
                                 }
                             } else {
                                 string url = Utility.JsonSerialize(Manager.ReturnToUrl);
@@ -1073,7 +1073,7 @@ if ($YetaWF.ContentHandling.setContent($YetaWF.parseUrl({url}), true, null, null
                                 } else {
                                     sb.Append($@"
 {(ForcePopup ? "YVolatile.Basics.ForcePopup = true;" : null)}
-$YetaWF.alert({popupText}, {popupTitle}, function() {{
+$YetaWF.message({popupText}, {popupTitle}, function() {{
     if ($YetaWF.ContentHandling.setContent($YetaWF.parseUrl({url}), true, null, null, function (res) {{ {PostSaveJavaScript} }})) {{
 
     }} else
@@ -1087,7 +1087,7 @@ $YetaWF.alert({popupText}, {popupTitle}, function() {{
                                 sb.Append($@"window.close();{PostSaveJavaScript}");
                             else {
                                 if (ForcePopup) sb.Append($@"YVolatile.Basics.ForcePopup = true; ");
-                                sb.Append($@"$YetaWF.alert({popupText}, {popupTitle}, function() {{ window.close();{PostSaveJavaScript} }}, {PopupOptions});");
+                                sb.Append($@"$YetaWF.message({popupText}, {popupTitle}, function() {{ window.close();{PostSaveJavaScript} }}, {PopupOptions});");
                             }
                             break;
                         case OnCloseEnum.ReloadPage:
@@ -1095,7 +1095,7 @@ $YetaWF.alert({popupText}, {popupTitle}, function() {{
                                 sb.Append($@"$YetaWF.reloadPage(true);");
                             else {
                                 if (ForcePopup) sb.Append($@"YVolatile.Basics.ForcePopup = true; ");
-                                sb.Append($@"$YetaWF.alert({popupText}, {popupTitle}, function() {{ $YetaWF.reloadPage(true);{PostSaveJavaScript} }}, {PopupOptions});");
+                                sb.Append($@"$YetaWF.message({popupText}, {popupTitle}, function() {{ $YetaWF.reloadPage(true);{PostSaveJavaScript} }}, {PopupOptions});");
                             }
                             break;
                         default:
@@ -1108,12 +1108,12 @@ $YetaWF.alert({popupText}, {popupTitle}, function() {{
                             sb.Append($@"$YetaWF.reloadPage(true);{PostSaveJavaScript}");
                         else {
                             if (ForcePopup) sb.Append($@"YVolatile.Basics.ForcePopup = true; ");
-                            sb.Append($@"$YetaWF.alert({popupText}, {popupTitle}, function() {{ $YetaWF.reloadPage(true);{PostSaveJavaScript} }}, {PopupOptions});");
+                            sb.Append($@"$YetaWF.message({popupText}, {popupTitle}, function() {{ $YetaWF.reloadPage(true);{PostSaveJavaScript} }}, {PopupOptions});");
                         }
                     } else {
                         if (!string.IsNullOrWhiteSpace(popupText)) {
                             if (ForcePopup) sb.Append($@"YVolatile.Basics.ForcePopup = true; ");
-                            sb.Append($@"$YetaWF.alert({popupText}, {popupTitle}, function() {{ {PostSaveJavaScript} }}, {PopupOptions});");
+                            sb.Append($@"$YetaWF.message({popupText}, {popupTitle}, function() {{ {PostSaveJavaScript} }}, {PopupOptions});");
                         } else
                             sb.Append(PostSaveJavaScript);
                         return PartialView(model, sb);

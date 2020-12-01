@@ -62,27 +62,23 @@ var YetaWF;
                 this.pleaseWaitClose();
         };
         /**
-         * Displays an informational message, usually in a popup.
+         * Displays an informational message.
          */
         BasicsServices.prototype.message = function (message, title, onOK, options) { YetaWF_BasicsImpl.message(message, title, onOK, options); };
         /**
-         * Displays an error message, usually in a popup.
+         * Displays an error message.
          */
         BasicsServices.prototype.warning = function (message, title, onOK, options) { YetaWF_BasicsImpl.warning(message, title, onOK, options); };
         /**
-         * Displays an error message, usually in a popup.
+         * Displays an error message.
          */
         BasicsServices.prototype.error = function (message, title, onOK, options) { YetaWF_BasicsImpl.error(message, title, onOK, options); };
         /**
-         * Displays a confirmation message, usually in a popup.
+         * Displays a confirmation message.
          */
         BasicsServices.prototype.confirm = function (message, title, onOK, options) { YetaWF_BasicsImpl.confirm(message, title, onOK, options); };
         /**
-         * Displays an alert message, usually in a popup.
-         */
-        BasicsServices.prototype.alert = function (message, title, onOK, options) { YetaWF_BasicsImpl.alert(message, title, onOK, options); };
-        /**
-         * Displays an alert message with Yes/No buttons, usually in a popup.
+         * Displays an alert message with Yes/No buttons.
          */
         BasicsServices.prototype.alertYesNo = function (message, title, onYes, onNo, options) { YetaWF_BasicsImpl.alertYesNo(message, title, onYes, onNo, options); };
         /**
@@ -526,14 +522,14 @@ var YetaWF;
                 else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadPage)) {
                     var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadPage.length);
                     // eslint-disable-next-line no-eval
-                    eval(script); // if this uses $YetaWF.alert or other "modal" calls, the page will reload immediately (use AjaxJavascriptReturn instead and explicitly reload page in your javascript)
+                    eval(script); // if this uses $YetaWF.message or other "modal" calls, the page will reload immediately (use AjaxJavascriptReturn instead and explicitly reload page in your javascript)
                     this.reloadPage(true);
                     return true;
                 }
                 else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModule)) {
                     var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModule.length);
                     // eslint-disable-next-line no-eval
-                    eval(script); // if this uses $YetaWF.alert or other "modal" calls, the module will reload immediately (use AjaxJavascriptReturn instead and explicitly reload module in your javascript)
+                    eval(script); // if this uses $YetaWF.message or other "modal" calls, the module will reload immediately (use AjaxJavascriptReturn instead and explicitly reload module in your javascript)
                     this.reloadModule();
                     return true;
                 }

@@ -95,27 +95,23 @@ namespace YetaWF {
         setLoading(on?: boolean): void;
 
         /**
-         * Displays an informational message, usually in a popup.
+         * Displays an informational message.
          */
         message(message: string, title?: string, onOK?: () => void, options?: MessageOptions): void;
         /**
-         * Displays an warning message, usually in a popup.
+         * Displays an warning message.
          */
         warning(message: string, title?: string, onOK?: () => void, options?: MessageOptions): void;
         /**
-         * Displays an error message, usually in a popup.
+         * Displays an error message.
          */
         error(message: string, title?: string, onOK?: () => void, options?: MessageOptions): void;
         /**
-         * Displays a confirmation message, usually in a popup.
+         * Displays a confirmation message.
          */
         confirm(message: string, title?: string, onOK?: () => void, options?: MessageOptions): void;
         /**
-         * Displays an alert message, usually in a popup.
-         */
-        alert(message: string, title?: string, onOK?: () => void, options?: MessageOptions): void;
-        /**
-         * Displays an alert message, usually in a popup.
+         * Displays an alert message.
          */
         alertYesNo(message: string, title?: string, onYes?: () => void, onNo?: () => void, options?: MessageOptions): void;
         /**
@@ -178,27 +174,23 @@ namespace YetaWF {
         }
 
         /**
-         * Displays an informational message, usually in a popup.
+         * Displays an informational message.
          */
         public message(message: string, title?: string, onOK?: () => void, options?: MessageOptions): void { YetaWF_BasicsImpl.message(message, title, onOK, options); }
         /**
-         * Displays an error message, usually in a popup.
+         * Displays an error message.
          */
         public warning(message: string, title?: string, onOK?: () => void, options?: MessageOptions): void { YetaWF_BasicsImpl.warning(message, title, onOK, options); }
         /**
-         * Displays an error message, usually in a popup.
+         * Displays an error message.
          */
         public error(message: string, title?: string, onOK?: () => void, options?: MessageOptions): void { YetaWF_BasicsImpl.error(message, title, onOK, options); }
         /**
-         * Displays a confirmation message, usually in a popup.
+         * Displays a confirmation message.
          */
         public confirm(message: string, title?: string, onOK?: () => void, options?: MessageOptions): void { YetaWF_BasicsImpl.confirm(message, title, onOK, options); }
         /**
-         * Displays an alert message, usually in a popup.
-         */
-        public alert(message: string, title?: string, onOK?: () => void, options?: MessageOptions): void { YetaWF_BasicsImpl.alert(message, title, onOK, options); }
-        /**
-         * Displays an alert message with Yes/No buttons, usually in a popup.
+         * Displays an alert message with Yes/No buttons.
          */
         public alertYesNo(message: string, title?: string, onYes?: () => void, onNo?: () => void, options?: MessageOptions): void { YetaWF_BasicsImpl.alertYesNo(message, title, onYes, onNo, options); }
         /**
@@ -690,13 +682,13 @@ namespace YetaWF {
                 } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadPage)) {
                     var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadPage.length);
                     // eslint-disable-next-line no-eval
-                    eval(script);// if this uses $YetaWF.alert or other "modal" calls, the page will reload immediately (use AjaxJavascriptReturn instead and explicitly reload page in your javascript)
+                    eval(script);// if this uses $YetaWF.message or other "modal" calls, the page will reload immediately (use AjaxJavascriptReturn instead and explicitly reload page in your javascript)
                     this.reloadPage(true);
                     return true;
                 } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModule)) {
                     var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModule.length);
                     // eslint-disable-next-line no-eval
-                    eval(script);// if this uses $YetaWF.alert or other "modal" calls, the module will reload immediately (use AjaxJavascriptReturn instead and explicitly reload module in your javascript)
+                    eval(script);// if this uses $YetaWF.message or other "modal" calls, the module will reload immediately (use AjaxJavascriptReturn instead and explicitly reload module in your javascript)
                     this.reloadModule();
                     return true;
                 } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModuleParts)) {

@@ -108,7 +108,7 @@ namespace YetaWF.Core.Controllers {
                 popupText = Utility.JsonSerialize(popupText);
                 popupTitle = Utility.JsonSerialize(popupTitle ?? __ResStr("completeTitle", "Success"));
                 sb.Append(Basics.AjaxJavascriptReturn);
-                sb.Append("$YetaWF.alert({0}, {1}, function() {{ $YetaWF.reloadPage(true); }});", popupText, popupTitle);
+                sb.Append("$YetaWF.message({0}, {1}, function() {{ $YetaWF.reloadPage(true); }});", popupText, popupTitle);
                 return new YJsonResult { Data = sb.ToString() };
             }
         }
