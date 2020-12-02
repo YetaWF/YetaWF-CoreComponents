@@ -23,15 +23,27 @@ namespace YetaWF.Core.Pages {
         Task KeywordsForDynamicUrlsAsync(ISearchWords searchWords);
     }
 
+    public interface ISearchPageDynamicUrls {
+        /// <summary>
+        /// Used by Search to extract keywords from dynamically generated pages.
+        /// </summary>
+        Task KeywordsForDynamicUrlsAsync(PageDefinition page, ISearchWords searchWords);
+    }
+
     public delegate Task AddDynamicUrlAsync(PageDefinition page, string url, DateTime? dateUpdated,
         PageDefinition.SiteMapPriorityEnum priority, PageDefinition.ChangeFrequencyEnum changeFrequency, object obj);
 
-    public interface ISiteMapDynamicUrls
-    {
-
+    public interface ISiteMapDynamicUrls {
         /// <summary>
         ///  Used to discover dynamic Urls to build a site map.
         /// </summary>
         Task FindDynamicUrlsAsync(AddDynamicUrlAsync addDynamicUrlAsync, Func<PageDefinition, bool> validForSiteMap);
+    }
+
+    public interface ISiteMapPageDynamicUrls {
+        /// <summary>
+        ///  Used to discover dynamic Urls to build a site map.
+        /// </summary>
+        Task FindDynamicUrlsAsync(PageDefinition page, AddDynamicUrlAsync addDynamicUrlAsync, Func<PageDefinition, bool> validForSiteMap);
     }
 }
