@@ -108,19 +108,19 @@ namespace YetaWF.Core.Scheduler {
         public const int MaxImplementingType = 100;
 
         [Caption("Event"), Description("The event name")]
-        [UIHint("Hidden"), StringLength(MaxName)]
+        [UIHint("Hidden"), StringLength(MaxName), ReadOnly]
         public string Name { get; set; } = null!;
 
         [Caption("Assembly"), Description("The name of the assembly implementing this scheduler event")]
-        [UIHint("Hidden"), StringLength(MaxImplementingAssembly)]
+        [UIHint("Hidden"), StringLength(MaxImplementingAssembly), ReadOnly]
         public string ImplementingAssembly { get; set; } = null!;
 
         [Caption("Type"), Description("The type of the assembly implementing this scheduler event")]
-        [UIHint("Hidden"), StringLength(MaxImplementingType)]
+        [UIHint("Hidden"), StringLength(MaxImplementingType), ReadOnly]
         public string ImplementingType { get; set; } = null!;
 
         [DontSave]// only used for UI purposes
         [Caption("Event Action"), Description("The action this event takes")]
-        public string EventBuiltinDescription { get; set; } = null!;
+        public string? EventBuiltinDescription { get; set; }
     }
 }
