@@ -204,8 +204,8 @@ namespace YetaWF.Core.Modules {
                 if (string.IsNullOrEmpty(_Action)) {
                     string action = ClassName;
                     if (!action.EndsWith(Globals.ModuleClassSuffix)) {
-                        //if (GetType() == typeof(ModuleDefinition)) // don't throw an error for the base class
-                        //    return null;
+                        if (GetType() == typeof(ModuleDefinition)) // don't throw an error for the base class (this happens during model binding before invoking controller action, it's unclear why MVC would retrieve read/only properties)
+                            return string.Empty;
                         throw new InternalError("Module {0} is using an invalid class name - should end in \"...{1}\".", action, Globals.ModuleClassSuffix);
                     }
                     _Action = action.Substring(0, action.Length - Globals.ModuleClassSuffix.Length); // remove trailing Module
