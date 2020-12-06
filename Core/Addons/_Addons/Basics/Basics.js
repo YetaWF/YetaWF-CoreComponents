@@ -28,10 +28,6 @@ var YetaWF;
             // ClearDiv
             this.ClearDivHandlers = [];
             this.DataObjectCache = [];
-            // PAGECHANGE
-            // PAGECHANGE
-            // PAGECHANGE
-            this.PageChangeHandlers = [];
             this._pageChanged = false;
             $YetaWF = this; // set global so we can initialize anchor/content
             this.AnchorHandling = new YetaWF.Anchors();
@@ -1330,23 +1326,6 @@ var YetaWF;
                 container = document.body;
             var details = { container: container };
             this.sendCustomEvent(document.body, BasicsServices.EVENTCONTAINERRESIZE, details);
-        };
-        /**
-         * Register a callback to be called when the current page is going away (about to be replaced by a new page).
-         */
-        BasicsServices.prototype.registerPageChange = function (onceOnly, callback) {
-            this.PageChangeHandlers.push({ callback: callback, onceOnly: onceOnly });
-        };
-        /**
-         * Called to call all registered callbacks when the current page is going away (about to be replaced by a new page).
-         */
-        BasicsServices.prototype.processPageChange = function () {
-            for (var _i = 0, _a = this.PageChangeHandlers; _i < _a.length; _i++) {
-                var entry = _a[_i];
-                entry.callback();
-            }
-            // remove once only entries
-            this.PageChangeHandlers = this.PageChangeHandlers.filter(function (el) { return !el.onceOnly; });
         };
         // Expand/collapse Support
         /**

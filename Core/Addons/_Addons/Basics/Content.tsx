@@ -419,8 +419,6 @@ namespace YetaWF {
                             }
                         }
                     }
-                    // Notify that the page is changing
-                    $YetaWF.processPageChange();
                     // remove prior page css classes
                     if (!inplace) {
                         $YetaWF.elementRemoveClassList(document.body, document.body.getAttribute("data-pagecss"));

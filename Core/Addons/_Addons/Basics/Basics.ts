@@ -46,10 +46,6 @@ namespace YetaWF {
         tagId: string;
         callback(module: HTMLElement): void;
     }
-    interface PageChangeEntry {
-        callback(): void;
-        onceOnly: boolean;
-    }
     interface ClearDivEntry {
         autoRemove: boolean;
         callback?(elem: HTMLElement): boolean;
@@ -1480,29 +1476,6 @@ namespace YetaWF {
             if (!container) container = document.body;
             let details: DetailsEventContainerScroll = { container: container };
             this.sendCustomEvent(document.body, BasicsServices.EVENTCONTAINERRESIZE, details);
-        }
-
-        // PAGECHANGE
-        // PAGECHANGE
-        // PAGECHANGE
-
-        private PageChangeHandlers: PageChangeEntry[] = [];
-
-        /**
-         * Register a callback to be called when the current page is going away (about to be replaced by a new page).
-         */
-        public registerPageChange(onceOnly: boolean, callback: () => void): void {
-            this.PageChangeHandlers.push({ callback: callback, onceOnly: onceOnly });
-        }
-        /**
-         * Called to call all registered callbacks when the current page is going away (about to be replaced by a new page).
-         */
-        public processPageChange(): void {
-            for (var entry of this.PageChangeHandlers) {
-                entry.callback();
-            }
-            // remove once only entries
-            this.PageChangeHandlers = this.PageChangeHandlers.filter((el: PageChangeEntry) : boolean => !el.onceOnly);
         }
 
         // Expand/collapse Support
