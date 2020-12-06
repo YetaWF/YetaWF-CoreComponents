@@ -1252,23 +1252,23 @@ var YetaWF;
             var _this = this;
             document.addEventListener(eventName, function (ev) { return _this.handleEvent(document.body, ev, selector, callback); });
         };
-        BasicsServices.prototype.registerCustomEventHandler = function (control, eventName, selector, callback) {
+        BasicsServices.prototype.registerCustomEventHandler = function (tag, eventName, selector, callback) {
             var _this = this;
-            control.Control.addEventListener(eventName, function (ev) { return _this.handleEvent(control.Control, ev, selector, callback); });
+            tag.addEventListener(eventName, function (ev) { return _this.handleEvent(tag, ev, selector, callback); });
         };
-        BasicsServices.prototype.registerMultipleCustomEventHandlers = function (controls, eventNames, selector, callback) {
+        BasicsServices.prototype.registerMultipleCustomEventHandlers = function (tags, eventNames, selector, callback) {
             var _this = this;
-            var _loop_2 = function (control) {
-                if (control) {
+            var _loop_2 = function (tag) {
+                if (tag) {
                     for (var _i = 0, eventNames_5 = eventNames; _i < eventNames_5.length; _i++) {
                         var eventName = eventNames_5[_i];
-                        control.Control.addEventListener(eventName, function (ev) { return _this.handleEvent(control.Control, ev, selector, callback); });
+                        tag.addEventListener(eventName, function (ev) { return _this.handleEvent(tag, ev, selector, callback); });
                     }
                 }
             };
-            for (var _i = 0, controls_1 = controls; _i < controls_1.length; _i++) {
-                var control = controls_1[_i];
-                _loop_2(control);
+            for (var _i = 0, tags_4 = tags; _i < tags_4.length; _i++) {
+                var tag = tags_4[_i];
+                _loop_2(tag);
             }
         };
         BasicsServices.prototype.handleEvent = function (listening, ev, selector, callback) {

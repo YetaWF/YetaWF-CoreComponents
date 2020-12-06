@@ -18,32 +18,12 @@ var YetaWF;
     })(PanelAction = YetaWF.PanelAction || (YetaWF.PanelAction = {}));
     var Forms = /** @class */ (function () {
         function Forms() {
-            // Partial Form
             // Submit
             this.DATACLASS = "yetawf_forms_data"; // add divs with this class to form for any data that needs to be submitted (will be removed before calling (pre)submit handlers.
-            // Pre/post submit
-            // When a form is about to be submitted, all the functions in YPreSubmitHandler are called one by one
-            // This is used to add control-specific data to the data submitted by the form
-            // Usage:
-            // $YetaWF.Forms.addPreSubmitHandler(@Manager.InPartialForm ? 1 : 0, {
-            //   form: form,                // form <div> to be processed
-            //   callback: function() {}    // function to be called - the callback returns extra data appended to the submit url
-            //   userdata: callback-data,   // any data suitable to callback
-            // });
-            this.preSubmitHandlerAll = []; // done every time before submit (never cleared) - used on main forms
-            this.preSubmitHandler1 = []; // done once before submit, then cleared - used in partial forms
-            // When a form has been successfully submitted, all the functions in YPostSubmitHandler are called one by one
-            // Usage:
-            // $YetaWF.Forms.addPostSubmitHandler(@Manager.InPartialForm ? 1 : 0, {
-            //   form: form,                // form <div> to be processed - may be null
-            //   callback: function() {}    // function to be called
-            //   userdata: callback-data,   // any data suitable to callback
-            // });
-            this.YPostSubmitHandlerAll = []; // done every time after submit (never cleared) - used on main forms
-            this.YPostSubmitHandler1 = []; // done once after submit, then cleared - used in partial forms
             this.submitFormTimer = undefined;
             this.submitForm = null;
         }
+        // Partial Form
         /**
          * Initialize a partial form.
          */
@@ -142,8 +122,7 @@ var YetaWF;
                 var div = divs_1[_i];
                 $YetaWF.removeElement(div);
             }
-            var onSubmitExtraData = extraData ? extraData : "";
-            onSubmitExtraData = this.callPreSubmitHandler(form, onSubmitExtraData);
+            $YetaWF.sendCustomEvent(document.body, Forms.EVENTPRESUBMIT, { form: form });
             var formValid = true;
             if (useValidation)
                 formValid = this.validate(form);
@@ -153,8 +132,8 @@ var YetaWF;
                 // serialize the form
                 var formData = this.serializeForm(form);
                 // add extra data
-                if (onSubmitExtraData)
-                    formData = onSubmitExtraData + "&" + formData;
+                if (extraData)
+                    formData = extraData + "&" + formData;
                 // add the origin list in case we need to navigate back
                 var originList = YVolatile.Basics.OriginList;
                 if (saveReturn) {
@@ -180,12 +159,12 @@ var YetaWF;
                     formData = formData + "&" + YConfigs.Basics.Link_InPopup + "=y";
                 if (method.toLowerCase() === "get")
                     action = action + "?" + formData;
-                var request = new XMLHttpRequest();
-                request.open(method, action, true);
+                var request_1 = new XMLHttpRequest();
+                request_1.open(method, action, true);
                 if (method.toLowerCase() === "post")
-                    request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-                request.onreadystatechange = function (ev) {
-                    var req = request;
+                    request_1.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+                request_1.onreadystatechange = function (ev) {
+                    var req = request_1;
                     if (req.readyState === 4 /*DONE*/) {
                         $YetaWF.setLoading(false);
                         if (rawJSONFunc && req.responseText && req.responseText[0] === "{") {
@@ -193,7 +172,6 @@ var YetaWF;
                             return;
                         }
                         if ($YetaWF.processAjaxReturn(req.responseText, req.statusText, req, form, undefined, function (result) {
-                            _this.preSubmitHandler1 = [];
                             var partForm = $YetaWF.getElement1BySelectorCond("." + YConfigs.Forms.CssFormPartial, [form]);
                             if (partForm) {
                                 // clean up everything that's about to be removed
@@ -205,7 +183,6 @@ var YetaWF;
                                 if (partForm)
                                     partForm.className = cls;
                             }
-                            _this.callPostSubmitHandler(form);
                             $YetaWF.setFocus([form]);
                         })) {
                             if (successFunc)
@@ -217,7 +194,7 @@ var YetaWF;
                         }
                     }
                 };
-                request.send(formData);
+                request_1.send(formData);
             }
             else {
                 $YetaWF.setLoading(false);
@@ -231,7 +208,7 @@ var YetaWF;
                 if (successFunc)
                     successFunc(this.hasErrors(form));
             }
-            var divs = $YetaWF.getElementsBySelector("div." + this.DATACLASS);
+            divs = $YetaWF.getElementsBySelector("div." + this.DATACLASS);
             for (var _a = 0, divs_2 = divs; _a < divs_2.length; _a++) {
                 var div = divs_2[_a];
                 $YetaWF.removeElement(div);
@@ -269,8 +246,8 @@ var YetaWF;
                 // go to the last entry in the origin list, pop that entry and pass it in the url
                 var originList = YVolatile.Basics.OriginList;
                 if (originList.length > 0) {
-                    var origin = originList.pop();
-                    var uri = $YetaWF.parseUrl(origin.Url);
+                    var origin_1 = originList.pop();
+                    var uri = $YetaWF.parseUrl(origin_1.Url);
                     uri.removeSearch(YConfigs.Basics.Link_OriginList);
                     if (originList.length > 0)
                         uri.addSearch(YConfigs.Basics.Link_OriginList, JSON.stringify(originList));
@@ -284,85 +261,12 @@ var YetaWF;
                     catch (e) { }
                     try {
                         // TODO: use home page
-                        var uri_1 = $YetaWF.parseUrl("/");
-                        $YetaWF.ContentHandling.setNewUri(uri_1);
+                        var uri = $YetaWF.parseUrl("/");
+                        $YetaWF.ContentHandling.setNewUri(uri);
                     }
                     catch (e) { }
                 }
             }
-        };
-        /**
-         * Add a callback to be called when a form is about to be submitted.
-         */
-        Forms.prototype.addPreSubmitHandler = function (inPartialForm, entry) {
-            if (inPartialForm) {
-                this.preSubmitHandler1.push(entry);
-            }
-            else {
-                this.preSubmitHandlerAll.push(entry);
-            }
-        };
-        /**
-         * Call all callbacks for a form that is about to be submitted.
-         */
-        Forms.prototype.callPreSubmitHandler = function (form, onSubmitExtraData) {
-            for (var _i = 0, _a = this.preSubmitHandlerAll; _i < _a.length; _i++) {
-                var entry = _a[_i];
-                if (entry.form === form) {
-                    // form specific
-                    var extra = entry.callback(entry);
-                    if (extra !== undefined) {
-                        if (onSubmitExtraData.length > 0)
-                            onSubmitExtraData = onSubmitExtraData + "&";
-                        onSubmitExtraData += extra;
-                    }
-                }
-            }
-            for (var _b = 0, _c = this.preSubmitHandler1; _b < _c.length; _b++) {
-                var entry = _c[_b];
-                if (entry.form === form) {
-                    var extra = entry.callback(entry);
-                    if (extra !== undefined) {
-                        if (onSubmitExtraData.length > 0)
-                            onSubmitExtraData = onSubmitExtraData + "&";
-                        onSubmitExtraData += extra;
-                    }
-                }
-            }
-            return onSubmitExtraData;
-        };
-        /**
-         * Add a callback to be called when a form has been successfully submitted.
-         */
-        Forms.prototype.addPostSubmitHandler = function (inPartialForm, entry) {
-            if (inPartialForm) {
-                this.YPostSubmitHandler1.push(entry);
-            }
-            else {
-                this.YPostSubmitHandlerAll.push(entry);
-            }
-        };
-        /**
-         * Call all callbacks for a form that has been successfully submitted.
-         */
-        Forms.prototype.callPostSubmitHandler = function (form, onSubmitExtraData) {
-            for (var _i = 0, _a = this.YPostSubmitHandlerAll; _i < _a.length; _i++) {
-                var entry = _a[_i];
-                if (entry.form == null) {
-                    // global
-                    entry.callback(entry);
-                }
-                else if (entry.form === form) {
-                    // form specific
-                    entry.callback(entry);
-                }
-            }
-            for (var _b = 0, _c = this.YPostSubmitHandler1; _b < _c.length; _b++) {
-                var entry = _c[_b];
-                if (entry.form === form)
-                    entry.callback(entry);
-            }
-            this.YPostSubmitHandler1 = [];
         };
         // Forms retrieval
         Forms.prototype.getForm = function (tag) {
@@ -531,6 +435,7 @@ var YetaWF;
             // initialize  Submit, Apply, Cancel button handling
             this.initHandleFormsButtons();
         };
+        Forms.EVENTPRESUBMIT = "form_presubmit";
         return Forms;
     }());
     YetaWF.Forms = Forms;

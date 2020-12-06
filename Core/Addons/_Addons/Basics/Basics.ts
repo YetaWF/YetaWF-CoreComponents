@@ -1408,14 +1408,14 @@ namespace YetaWF {
         public registerCustomEventHandlerDocument(eventName: string, selector: string | null, callback: (ev: CustomEvent) => boolean): void {
             document.addEventListener(eventName, (ev: Event): void => this.handleEvent(document.body, ev as CustomEvent, selector, callback));
         }
-        public registerCustomEventHandler(control: ComponentBaseNoDataImpl, eventName: string, selector: string | null, callback: (ev: CustomEvent) => boolean): void {
-            control.Control.addEventListener(eventName, (ev: Event): void => this.handleEvent(control.Control, ev as CustomEvent, selector, callback));
+        public registerCustomEventHandler(tag: HTMLElement, eventName: string, selector: string | null, callback: (ev: CustomEvent) => boolean): void {
+            tag.addEventListener(eventName, (ev: Event): void => this.handleEvent(tag, ev as CustomEvent, selector, callback));
         }
-        public registerMultipleCustomEventHandlers(controls: (ComponentBaseNoDataImpl | null)[], eventNames: string[], selector: string | null, callback: (ev: CustomEvent) => boolean): void {
-            for (let control of controls) {
-                if (control) {
+        public registerMultipleCustomEventHandlers(tags: (HTMLElement | null)[], eventNames: string[], selector: string | null, callback: (ev: CustomEvent) => boolean): void {
+            for (let tag of tags) {
+                if (tag) {
                     for (let eventName of eventNames) {
-                        control.Control.addEventListener(eventName, (ev: Event): void => this.handleEvent(control!.Control, ev as CustomEvent, selector, callback));
+                        tag.addEventListener(eventName, (ev: Event): void => this.handleEvent(tag, ev as CustomEvent, selector, callback));
                     }
                 }
             }
