@@ -409,8 +409,8 @@ var YetaWF;
                 YVolatile.Basics.UnifiedAddonModsPrevious = YVolatile.Basics.UnifiedAddonMods;
                 YVolatile.Basics.UnifiedAddonMods = [];
                 // call ready handlers
-                $YetaWF.processAllReady(tags);
                 $YetaWF.processAllReadyOnce(tags);
+                $YetaWF.sendCustomEvent(document.body, Content.EVENTNAVPAGELOADED, { containers: tags });
                 if (!popupCB) {
                     // scroll
                     var scrolled = $YetaWF.setScrollPosition();
@@ -432,7 +432,6 @@ var YetaWF;
                     $YetaWF.runGlobalScript(result.AnalyticsContent);
                 }
                 catch (e) { }
-                $YetaWF.sendCustomEvent(document.body, Content.EVENTNAVPAGELOADED);
                 // locate the hash if there is one
                 var setFocus = true;
                 var hash = uri.getHash();

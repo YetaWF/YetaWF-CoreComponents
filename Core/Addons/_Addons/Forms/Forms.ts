@@ -159,7 +159,7 @@ namespace YetaWF {
             let partialForm = $YetaWF.getElementById(elemId);
 
             // run registered actions (usually javascript initialization, similar to $doc.ready()
-            $YetaWF.processAllReady([partialForm]);
+            $YetaWF.sendCustomEvent(document.body, Content.EVENTNAVPAGELOADED, { containers : [partialForm] });
             $YetaWF.processAllReadyOnce([partialForm]);
 
             YetaWF_FormsImpl.initPartialForm(partialForm);

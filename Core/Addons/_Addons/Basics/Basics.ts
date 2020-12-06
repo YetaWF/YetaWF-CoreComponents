@@ -754,41 +754,6 @@ namespace YetaWF {
             (newElem.parentNode as HTMLElement).removeChild(newElem);// and remove - we're done with it
         }
 
-        // WhenReady
-
-        // Usage:
-        // $YetaWF.addWhenReady((tag) => {});
-
-        private whenReady: WhenReadyEntry[] = [];
-
-        /**
-         * Registers a callback that is called when the document is ready (similar to $(document).ready()), after page content is rendered (for dynamic content),
-         * or after a partial form is rendered. The callee must honor tag/elem and only manipulate child objects.
-         * Callback functions are registered by whomever needs this type of processing. For example, a grid can
-         * process all whenReady requests after reloading the grid with data (which doesn't run any javascript automatically).
-         * @param def
-         */
-        public addWhenReady(callback: (section: HTMLElement) => void): void {
-            this.whenReady.push({ callback: callback });
-        }
-
-        /**
-         * Process all callbacks for the specified element to initialize children. This is used by YetaWF.Core only.
-         * @param elem The element for which all callbacks should be called to initialize children.
-         */
-        public processAllReady(tags?: HTMLElement[]): void {
-            if (!tags)
-                tags = [document.body ];
-            for (const entry of this.whenReady) {
-                try { // catch errors to insure all callbacks are called
-                    for (const tag of tags)
-                        entry.callback(tag);
-                } catch (err) {
-                    console.error(err.message || err);
-                }
-            }
-        }
-
         // WhenReadyOnce
 
         // Usage:
@@ -798,9 +763,8 @@ namespace YetaWF {
         /**
          * Registers a callback that is called when the document is ready (similar to $(document).ready()), after page content is rendered (for dynamic content),
          * or after a partial form is rendered. The callee must honor tag/elem and only manipulate child objects.
-         * Callback functions are registered by whomever needs this type of processing. For example, a grid can
-         * process all whenReadyOnce requests after reloading the grid with data (which doesn't run any javascript automatically).
-         * The callback is called for ONCE. Then the callback is removed.
+         * THIS IS FOR INTERNAL USE ONLY and is not intended for application use.
+         * The callback is called ONCE. Then the callback is removed.
          * @param def
          */
         public addWhenReadyOnce(callback: (section: HTMLElement) => void): void {
@@ -1698,12 +1662,11 @@ namespace YetaWF {
             // WhenReady
 
             this.registerDocumentReady((): void => {
-                this.processAllReady();
                 this.processAllReadyOnce();
             });
 
             setTimeout((): void => {
-                $YetaWF.sendCustomEvent(document.body, Content.EVENTNAVPAGELOADED);
+                $YetaWF.sendCustomEvent(document.body, Content.EVENTNAVPAGELOADED, { containers: [document.body] });
             }, 1);
         }
 

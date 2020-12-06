@@ -21,10 +21,6 @@ var YetaWF;
             this.reloadingModuleTagInModule = null;
             this.reloadInfo = [];
             this.escElement = document.createElement("div");
-            // WhenReady
-            // Usage:
-            // $YetaWF.addWhenReady((tag) => {});
-            this.whenReady = [];
             // WhenReadyOnce
             // Usage:
             // $YetaWF.addWhenReadyOnce((tag) => {})    // function to be called
@@ -599,39 +595,8 @@ var YetaWF;
         /**
          * Registers a callback that is called when the document is ready (similar to $(document).ready()), after page content is rendered (for dynamic content),
          * or after a partial form is rendered. The callee must honor tag/elem and only manipulate child objects.
-         * Callback functions are registered by whomever needs this type of processing. For example, a grid can
-         * process all whenReady requests after reloading the grid with data (which doesn't run any javascript automatically).
-         * @param def
-         */
-        BasicsServices.prototype.addWhenReady = function (callback) {
-            this.whenReady.push({ callback: callback });
-        };
-        /**
-         * Process all callbacks for the specified element to initialize children. This is used by YetaWF.Core only.
-         * @param elem The element for which all callbacks should be called to initialize children.
-         */
-        BasicsServices.prototype.processAllReady = function (tags) {
-            if (!tags)
-                tags = [document.body];
-            for (var _i = 0, _a = this.whenReady; _i < _a.length; _i++) {
-                var entry = _a[_i];
-                try { // catch errors to insure all callbacks are called
-                    for (var _b = 0, tags_1 = tags; _b < tags_1.length; _b++) {
-                        var tag = tags_1[_b];
-                        entry.callback(tag);
-                    }
-                }
-                catch (err) {
-                    console.error(err.message || err);
-                }
-            }
-        };
-        /**
-         * Registers a callback that is called when the document is ready (similar to $(document).ready()), after page content is rendered (for dynamic content),
-         * or after a partial form is rendered. The callee must honor tag/elem and only manipulate child objects.
-         * Callback functions are registered by whomever needs this type of processing. For example, a grid can
-         * process all whenReadyOnce requests after reloading the grid with data (which doesn't run any javascript automatically).
-         * The callback is called for ONCE. Then the callback is removed.
+         * THIS IS FOR INTERNAL USE ONLY and is not intended for application use.
+         * The callback is called ONCE. Then the callback is removed.
          * @param def
          */
         BasicsServices.prototype.addWhenReadyOnce = function (callback) {
@@ -656,8 +621,8 @@ var YetaWF;
             for (var _i = 0, _a = this.whenReadyOnce; _i < _a.length; _i++) {
                 var entry = _a[_i];
                 try { // catch errors to insure all callbacks are called
-                    for (var _b = 0, tags_2 = tags; _b < tags_2.length; _b++) {
-                        var tag = tags_2[_b];
+                    for (var _b = 0, tags_1 = tags; _b < tags_1.length; _b++) {
+                        var tag = tags_1[_b];
                         entry.callback(tag);
                     }
                 }
@@ -1243,8 +1208,8 @@ var YetaWF;
                     }
                 }
             };
-            for (var _i = 0, tags_3 = tags; _i < tags_3.length; _i++) {
-                var tag = tags_3[_i];
+            for (var _i = 0, tags_2 = tags; _i < tags_2.length; _i++) {
+                var tag = tags_2[_i];
                 _loop_1(tag);
             }
         };
@@ -1266,8 +1231,8 @@ var YetaWF;
                     }
                 }
             };
-            for (var _i = 0, tags_4 = tags; _i < tags_4.length; _i++) {
-                var tag = tags_4[_i];
+            for (var _i = 0, tags_3 = tags; _i < tags_3.length; _i++) {
+                var tag = tags_3[_i];
                 _loop_2(tag);
             }
         };
@@ -1510,11 +1475,10 @@ var YetaWF;
             });
             // WhenReady
             this.registerDocumentReady(function () {
-                _this.processAllReady();
                 _this.processAllReadyOnce();
             });
             setTimeout(function () {
-                $YetaWF.sendCustomEvent(document.body, YetaWF.Content.EVENTNAVPAGELOADED);
+                $YetaWF.sendCustomEvent(document.body, YetaWF.Content.EVENTNAVPAGELOADED, { containers: [document.body] });
             }, 1);
         };
         Object.defineProperty(BasicsServices.prototype, "isPrinting", {

@@ -30,7 +30,7 @@ var YetaWF;
         Forms.prototype.initPartialForm = function (elemId) {
             var partialForm = $YetaWF.getElementById(elemId);
             // run registered actions (usually javascript initialization, similar to $doc.ready()
-            $YetaWF.processAllReady([partialForm]);
+            $YetaWF.sendCustomEvent(document.body, YetaWF.Content.EVENTNAVPAGELOADED, { containers: [partialForm] });
             $YetaWF.processAllReadyOnce([partialForm]);
             YetaWF_FormsImpl.initPartialForm(partialForm);
             // show error popup

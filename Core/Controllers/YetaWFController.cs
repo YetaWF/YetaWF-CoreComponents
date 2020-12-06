@@ -514,7 +514,7 @@ namespace YetaWF.Core.Controllers {
                     viewHtml = await PostProcessView.ProcessAsync(htmlHelper, Module, viewHtml);
 
                     if (Script != null)
-                        Manager.ScriptManager.AddLastDocumentReady(Script);
+                        Manager.ScriptManager.AddLastWhenReadyOnce(Script);
 
                     if (Manager.UniqueIdCounters.IsTracked)
                         Manager.ScriptManager.AddVolatileOption("Basics", "UniqueIdCounters", Manager.UniqueIdCounters);

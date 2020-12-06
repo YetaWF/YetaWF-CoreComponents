@@ -411,34 +411,25 @@ namespace YetaWF.Core.Pages {
         }
 
         /// <summary>
-        /// Add JavaScript code (complete functions, etc.) at end of page and run on page load (document.ready).
+        /// Add JavaScript code (complete functions, etc.) at end of page and run on page load (like document.ready).
         /// </summary>
         /// <remarks>
+        /// For internal use only.
         /// </remarks>
-        /// <param name="javascriptCode"></param>
-        public void AddLastDocumentReady(string javascriptCode) {
+        /// <param name="javascriptCode">The JavaScript code to execute.</param>
+        public void AddLastWhenReadyOnce(string javascriptCode) {
             if (string.IsNullOrWhiteSpace(javascriptCode)) return;
             _SavedNamedScriptsDocReady.Add(_SavedNamedScriptsDocReady.Count().ToString(), javascriptCode);
         }
-        public void AddLastDocumentReady(ScriptBuilder javascriptCode) {
-            AddLastDocumentReady(javascriptCode.ToString());
-        }
-
         /// <summary>
-        /// Add named JavaScript code at end of page and run on page load (document.ready).
+        /// Add JavaScript code (complete functions, etc.) at end of page and run on page load (like document.ready).
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="JavaScript"></param>
-        public void AddLastDocumentReady(string name, string javaScript) {
-            if (_SavedNamedScriptsDocReady.ContainsKey(name)) {
-                if (_SavedNamedScriptsDocReady[name] != javaScript)
-                    throw new InternalError("Named JavaScript section on this page is different than a previously added section by the same name");
-                return;
-            }
-            _SavedNamedScriptsDocReady.Add(name, javaScript);
-        }
-        public void AddLastDocumentReady(string name, ScriptBuilder javaScript) {
-            AddLastDocumentReady(name, javaScript.ToString());
+        /// <remarks>
+        /// For internal use only.
+        /// </remarks>
+        /// <param name="javascriptCode">The JavaScript code to execute.</param>
+        public void AddLastWhenReadyOnce(ScriptBuilder javascriptCode) {
+            AddLastWhenReadyOnce(javascriptCode.ToString());
         }
 
         // CONFIG OPTIONS (User Specific)
