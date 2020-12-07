@@ -148,6 +148,7 @@ namespace YetaWF {
     export class Forms {
 
         public static readonly EVENTPRESUBMIT: string = "form_presubmit";
+        public static readonly EVENTPOSTSUBMIT: string = "form_postsubmit";
 
         // Partial Form
 
@@ -327,6 +328,7 @@ namespace YetaWF {
                                 if (partForm)
                                     partForm.className = cls;
                             }
+                            $YetaWF.sendCustomEvent(document.body, Forms.EVENTPOSTSUBMIT, { form : form });
                             $YetaWF.setFocus([form]);
                         })) {
                             if (successFunc)

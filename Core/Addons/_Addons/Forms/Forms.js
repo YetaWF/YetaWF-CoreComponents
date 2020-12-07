@@ -183,6 +183,7 @@ var YetaWF;
                                 if (partForm)
                                     partForm.className = cls;
                             }
+                            $YetaWF.sendCustomEvent(document.body, Forms.EVENTPOSTSUBMIT, { form: form });
                             $YetaWF.setFocus([form]);
                         })) {
                             if (successFunc)
@@ -436,6 +437,7 @@ var YetaWF;
             this.initHandleFormsButtons();
         };
         Forms.EVENTPRESUBMIT = "form_presubmit";
+        Forms.EVENTPOSTSUBMIT = "form_postsubmit";
         return Forms;
     }());
     YetaWF.Forms = Forms;
