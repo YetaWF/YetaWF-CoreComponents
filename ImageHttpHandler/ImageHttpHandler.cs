@@ -64,7 +64,7 @@ namespace YetaWF.Core.HttpHandler {
 
         /// <summary>
         /// Called by the middleware (.NET) to process
-        /// a request for a CSS file.
+        /// a request for an image.
         /// </summary>
         /// <param name="context">The HTTP context of the request.</param>
         public async Task ProcessRequest(HttpContext context) {
