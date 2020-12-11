@@ -13,7 +13,7 @@ namespace YetaWF.Core.Support {
         }
 
         public string Name { get; private set; }
-        public object Value { get; private set; }
+        public object? Value { get; private set; }
     }
 }
 

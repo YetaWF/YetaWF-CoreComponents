@@ -18,8 +18,6 @@ namespace YetaWF.Core.Skins {
         public int Width { get; set; } // popup width
         public int Height { get; set; } // popup width
         public bool MaximizeButton { get; set; } // popup has maximize button
-        public int CharWidthAvg { get; set; }
-        public int CharHeight { get; set; }
     }
 
     public class ModuleSkinList : List<ModuleSkinEntry> { }

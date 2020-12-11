@@ -144,7 +144,7 @@ namespace YetaWF.Core.Skins {
                 if (css.Length == 0) throw new InternalError("Invalid Css for page skin entry - line {0}: {1} ({2})", lineCount, line, fileName);
                 int width = 0, height = 0;
                 bool maxButton = false;
-                int nextToken;
+                //int nextToken;
                 if (Popups) {
                     try {
                         width = Convert.ToInt32(s[4]);
@@ -152,16 +152,10 @@ namespace YetaWF.Core.Skins {
                         maxButton = Convert.ToInt32(s[6]) != 0;
                     } catch { }
                     description = this.__ResStr("descFmt", "{0} ({1} x {2} pixels)", description, width, height);
-                    nextToken = 7;
+                    //nextToken = 7;
                 } else {
-                    nextToken = 4;
+                    //nextToken = 4;
                 }
-                int charWidth = 0, charHeight = 0;
-                try {
-                    charWidth = Convert.ToInt32(s[nextToken]);
-                    charHeight = Convert.ToInt32(s[nextToken + 1]);
-                } catch { }
-                if (charWidth <= 0 || charHeight <= 0) throw new InternalError("Invalid character width/height for page skin entry - line {0}: {1} ({2})", lineCount, line, fileName);
 
                 PageSkinEntry entry = new PageSkinEntry() {
                     Name = name,
@@ -171,8 +165,6 @@ namespace YetaWF.Core.Skins {
                     Width = width,
                     Height = height,
                     MaximizeButton = maxButton,
-                    CharWidthAvg = charWidth,
-                    CharHeight = charHeight,
                 };
                 if (Popups)
                     info.PopupSkins.Add(entry);

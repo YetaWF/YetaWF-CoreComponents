@@ -206,7 +206,7 @@ namespace YetaWF.Core.Site {
             }
             return _defaultSiteDomain;
         }
-        public static string? _defaultSiteDomain;
+        private static string? _defaultSiteDomain;
 
         [Category("Variables"), Caption("Default Site"), Description("Returns whether the current site is the default site for this instance of YetaWF")]
         [UIHint("Boolean"), ReadOnly]

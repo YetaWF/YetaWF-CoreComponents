@@ -24,7 +24,7 @@ namespace YetaWF.Core.ConsoleStartup {
         /// </summary>
         /// <param name="baseDirectory">The base folder where the executable and all assemblies for the console application are located.</param>
         /// <param name="siteDomain">The domain name used to access data. This must be an existing domain with a YetaWF site and AppSettings.json must contain data provider information.
-        /// May be null to load use the default site.
+        /// May be null to load the default site.
         /// </param>
         /// <remarks>
         /// The Start method makes all settings from AppSettings.json available.
@@ -37,7 +37,7 @@ namespace YetaWF.Core.ConsoleStartup {
         /// Because all YetaWF services are available, all data providers and config settings can be accessed (and modified).
         /// Many data providers use site specific data. The data for the specified site <paramref name="siteDomain"/> is used.
         /// </remarks>
-        public static void Start(string baseDirectory, string siteDomain) {
+        public static void Start(string baseDirectory, string? siteDomain) {
 
             Start(baseDirectory);
 

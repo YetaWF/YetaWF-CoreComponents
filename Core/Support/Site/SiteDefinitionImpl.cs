@@ -121,7 +121,7 @@ namespace YetaWF.Core.Site {
         /// Turns a local Url into a fully qualified Url.
         /// </summary>
         /// <param name="pathAndQs">Local or remote Url. If nothing is specified, "/" is the default.</param>
-        /// <param name="Security">Desired page security.</param>
+        /// <param name="SecurityType">Desired page security.</param>
         /// <param name="RealDomain">Optional. Defines the domain name to be used to build the fully qualified Url. This can only be used if pathAndQs defines a local Url (starting with /).
         /// This can be used to build a Url for another domain name than the current domain name.</param>
         /// <returns>A fully qualified Url.</returns>

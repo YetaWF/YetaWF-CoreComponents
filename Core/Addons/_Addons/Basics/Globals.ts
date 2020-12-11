@@ -67,8 +67,6 @@ namespace YetaWF {
         // Page
         PageGuid: string;
         TemporaryPage: boolean;
-        CharWidthAvg: number;
-        CharHeight: number;
 
         // Unified Page Sets
         UnifiedMode: UnifiedModeEnum;
