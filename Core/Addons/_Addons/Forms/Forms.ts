@@ -144,6 +144,9 @@ namespace YetaWF {
     export interface DetailsPreSubmit {
         form: HTMLFormElement;
     }
+    export interface DetailsPostSubmit {
+        form: HTMLFormElement;
+    }
 
     export class Forms {
 
