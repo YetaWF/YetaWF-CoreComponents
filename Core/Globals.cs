@@ -2,7 +2,7 @@
 
 namespace YetaWF.Core {
 
-    public class Globals {
+    public static class Globals {
 
         public const string RUNTIME = "net5.0"; // runtime
         public const string RUNTIMEVERSION = "5.0";

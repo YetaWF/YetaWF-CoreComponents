@@ -12,25 +12,34 @@ using System.Text;
 
 namespace YetaWF.Core.Support {
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2237:MarkISerializableTypesWithSerializable", Justification = "Not intended for serialization")]
+    /// <summary>
+    /// An instance of this class represents query string arguments as a dictionary.
+    /// </summary>
     public class QueryDictionary : Dictionary<string, object?> { }
 
     /// <summary>
-    /// Query string manipulation.
+    /// An instance of this class is used to parse and build a URL query string.
     /// </summary>
-    /// <remarks>There is no support for duplicate keys in a querystring. Keep it simple...</remarks>
+    /// <remarks>There is no support for duplicate keys in a query string. Keep it simple...</remarks>
     public class QueryHelper {
 
-        public class Entry {
+        private class Entry {
             public string Key { get; set; } = null!;
             public string? Value { get; set; }
         }
-        public List<Entry> Entries { get; private set; }
-        public string? Anchor { get; set; }
+        private List<Entry> Entries { get; set; }
+        private string? Anchor { get; set; }
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public QueryHelper() {
             Entries = new List<Entry>();
         }
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="args">An anonymous object containing query string parameters.</param>
         public QueryHelper(object? args) {
             Entries = new List<Entry>();
             if (args != null) {
@@ -40,6 +49,10 @@ namespace YetaWF.Core.Support {
                 }
             }
         }
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="query">A dictionary with query string parameters.</param>
         public QueryHelper(QueryDictionary query) {
             Entries = new List<Entry>();
             foreach (string k in query.Keys) {
@@ -50,6 +63,12 @@ namespace YetaWF.Core.Support {
                     Entries.Add(new Entry { Key = k, Value = o.ToString(), });
             }
         }
+        /// <summary>
+        /// Parses a URL and returns a QueryHelper object.
+        /// </summary>
+        /// <param name="url">The URL to parse.</param>
+        /// <param name="urlOnly">Returns the URL without query string.</param>
+        /// <returns>Returns a QueryHelper object.</returns>
         public static QueryHelper FromUrl(string url, out string urlOnly) {
             QueryHelper query;
             string? anchor = null;
@@ -69,9 +88,19 @@ namespace YetaWF.Core.Support {
             query.Anchor = anchor;
             return query;
         }
+        /// <summary>
+        /// Parses a URL and returns a QueryHelper object.
+        /// </summary>
+        /// <param name="url">The URL to parse.</param>
+        /// <returns>Returns a QueryHelper object.</returns>
         public static QueryHelper FromUrl(string url) {
-            return FromUrl(url, out string urlOnly);
+            return FromUrl(url, out _);
         }
+        /// <summary>
+        /// Returns a QueryHelper object with the query string parameters populated by the NameValueCollection.
+        /// </summary>
+        /// <param name="query">The NameValueCollection containing the query string parameters.</param>
+        /// <returns>Returns a QueryHelper object.</returns>
         public static QueryHelper FromNameValueCollection(NameValueCollection query) {
             QueryHelper qh = new QueryHelper();
             foreach (string? k in query.AllKeys) {
@@ -79,9 +108,19 @@ namespace YetaWF.Core.Support {
             }
             return qh;
         }
+        /// <summary>
+        /// Returns a QueryHelper object with the query string parameters populated by the dictionary.
+        /// </summary>
+        /// <param name="query">The dictionary containing the query string parameters.</param>
+        /// <returns>Returns a QueryHelper object.</returns>
         public static QueryHelper FromDictionary(IDictionary<string,string> query) {
             return new QueryHelper(query);
         }
+        /// <summary>
+        /// Returns a QueryHelper object with the query string parameters populated by the HttpRequest query string collection.
+        /// </summary>
+        /// <param name="query">The HttpRequest query string collection.</param>
+        /// <returns>Returns a QueryHelper object.</returns>
         public static QueryHelper FromQueryCollection(IQueryCollection query) {
             QueryHelper qh = new QueryHelper();
             foreach (string k in query.Keys) {
@@ -89,6 +128,11 @@ namespace YetaWF.Core.Support {
             }
             return qh;
         }
+        /// <summary>
+        /// Returns a QueryHelper object with the query string parameters populated by the query string.
+        /// </summary>
+        /// <param name="queryString">The query string. The query string may or may not include a leading '?'.</param>
+        /// <returns>Returns a QueryHelper object.</returns>
         public static QueryHelper FromQueryString(string queryString) {
             QueryHelper qh = new QueryHelper();
             Dictionary<string,StringValues> queryDictionary = QueryHelpers.ParseQuery(queryString);
@@ -99,6 +143,11 @@ namespace YetaWF.Core.Support {
             }
             return qh;
         }
+        /// <summary>
+        /// Returns a QueryHelper object with the query string parameters populated by the anonymous object.
+        /// </summary>
+        /// <param name="args">The anonymous object containing the query string.</param>
+        /// <returns>Returns a QueryHelper object.</returns>
         public static QueryHelper FromAnonymousObject(object? args) {
             return new QueryHelper(args);
         }

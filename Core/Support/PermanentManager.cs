@@ -8,6 +8,7 @@ namespace YetaWF.Core.Support {
     /// <summary>
     /// Manages permanently available items in-memory in a single site instance.
     /// Used for locally stored data.
+    /// DO NOT USE - This is a dated construct and will be replaced.
     /// </summary>
     /// <remarks>Permanent items are available until the site is restarted and are shared within one site of a YetaWF instance.
     ///

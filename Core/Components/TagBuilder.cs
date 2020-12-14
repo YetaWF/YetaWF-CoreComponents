@@ -29,8 +29,9 @@ namespace YetaWF.Core.Support {
     }
 
     /// <summary>
-    /// One instance of the YTagBuilder class is used to build and render one HTML tag (simlar to MVC's TagBuilder type).
+    /// One instance of the YTagBuilder class is used to build and render one HTML tag (similar to MVC's TagBuilder type).
     /// </summary>
+    /// <remarks>YTagBuilder is no longer necessary as YetaWF can render HTML directly in components and views. Unfortunately, this is used in a lot of places. Eventually this will be removed. It's an unnecessary "simplification".</remarks>
     public class YTagBuilder {
 
         /// <summary>
@@ -55,7 +56,7 @@ namespace YetaWF.Core.Support {
         /// Sets the tag's inner text, encoded for HTML.
         /// </summary>
         /// <param name="text">The inner text.</param>
-        public void SetInnerText(string text) {
+        public void SetInnerText(string? text) {
             InnerHtml = Utility.HtmlEncode(text);
         }
 
@@ -144,6 +145,7 @@ namespace YetaWF.Core.Support {
         /// <summary>
         /// Returns the current tag as HTML with specified rendering.
         /// </summary>
+        /// <param name="renderMode">The rendering mode for the tag. If omitted, the default is YTagRenderMode.Normal.</param>
         /// <returns>Returns the current tag as HTML.</returns>
         public string ToString(YTagRenderMode renderMode) {
             StringBuilder sb = new StringBuilder();
