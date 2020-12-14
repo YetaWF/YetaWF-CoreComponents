@@ -127,10 +127,10 @@ namespace YetaWF.Core.Pages {
 
     public partial class ScriptManager {
 
-        public ScriptManager(YetaWFManager manager) { Manager = manager; }
-        protected YetaWFManager Manager { get; private set; }
+        internal ScriptManager(YetaWFManager manager) { Manager = manager; }
+        private YetaWFManager Manager { get; set; }
 
-        public class ScriptEntry {
+        private class ScriptEntry {
             public string Url { get; set; } = null!;
             public bool Bundle { get; set; }
             public bool Last { get; set; } // after all addons

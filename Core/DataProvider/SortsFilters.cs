@@ -288,7 +288,7 @@ namespace YetaWF.Core.DataProvider {
                 }
             }
         }
-        public class GuidPartial {
+        internal class GuidPartial {
             public string PartialString { get; set; } = null!;
         }
 
@@ -308,64 +308,64 @@ namespace YetaWF.Core.DataProvider {
                     if (Value == null)
                         return "(false)";
                     else if (Value.GetType() == typeof(string))
-                        return string.Format("(@{0} != null && @{0}.ToLower().{1}(@{2}.ToLower()))", Field, command, index);
+                        return $"(@{Field} != null && @{Field}.ToLower().{command}(@{index}.ToLower()))";
                     else if (Value.GetType() == typeof(MultiString))
-                        return string.Format("(@{0} != null && MultiString.Dyn{1}(@{0}, @{2}))", Field, command, index);
+                        return $"(@{Field} != null && {nameof(MultiString)}.Dyn{command}(@{Field}, @{index}))";// Dynamically built
                     else if (Value.GetType() == typeof(GuidPartial))
-                        return string.Format("(@{0} != null && @{0}.ToString().ToLower().{1}(@{2}.PartialString))", Field, command, index);
+                        return $"(@{Field} != null && @{Field}.ToString().ToLower().{command}(@{index}.PartialString))";
                     else
-                        return string.Format("(@{0} != null && @{0}.{1}(@{2}))", Field, command, index);
+                        return $"(@{Field} != null && @{Field}.{command}(@{index}))";
                 } else if (command == "NotStartsWith") {
                     if (Value == null)
                         return "(false)";
                     else if (Value.GetType() == typeof(string))
-                        return string.Format("(@{0} == null || !@{0}.ToLower().StartsWith(@{1}.ToLower()))", Field, index);
+                        return $"(@{Field} == null || !@{Field}.ToLower().StartsWith(@{index}.ToLower()))";
                     else if (Value.GetType() == typeof(MultiString))
-                        return string.Format("(@{0} == null || !MultiString.DynStartsWith(@{0}, @{1}))", Field, index);
+                        return $"(@{Field} == null || !{nameof(MultiString)}.{nameof(MultiString.DynStartsWith)}(@{Field}, @{index}))";
                     else
-                        return string.Format("@{0} == null || !@{0}.StartsWith(@{1})", Field, index);
+                        return $"@{Field} == null || !@{Field}.StartsWith(@{index})";
                 } else if (command == "NotEndsWith") {
                     if (Value == null)
                         return "(false)";
                     else if (Value.GetType() == typeof(string))
-                        return string.Format("(@{0} == null || !@{0}.ToLower().EndsWith(@{1}.ToLower()))", Field, index);
+                        return $"(@{Field} == null || !@{Field}.ToLower().EndsWith(@{index}.ToLower()))";
                     else if (Value.GetType() == typeof(MultiString))
-                        return string.Format("(@{0} == null || !MultiString.DynEndsWith(@{0}, @{1}))", Field, index);
+                        return $"(@{Field} == null || !{nameof(MultiString)}.{nameof(MultiString.DynEndsWith)}(@{Field}, @{index}))";
                     else
-                        return string.Format("@{0} == null || !@{0}.EndsWith(@{1})", Field, index);
+                        return $"@{Field} == null || !@{Field}.EndsWith(@{index})";
                 } else if (command == "NotContains") {
                     if (Value == null)
                         return "(false)";
                     else if (Value.GetType() == typeof(string))
-                        return string.Format("(@{0} == null || !@{0}.ToLower().Contains(@{1}.ToLower()))", Field, index);
+                        return $"(@{Field} == null || !@{Field}.ToLower().Contains(@{index}.ToLower()))";
                     else if (Value.GetType() == typeof(MultiString))
-                        return string.Format("(@{0} == null || !MultiString.DynContains(@{0}, @{1}))", Field, index);
+                        return $"(@{Field} == null || !{nameof(MultiString)}.{nameof(MultiString.DynContains)}(@{Field}, @{index}))";
                     else
-                        return string.Format("@{0} == null || !@{0}.Contains(@{1})", Field, index);
+                        return $"@{Field} == null || !@{Field}.Contains(@{index})";
                 } else {
                     if (Value == null) {
-                        return string.Format("({0} {1} @{2})", Field, command, index);
+                        return $"(@{Field} {command} @{index})";
                     } else if (Operator == "!=" || Operator == "<" || Operator == "<=") {
                         if (Value.GetType() == typeof(string))
-                            return string.Format("(@{0} == null || @{0}.ToLower() {1} @{2}.ToLower())", Field, command, index);
+                            return $"(@{Field} == null || @{Field}.ToLower() {command} @{index}.ToLower())";
                         else if (Value.GetType() == typeof(MultiString))
-                            return string.Format("(@{0} == null || MultiString.DynCompare(@{0}, \"{1}\", @{2}))", Field, command, index);
+                            return $"(@{Field} == null || {nameof(MultiString)}.{nameof(MultiString.DynCompare)}(@{Field}, \"{command}\", @{index}))";
                         else
-                            return string.Format("(@{0} == null || @{0} {1} @{2})", Field, command, index);
+                            return $"(@{Field} == null || @{Field} {command} @{index})";
                     } else if (Operator == ">" || Operator == ">=") {
                         if (Value.GetType() == typeof(string))
-                            return string.Format("(@{0} != null && @{0}.ToLower() {1} @{2}.ToLower())", Field, command, index);
+                            return $"(@{Field} != null && @{Field}.ToLower() {command} @{index}.ToLower())";
                         else if (Value.GetType() == typeof(MultiString))
-                            return string.Format("(@{0} != null && MultiString.DynCompare(@{0}, \"{1}\", @{2}))", Field, command, index);
+                            return $"(@{Field} != null && {nameof(MultiString)}.{nameof(MultiString.DynCompare)}(@{Field}, \"{command}\", @{index}))";
                         else
-                            return string.Format("(@{0} != null && @{0} {1} @{2})", Field, command, index);
+                            return $"(@{Field} != null && @{Field} {command} @{index})";
                     } else {
                         if (Value.GetType() == typeof(string))
-                            return string.Format("(@{0} != null && @{0}.ToLower() {1} @{2}.ToLower())", Field, command, index);
+                            return $"(@{Field} != null && @{Field}.ToLower() {command} @{index}.ToLower())";
                         else if (Value.GetType() == typeof(MultiString))
-                            return string.Format("(@{0} != null && MultiString.DynCompare(@{0}, \"{1}\", @{2}))", Field, command, index);
+                            return $"(@{Field} != null && {nameof(MultiString)}.{nameof(MultiString.DynCompare)}(@{Field}, \"{command}\", @{index}))";
                         else
-                            return string.Format("@{0} {1} @{2}", Field, command, index);
+                            return $"@{Field} {command} @{index}";
                     }
                 }
             }

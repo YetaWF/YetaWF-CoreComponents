@@ -16,7 +16,7 @@ namespace YetaWF.Core.Components {
     /// </summary>
     /// <remarks>The list of US states is cached. Any changes to the list require a site restart.
     ///
-    /// The list of US states is located at .\CoreComponents\Core\Addons\_Templates\USState\USStates.txt.</remarks>
+    /// The list of US states is located at ./CoreComponents/Core/Addons/_Templates/USState/USStates.txt.</remarks>
     public static class USState {
 
         /// <summary>
@@ -25,7 +25,7 @@ namespace YetaWF.Core.Components {
         /// <returns>Returns a list of US states suitable for use in a dropdownlist.</returns>
         /// <remarks>The list is cached. Any changes to the list require a site restart.
         ///
-        /// The list of US states is located at .\CoreComponents\Core\Addons\_Templates\USState\USStates.txt.</remarks>
+        /// The list of US states is located at ./CoreComponents/Core/Addons/_Templates/USState/USStates.txt.</remarks>
         public static async Task<List<SelectionItem<string>>> ReadStatesListAsync() {
             if (_statesList == null) {
                 List<SelectionItem<string>> list = new List<SelectionItem<string>>();
@@ -56,7 +56,7 @@ namespace YetaWF.Core.Components {
         /// <returns>Returns a dictionary of US states. The key represents the state abbreviation. The value is the displayable state name.</returns>
         /// <remarks>The dictionary is cached. Any changes to the dictionary require a site restart.
         ///
-        /// The list of US states is located at .\CoreComponents\Core\Addons\_Templates\USState\USStates.txt.</remarks>
+        /// The list of US states is located at ./CoreComponents/Core/Addons/_Templates/USState/USStates.txt.</remarks>
         public static async Task<Dictionary<string,string>> ReadUSStatesListAsync() {
             if (_usStatesList == null) {
                 Package package = YetaWF.Core.AreaRegistration.CurrentPackage;// Core package

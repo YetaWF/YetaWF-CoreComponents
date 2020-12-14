@@ -14,7 +14,7 @@ namespace YetaWF.Core.Pages {
 
     // Inspired by http://stackoverflow.com/questions/26916664/html-action-in-asp-net-core
 
-    public static class HtmlHelperActionExtensions {
+    internal static class HtmlHelperActionExtensions {
 
         public static async Task<ActionInfo> ActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, string action, object? parameters = null) {
             var controller = (string)htmlHelper.RouteData.Values["controller"] !;

@@ -9,7 +9,10 @@ using YetaWF.Core.Packages;
 
 namespace YetaWF.Core.Support {
 
-    public class Utility {
+    /// <summary>
+    /// This static class implements utility functions used throughout YetaWF.
+    /// </summary>
+    public static class Utility {
 
         // VERSION
         // VERSION
@@ -20,11 +23,11 @@ namespace YetaWF.Core.Support {
         /// </summary>
         public enum AspNetMvcVersion {
             /// <summary>
-            /// ASP.NET 4 with MVC 5
+            /// ASP.NET 4 with MVC 5 (no longer used or supported by YetaWF).
             /// </summary>
             MVC5 = 0,
             /// <summary>
-            /// .NET with MVC (6)
+            /// .NET with MVC (6).
             /// </summary>
             MVC6 = 6,
         }
@@ -41,7 +44,7 @@ namespace YetaWF.Core.Support {
         /// Returns a user-displayable name for the MVC version used.
         /// </summary>
         /// <param name="version"></param>
-        /// <returns></returns>
+        /// <returns>A user-displayable name for the MVC version used.</returns>
         public static string GetAspNetMvcName(AspNetMvcVersion version) {
             switch (version) {
                 case AspNetMvcVersion.MVC5:
@@ -58,13 +61,13 @@ namespace YetaWF.Core.Support {
         // PATH
 
         /// <summary>
-        /// Translates a Url to a local file name.
+        /// Translates a URL to a local file name.
         /// </summary>
         /// <remarks>
         /// Doesn't really take special characters (except spaces %20) into account.
         /// </remarks>
         public static string UrlToPhysical(string url) {
-            if (!url.StartsWith("/")) throw new InternalError("Urls to translate must start with /.");
+            if (!url.StartsWith("/")) throw new InternalError("URLs to translate must start with /.");
             string path;
             if (url.StartsWith(Globals.NodeModulesUrl, StringComparison.OrdinalIgnoreCase)) {
                 path = YetaWFManager.RootFolderWebProject + Utility.UrlToPhysicalRaw(url);
@@ -78,11 +81,17 @@ namespace YetaWF.Core.Support {
             return path;
         }
         private static string UrlToPhysicalRaw(string url) {
-            if (!url.StartsWith("/")) throw new InternalError("Urls to translate must start with /.");
+            if (!url.StartsWith("/")) throw new InternalError("URLs to translate must start with /.");
             url = FileToPhysical(url);
             url = url.Replace("%20", " ");
             return url;
         }
+        /// <summary>
+        /// Translates a file path to the appropriate form of the operating system where the application is executing.
+        /// YetaWF internally uses the "/" character, which may need to be translated for some operating systems, like Windows.
+        /// </summary>
+        /// <param name="file">A file path to translate.</param>
+        /// <returns>The file path translated to the appropriate form of the operating system where the application is executing.</returns>
         public static string FileToPhysical(string file) {
             if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
                 file = file.Replace('/', '\\');
@@ -90,7 +99,7 @@ namespace YetaWF.Core.Support {
         }
 
         /// <summary>
-        /// Translates a local file name to a Url.
+        /// Translates a local file name to a URL.
         /// </summary>
         /// <remarks>
         /// Doesn't really take special characters (except spaces %20) into account.
@@ -230,7 +239,6 @@ namespace YetaWF.Core.Support {
         /// </summary>
         /// <param name="s">The URL segment.</param>
         /// <returns>Returns an encoded URL segment.</returns>
-        // used to encode the page path segments
         public static string UrlEncodeSegment(string? s) {
             if (s == null) return string.Empty;
             string validChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-[]@!$";
@@ -321,15 +329,13 @@ namespace YetaWF.Core.Support {
             return s;
         }
 
-        private static string SkipDomain(StringBuilder sb, string s) {
-            int i = s.IndexOf('/');
-            if (i >= 0) {
-                sb.Append(s.Substring(0, i));
-                s = s.Substring(i);
-            }
-            return s;
-        }
-
+        /// <summary>
+        /// Returns a URL with query string, given a type implementing a controller, and an action name.
+        /// </summary>
+        /// <param name="type">The type of the controller.</param>
+        /// <param name="actionName">The action name implemented by the controller.</param>
+        /// <param name="args">An optional array of arguments that are translated to query string parameters.</param>
+        /// <returns>A formatted URL for the current site (without scheme or domain).</returns>
         public static string UrlFor(Type type, string actionName, object? args = null) {
             if (!type.Name.EndsWith("Controller")) throw new InternalError("Type {0} is not a controller", type.FullName);
             string controller = type.Name.Substring(0, type.Name.Length - "Controller".Length);

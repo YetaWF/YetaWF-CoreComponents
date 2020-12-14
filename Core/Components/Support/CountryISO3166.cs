@@ -20,7 +20,7 @@ namespace YetaWF.Core.Components {
     /// </summary>
     /// <remarks>The list of countries is cached. Any changes to the list require a site restart.
     ///
-    /// The list of countries is located at .\CoreComponents\Core\Addons\_Templates\CountryISO3166\Countries.txt.
+    /// The list of countries is located at ./CoreComponents/Core/Addons/_Templates/CountryISO3166/Countries.txt.
     /// </remarks>
     public static class CountryISO3166 {
 

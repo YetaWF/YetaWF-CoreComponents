@@ -52,41 +52,65 @@ namespace YetaWF.Core.Support {
     public class YetaWFManager {
 
         /// <summary>
-        /// Defines the name used by the HostUsed property to identity that the current execution is a console application.
+        /// Defines the run-time mode used by console applications.
         /// </summary>
         public const string BATCHMODE = "__Batch";
         /// <summary>
-        /// Defines the name used by the HostUsed property to identity that the current execution is a service application.
+        /// Defines the run-time mode used by service application (API).
         /// </summary>
         public const string SERVICEMODE = "__Service";
 
+        /// <summary>
+        /// Defines the current run-time mode. Currently defined are batch mode and service mode. Is neither is set, this is a web application.
+        /// </summary>
         public static string Mode { get; set; } = null!;
+        /// <summary>
+        /// Returns whether the current application is running in batch mode.
+        /// </summary>
+        /// <returns>Returns true if the current application is running in batch mode, false otherwise.</returns>
         public static bool IsBatchMode { get { return Mode == BATCHMODE; } }
+        /// <summary>
+        /// Returns whether the current application is a service application (API).
+        /// </summary>
+        /// <returns>Returns true if the current application is a service application (API), false otherwise.</returns>
         public static bool IsServiceMode { get { return Mode == SERVICEMODE; } }
 
         private static readonly string YetaWF_ManagerKey = typeof(YetaWFManager).Module + " sft";
 
-        public class DummyServiceProvider : IServiceProvider {
-            public object? GetService(Type serviceType) { return null; }
-        }
-        public class DummyHttpContextAccessor : IHttpContextAccessor {
+        internal class DummyHttpContextAccessor : IHttpContextAccessor {
             public HttpContext? HttpContext { get { return null; } set { } }
         }
-        public class DummyMemoryCache : IMemoryCache {
+        internal class DummyMemoryCache : IMemoryCache {
             public ICacheEntry CreateEntry(object key) { return null!; }
             public void Dispose() { }
             public void Remove(object key) { }
             public bool TryGetValue(object key, out object value) { value = null!; return false; }
         }
 
+        /// <summary>
+        /// Called during application startup to save some environmental information. For internal framework use only.
+        /// </summary>
+        /// <param name="httpContextAccessor">An IHttpContextAccessor instance.</param>
+        /// <param name="memoryCache">An IMemoryCache instance.</param>
+        /// <param name="svp">An IServiceProvider instance.</param>
         public static void Init(IHttpContextAccessor? httpContextAccessor = null, IMemoryCache? memoryCache = null, IServiceProvider? svp = null) {
             HttpContextAccessor = httpContextAccessor ?? new DummyHttpContextAccessor();
             MemoryCache = memoryCache ?? new DummyMemoryCache();
             ServiceProvider = svp!;
         }
-        public static IHttpContextAccessor HttpContextAccessor = null!;
-        public static IMemoryCache MemoryCache = null!;
-        public static IServiceProvider ServiceProvider = null!;
+
+        /// <summary>
+        /// A global instance of Microsoft.AspNetCore.Http.IHttpContextAccessor. For internal framework use only.
+        /// </summary>
+        public static IHttpContextAccessor HttpContextAccessor { get; private set; } = null!;
+        /// <summary>
+        /// A global instance of Microsoft.Extensions.Caching.Memory.IMemoryCache. For internal framework use only.
+        /// </summary>
+        public static IMemoryCache MemoryCache { get; private set; } = null!;
+        /// <summary>
+        /// A global instance of System.IServiceProvider. For internal framework use only.
+        /// </summary>
+        public static IServiceProvider ServiceProvider { get; private set; } = null!;
 
         private YetaWFManager(string? host) {
             SiteDomain = host ?? "(default)" ; // save the host name that owns this Manager
@@ -126,20 +150,18 @@ namespace YetaWF.Core.Support {
             get {
                 if (_ManagerThreadInstance != null)
                     return true;
-
-                if (HttpContextAccessor != null && HttpContextAccessor.HttpContext != null) {
-                    if (HttpContextAccessor.HttpContext.Items[YetaWF_ManagerKey] != null)
-                        return true;
-                }
+                if (HttpContextAccessor != null && HttpContextAccessor.HttpContext != null && HttpContextAccessor.HttpContext.Items[YetaWF_ManagerKey] != null)
+                    return true;
                 return false;
             }
         }
 
         /// <summary>
-        /// Creates an instance of the YetaWFManager class for a site.
+        /// Creates an instance of the YetaWFManager class for a site. For internal framework use only.
         /// This is only used by the framework during request startup as soon as the site URL has been determined.
         /// </summary>
         /// <param name="siteHost">The site name as it would appear in a URL (without scheme).</param>
+        /// <param name="httpContext">An instance of Microsoft.AspNetCore.Http.HttpContext.</param>
         public static YetaWFManager MakeInstance(HttpContext httpContext, string? siteHost) {
             if (siteHost == null)
                 throw new Error("Site host required to create a YetaWFManager object.");
@@ -155,9 +177,12 @@ namespace YetaWF.Core.Support {
         }
 
         /// <summary>
-        /// Creates an instance of the YetaWFManager - used for non-site specific threads (e.g., scheduler).
-        /// Can only be used once MakeInitialThreadInstance has been used
+        /// Creates an instance of the YetaWFManager - used for non-site specific threads (e.g., scheduler). For internal framework use only.
+        /// Can only be used once MakeInitialThreadInstance has been used.
         /// </summary>
+        /// <param name="site">Defines the site associated with the Manager instance. Can be null implying batch mode.</param>
+        /// <param name="context">An instance of Microsoft.AspNetCore.Http.HttpContext.</param>
+        /// <param name="forceSync">Specify true to force synchronous requests, otherwise async requests are used.</param>
         public static YetaWFManager MakeThreadInstance(SiteDefinition? site, HttpContext? context, bool forceSync = false) {
             YetaWFManager manager;
             if (site != null) {
@@ -212,17 +237,17 @@ namespace YetaWF.Core.Support {
         }
 
         /// <summary>
-        /// Attaches a YetaWFManager instance to the current thread.
+        /// Attaches a YetaWFManager instance to the current thread. For internal framework use only.
         /// This is only used by console applications.
         /// </summary>
-        /// <param name="site">A SiteDefinition object.</param>
+        /// <param name="site">Defines the site associated with the Manager instance.</param>
         /// <returns>The Manager instance for the current request.</returns>
         public static YetaWFManager MakeInitialThreadInstance(SiteDefinition? site) {
             _ManagerThreadInstance = null;
             return MakeThreadInstance(site, null, true);
         }
         /// <summary>
-        /// Attaches a YetaWFManager instance to the current thread.
+        /// Attaches a YetaWFManager instance to the current thread. For internal framework use only.
         /// This is only used by console applications.
         /// </summary>
         /// <param name="site">A SiteDefinition object. Is always null as this is not available in console applications.</param>
@@ -234,7 +259,7 @@ namespace YetaWF.Core.Support {
             return MakeThreadInstance(site, context, forceSync);
         }
         /// <summary>
-        /// Removes the YetaWF instance from the current thread.
+        /// Removes the YetaWF instance from the current thread. For internal framework use only.
         /// </summary>
         public static void RemoveThreadInstance() {
             _ManagerThreadInstance = null;
@@ -252,8 +277,9 @@ namespace YetaWF.Core.Support {
         }
 
         /// <summary>
-        /// Used by the framework during HTTP request startup to determine the requested domain.
+        /// Used by the framework during HTTP request startup to determine the requested domain. For internal framework use only.
         /// </summary>
+        /// <param name="httpContext">An instance of Microsoft.AspNetCore.Http.HttpContext associated with the current request.</param>
         /// <param name="uri">The URI of the current request.</param>
         /// <param name="loopBack">true if the current request is for the loopback address 127.0.0.1/localhost.</param>
         /// <param name="siteDomain">The domain name detected.</param>
@@ -295,19 +321,16 @@ namespace YetaWF.Core.Support {
         // FOLDERS
 
         /// <summary>
-        /// The location of the website's root folder (physical, wwwroot on .NET - MVC).
+        /// The physical location (path) of the website's root folder (wwwroot on .NET - MVC).
         /// </summary>
         public static string RootFolder { get; set; } = null!;
 
         /// <summary>
-        /// The location of the Website project (Website.csproj) root folder (physical).
+        /// The physical location (path) of the Website project (Website.csproj) root folder.
         /// </summary>
-        /// <remarks>
-        /// The root folder of the web project.
-        /// </remarks>
         public static string RootFolderWebProject { get; set; } = null!;
         /// <summary>
-        /// The location of the Solution (*.sln) root folder (physical).
+        /// The physical location (path) of the Solution (*.sln) root folder.
         /// </summary>
         /// <remarks>
         /// Defines the folder where the solution file is located.
@@ -320,7 +343,7 @@ namespace YetaWF.Core.Support {
         /// Returns the folder containing all sites' file data.
         /// </summary>
         /// <remarks>
-        /// The sites data folder is located at .\Website\Sites\DataFolder.
+        /// The sites data folder is located at ./Website/Sites/DataFolder.
         ///
         /// This folder is not publicly accessible on .NET - MVC.
         /// </remarks>
@@ -333,24 +356,22 @@ namespace YetaWF.Core.Support {
         /// <summary>
         /// Returns the default site name used for this instance of YetaWF.
         /// </summary>
-        /// <remarks>The default site is defined in Appsettings.json (Application.P.YetaWF_Core.DEFAULTSITE).</remarks>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification = "This is a catastrophic error")]
+        /// <remarks>The default site is defined in AppSettings.json (Application.P.YetaWF_Core.DEFAULTSITE).</remarks>
         public static string DefaultSiteName {
             get {
-                if (defaultSiteName == null)
-                    defaultSiteName = WebConfigHelper.GetValue<string>("YetaWF_Core"/*==YetaWF.Core.AreaRegistration.CurrentPackage.AreaName*/, "DEFAULTSITE");
-                if (defaultSiteName == null)
-                    throw new InternalError("Default site must be defined in Appsettings.json");
-                return defaultSiteName;
+                if (_defaultSiteName == null) {
+                    _defaultSiteName = WebConfigHelper.GetValue<string>("YetaWF_Core"/*==YetaWF.Core.AreaRegistration.CurrentPackage.AreaName*/, "DEFAULTSITE") ?? throw new InternalError("Default site must be defined in AppSettings.json");
+                }
+                return _defaultSiteName;
             }
         }
-        private static string? defaultSiteName;
+        private static string? _defaultSiteName;
 
         /// <summary>
-        /// The location of the Data folder (not site specific).
+        /// The physical location (path) of the Data folder (not site specific).
         /// </summary>
         /// <remarks>
-        /// The Data folder is located at .\Website\Data\DataFolder.
+        /// The Data folder is located at ./Website/Data/DataFolder.
         ///
         /// This folder is not publicly accessible on .NET - MVC.
         /// </remarks>
@@ -362,10 +383,10 @@ namespace YetaWF.Core.Support {
         }
 
         /// <summary>
-        /// The location of the product license folder (not site specific). This is used by third-party licensed products only.
+        /// The physical location (path) of the product license folder (not site specific). This is used by third-party licensed products only.
         /// </summary>
         /// <remarks>
-        /// The License folder is located at .\Website\Data\Licenses.
+        /// The License folder is located at ./Website/Data/Licenses.
         ///
         /// This folder is not publicly accessible on .NET - MVC.
         /// </remarks>
@@ -377,10 +398,10 @@ namespace YetaWF.Core.Support {
         }
 
         /// <summary>
-        /// The location of the Vault private folder (not site specific).
+        /// The physical location (path) of the Vault private folder (not site specific).
         /// </summary>
         /// <remarks>
-        /// The Vault private folder is located at .\Website\VaultPrivate.
+        /// The Vault private folder is located at ./Website/VaultPrivate.
         ///
         /// This folder is not publicly accessible on .NET - MVC.
         /// </remarks>
@@ -392,10 +413,10 @@ namespace YetaWF.Core.Support {
         }
 
         /// <summary>
-        /// The location of the Vault folder (not site specific).
+        /// The physical location (path) of the Vault folder (not site specific).
         /// </summary>
         /// <remarks>
-        /// The Vault folder is located at .\Website\wwwroot\Vault on .NET.
+        /// The Vault folder is located at ./Website/wwwroot/Vault on .NET.
         ///
         /// This folder is publicly accessible on .NET - MVC.
         /// </remarks>
@@ -406,10 +427,10 @@ namespace YetaWF.Core.Support {
         }
 
         /// <summary>
-        /// Returns the folder containing the current site's file data.
+        /// The physical location (path) containing the current site's file data.
         /// </summary>
         /// <remarks>
-        /// An individual site's file data folder is located at .\Website\Sites\DataFolder\{..siteidentity..}.
+        /// An individual site's file data folder is located at ./Website/Sites/DataFolder/{..siteidentity..}.
         ///
         /// This folder is not publicly accessible on .NET - MVC.
         /// </remarks>
@@ -419,10 +440,10 @@ namespace YetaWF.Core.Support {
             }
         }
         /// <summary>
-        /// Returns the site's custom addons folder.
+        /// The physical location (path) of the site's custom addons folder.
         /// </summary>
         /// <remarks>
-        /// An individual site's file data folder is located at .\Website\wwwroot\AddonsCustom\{..domainname..} on .NET.
+        /// An individual site's file data folder is located at ./Website/wwwroot/AddonsCustom/{..domainname..} on .NET.
         ///
         /// This folder is publicly accessible. It contains JavaScript and CSS files which are served as static files.
         /// </remarks>
@@ -460,15 +481,15 @@ namespace YetaWF.Core.Support {
         /// <summary>
         /// Defines whether the currently running instance of YetaWF is using additional run-time diagnostics to find issues, typically used during development.
         /// </summary>
+        /// <value>true in diagnostic mode, false otherwise.</value>
         public static bool DiagnosticsMode {
             get {
-                if (diagnosticsMode == null) {
-                    diagnosticsMode = WebConfigHelper.GetValue<bool>(YetaWF.Core.AreaRegistration.CurrentPackage.AreaName, "Diagnostics");
-                }
-                return (bool)diagnosticsMode;
+                if (_diagnosticsMode == null)
+                    _diagnosticsMode = WebConfigHelper.GetValue<bool>(YetaWF.Core.AreaRegistration.CurrentPackage.AreaName, "Diagnostics");
+                return (bool)_diagnosticsMode;
             }
         }
-        private static bool? diagnosticsMode = null;
+        private static bool? _diagnosticsMode = null;
 
         /// <summary>
         /// Defines whether the currently running instance of YetaWF is a deployed instance or not.
@@ -479,32 +500,33 @@ namespace YetaWF.Core.Support {
         /// A deployed instance is considered to run as a public website with all development features disabled.
         /// TODO: Need an actual list of development features here.
         ///
-        /// Appsettings.json (Application.P.YetaWF_Core.Deployed) is used to define whether the site is a deployed site.
+        /// AppSettings.json (Application.P.YetaWF_Core.Deployed) is used to define whether the site is a deployed site.
         /// </remarks>
         /// <value>true for a deployed site, false otherwise.</value>
         public static bool Deployed {
             get {
-                if (deployed == null) {
-                    deployed = WebConfigHelper.GetValue<bool>(YetaWF.Core.AreaRegistration.CurrentPackage.AreaName, "Deployed");
-                }
-                return (bool)deployed;
+                if (_deployed == null)
+                    _deployed = WebConfigHelper.GetValue<bool>(YetaWF.Core.AreaRegistration.CurrentPackage.AreaName, "Deployed");
+                return (bool)_deployed;
             }
         }
-        private static bool? deployed = null;
+        private static bool? _deployed = null;
 
         // SETTINGS
         // SETTINGS
         // SETTINGS
 
+        /// <summary>
+        /// Returns whether a CDN can be used for website data.
+        /// </summary>
         public static bool CanUseCDN {
             get {
-                if (canUseCDN == null) {
-                    canUseCDN = WebConfigHelper.GetValue<bool>(YetaWF.Core.AreaRegistration.CurrentPackage.AreaName, "UseCDN");
-                }
-                return (bool)canUseCDN;
+                if (_canUseCDN == null)
+                    _canUseCDN = WebConfigHelper.GetValue<bool>(YetaWF.Core.AreaRegistration.CurrentPackage.AreaName, "UseCDN");
+                return (bool)_canUseCDN;
             }
         }
-        private static bool? canUseCDN = null;
+        private static bool? _canUseCDN = null;
 
         public static bool CanUseCDNComponents {
             get {
@@ -526,32 +548,46 @@ namespace YetaWF.Core.Support {
         }
         private static bool? canUseStaticDomain = null;
 
+        /// <summary>
+        /// Defines whether the current request is for the static site. A static site URL can be defined using Admin > Settings > Site Settings, CDN tab, Static Files Domain.
+        /// </summary>
+        /// <remarks>Defining a static domain offers the ability to have all static files served from that domain, which is hosted by the same YetaWF instance as the main domain. Static domains don't send cookie information with each response, reducing overhead.
+        ///
+        /// Support for static domains once enabled is fully automatic.</remarks>
         public bool IsStaticSite { get; set; }
+
+        // DEMO
+        // DEMO
+        // DEMO
 
         /// <summary>
         /// Defines whether the current YetaWF instance runs in demo mode.
         /// </summary>
         /// <remarks>Demo mode allows anonymous users to use all features in Superuser mode, without being able to change any data.
         ///
-        /// Demo mode is enabled/disabled using Appsettings.json (Application.P.YetaWF_Core.Demo).
+        /// Demo mode is enabled/disabled using AppSettings.json (Application.P.YetaWF_Core.Demo).
         /// </remarks>
         public static bool IsDemo {
             get {
-                if (isDemo == null)
-                    isDemo = WebConfigHelper.GetValue<bool>(YetaWF.Core.AreaRegistration.CurrentPackage.AreaName, "Demo");
-                return (bool)isDemo;
+                if (_isDemo == null)
+                    _isDemo = WebConfigHelper.GetValue<bool>(YetaWF.Core.AreaRegistration.CurrentPackage.AreaName, "Demo");
+                return (bool)_isDemo;
             }
         }
-        private static bool? isDemo = null;
+        private static bool? _isDemo = null;
 
+        /// <summary>
+        /// Defines whether the current user has the "Demo" role.
+        /// </summary>
+        /// <remarks>The demo user role can be assigned to any user. Pages and modules can be limited in their access by a demo user (Authorization tab).</remarks>
         public bool IsDemoUser {
             get {
-                if (isDemoUser == null)
-                    isDemoUser = Manager.UserRoles != null && Manager.UserRoles.Contains(Resource.ResourceAccess.GetUserDemoRoleId());
-                return (bool)isDemoUser;
+                if (_isDemoUser == null)
+                    _isDemoUser = Manager.UserRoles != null && Manager.UserRoles.Contains(Resource.ResourceAccess.GetUserDemoRoleId());
+                return (bool)_isDemoUser;
             }
         }
-        private bool? isDemoUser = null;
+        private bool? _isDemoUser = null;
 
         // HTTPCONTEXT
         // HTTPCONTEXT
@@ -599,7 +635,6 @@ namespace YetaWF.Core.Support {
         /// The current site is identified based on the URL of the current request.
         /// </summary>
         /// <returns>The current site's definitions.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public SiteDefinition CurrentSite {
             get {
                 if (_currentSite == null)
@@ -612,6 +647,10 @@ namespace YetaWF.Core.Support {
         }
         private SiteDefinition? _currentSite;
 
+        /// <summary>
+        /// Returns whether information about the current site is available.
+        /// This may return false during startup or before processing the current HTTP request has started.
+        /// </summary>
         public bool HaveCurrentSite {
             get {
                 return _currentSite != null;
@@ -619,7 +658,8 @@ namespace YetaWF.Core.Support {
         }
 
         /// <summary>
-        /// Saved URL where we came from (e.g. used for return handling after Save)
+        /// Saved URL where we came from (e.g. used for return handling after Save).
+        /// TODO: This needs some rework.
         /// </summary>
         public List<Origin> OriginList { get; set; } = null!;
 
@@ -679,11 +719,27 @@ namespace YetaWF.Core.Support {
 
         // GetUrlArg and TryGetUrlArg is used to retrieve optional Url args (outside of a Controller) added to a page using AddUrlArg, so one module can add args for other modules on the same page
 
+        /// <summary>
+        /// Used to retrieve URL query string arguments (outside of a controller).
+        /// </summary>
+        /// <typeparam name="TYPE">The expected return value type.</typeparam>
+        /// <param name="arg">The name of the query string argument.</param>
+        /// <returns>Returns the query string argument. If the argument is not available, an exception occurs.</returns>
+        /// <remarks>This would not be used in a controller as these have access to all arguments via their parameter list. This is typically only used in a module action that is dynamically added by a module.</remarks>
         public TYPE GetUrlArg<TYPE>(string arg) {
             if (!TryGetUrlArg<TYPE>(arg, out TYPE? val))
                 throw new InternalError(this.__ResStr("invUrlArg", "{0} URL argument invalid or missing", arg));
             return val;
         }
+        /// <summary>
+        /// Used to retrieve URL query string arguments (outside of a controller).
+        /// </summary>
+        /// <typeparam name="TYPE">The expected return value type.</typeparam>
+        /// <param name="arg">The name of the query string argument.</param>
+        /// <param name="val">Returns the query string argument. If the argument is not available, the type's default value is returned.</param>
+        /// <param name="dflt">An optional value, which is returned if the argument is not available.</param>
+        /// <returns>true if the argument was found, false otherwise.</returns>
+        /// <remarks>This would not be used in a controller as these have access to all arguments via their parameter list. This is typically only used in a module action that is dynamically added by a module.</remarks>
         public bool TryGetUrlArg<TYPE>(string arg, [NotNullWhen(true)] out TYPE? val, TYPE dflt = default) {
             val = dflt;
             string? v;
@@ -727,9 +783,10 @@ namespace YetaWF.Core.Support {
         }
 
         /// <summary>
-        /// Add a temporary (non-visible) Url argument to the current page being rendered.
+        /// Add a temporary (non-visible) URL query string argument to the current page being rendered.
         /// This is mainly used to propagate selections from one module to another (top-down on page only).
-        ///  Other modules must use TryGetUrlArg or GetUrlArg to retrieve these args as they're not part of the querystring/url.
+        /// Other modules must use TryGetUrlArg or GetUrlArg to retrieve these arguments as they're not part of the actual query string/URL.
+        /// TO BE REMOVED.
         /// </summary>
         public void AddUrlArg(string arg, string? value) {
             ExtraUrlArgs.Add(arg, value);
@@ -737,20 +794,20 @@ namespace YetaWF.Core.Support {
         private readonly Dictionary<string, string?> ExtraUrlArgs = new Dictionary<string, string?>();
 
         /// <summary>
-        /// Returns whether the page control module is visible
+        /// Returns whether the page control module is visible.
         /// </summary>
         public bool PageControlShown { get; set; }
 
         /// <summary>
-        /// Returns whether we're in a popup
+        /// Returns whether we're in a popup.
         /// </summary>
         public bool IsInPopup { get; set; }
 
-        public void Verify_NotPostRequest() {
+        internal void Verify_NotPostRequest() {
             if (IsPostRequest)
                 throw new InternalError("This is not supported for POST requests");
         }
-        public void Verify_PostRequest() {
+        internal void Verify_PostRequest() {
             if (!IsPostRequest)
                 throw new InternalError("This is only supported for POST requests");
         }
@@ -759,6 +816,9 @@ namespace YetaWF.Core.Support {
         // MANAGERS
         // MANAGERS
 
+        /// <summary>
+        /// Returns the instance of MetatagsManager associated with the current HTTP request.
+        /// </summary>
         public MetatagsManager MetatagsManager {
             get {
                 if (_metatagsManager == null)
@@ -768,12 +828,18 @@ namespace YetaWF.Core.Support {
         }
         private MetatagsManager? _metatagsManager = null;
 
+        /// <summary>
+        /// Used by skin modules to retrieve all meta tags as an HTML string.
+        /// </summary>
         public string MetatagsHtml {
             get {
                 return MetatagsManager.Render();
             }
         }
 
+        /// <summary>
+        /// Returns the instance of LinkAltManager associated with the current HTTP request.
+        /// </summary>
         public LinkAltManager LinkAltManager {
             get {
                 if (_linkAltManager == null)
@@ -783,6 +849,9 @@ namespace YetaWF.Core.Support {
         }
         private LinkAltManager? _linkAltManager = null;
 
+        /// <summary>
+        /// Returns the instance of ScriptManager associated with the current HTTP request.
+        /// </summary>
         public ScriptManager ScriptManager {
             get {
                 if (_scriptManager == null)
@@ -792,6 +861,9 @@ namespace YetaWF.Core.Support {
         }
         private ScriptManager? _scriptManager = null;
 
+        /// <summary>
+        /// Returns the instance of CssManager associated with the current HTTP request.
+        /// </summary>
         public CssManager CssManager {
             get {
                 if (_cssManager == null)
@@ -801,6 +873,9 @@ namespace YetaWF.Core.Support {
         }
         private CssManager? _cssManager = null;
 
+        /// <summary>
+        /// Returns the instance of AddOnManager associated with the current HTTP request.
+        /// </summary>
         public AddOnManager AddOnManager {
             get {
                 if (_addOnManager == null)
@@ -811,7 +886,7 @@ namespace YetaWF.Core.Support {
         private AddOnManager? _addOnManager = null;
 
         /// <summary>
-        /// Returns the Static Page Manager instance.
+        /// Returns the instance of StaticPageManager associated with the current HTTP request.
         /// </summary>
         /// <remarks>
         /// The Static Page Manager instance is used to manage a site's static pages. It is only allocated if static pages are actually used.
@@ -837,7 +912,7 @@ namespace YetaWF.Core.Support {
         /// <remarks>Every call to the Unique() method returns a new, unique id.
         ///
         /// Whenever an HTML id is needed, this method must be used. This insures that Ajax/Post requests do not
-        /// accidentally use ids that were used in prior request.
+        /// accidentally use ids that were used in prior requests.
         /// </remarks>
         public string UniqueId(string name = "a") {
             ++UniqueIdCounters.UniqueIdCounter;
@@ -850,7 +925,7 @@ namespace YetaWF.Core.Support {
         }
 
         public UniqueIdInfo UniqueIdCounters { get; set; } = new UniqueIdInfo { UniqueIdPrefix = UniqueIdTracked };
-        public const string UniqueIdTracked = "u";
+        private const string UniqueIdTracked = "u";
 
         public class UniqueIdInfo {
             public string UniqueIdPrefix { get; set; } = null!;
@@ -865,6 +940,9 @@ namespace YetaWF.Core.Support {
         // HTTPCONTEXT
         // HTTPCONTEXT
 
+        /// <summary>
+        /// Returns the user's IP address. If none is available, null is returned.
+        /// </summary>
         public string UserHostAddress {
             get {
                 if (!HaveCurrentRequest) return string.Empty;
@@ -874,6 +952,10 @@ namespace YetaWF.Core.Support {
                 return string.Empty;
             }
         }
+
+        /// <summary>
+        /// Returns the current HTTP request's query string.
+        /// </summary>
         public QueryHelper RequestQueryString {
             get {
                 if (_requestQueryString == null)
@@ -883,6 +965,9 @@ namespace YetaWF.Core.Support {
         }
         private QueryHelper? _requestQueryString = null;
 
+        /// <summary>
+        /// Returns the current HTTP request's form information.
+        /// </summary>
         public FormHelper RequestForm {
             get {
                 if (_requestForm == null) {

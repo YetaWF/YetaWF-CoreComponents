@@ -2,7 +2,7 @@
 
 namespace YetaWF.Core.Pages {
 
-    public class ActionInfo {
+    internal class ActionInfo {
         public string HTML { get; set; } = null!;
         public bool Failed { get; set; }
     }

@@ -35,12 +35,12 @@ namespace YetaWF.Core.Support {
     /// </summary>
     public static class DisposableTracker {
 
-        private static object _lock = new object();
+        private static readonly object _lock = new object();
 
         private static Dictionary<object, TrackedEntry> DisposableObjects = new Dictionary<object, TrackedEntry>();
 
         /// <summary>
-        /// Returns whether objects are tracked. This is defined using appsettings.json.
+        /// Returns whether objects are tracked. This is defined using AppSettings.json.
         /// </summary>
         public static bool UseTracker {
             get {

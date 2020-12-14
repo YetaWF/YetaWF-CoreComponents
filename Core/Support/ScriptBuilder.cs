@@ -5,6 +5,10 @@ using System.Text;
 
 namespace YetaWF.Core.Support {
 
+    /// <summary>
+    /// This class is used to build JavaScript content.
+    /// TODO: This has been abused to build all kinds of things, including plain string content. LeadingNL (Append) and NL are clearly not appropriate here.
+    /// </summary>
     public class ScriptBuilder {
 
         public const string NL = "(+nl)";

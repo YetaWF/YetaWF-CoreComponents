@@ -15,18 +15,18 @@ namespace YetaWF.Core.Pages {
 
     public class FileBundles : IInitializeApplicationStartupFirstNodeOnly {
 
-        public enum BundleTypeEnum {
+        internal enum BundleTypeEnum {
             JS = 0,
             CSS = 1,
         }
 
-        public class Bundle {
+        internal class Bundle {
             public string BundleName { get; set; } = null!;
             public int BundleNumber { get; set; }
             public string Url { get; set; } = null!;
             public int StartLength { get; set; }
 #if DEBUG
-            public string StartText { get; set; } = null!;
+            internal string StartText { get; set; } = null!;
             // The generated text added to the start of the file
             // There is a chance this text differs between identical included js/css files, so this helps us debug that condition
 #endif
@@ -64,7 +64,7 @@ namespace YetaWF.Core.Pages {
             }
         }
 
-        public static async Task<string?> MakeBundleAsync(List<string> fileList, BundleTypeEnum bundleType, ScriptBuilder? startText = null) {
+        internal static async Task<string?> MakeBundleAsync(List<string> fileList, BundleTypeEnum bundleType, ScriptBuilder? startText = null) {
 
             string? url = null;
 

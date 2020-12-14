@@ -20,7 +20,7 @@ namespace YetaWF.Core.Components {
     /// </summary>
     /// <remarks>The list of currencies is cached. Any changes to the list require a site restart.
     ///
-    /// The list of currencies is located at .\CoreComponents\Core\Addons\_Templates\CurrencyISO4217\Currencies.txt.
+    /// The list of currencies is located at ./CoreComponents/Core/Addons/_Templates/CurrencyISO4217/Currencies.txt.
     /// </remarks>
     public static class CurrencyISO4217 {
 

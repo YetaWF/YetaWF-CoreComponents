@@ -7,7 +7,7 @@ using YetaWF.Core.Models;
 
 namespace YetaWF.Core.Components {
 
-    public class Enums {
+    public static class Enums {
 
         private static string __ResStr(string name, string defaultValue, params object?[] parms) { return ResourceAccess.GetResourceString(typeof(Enums), name, defaultValue, parms); }
 

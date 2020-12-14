@@ -6,34 +6,55 @@ using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Pages {
 
+    /// <summary>
+    /// An instance of the MetatagsManager class is used to add and render all &lt;meta&gt; tags for the current page.
+    /// </summary>
+    /// <remarks>The instance of the MetatagsManager class for the current HTTP request can be accessed using the YetaWF.Core.Support.YetaWFManager.Manager.MetatagsManager property.</remarks>
     public class MetatagsManager {
 
-        public MetatagsManager(YetaWFManager manager) { Manager = manager; }
-        protected YetaWFManager Manager { get; private set; }
+        internal MetatagsManager(YetaWFManager manager) { Manager = manager; }
+        private YetaWFManager Manager { get; set; }
 
         private readonly List<string> _tags = new List<string>();
 
         /// <summary>
-        /// Add a meta tag to the current page.
+        /// Adds a meta tag to the current page.
         /// </summary>
+        /// <param name="type">The type of the meta tag being added. This renders as the tag's name attribute.</param>
+        /// <param name="content">The content of the meta tag being added. This renders as the tag's content attribute.</param>
         /// <remarks>Used for rarely used tags.
         ///
-        /// The "title" meta tag should not be set directly. Set Manager.PageTitle instead.
-        /// For "keywords", set Manager.CurrentPage.Keywords instead. For "description" set Manager.CurrentPage.Description instead.</remarks>
+        /// Many standard meta tags are automatically added based on site settings and page settings, like page keywords, description, noindex, nofollow, noarchive, nosnippet, robots.
+        ///
+        /// The "title" meta tag should not be set directly. Set YetaWF.Core.Support.YetaWFManager.Manager.PageTitle instead.
+        /// For "keywords", set YetaWF.Core.Support.YetaWFManager.Manager.CurrentPage.Keywords instead. For "description" set YetaWF.Core.Support.YetaWFManager.Manager.CurrentPage.Description instead.</remarks>
         public void AddMetatag(string type, string content) {
             if (_tags.Contains(type))
                 return;
             string tag = string.Format("<meta name='{0}' content='{1}'/>", Utility.HtmlAttributeEncode(type), Utility.HtmlAttributeEncode(content));
             _tags.Add(tag);
         }
+        /// <summary>
+        /// Adds a meta tag to the current page with variable substitution.
+        /// </summary>
+        /// <param name="vars">An instance of a YetaWF.Core.Support.Variables object describing the variables to substitute.</param>
+        /// <param name="type">The type of the meta tag being added. This renders as the tag's name attribute.</param>
+        /// <param name="content">The content of the meta tag being added. This renders as the tag's content attribute.</param>
+        /// <remarks>Used for rarely used tags.
+        ///
+        /// Many standard meta tags are automatically added based on site settings and page settings, like page keywords, description, noindex, nofollow, noarchive, nosnippet, robots.
+        ///
+        /// The "title" meta tag should not be set directly. Set YetaWF.Core.Support.YetaWFManager.Manager.PageTitle instead.
+        /// For "keywords", set YetaWF.Core.Support.YetaWFManager.Manager.CurrentPage.Keywords instead. For "description" set YetaWF.Core.Support.YetaWFManager.Manager.CurrentPage.Description instead.</remarks>
         private void AddMetatag(Variables vars, string type, string content) {
             if (_tags.Contains(type))
-                throw new InternalError("Metatag name={0} has already been added for this page.", type);
+                throw new InternalError($"Metatag name={type} has already been added for this page.");
             content = vars.ReplaceVariables(content);// variable substitution
             string tag = string.Format("<meta name='{0}' content='{1}'/>", Utility.HtmlAttributeEncode(type), Utility.HtmlAttributeEncode(content));
             _tags.Add(tag);
         }
-        public string Render() {
+
+        internal string Render() {
             StringBuilder sb = new StringBuilder();
             Variables vars = new Variables(Manager) {  };
             // add built-in metatags

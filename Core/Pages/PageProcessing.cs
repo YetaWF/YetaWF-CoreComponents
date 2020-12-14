@@ -8,7 +8,7 @@ using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Pages {
 
-    public class PageProcessing {
+    internal class PageProcessing {
 
         public PageProcessing(YetaWFManager manager) { Manager = manager; }
 

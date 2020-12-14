@@ -69,6 +69,7 @@ namespace YetaWF.Core.Components {
         /// <summary>
         /// Constructor, initializes the Date property with the current user's local time.
         /// </summary>
+        /// <remarks>If no date/time is specified, the current date is used.</remarks>
         public DayTimeRange() {
             Date = Formatting.GetUserDateTime(DateTime.UtcNow);// user's date with timezone
         }

@@ -7,8 +7,9 @@ using System.Reflection;
 namespace YetaWF.Core.Support {
 
     /// <summary>
-    /// Manages assemblies.
+    /// Manages assemblies. Keeps information about all loaded assemblies to avoid duplicate loads.
     /// </summary>
+    /// <remarks>Applications should not normally need to load any assemblies.</remarks>
     public static class Assemblies {
 
         private static readonly Dictionary<string, Assembly> LoadedAssemblies = new Dictionary<string, Assembly>();
@@ -41,7 +42,7 @@ namespace YetaWF.Core.Support {
         /// <summary>
         /// Add an already loaded assembly to the list of loaded assemblies.
         /// </summary>
-        /// <param name="assembly"></param>
+        /// <param name="assembly">Describes the loaded assembly to add.</param>
         public static void AddLoaded(Assembly assembly) {
             string name = System.IO.Path.GetFileNameWithoutExtension(assembly.ManifestModule.Name);
             name = name.ToLower();

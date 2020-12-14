@@ -13,16 +13,32 @@ using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Pages {
 
+    /// <summary>
+    /// Error handling middleware is added during startup in the request pipeline.
+    /// </summary>
+    /// <remarks>The error hander logs any errors that occur. Errors are usually immediately saved to the log file in use, by flushing the log file. To avoid log spamming, the log is flushed at most every 10 seconds.
+    ///
+    /// Errors during (non-POST) requests are only handled if the error doesn't occur while processing a module. Modules handle errors themselves to display the errors in place of the module content. Otherwise, the request is redirected to an error page displaying a suitable error message.
+    ///
+    /// Errors during POST requests are returned as a JSON object with the YetaWF.Core.Addons.Basics.AjaxJavascriptErrorReturn prefix. This is unique to the YetaWF framework and its client side JavaScript handling which expects certain prefixes identifying the response.</remarks>
     public class ErrorHandlingMiddleware {
 
-        protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
+        private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
         private readonly RequestDelegate next;
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="next">The delegate representing the remaining middleware in the request pipeline.</param>
         public ErrorHandlingMiddleware(RequestDelegate next) {
             this.next = next;
         }
 
+        /// <summary>
+        /// Request handling method.
+        /// </summary>
+        /// <param name="context">The HttpContext for the current request.</param>
         public async Task Invoke(HttpContext context /* other scoped dependencies */) {
             try {
                 await next(context);
@@ -70,9 +86,10 @@ namespace YetaWF.Core.Pages {
         /// <summary>
         /// Redirect from error handling middleware with a message.
         /// </summary>
-        /// <param name="Message">Error message to display.</param>
+        /// <param name="message">Error message to display.</param>
+        /// <param name="statusCode">The HTTP status code to return.</param>
         private string MessageUrl(string message, int statusCode) {
-            // we're in a get request without module, so all we can do is redirect and show the message in the ShowMessage module
+            // we're in a GET request without module, so all we can do is redirect and show the message in the ShowMessage module
             // the ShowMessage module is in the Basics package and we reference it by permanent Guid
             string url = YetaWFManager.Manager.CurrentSite.MakeUrl(ModuleDefinition.GetModulePermanentUrl(new Guid("{b486cdfc-3726-4549-889e-1f833eb49865}")));
             QueryHelper query = QueryHelper.FromUrl(url, out url);

@@ -15,9 +15,13 @@ namespace YetaWF.Core.Pages {
 
         /* private static string __ResStr(string name, string defaultValue, params object?[] parms) { return ResourceAccess.GetResourceString(typeof(PageDefinition), name, defaultValue, parms); } */
 
-        public const string PageContentsFile = "Contents.json";
-        public const string PageIDFile = "Page.txt";
+        internal const string PageContentsFile = "Contents.json";
+        internal const string PageIDFile = "Page.txt";
 
+        /// <summary>
+        /// Creates a ZIP file with the page contents. The ZIP file can be used to restore the page using Control Panel > Import Page.
+        /// </summary>
+        /// <returns>An instance of YetaWF.Core.Support.Zip.YetaWFZipFile describing the ZIP file.</returns>
         public async Task<YetaWFZipFile> ExportAsync() {
 
             string zipName = __ResStr("moduleFmt", "Page Data - {0}.zip", this.Url);
