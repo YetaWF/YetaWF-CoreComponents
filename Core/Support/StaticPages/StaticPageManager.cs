@@ -14,8 +14,9 @@ using YetaWF.Core.Serializers;
 namespace YetaWF.Core.Support.StaticPages {
 
     /// <summary>
-    /// Keeps track of static pages.
+    /// An instance of this class keeps track of all static pages which are saved when a page is accessed for the first time.
     /// </summary>
+    /// <remarks>For more information about static pages see <see href="https://YetaWF.com/Documentation/YetaWF/Topic/g_doc_staticpages"/>.</remarks>
     public class StaticPageManager : IInitializeApplicationStartupFirstNodeOnly {
 
         private const string StaticFolder = "YetaWF_StaticPages";
@@ -25,36 +26,86 @@ namespace YetaWF.Core.Support.StaticPages {
         private SiteEntry Site { get; set; } = null!;
 
         /// <summary>
-        /// Called when the first node of a multi-instance site is starting up.
+        /// Called when the first node of a multi-instance site is starting up. For internal framework use only.
         /// </summary>
         public async Task InitializeFirstNodeStartupAsync() {
             if (!YetaWFManager.IsBatchMode && !YetaWFManager.IsServiceMode)
                 await RemoveAllPagesInternalAsync();
         }
 
+        /// <summary>
+        /// Defines the method with which the static page is stored.
+        /// </summary>
         public enum PageEntryEnum {
-            [EnumDescription("File", "Static pages cached using a local file")]
+            /// <summary>
+            /// Static page cached using a local file.
+            /// </summary>
+            [EnumDescription("File", "Static page cached using a local file")]
             File = 0,
-            [EnumDescription("Memory", "Static pages cached in memory (not available with distributed caching - web farm/garden)")]
+            /// <summary>
+            /// Static page cached in memory (not available with distributed caching - web farm/garden)
+            /// </summary>
+            [EnumDescription("Memory", "Static page cached in memory (not available with distributed caching - web farm/garden)")]
             Memory = 1,
         }
-        public class SiteEntry {
+        internal class SiteEntry {
             public int SiteIdentity { get; set; }
             public SerializableDictionary<string, PageEntry> StaticPages { get; set; } = null!;
         }
+
+        /// <summary>
+        /// Describes a page that is saved as a static page.
+        /// </summary>
         public class PageEntry {
+            /// <summary>
+            /// The page URL saved as a static page.
+            /// </summary>
             public string LocalUrl { get; set; } = null!;
+            /// <summary>
+            /// Defines how the page is saved.
+            /// </summary>
             public PageEntryEnum StorageType { get; set; }
+            /// <summary>
+            /// Defines when the saved page was last updated.
+            /// </summary>
             public DateTime LastUpdate { get; set; }
+            /// <summary>
+            /// The static page content (using http://).
+            /// </summary>
             public string? Content { get; set; }
+            /// <summary>
+            /// The static page content (using http://) when used in a popup window.
+            /// </summary>
             public string? ContentPopup { get; set; }
+            /// <summary>
+            /// The static page content (using https://).
+            /// </summary>
             public string? ContentHttps { get; set; }
+            /// <summary>
+            /// The static page content (using https://) when used in a popup window.
+            /// </summary>
             public string? ContentPopupHttps { get; set; }
+            /// <summary>
+            /// The file where the contents are stored (using http://).
+            /// </summary>
             public string? FileName { get; set; }
+            /// <summary>
+            /// The file where the contents are stored (using http://) when used in a popup window.
+            /// </summary>
             public string? FileNamePopup { get; set; }
+            /// <summary>
+            /// The file where the contents are stored (using https://).
+            /// </summary>
             public string? FileNameHttps { get; set; }
+            /// <summary>
+            /// The file where the contents are stored (using https://) when used in a popup window.
+            /// </summary>
             public string? FileNamePopupHttps { get; set; }
         }
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public StaticPageManager() { }
 
         string STATICPAGESKEY { get { return $"__StaticPages_{YetaWFManager.Manager.CurrentSite.Identity}"; } }
@@ -79,6 +130,10 @@ namespace YetaWF.Core.Support.StaticPages {
             return siteEntries;
         }
 
+        /// <summary>
+        /// Retrieves a list of all static pages.
+        /// </summary>
+        /// <returns>A list of all currently saved static pages.</returns>
         public async Task<List<PageEntry>> GetSiteStaticPagesAsync() {
             using (ILockObject staticLock = await YetaWF.Core.IO.Caching.LockProvider.LockResourceAsync(STATICPAGESKEY)) {
                 using (ICacheDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
@@ -92,7 +147,7 @@ namespace YetaWF.Core.Support.StaticPages {
         private string GetScheme() {
             return Manager.HostSchemeUsed;
         }
-        public async Task AddPageAsync(string localUrl, bool cache, string pageHtml, DateTime lastUpdated) {
+        internal async Task AddPageAsync(string localUrl, bool cache, string pageHtml, DateTime lastUpdated) {
             using (ILockObject staticLock = await YetaWF.Core.IO.Caching.LockProvider.LockResourceAsync(STATICPAGESKEY)) {
                 using (ICacheDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
                     List<SiteEntry> siteEntries = await InitSiteWithLockAsync(cacheStaticDP, staticLock);
@@ -174,12 +229,12 @@ namespace YetaWF.Core.Support.StaticPages {
             }
         }
 
-        public class GetPageInfo {
+        internal class GetPageInfo {
             public string? FileContents { get; set; }
             public DateTime LastUpdate{ get; set; }
         }
 
-        public async Task<GetPageInfo> GetPageAsync(string localUrl) {
+        internal async Task<GetPageInfo> GetPageAsync(string localUrl) {
             using (ICacheDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
                 List<SiteEntry> siteEntries = await InitSiteAsync(cacheStaticDP);
 
@@ -249,13 +304,20 @@ namespace YetaWF.Core.Support.StaticPages {
                 };
             }
         }
-        public async Task<bool> HavePageAsync(string localUrl) {
-            using (ICacheDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
-                List<SiteEntry> siteEntries = await InitSiteAsync(cacheStaticDP);
-                string localUrlLower = localUrl.ToLower();
-                return Site.StaticPages.TryGetValue(localUrlLower, out PageEntry? entry);
-            }
-        }
+
+        //public async Task<bool> HavePageAsync(string localUrl) {
+        //    using (ICacheDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
+        //        List<SiteEntry> siteEntries = await InitSiteAsync(cacheStaticDP);
+        //        string localUrlLower = localUrl.ToLower();
+        //        return Site.StaticPages.TryGetValue(localUrlLower, out PageEntry? entry);
+        //    }
+        //}
+
+        /// <summary>
+        /// Removes a static page.
+        /// </summary>
+        /// <param name="localUrl">The page whose saved static page is to be removed.</param>
+        /// <remarks>The next time the page is accessed, it will be saved again as a static page.</remarks>
         public async Task RemovePageAsync(string localUrl) {
             using (ILockObject staticLock = await YetaWF.Core.IO.Caching.LockProvider.LockResourceAsync(STATICPAGESKEY)) {
                 using (ICacheDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
@@ -285,7 +347,7 @@ namespace YetaWF.Core.Support.StaticPages {
             if (await FileSystem.FileSystemProvider.FileExistsAsync(tempFile)) await FileSystem.FileSystemProvider.DeleteFileAsync(tempFile);
         }
 
-        public async Task RemovePagesAsync(List<PageDefinition> pages) {
+        internal async Task RemovePagesAsync(List<PageDefinition> pages) {
             if (pages == null) return;
             using (ICacheDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
                 using (ILockObject staticLock = await YetaWF.Core.IO.Caching.LockProvider.LockResourceAsync(STATICPAGESKEY)) {
@@ -301,6 +363,11 @@ namespace YetaWF.Core.Support.StaticPages {
                 }
             }
         }
+
+        /// <summary>
+        /// Removes all static pages.
+        /// </summary>
+        /// <remarks>The next time a page is accessed, it will be saved again as a static page.</remarks>
         public async Task RemoveAllPagesAsync() {
             using (ICacheDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
                 using (ILockObject staticLock = await YetaWF.Core.IO.Caching.LockProvider.LockResourceAsync(STATICPAGESKEY)) {
@@ -312,7 +379,7 @@ namespace YetaWF.Core.Support.StaticPages {
                 }
             }
         }
-        private async Task RemoveAllPagesInternalAsync() {
+        internal async Task RemoveAllPagesInternalAsync() {
             Logging.AddLog("Removing/creating bundle folder");
             string folder = Path.Combine(YetaWFManager.RootSitesFolder, StaticFolder);
             await FileSystem.FileSystemProvider.DeleteDirectoryAsync(folder);

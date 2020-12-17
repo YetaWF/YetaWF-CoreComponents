@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace YetaWF.Core.Support {
 
     /// <summary>
-    /// Manages Appsettings.json.
+    /// Manages AppSettings.json.
     /// </summary>
     /// <remarks>This class is used exclusively to manage json settings files.
     ///
@@ -72,7 +72,7 @@ namespace YetaWF.Core.Support {
         private string SettingsFile = null!;
         private dynamic Settings = null!;
 
-        public Dictionary<string, object> Variables = null!;
+        protected internal Dictionary<string, object> Variables = null!;
 
         public TYPE? GetValue<TYPE>(string areaName, string key, TYPE? dflt = default, bool Package = true, bool Required = false) {
             dynamic val;

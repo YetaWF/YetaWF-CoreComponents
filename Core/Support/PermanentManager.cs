@@ -15,7 +15,7 @@ namespace YetaWF.Core.Support {
     /// Permanent items are identified by their Type. Only one item of a specific Type can be saved for one site. Each site within a YetaWF instance can save the same Type once.
     ///
     /// This is typically used for permanent, high use data which should be cached and is shared across one site of a YetaWF instance.
-    /// Cannot be used with distributed caching, i.e., data the must be shared with other instances.</remarks>
+    /// Cannot be used with distributed caching, i.e., data that must be shared with other instances.</remarks>
     public static class PermanentManager {
 
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }

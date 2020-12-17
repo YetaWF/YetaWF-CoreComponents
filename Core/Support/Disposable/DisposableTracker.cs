@@ -30,9 +30,15 @@ namespace YetaWF.Core.Support {
 
     /// <summary>
     /// Keeps track of objects that implement the IDisposable interface so objects that are not disposed can be located.
-    ///
-    /// Admin > Dashboard > Disposable Tracker (standard YetaWF site) can be used to view tracked objects.
     /// </summary>
+    /// <remarks>
+    /// Disposable objects implement the IDisposable interface. Their creation/destruction is tracked using the DisposableTracker class.
+    /// Admin > Dashboard > Disposable Tracker (standard YetaWF site) can be used to review and objects that are currently tracked.
+    /// If objects are shown they should be checked as they are possible leaks.
+    ///
+    /// Some classes deliberately create near permanent disposable object. These are SiteDefinition, LanguageData and LogRecordDataProvider and some other.
+    /// More than one object may be created per class. Only objects with explicit calls to DisposableTracker.AddObject/RemoveObject are tracked.
+    /// </remarks>
     public static class DisposableTracker {
 
         private static readonly object _lock = new object();

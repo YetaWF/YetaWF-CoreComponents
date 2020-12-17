@@ -6,19 +6,22 @@ using System.Threading.Tasks;
 namespace YetaWF.Core.Support {
 
     /// <summary>
-    /// Manages Appsettings.json.
+    /// Manages AppSettings.json.
     /// </summary>
-    /// <remarks>This class is used exclusively to manage Appsettings.json.
+    /// <remarks>This class is used exclusively to manage AppSettings.json.
     ///
     /// It retrieves values and supports saving new values.
     ///
     /// For retrieval, variables embedded in the values are substituted.
-    /// See the Appsettings.json topic for more information.</remarks>
+    /// See the AppSettings.json topic for more information.</remarks>
     public static class WebConfigHelper {
 
         private static WebConfigBaseHelper helper = new WebConfigBaseHelper();
 
-        public static Dictionary<string, object> Variables => helper.Variables;
+        public static Dictionary<string, object> Variables {
+            get { return helper.Variables; }
+            internal set { Variables = value; }
+        }
 
         public static Task InitAsync(string settingsFile) {
             return helper.InitAsync(settingsFile);
