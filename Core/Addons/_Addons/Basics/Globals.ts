@@ -73,7 +73,7 @@ namespace YetaWF {
         UnifiedAnimation: number;
         UnifiedSetGuid: string;
         UnifiedPopups: boolean;
-        UnifiedSkinCollection: string;
+        UnifiedSkinCollection: string | null;
         UnifiedSkinName: string;
         UniqueIdCounters: UniqueIdInfo;
         UnifiedCssBundleFiles: string[];
