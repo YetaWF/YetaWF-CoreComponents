@@ -1,5 +1,5 @@
 "use strict";
-/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+/* Copyright © 2021 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 var YetaWF;
 (function (YetaWF) {
     /**

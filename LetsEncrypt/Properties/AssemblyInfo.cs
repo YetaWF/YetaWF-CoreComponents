@@ -1,4 +1,4 @@
-﻿/* Copyright © 2020 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+﻿/* Copyright © 2021 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -9,12 +9,12 @@ using YetaWF.PackageAttributes;
 [assembly: AssemblyDescription("Provides LetsEncrypt Data")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Softel vdm, Inc.")]
-[assembly: AssemblyCopyright("Copyright © 2020 - Softel vdm, Inc.")]
+[assembly: AssemblyCopyright("Copyright © 2021 - Softel vdm, Inc.")]
 [assembly: AssemblyProduct("LetsEncrypt")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
-[assembly: AssemblyVersion("5.3.0.0")]
+[assembly: AssemblyVersion("5.4.0.0")]
 
 [assembly: Package(PackageTypeEnum.CoreAssembly, "YetaWF")]
 [assembly: PackageInfo("https://YetaWF.com/UpdateServer",
