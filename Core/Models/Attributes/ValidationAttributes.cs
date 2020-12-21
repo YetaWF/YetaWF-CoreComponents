@@ -68,7 +68,7 @@ namespace YetaWF.Core.Models.Attributes {
             public int Min { get; set; }
             public int Max { get; set; }
         }
-        public ValidationBase? AddValidation(object container, PropertyData propData, string caption, YTagBuilder tag) {
+        public ValidationBase? AddValidation(object container, PropertyData propData, string caption) {
             if (MaximumLength == 0) return null;
             return new ValidationStringLength {
                 Method = nameof(StringLengthAttribute),
@@ -93,7 +93,7 @@ namespace YetaWF.Core.Models.Attributes {
             public object Min { get; set; } = null!;
             public object Max { get; set; } = null!;
         }
-        public ValidationBase? AddValidation(object container, PropertyData propData, string caption, YTagBuilder tag) {
+        public ValidationBase? AddValidation(object container, PropertyData propData, string caption) {
             return new ValidationRange {
                 Method = nameof(RangeAttribute),
                 Message = __ResStr("range", "The '{0}' value must be between {1} and {2}", caption, Minimum, Maximum),

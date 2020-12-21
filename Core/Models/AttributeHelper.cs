@@ -8,7 +8,7 @@ using YetaWF.Core.Support;
 namespace YetaWF.Core.Models {
 
     public interface YIClientValidation {
-        ValidationBase? AddValidation(object container, PropertyData propData, string caption, YTagBuilder tag);
+        ValidationBase? AddValidation(object container, PropertyData propData, string caption);
     }
     public class ValidationBase {
         public string Method { get; set; } = null!;

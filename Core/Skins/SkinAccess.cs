@@ -8,6 +8,7 @@ using YetaWF.Core.Components;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Modules;
+using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Skins {
@@ -92,94 +93,75 @@ namespace YetaWF.Core.Skins {
             return modSkinEntry;
         }
 
-        // a module looks like this - we build this dynamically
-        // <div class='[Globals,CssModule] [ThisModule,Area] [ThisModule,CssClass]' id='[ThisModule,ModuleHtmlId]'
-        //      data-moduleguid='[ThisModule,ModuleGuid]' data-charwidth='..' data-charheightavg='..' >
-        //      data-moduleguid='[ThisModule,ModuleGuid]'>
-        //    [ThisModule,ModuleMenu]
-        //    [ThisModule,TitleHtml]
-        //    [[CONTENTS]]
-        //    [ThisModule,ActionMenu]
-        // </div>
         internal async Task<string> MakeModuleContainerAsync(ModuleDefinition mod, string htmlContents, bool ShowMenu = true, bool ShowTitle = true, bool ShowAction = true) {
             ModuleSkinEntry modSkinEntry = GetModuleSkinEntry(mod);
             string modSkinCss = modSkinEntry.CssClass;
 
-            YTagBuilder? anchor = null;
-            if (!mod.IsModuleUnique && Manager.CurrentPage != null && !string.IsNullOrWhiteSpace(mod.AnchorId)) { // add an anchor
-                anchor = new YTagBuilder("div");
-                anchor.AddCssClass("yAnchor");
-                anchor.Attributes.Add("id", mod.AnchorId);
+            HtmlBuilder hb = new HtmlBuilder();
+
+            if (!mod.IsModuleUnique && Manager.CurrentPage != null && !string.IsNullOrWhiteSpace(mod.AnchorId)) { 
+                // add an anchor
+                hb.Append($@"<div class='yAnchor' id='{mod.AnchorId}'></div>");
             }
 
-            YTagBuilder div = new YTagBuilder("div");
-            div.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(Globals.CssModule));
-            div.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(mod.AreaName));
-            div.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(mod.AreaName + "_" + mod.ModuleName));
-            div.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(modSkinCss));
+            string css = string.Empty;
             if (!string.IsNullOrWhiteSpace(mod.CssClass) && !Manager.EditMode)
-                div.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(mod.CssClass));
+                css = CssManager.CombineCss(css, Manager.AddOnManager.CheckInvokedCssModule(mod.CssClass));
             if (!mod.Print)
-                div.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(Globals.CssModuleNoPrint));
-            div.Attributes.Add("id", mod.ModuleHtmlId);
-            div.Attributes.Add("data-moduleguid", mod.ModuleGuid.ToString());
+                css = CssManager.CombineCss(css, Manager.AddOnManager.CheckInvokedCssModule(Globals.CssModuleNoPrint));
 
-            HtmlBuilder inner = new HtmlBuilder();
-
-            // add an inner div with css classes to modules that can't be seen by anonymous users and users
-            bool showOwnership = UserSettings.GetProperty<bool>("ShowModuleOwnership") &&
-                                    await Resource.ResourceAccess.IsResourceAuthorizedAsync(CoreInfo.Resource_ViewOwnership);
+            // add css classes to modules that can't be seen by anonymous users and users
+            bool showOwnership = UserSettings.GetProperty<bool>("ShowModuleOwnership") && await Resource.ResourceAccess.IsResourceAuthorizedAsync(CoreInfo.Resource_ViewOwnership);
             if (showOwnership) {
                 bool anon = mod.IsAuthorized_View_Anonymous();
                 bool user = mod.IsAuthorized_View_AnyUser();
-                if (!anon && !user)
-                    inner.Append("<div class='ymodrole_noUserAnon'>");
-                else if (!anon)
-                    inner.Append("<div class='ymodrole_noAnon'>");
-                else if (!user)
-                    inner.Append("<div class='ymodrole_noUser'>");
-                else
-                    showOwnership = false;
+                if (!anon && !user) {
+                    css = CssManager.CombineCss(css, "ymodrole_noUserAnon");
+                } else if (!anon) {
+                    css = CssManager.CombineCss(css, "ymodrole_noAnon");
+                } else if (!user) {
+                    css = CssManager.CombineCss(css, "ymodrole_noUser");
+                }
             }
 
-            if (ShowMenu) {
-                if (mod.ShowModuleMenu)
-                    inner.Append(await YetaWFCoreRendering.Render.RenderModuleMenuAsync(mod));
-            }
+            hb.Append($@"
+<div id='{mod.ModuleHtmlId}' data-moduleguid='{mod.ModuleGuid.ToString()}' class='{Manager.AddOnManager.CheckInvokedCssModule(Globals.CssModule)} {Manager.AddOnManager.CheckInvokedCssModule(mod.AreaName)} {Manager.AddOnManager.CheckInvokedCssModule(mod.AreaName + "_" + mod.ModuleName)} {Manager.AddOnManager.CheckInvokedCssModule(modSkinCss)} {css}'>");
 
+            if (ShowMenu && mod.ShowModuleMenu) {
+                hb.Append(await YetaWFCoreRendering.Render.RenderModuleMenuAsync(mod));
+            }
             if (ShowTitle) {
                 if (mod.ShowTitleActions) {
                     string? actions = null;
                     if (ShowTitle && mod.ShowTitleActions)
                         actions = await YetaWFCoreRendering.Render.RenderModuleLinksAsync(mod, ModuleAction.RenderModeEnum.IconsOnly, Globals.CssModuleLinksContainer);
                     if (!string.IsNullOrWhiteSpace(actions)) {
-                        inner.Append("<div class='yModuleTitle'>");
-                        inner.Append(mod.TitleHtml);
-                        inner.Append(actions);
-                        inner.Append("</div>");
-                        inner.Append("<div class='y_cleardiv'></div>");
+                        hb.Append($@"
+    <div class='yModuleTitle'>
+         <h1>{Utility.HE(mod.Title)}</h1>
+        {actions}
+    </div>
+    <div class='y_cleardiv'></div>");
                     } else {
-                        inner.Append(mod.TitleHtml);
+                        hb.Append($@"<h1>{Utility.HE(mod.Title)}</h1>");
                     }
                 } else {
-                    inner.Append(mod.TitleHtml);
+                    hb.Append($@"<h1>{Utility.HE(mod.Title)}</h1>");
                 }
             }
 
-            inner.Append(htmlContents);
+            hb.Append($@"
+{htmlContents}");
+
             if (ShowAction && !string.IsNullOrWhiteSpace(Manager.PaneRendered)) { // only show action menus in a pane
                 if (mod.ShowActionMenu)
-                    inner.Append(await YetaWFCoreRendering.Render.RenderModuleLinksAsync(mod, ModuleAction.RenderModeEnum.NormalLinks, Globals.CssModuleLinksContainer));
+                    hb.Append($@"
+{await YetaWFCoreRendering.Render.RenderModuleLinksAsync(mod, ModuleAction.RenderModeEnum.NormalLinks, Globals.CssModuleLinksContainer)}");
             }
 
-            if (showOwnership)
-                inner.Append("</div>");
-
-            div.InnerHtml = inner.ToString();
-            if (anchor != null)
-                return anchor.ToString(YTagRenderMode.Normal) + div.ToString(YTagRenderMode.Normal);
-            else
-                return div.ToString(YTagRenderMode.Normal);
+            hb.Append($@"
+</div>");
+                return hb.ToString();
         }
 
         /// <summary>

@@ -61,7 +61,7 @@ namespace YetaWF.Core.Models.Attributes {
         public class ValidationRegexValidationBase : ValidationBase {
             public string Pattern { get; set; } = null!;
         }
-        public ValidationBase? AddValidation(object container, PropertyData propData, string caption, YTagBuilder tag) {
+        public ValidationBase? AddValidation(object container, PropertyData propData, string caption) {
             return new ValidationRegexValidationBase {
                 Method = nameof(RegexValidationBaseAttribute),
                 Message = string.Format(ErrorMessageWithFieldFormat, caption),

@@ -39,7 +39,7 @@ namespace YetaWF.Core.Models.Attributes {
         public class ValidationSameAs : ValidationBase {
             public string CondProp { get; set; } = null!;
         }
-        public ValidationBase? AddValidation(object container, PropertyData propData, string caption, YTagBuilder tag) {
+        public ValidationBase? AddValidation(object container, PropertyData propData, string caption) {
             return new ValidationSameAs {
                 Method = nameof(SameAsAttribute),
                 Message = __ResStr("sameas", "The {0} field doesn't match", caption),

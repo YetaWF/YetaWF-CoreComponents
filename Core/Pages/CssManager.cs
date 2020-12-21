@@ -100,6 +100,7 @@ namespace YetaWF.Core.Pages {
                 bool nominify = false;
                 bool? bundle = null;
                 bool? cdn = null;
+                bool? deployed = null;
                 bool allowCustom = false;
                 string[] parts = info.Split(new Char[] { ',' });
                 int count = parts.Length;
@@ -119,6 +120,8 @@ namespace YetaWF.Core.Pages {
                             else if (part == "nobundle") bundle = false;
                             else if (part == "cdn") cdn = true;
                             else if (part == "nocdn") cdn = false;
+                            else if (part == "deployed") deployed = true;
+                            else if (part == "notdeployed") deployed = false;
                             else if (part == "allowcustom") allowCustom = true;
                             else throw new InternalError("Invalid keyword {0} in statement '{1}' ({2}/{3})'.", part, info, version.Domain, version.Product);
                         }
@@ -126,6 +129,10 @@ namespace YetaWF.Core.Pages {
                     if (cdn == true && !Manager.CurrentSite.CanUseCDNComponents)
                         continue;
                     else if (cdn == false && Manager.CurrentSite.CanUseCDNComponents)
+                        continue;
+                    else if (deployed == true && !YetaWFManager.Deployed)
+                        continue;
+                    else if (deployed == false && YetaWFManager.Deployed)
                         continue;
                     // check if we want to send this file
                     string filePathURL;
@@ -292,7 +299,7 @@ namespace YetaWF.Core.Pages {
             foreach (CssEntry entry in externalList) {
                 string url = Manager.GetCDNUrl(entry.Url);
                 if (cr == null) {
-                    tag.Append(string.Format("<link rel='stylesheet' type='text/css' data-name='{0}' href='{1}'>", Utility.HtmlAttributeEncode(entry.Url), Utility.HtmlAttributeEncode(url)));
+                    tag.Append(string.Format("<link rel='stylesheet' type='text/css' data-name='{0}' href='{1}'>", Utility.HAE(entry.Url), Utility.HAE(url)));
                 } else {
                     if (KnownCss == null || !KnownCss.Contains(entry.Url)) {
                         cr.CssFiles.Add(new Controllers.PageContentController.UrlEntry {

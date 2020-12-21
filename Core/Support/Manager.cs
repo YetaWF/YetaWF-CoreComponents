@@ -1188,7 +1188,7 @@ namespace YetaWF.Core.Support {
         public string PageTitleHtml {
             get {
                 string title = PageTitle.ToString();
-                return string.Format("<title>{0}</title>", Utility.HtmlEncode(title ?? ""));
+                return string.Format("<title>{0}</title>", Utility.HE(title ?? ""));
             }
         }
         /// <summary>

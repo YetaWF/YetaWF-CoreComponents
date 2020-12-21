@@ -676,12 +676,12 @@ namespace YetaWF.Core.Site {
         // SKIN
 
         [Category("Skin"), Caption("Default Page Skin"), Description("The default skin used to for pages - individual pages can override the default skin")]
-        [UIHint("PageSkin"), AdditionalMetadata("NoDefault", true), Required, Trim]
+        [UIHint("PageSkin"), AdditionalMetadata("NoDefault", true), Trim]
         [RequiresPageReload]
         public SkinDefinition SelectedSkin { get; set; }
 
         [Category("Skin"), Caption("Default Popup Skin"), Description("The default skin used in a popup window - individual pages can override the default skin")]
-        [UIHint("PopupSkin"), AdditionalMetadata("NoDefault", true), Required, Trim]
+        [UIHint("PopupSkin"), AdditionalMetadata("NoDefault", true), Trim]
         public SkinDefinition SelectedPopupSkin { get; set; }
 
         [Category("Skin"), Caption("Message Style"), Description("Defines the display style of notification messages (informational and error messages)")]

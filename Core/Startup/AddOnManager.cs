@@ -287,8 +287,8 @@ namespace YetaWF.Core.Addons {
             return UniqueInvokedCssModules;
         }
 
-        public string CheckInvokedCssModule(string css) {
-            if (string.IsNullOrWhiteSpace(css)) return css;
+        public string CheckInvokedCssModule(string? css) {
+            if (string.IsNullOrWhiteSpace(css)) return string.Empty;
             string[] classes = css.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             foreach (string cls in classes) {
                 Module? mod = (from m in UniqueInvokedCssModules where m.InvokingCss == cls select m).FirstOrDefault();
@@ -296,7 +296,7 @@ namespace YetaWF.Core.Addons {
             }
             return css;
         }
-        public void CheckInvokedTemplate(string template) {
+        public void CheckInvokedTemplate(string? template) {
             if (string.IsNullOrWhiteSpace(template)) return;
             Module? mod = (from m in UniqueInvokedCssModules where m.Templates.Contains(template) select m).FirstOrDefault();
             AddInvokedCssModule(mod);

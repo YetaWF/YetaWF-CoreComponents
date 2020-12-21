@@ -194,7 +194,7 @@ namespace YetaWF.Core.Support {
         /// </summary>
         /// <param name="s">The string to encode.</param>
         /// <returns>Returns the encoded HTML.</returns>
-        public static string HtmlEncode(string? s) {
+        public static string HE(string? s) {
             if (s == null) return string.Empty;
             return System.Net.WebUtility.HtmlEncode(s);
         }
@@ -212,7 +212,7 @@ namespace YetaWF.Core.Support {
         /// </summary>
         /// <param name="s">The string to encode.</param>
         /// <returns>Returns the string encoded for use as an HTML attribute.</returns>
-        public static string HtmlAttributeEncode(string? s) {
+        public static string HAE(string? s) {
             if (s == null) return string.Empty;
             return System.Net.WebUtility.HtmlEncode(s);
         }

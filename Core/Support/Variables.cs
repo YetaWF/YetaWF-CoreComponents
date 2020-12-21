@@ -390,9 +390,9 @@ namespace YetaWF.Core.Support {
         private string EncodeText(string text) {
             switch (EncodingType) {
                 case EncodingTypeEnum.HTML:
-                    return Utility.HtmlEncode(text);
+                    return Utility.HE(text);
                 case EncodingTypeEnum.XML:
-                    return Utility.HtmlEncode(text);
+                    return Utility.HE(text);
                 case EncodingTypeEnum.JSON:
                     return Utility.JserEncode(text);
             }

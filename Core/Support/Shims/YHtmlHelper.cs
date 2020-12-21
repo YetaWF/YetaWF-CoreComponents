@@ -50,7 +50,7 @@ namespace YetaWF.Core.Support {
         public static string HtmlAttributesToString(IDictionary<string, object?> dict) {
             HtmlBuilder hb = new HtmlBuilder();
             foreach(string key in dict.Keys) {
-                hb.Append($" {key.Replace("_", "-")}={Utility.HtmlAttributeEncode((string?)dict[key])}");
+                hb.Append($" {key.Replace("_", "-")}={Utility.HAE((string?)dict[key])}");
             }
             return hb.ToString();
         }

@@ -1700,23 +1700,6 @@ if (window.matchMedia) {
 window.onbeforeprint = (ev: Event): void => { YetaWF.BasicsServices.onBeforePrint(); };
 window.onafterprint = (ev: Event): void => { YetaWF.BasicsServices.onAfterPrint(); };
 
-if (YConfigs.Basics.DEBUGBUILD) {
-    let inDebug = false;
-    // not really a debugging tool - Any failures result in a popup so at least it's visible without explicitly looking at the console log
-    window.onerror = (ev: Event | string, url?: string, lineNo?: number, columnNo?: number, error?: Error): void => {
-        if (!inDebug) {
-            inDebug = true;
-
-            let evMsg = ev.toString();
-            // avoid recursive error with video controls. a bit hacky but this is just a debugging tool.
-            if (evMsg.startsWith("ResizeObserver")) return;
-
-            $YetaWF.error(`${evMsg} (${url}:${lineNo}) ${error?.stack}`);
-            inDebug = false;
-        }
-    };
-}
-
 window.onbeforeunload = (ev: BeforeUnloadEvent): any => {
     if ($YetaWF.pageChanged) {
         ev.returnValue = "Are you sure you want to leave this page? There are unsaved changes."; // Chrome requires returnValue to be set

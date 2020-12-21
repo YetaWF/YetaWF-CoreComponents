@@ -642,7 +642,7 @@ namespace YetaWF.Core.Models.Attributes {
             public OpEnum Op { get; set; }
             public string Expr { get; set; } = null!;
         }
-        public ValidationBase? AddValidation(object container, PropertyData propData, string caption, YTagBuilder tag) {
+        public ValidationBase? AddValidation(object container, PropertyData propData, string caption) {
             switch (Op) {
                 default:
                     throw new InternalError($"Invalid Op {Op} in {nameof(AddValidation)}");

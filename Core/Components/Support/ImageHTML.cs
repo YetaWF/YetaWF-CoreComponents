@@ -67,43 +67,39 @@ namespace YetaWF.Core.Components {
 
         public static string BuildKnownIcon(string url, string? title = null, string? alt = null, string? id = null, string? cssClass = null, string? name = null, Dictionary<string, string>? sprites = null) {
 
-            title = title ?? string.Empty;
-            sprites = sprites ?? PredefSpriteIcons;
+            title ??= string.Empty;
+            sprites ??= PredefSpriteIcons;
+
+            if (!string.IsNullOrWhiteSpace(name))
+                name = $@" name='{Utility.HAE(name)}'";
+            if (!string.IsNullOrWhiteSpace(id))
+                id = $@" id='{Utility.HAE(id)}'";
+            if (!string.IsNullOrWhiteSpace(title))
+                title = $@" title='{Utility.HAE(title)}'";
+
+            string extraCss = Manager.AddOnManager.CheckInvokedCssModule(cssClass);
 
             if (sprites.TryGetValue(url, out string? css)) {
 
-                YTagBuilder tIcon = new YTagBuilder("i");
-                tIcon.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(css));
-                if (!string.IsNullOrWhiteSpace(cssClass))
-                    tIcon.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(cssClass));
-                if (!string.IsNullOrWhiteSpace(title))
-                    tIcon.MergeAttribute("title", title);
-                if (!string.IsNullOrWhiteSpace(id))
-                    tIcon.Attributes.Add("id", id);
-                if (!string.IsNullOrWhiteSpace(name))
-                    tIcon.Attributes.Add("name", name);
+                extraCss = CssManager.CombineCss(extraCss, Manager.AddOnManager.CheckInvokedCssModule(css));
 
-                return tIcon.ToString(YTagRenderMode.Normal);
+                css = string.Empty;
+                if (!string.IsNullOrWhiteSpace(extraCss))
+                    css = $" class='{extraCss}'";
+                return $@"<i{css}{title}{id}{name}></i>";
 
             } else {
 
-                YTagBuilder tImg = new YTagBuilder("img");
                 if (string.IsNullOrWhiteSpace(alt))
                     alt = title;
-                if (!string.IsNullOrWhiteSpace(title))
-                    tImg.MergeAttribute("title", title);
                 if (!string.IsNullOrWhiteSpace(alt))
-                    tImg.MergeAttribute("alt", alt);
-                if (!string.IsNullOrWhiteSpace(cssClass))
-                    tImg.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(cssClass));
-                if (!string.IsNullOrWhiteSpace(id))
-                    tImg.Attributes.Add("id", id);
-                if (!string.IsNullOrWhiteSpace(name))
-                    tImg.Attributes.Add("name", name);
+                    alt = $@" alt='{Utility.HAE(alt)}'";
 
-                tImg.MergeAttribute("src", Manager.GetCDNUrl(url));
+                css = string.Empty;
+                if (!string.IsNullOrWhiteSpace(extraCss))
+                    css = $" class='{extraCss}'";
 
-                return tImg.ToString(YTagRenderMode.StartTag);
+                return $@"<img src='{Utility.HAE(Manager.GetCDNUrl(url))}'{css}{title}{alt}{id}{name}>";
             }
         }
     }

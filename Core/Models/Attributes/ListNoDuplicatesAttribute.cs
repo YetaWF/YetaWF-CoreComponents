@@ -30,7 +30,7 @@ namespace YetaWF.Core.Models.Attributes {
             }
             return ValidationResult.Success;
         }
-        public ValidationBase? AddValidation(object container, PropertyData propData, string caption, YTagBuilder tag) {
+        public ValidationBase? AddValidation(object container, PropertyData propData, string caption) {
             return new ValidationBase {
                 Method = nameof(ListNoDuplicatesAttribute),
                 Message = __ResStr("dupClient2", "Duplicate entry found in the field labeled '{0}'", caption),

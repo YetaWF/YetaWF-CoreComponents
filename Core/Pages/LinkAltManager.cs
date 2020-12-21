@@ -26,7 +26,7 @@ namespace YetaWF.Core.Pages {
         /// <remarks>Link tags added using AddLinkAltTag are automatically rendered once the page has been completely processed.</remarks>
         public void AddLinkAltTag(string name, string type, string title, string href) {
             string tag = string.Format("<link rel='alternate' type='{0}' title='{1}' href='{2}'>",
-                Utility.HtmlAttributeEncode(type), Utility.HtmlAttributeEncode(title), Utility.HtmlAttributeEncode(href));
+                Utility.HAE(type), Utility.HAE(title), Utility.HAE(href));
             if (_tags.ContainsKey(name)) {
                 if (_tags[name] != tag)
                     throw new InternalError($"Link alt tag {name} has already been added for this page with a different value");

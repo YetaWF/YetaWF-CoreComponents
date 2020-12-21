@@ -1,5 +1,7 @@
 ﻿/* Copyright © 2021 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace YetaWF.Core.Support {
@@ -13,13 +15,8 @@ namespace YetaWF.Core.Support {
         /// Constructor.
         /// </summary>
         public HtmlBuilder() { }
-        /// <summary>
-        /// Constructor.
-        /// </summary>
-        /// <param name="s">A string defining the initial HTML contents.</param>
-        public HtmlBuilder(string s) { }
 
-        private readonly StringBuilder _hb = new StringBuilder(4000);
+        private readonly StringBuilder _hb = new StringBuilder();
 
         /// <summary>
         /// Appends a string to the current HTML content.
@@ -71,6 +68,91 @@ namespace YetaWF.Core.Support {
         /// <param name="length">The number of characters to remove.</param>
         public void Remove(int startIndex, int length) {
             _hb.Remove(startIndex, length);
+        }
+        /// <summary>
+        /// Removes the last character.
+        /// </summary>
+        public void RemoveLast() {
+            if (_hb.Length > 0)
+                _hb.Remove(_hb.Length - 1, 1);
+        }
+
+        /// <summary>
+        /// Returns a string of formatted attributes given a dictionary of attributes.
+        /// </summary>
+        /// <param name="attributes">The dictionary of HTML attributes to format.</param>
+        /// <remarks>Adds a leading space to the resulting string if attributes are available.</remarks>
+        /// <returns>Returns all formatted attributes (with leading space). If no attributes are defined, an empty string is returned.
+        /// Attributes with name "id" or "class" are never generated.</returns>
+        public static string Attributes(IDictionary<string, object>? attributes) {
+            HtmlBuilder hb = new HtmlBuilder();
+            if (attributes != null) {
+                foreach (KeyValuePair<string, object> entry in attributes) {
+                    string key = Convert.ToString(entry.Key)!;
+                    if (key == "id" || key == "class") continue;
+                    string? value = Convert.ToString(entry.Value);
+                    hb.Append($" {key}='{Utility.HAE(value)}'");
+                }
+            }
+            return hb.ToString();
+        }
+
+        /// <summary>
+        /// Returns the id defined in <paramref name="attributes"/>, or a new id.
+        /// </summary>
+        /// <param name="attributes">The dictionary of HTML attributes.</param>
+        /// <returns>Returns the id defined in <paramref name="attributes"/>, or a new id.</returns>
+        /// <example>
+        /// HtmlBuilder hb = new HtmlBuilder();
+        /// string id = HtmlBuilder.GetId(HtmlAttributes);
+        /// hb.Append($@"<input {FieldSetup(Validation ? FieldType.Validated : FieldType.Normal)} id='{id}' class='{TemplateClass} t_edit yt_intvalue_base{HtmlBuilder.GetClass(HtmlAttributes)}' maxlength='20' value='{model?.ToString()}'>");
+        /// </example>
+        public static string GetId(IDictionary<string, object?>? attributes) {
+            return GetIdCond(attributes) ?? YetaWFManager.Manager.UniqueId("c");
+        }
+
+        /// <summary>
+        /// Returns the id defined in <paramref name="attributes"/>, or null.
+        /// </summary>
+        /// <param name="attributes">The dictionary of HTML attributes.</param>
+        /// <returns>Returns the id defined in <paramref name="attributes"/>, or null.</returns>
+        public static string? GetIdCond(IDictionary<string, object?>? attributes) {
+            if (attributes != null && attributes.ContainsKey("id"))
+                return (string?)attributes["id"];
+            return null;
+        }
+
+        /// <summary>
+        /// Returns the CSS classes defined in <paramref name="attributes"/>.
+        /// </summary>
+        /// <param name="attributes">The dictionary of HTML attributes.</param>
+        /// <returns>Returns the CSS classes defined in <paramref name="attributes"/>, with a leading space. An empty string is returned if no classes are defined.</returns>
+        /// <example>
+        /// HtmlBuilder hb = new HtmlBuilder();
+        /// string id = HtmlBuilder.GetId(HtmlAttributes);
+        /// hb.Append($@"<input {FieldSetup(Validation ? FieldType.Validated : FieldType.Normal)} id='{id}' class='{TemplateClass} t_edit yt_intvalue_base{HtmlBuilder.GetClass(HtmlAttributes)}' maxlength='20' value='{model?.ToString()}'>");
+        /// </example>
+        public static string GetClasses(IDictionary<string, object?>? attributes) {
+            if (attributes != null && attributes.ContainsKey("class")) {
+                string? classes = (string?)attributes["class"];
+                if (!string.IsNullOrWhiteSpace(classes))
+                    return $" {classes}";
+           }
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// Returns a complete class= CSS attribute including all classes defined in <paramref name="attributes"/>.
+        /// </summary>
+        /// <param name="attributes">The dictionary of HTML attributes.</param>
+        /// <returns>Returns a complete class= CSS attribute including all classes defined in <paramref name="attributes"/>. An empty string is returned if no classes are defined.</returns>
+        public static string GetClassAttribute(IDictionary<string, object?>? attributes) {
+            if (attributes != null && attributes.ContainsKey("class")) {
+                string? classes = (string?)attributes["class"];
+                if (!string.IsNullOrWhiteSpace(classes))
+                    return $" class='{classes}'";
+            }
+            return string.Empty;
         }
     }
 }

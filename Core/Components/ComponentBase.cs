@@ -177,17 +177,6 @@ namespace YetaWF.Core.Components {
         }
 
         /// <summary>
-        /// A component can opt-in to use the HTML id provided by HtmlAttributes if one is available.
-        /// </summary>
-        /// <remarks>TODO: This method is a poor idea and will be reviewed/changed.</remarks>
-        public void UseSuppliedIdAsControlId() {
-            if (HtmlAttributes.ContainsKey("id")) {
-                ControlId = (string)HtmlAttributes["id"]!;
-                HtmlAttributes.Remove("id");
-            }
-        }
-
-        /// <summary>
         /// Returns the HtmlHelper instance.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
@@ -282,12 +271,9 @@ namespace YetaWF.Core.Components {
         /// </summary>
         public string ControlId {
             get {
-                if (string.IsNullOrEmpty(_controlId))
-                    _controlId = Manager.UniqueId("ctrl");
+                if (_controlId == null)
+                    _controlId = HtmlBuilder.GetId(HtmlAttributes);
                 return _controlId;
-            }
-            private set {
-                _controlId = value;
             }
         }
         private string? _controlId;
@@ -322,7 +308,7 @@ namespace YetaWF.Core.Components {
         /// <param name="text">The string to encode.</param>
         /// <returns>Returns an encoded HTML attribute data value.</returns>
         public static string HAE(string? text) {
-            return Utility.HtmlAttributeEncode(text);
+            return Utility.HAE(text);
         }
         /// <summary>
         /// Encodes the provided <paramref name="text"/> suitable for use as HTML.
@@ -330,7 +316,7 @@ namespace YetaWF.Core.Components {
         /// <param name="text">The string to encode.</param>
         /// <returns>Returns encoded HTML.</returns>
         public static string HE(string? text) {
-            return Utility.HtmlEncode(text);
+            return Utility.HE(text);
         }
         /// <summary>
         /// Encodes the provided <paramref name="text"/> suitable for use as a JavaScript string.

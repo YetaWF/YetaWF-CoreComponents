@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using YetaWF.Core.Controllers;
 using YetaWF.Core.Extensions;
@@ -438,15 +437,12 @@ namespace YetaWF.Core.Pages {
             }
 
             // render all modules that are on this pane
-            StringBuilder sb = new StringBuilder();
+            HtmlBuilder hb = new HtmlBuilder();
 
             bool empty = true;
             if (Manager.EditMode && !Manager.IsInPopup && !Manager.CurrentPage.Temporary) { // add the pane name in edit mode
                 if (UnifiedMainPage == null || UnifiedMainPage.Url == Manager.CurrentPage.Url) { // but only for main page
-                    YTagBuilder tagDiv = new YTagBuilder("div");
-                    tagDiv.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(Globals.CssPaneTag));
-                    tagDiv.SetInnerText(pane);
-                    sb = new StringBuilder(tagDiv.ToString(YTagRenderMode.Normal));
+                    hb.Append($@"<div class='{Manager.AddOnManager.CheckInvokedCssModule(Globals.CssPaneTag)}'>{Utility.HE(pane)}</div>");
                 }
             }
 
@@ -459,26 +455,21 @@ namespace YetaWF.Core.Pages {
                         module = await modEntry.GetModuleAsync();
                         if (module != null) {
                             if (module.IsAuthorized(ModuleDefinition.RoleDefinition.View))
-                                sb.Append(await module.RenderModuleAsync(htmlHelper, Args: Args));
+                                hb.Append(await module.RenderModuleAsync(htmlHelper, Args: Args));
                         }
                     } catch (Exception exc) {
                         modExc = exc;
                     }
                     if (module == null || modExc != null) {
-                        sb.Append(ModuleDefinition.ProcessModuleError(modExc, modEntry.ModuleGuid.ToString(), modExc == null ? __ResStr("missingMod", "Designed module not found") : null).ToString());
+                        hb.Append(ModuleDefinition.ProcessModuleError(modExc, modEntry.ModuleGuid.ToString(), modExc == null ? __ResStr("missingMod", "Designed module not found") : null).ToString());
                         if (Manager.EditMode) {
                             ModuleDefinition? modServices = await ModuleDefinition.LoadAsync(Manager.CurrentSite.ModuleControlServices, AllowNone: true);
                             if (modServices != null) {
                                 ModuleAction? action = await modServices.GetModuleActionAsync("Remove", Manager.CurrentPage, null, modEntry.ModuleGuid, pane);
                                 if (action != null) {
                                     string act = await action.RenderAsync(ModuleAction.RenderModeEnum.NormalLinks);
-                                    if (!string.IsNullOrWhiteSpace(act)) { // only render if the action actually is available
-                                        sb.AppendFormat("<ul class='{0}'>", Globals.CssModuleLinks);
-                                        sb.Append("<li>");
-                                        sb.Append(act);
-                                        sb.Append("</li>");
-                                        sb.Append("</ul>");
-                                    }
+                                    if (!string.IsNullOrWhiteSpace(act)) // only render if the action actually is available
+                                        hb.Append($@"<ul class='{Globals.CssModuleLinks}'><li>{act}</li></ul>");
                                 }
                             }
                         }
@@ -505,23 +496,33 @@ namespace YetaWF.Core.Pages {
                     }
                 }
                 if (generate) {
-                    YTagBuilder tagDiv = new YTagBuilder("div");
-                    tagDiv.Attributes.Add("data-pane", pane);// add pane name
+                    string css = string.Empty;
                     if (!string.IsNullOrWhiteSpace(cssClass))
-                        tagDiv.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule(string.Format("{0}", cssClass.Trim())));
-                    tagDiv.AddCssClass(Manager.AddOnManager.CheckInvokedCssModule("yPane"));
+                        css = CssManager.CombineCss(css, Manager.AddOnManager.CheckInvokedCssModule(cssClass.Trim()));
+                    css = CssManager.CombineCss(css, Manager.AddOnManager.CheckInvokedCssModule("yPane"));
+
+                    string conditional = string.Empty;
                     if (Conditional)
-                        tagDiv.Attributes.Add("data-conditional", "true");
+                        conditional = " data-conditional='true'";
+
+                    string dataUrl = string.Empty;
                     if (UnifiedMainPage != null) {
-                        tagDiv.Attributes.Add("data-url", Utility.UrlEncodePath(Manager.CurrentPage.Url));// add url to div so we can identify for which Url this pane is active
-                        tagDiv.AddCssClass("yUnified");
+                        dataUrl = $@" data-url='{Utility.HAE(Manager.CurrentPage.Url)}'"; // add url to div so we can identify for which Url this pane is active
+                        css = CssManager.CombineCss(css, "yUnified");
                         if (Manager.UnifiedMode == PageDefinition.UnifiedModeEnum.HideDivs && UnifiedMainPage.Url != Manager.CurrentPage.Url)
                             hide = true;
                     }
+
+                    string style = string.Empty;
                     if (hide)
-                        tagDiv.Attributes.Add("style", "display:none");
-                    tagDiv.InnerHtml = sb.ToString();
-                    sb = new StringBuilder(tagDiv.ToString(YTagRenderMode.Normal));
+                        style = " style='display:none'";
+
+                    HtmlBuilder hbOuter = new HtmlBuilder();
+                    hbOuter.Append($@"
+<div data-pane='{pane}' class='{css}' {conditional}{dataUrl}{style}>
+    {hb.ToString()}
+</div>");
+                    hb = hbOuter;
                 }
             }
 
@@ -535,10 +536,10 @@ namespace YetaWF.Core.Pages {
                 leftOver = (from l in leftOver where !panes.Contains(l) select l).ToList();
                 // now render what's left
                 foreach (string p in leftOver) {
-                    sb.Append(await RenderPaneAsync(htmlHelper, p, "yGeneratedPane"));
+                    hb.Append(await RenderPaneAsync(htmlHelper, p, "yGeneratedPane"));
                 }
             }
-            return sb.ToString();
+            return hb.ToString();
         }
 
         /// <summary>
@@ -749,7 +750,7 @@ namespace YetaWF.Core.Pages {
             // hreflang - google
 
             // <link rel="alternate" href="http://example.com/" hreflang = "x-default" />
-            string canonUrl = Utility.HtmlAttributeEncode(EvaluatedCanonicalUrl);
+            string canonUrl = Utility.HAE(EvaluatedCanonicalUrl);
             hb.Append("<link rel='alternate' href='{0}' hreflang='x-default' />", canonUrl);
             if (string.IsNullOrWhiteSpace(LanguageId)) {
                 // page in multiple languages

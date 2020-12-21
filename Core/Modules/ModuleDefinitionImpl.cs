@@ -692,33 +692,22 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
             HtmlBuilder hb = new HtmlBuilder();
             hb.Append("<div class='{0}'>", Globals.CssDivAlert);
 //#if DEBUG
-//            hb.Append(__ResStr("modErr", "An error occurred in module {0}:<br/>", Utility.HtmlEncode(name)));
+//            hb.Append(__ResStr("modErr", "An error occurred in module {0}:<br/>", Utility.HE(name)));
 //#endif
             if (details != null) {
-                hb.Append($"{Utility.HtmlEncode(details)}");
+                hb.Append($"{Utility.HE(details)}");
                 if (exc != null)
                     hb.Append("<br/>");
             }
             if (exc != null) {
                 // skip first exception (because it's not user friendly)
                 if (!string.IsNullOrWhiteSpace(ErrorHandling.FormatExceptionMessage(exc)) && exc.InnerException != null) exc = exc.InnerException;
-                hb.Append(Utility.HtmlEncode(ErrorHandling.FormatExceptionMessage(exc)));
+                hb.Append(Utility.HE(ErrorHandling.FormatExceptionMessage(exc)));
             }
             hb.Append("</div>");
             if (Manager.CurrentResponse.StatusCode == 200)
                 Manager.CurrentResponse.StatusCode = 500; // mark as error if we don't already have an error code (usually from MarkNotFound)
             return hb;
-        }
-
-        public string TitleHtml {
-            get {
-                string? t = Title;
-                if (string.IsNullOrWhiteSpace(t))
-                    return string.Empty;
-                YTagBuilder tag = new YTagBuilder("h1");
-                tag.SetInnerText(t);
-                return tag.ToString(YTagRenderMode.Normal);
-            }
         }
 
         [Category("Variables"), Caption("Show Module Menu"), Description("Displays whether the module menu is shown for this module")]
