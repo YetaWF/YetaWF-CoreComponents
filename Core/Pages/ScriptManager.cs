@@ -694,15 +694,15 @@ namespace YetaWF.Core.Pages {
                 if (cr == null) {
                     string async = entry.Async ? " async" : string.Empty;
                     string defer = entry.Defer ? " defer" : string.Empty;
-                    IDictionary<string, object?> attrs = YHtmlHelper.AnonymousObjectToHtmlAttributes(entry.HtmlAttributes);
-                    string attr = YHtmlHelper.HtmlAttributesToString(attrs);
+                    IDictionary<string, object?> attrs = HtmlBuilder.AnonymousObjectToHtmlAttributes(entry.HtmlAttributes);
+                    string attr = HtmlBuilder.Attributes(attrs);
                     hb.Append($"<script data-name='{Utility.UrlEncodePath(entry.Url)}' src='{Utility.UrlEncodePath(url)}'{async}{defer}{attr}></script>");
                 } else {
                     if (KnownScripts == null || !KnownScripts.Contains(entry.Url)) {
                         cr.ScriptFiles.Add(new Controllers.PageContentController.UrlEntry {
                             Name = entry.Url,
                             Url = url,
-                            Attributes = YHtmlHelper.AnonymousObjectToHtmlAttributes(entry.HtmlAttributes),
+                            Attributes = HtmlBuilder.AnonymousObjectToHtmlAttributes(entry.HtmlAttributes),
                         });
                         if (entry.Bundle) {
                             string file = Utility.UrlToPhysical(entry.Url);

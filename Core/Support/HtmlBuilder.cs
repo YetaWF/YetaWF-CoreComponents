@@ -1,9 +1,13 @@
 ﻿/* Copyright © 2021 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-using System;
+using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Routing;
 using System.Collections.Generic;
 using System.Text;
 using YetaWF.Core.Models;
+using YetaWF.Core.Pages;
 
 namespace YetaWF.Core.Support {
 
@@ -98,7 +102,7 @@ namespace YetaWF.Core.Support {
                         value = (string?)entry.Value;
                     else
                         value = entry.Value?.ToString();
-                    hb.Append($" {key}='{Utility.HAE(value)}'");
+                    hb.Append($" {key.Replace("_", "-")}='{Utility.HAE(value)}'");
                 }
             }
             return hb.ToString();
@@ -137,15 +141,15 @@ namespace YetaWF.Core.Support {
         /// <example>
         /// HtmlBuilder hb = new HtmlBuilder();
         /// string id = HtmlBuilder.GetId(HtmlAttributes);
-        /// hb.Append($@"<input {FieldSetup(Validation ? FieldType.Validated : FieldType.Normal)} id='{id}' class='{TemplateClass} t_edit yt_intvalue_base{HtmlBuilder.GetClass(HtmlAttributes)}' maxlength='20' value='{model?.ToString()}'>");
+        /// hb.Append($@"<input{FieldSetup(Validation ? FieldType.Validated : FieldType.Normal)} id='{id}' class='{TemplateClass} t_edit yt_intvalue_base{HtmlBuilder.GetClass(HtmlAttributes)}' maxlength='20' value='{model?.ToString()}'>");
         /// </example>
-        public static string GetClasses(IDictionary<string, object?>? attributes) {
-            if (attributes != null && attributes.ContainsKey("class")) {
-                string? classes = (string?)attributes["class"];
-                if (!string.IsNullOrWhiteSpace(classes))
-                    return $" {classes}";
-           }
-            return string.Empty;
+        public static string GetClasses(IDictionary<string, object?>? attributes, string? extraCss = null) {
+            string? css = extraCss;
+            if (attributes != null && attributes.ContainsKey("class"))
+                css = CssManager.CombineCss(css, (string?)attributes["class"]);
+            if (string.IsNullOrWhiteSpace(css))
+                return string.Empty;
+            return $" {css}";
         }
 
         /// <summary>
@@ -153,13 +157,46 @@ namespace YetaWF.Core.Support {
         /// </summary>
         /// <param name="attributes">The dictionary of HTML attributes.</param>
         /// <returns>Returns a complete class= CSS attribute including all classes defined in <paramref name="attributes"/>. An empty string is returned if no classes are defined.</returns>
-        public static string GetClassAttribute(IDictionary<string, object?>? attributes) {
-            if (attributes != null && attributes.ContainsKey("class")) {
-                string? classes = (string?)attributes["class"];
-                if (!string.IsNullOrWhiteSpace(classes))
-                    return $" class='{classes}'";
+        public static string GetClassAttribute(IDictionary<string, object?>? attributes, string? extraCss = null) {
+            string? css = extraCss;
+            if (attributes != null && attributes.ContainsKey("class"))
+                css = CssManager.CombineCss(css, (string?)attributes["class"]);
+            if (string.IsNullOrWhiteSpace(css))
+                return string.Empty;
+            return $" class='{css}'";
+        }
+
+        /// <summary>
+        /// Creates and returns an antiforgery token (HTML).
+        /// </summary>
+        /// <param name="htmlHelper">An instance of a YHtmlHelper.</param>
+        /// <returns>Returns an antiforgery token (HTML).</returns>
+        public static string AntiForgeryToken() {
+            if (YetaWFManager.Manager.AntiForgeryTokenHTML == null) {
+                IAntiforgery? antiForgery = (IAntiforgery?)YetaWFManager.ServiceProvider.GetService(typeof(IAntiforgery));
+                IHtmlContent ihtmlContent = antiForgery!.GetHtml(YetaWFManager.Manager.CurrentContext);
+                using (System.IO.StringWriter writer = new System.IO.StringWriter()) {
+                    ihtmlContent.WriteTo(writer, System.Text.Encodings.Web.HtmlEncoder.Default);
+                    YetaWFManager.Manager.AntiForgeryTokenHTML = writer.ToString();
+                }
             }
-            return string.Empty;
+            return YetaWFManager.Manager.AntiForgeryTokenHTML;
+        }
+
+        /// <summary>
+        /// Converts an anonymous object, a RouteValueDictionary or a Dictionary&lt;string, object&gt; object to a dictionary.
+        /// </summary>
+        /// <param name="htmlAttributes">An anonymous object, a RouteValueDictionary or a Dictionary&lt;string, object&gt; object.</param>
+        /// <returns>Returns a dictionary with the key/values of the provided object <paramref name="htmlAttributes"/>.</returns>
+        /// <remarks>
+        /// This is intended for use with HTML attributes that may use different containers (an anonymous object, a RouteValueDictionary or a Dictionary&lt;string, object&gt; object).
+        ///
+        /// If an anonymous object is used, underscore characters (_) are replaced with hyphens (-) in the keys of the specified HTML attributes.</remarks>
+        public static IDictionary<string, object?> AnonymousObjectToHtmlAttributes(object? htmlAttributes) {
+            if (htmlAttributes == null) return new Dictionary<string, object?>();
+            if (htmlAttributes as RouteValueDictionary != null) return (RouteValueDictionary)htmlAttributes;
+            if (htmlAttributes as Dictionary<string, object> != null) return (Dictionary<string, object?>)htmlAttributes;
+            return Microsoft.AspNetCore.Mvc.ViewFeatures.HtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes);
         }
     }
 }

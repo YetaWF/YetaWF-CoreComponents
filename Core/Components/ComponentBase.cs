@@ -172,7 +172,7 @@ namespace YetaWF.Core.Components {
             } else {
                 FieldName = fieldName;
             }
-            HtmlAttributes = YHtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes);
+            HtmlAttributes = HtmlBuilder.AnonymousObjectToHtmlAttributes(htmlAttributes);
             Validation = validation;
         }
 

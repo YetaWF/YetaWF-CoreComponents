@@ -167,7 +167,7 @@ namespace YetaWF.Core.Components {
             Type containerType = container.GetType();
             PropertyData propData = ObjectSupport.GetPropertyData(containerType, propertyName);
 
-            IDictionary<string, object?> htmlAttributes = YHtmlHelper.AnonymousObjectToHtmlAttributes(HtmlAttributes);
+            IDictionary<string, object?> htmlAttributes = HtmlBuilder.AnonymousObjectToHtmlAttributes(HtmlAttributes);
 
             string? description;
             if (htmlAttributes.ContainsKey("Description")) {
