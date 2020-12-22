@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using YetaWF.Core.Models;
 
 namespace YetaWF.Core.Support {
 
@@ -84,13 +85,19 @@ namespace YetaWF.Core.Support {
         /// <remarks>Adds a leading space to the resulting string if attributes are available.</remarks>
         /// <returns>Returns all formatted attributes (with leading space). If no attributes are defined, an empty string is returned.
         /// Attributes with name "id" or "class" are never generated.</returns>
-        public static string Attributes(IDictionary<string, object>? attributes) {
+        public static string Attributes(IDictionary<string, object?>? attributes) {
             HtmlBuilder hb = new HtmlBuilder();
             if (attributes != null) {
-                foreach (KeyValuePair<string, object> entry in attributes) {
-                    string key = Convert.ToString(entry.Key)!;
+                foreach (KeyValuePair<string, object?> entry in attributes) {
+                    string key = entry.Key;
                     if (key == "id" || key == "class") continue;
-                    string? value = Convert.ToString(entry.Value);
+                    string? value;
+                    if (entry.Value is MultiString s)
+                        value = s;
+                    else if (entry.Value is string)
+                        value = (string?)entry.Value;
+                    else
+                        value = entry.Value?.ToString();
                     hb.Append($" {key}='{Utility.HAE(value)}'");
                 }
             }

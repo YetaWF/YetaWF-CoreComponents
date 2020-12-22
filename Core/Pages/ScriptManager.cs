@@ -612,7 +612,7 @@ namespace YetaWF.Core.Pages {
                         sb.Append("YConfigs.{0}=YConfigs.{0}||{{}};", groupName);
                         Dictionary<string, object?> confEntries = groupEntry.Value;
                         foreach (var confEntry in confEntries.OrderBy(kvp => kvp.Key))
-                            sb.Append($"YConfigs.{groupName}.{confEntry.Key}={(confEntry.Value != null ? Utility.JsonSerialize(confEntry.Value) : confEntry.Value)};");
+                            sb.Append($"YConfigs.{groupName}.{confEntry.Key}={(confEntry.Value != null ? Utility.JsonSerialize(confEntry.Value) : "null")};");
                     }
                 }
             }

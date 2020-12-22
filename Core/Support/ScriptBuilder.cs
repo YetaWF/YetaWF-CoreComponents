@@ -14,6 +14,7 @@ namespace YetaWF.Core.Support {
         public const string NL = "(+nl)";
 
         private readonly StringBuilder _sb = new StringBuilder();
+
         public void Append(string? s) {
             if (s == null) return;
             _sb.Append(s);
