@@ -123,7 +123,7 @@ namespace YetaWF.Core.Support {
         private Regex varReSingleEscapeCB {
             get {
                 if (_varReSingleEscapeCB == null)
-                    _varReSingleEscapeCB = new Regex("\\{(?'neg'(\\-|))\\s*(?'module'[^\\,\\}]]+?)\\s*(,|\\:)\\s*(?'var'[^\\.\\}]]+?)\\s*(\\.\\s*(?'subvar'[^\\}]]+?)){0,1}\\s*\\}", RegexOptions.Compiled | RegexOptions.Singleline);
+                    _varReSingleEscapeCB = new Regex("\\{(?'neg'(\\-|))\\s*(?'module'[^\\,\\}]]+?)\\s*(,|\\:)\\s*(?'var'[^\\.\\}\\]]+?)\\s*(\\.\\s*(?'subvar'[^\\}\\]]+?)){0,1}\\s*\\}", RegexOptions.Compiled | RegexOptions.Singleline);
                 return _varReSingleEscapeCB;
             }
         }
@@ -132,7 +132,7 @@ namespace YetaWF.Core.Support {
         private Regex varReDoubleEscapeCB {
             get {
                 if (_varReDoubleEscapeCB == null)
-                    _varReDoubleEscapeCB = new Regex("\\{\\{(?'neg'(\\-|))\\s*(?'module'[^\\,\\]}]+?)\\s*(,|\\:)\\s*(?'var'[^\\.\\]}]+?)\\s*(\\.\\s*(?'subvar'[^\\]}]+?)){0,1}\\s*\\}\\}", RegexOptions.Compiled | RegexOptions.Singleline);
+                    _varReDoubleEscapeCB = new Regex("\\{\\{(?'neg'(\\-|))\\s*(?'module'[^\\,\\]}]+?)\\s*(,|\\:)\\s*(?'var'[^\\.\\]\\}]+?)\\s*(\\.\\s*(?'subvar'[^\\]\\}]+?)){0,1}\\s*\\}\\}", RegexOptions.Compiled | RegexOptions.Singleline);
                 return _varReDoubleEscapeCB;
             }
         }
@@ -141,7 +141,7 @@ namespace YetaWF.Core.Support {
         private Regex varReModuleSingleEscapeCB {
             get {
                 if (_varReModuleSingleEscapeCB == null)
-                    _varReModuleSingleEscapeCB = new Regex("\\{(?'neg'(\\-|))\\s*ThisModule\\s*(,|\\:)\\s*(?'var'[^\\.\\}]]+?)\\s*(\\.\\s*(?'subvar'[^\\]}]+?)){0,1}\\s*\\}", RegexOptions.Compiled | RegexOptions.Singleline);
+                    _varReModuleSingleEscapeCB = new Regex("\\{(?'neg'(\\-|))\\s*ThisModule\\s*(,|\\:)\\s*(?'var'[^\\.\\}\\]]+?)\\s*(\\.\\s*(?'subvar'[^\\]\\}]+?)){0,1}\\s*\\}", RegexOptions.Compiled | RegexOptions.Singleline);
                 return _varReModuleSingleEscapeCB;
             }
         }
@@ -150,7 +150,7 @@ namespace YetaWF.Core.Support {
         private Regex varReModuleDoubleEscapeCB {
             get {
                 if (_varReModuleDoubleEscapeCB == null)
-                    _varReModuleDoubleEscapeCB = new Regex("\\{\\{(?'neg'(\\-|))\\s*ThisModule\\s*(,|\\:)\\s*(?'var'[^\\.\\]}]+?)\\s*(\\.\\s*(?'subvar'[^\\]}]+?)){0,1}\\s*\\}\\}", RegexOptions.Compiled | RegexOptions.Singleline);
+                    _varReModuleDoubleEscapeCB = new Regex("\\{\\{(?'neg'(\\-|))\\s*ThisModule\\s*(,|\\:)\\s*(?'var'[^\\.\\]\\}]+?)\\s*(\\.\\s*(?'subvar'[^\\]\\}]+?)){0,1}\\s*\\}\\}", RegexOptions.Compiled | RegexOptions.Singleline);
                 return _varReModuleDoubleEscapeCB;
             }
         }
