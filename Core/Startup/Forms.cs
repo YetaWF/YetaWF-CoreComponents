@@ -20,6 +20,7 @@ namespace YetaWF.Core.Addons {
         public const string CssFormNoSubmitContents = "yform-nosubmitcontents";// added to divs to suppress submission of contained fields (usually grids)
         public const string CssFormCancel = "yform-cancel"; // used for cancel button
         public const string CssWarningIcon = "yform-warningicon";
+        //TODO: This is misnamed. It's an HTML tag attribute, NOT css.
         public const string CssDataApplyButton = "data-apply-button";// used as attribute for Apply button (input[type=submit])
 
         public static string CssWarningIconUrl { get; private set; } = null!;

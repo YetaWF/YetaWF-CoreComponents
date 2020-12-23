@@ -22,23 +22,26 @@ namespace YetaWF.Core.Addons {
         public const string CssActionLink = "yaction-link";// every ModuleAction has this class
         public const string CssPopupLink = "ypopup-link";// every popup link has this class
         public const string CssNoTooltip = "yNoToolTip";
+        public const string CssActionTrack = "yTrack";// added to <a> tag tracks clicks in Visitors log (use with static files)
+        public const string CookieToReturn = "CookieToReturn";
+        
+        //TODO: These are all misnamed. They're HTML tag attributes, NOT css.
         public const string CssTooltip = "data-tooltip";// a tooltip in a specific location (with other classes or container)
         public const string CssTooltipSpan = "data-tooltipspan";// a tooltip in a <span>
-        public const string CssActionTrack = "yTrack";// added to <a> tag tracks clicks in Visitors log (use with static files)
         public const string CssLegend = "data-legend";
         public const string CssConfirm = "data-confirm";
         public const string CssPleaseWait = "data-pleasewait";
         public const string CssDontAddToOriginList = "data-no-origin";
         public const string CssAddModuleContext = "data-module-context";
-        public const string CookieToReturn = "CookieToReturn";
         public const string CookieDoneCssAttr = "data-cookie-done";
-        public const string CookieDone = "xfercomplete-cookie";
         public const string CssSaveReturnUrl = "data-save-return";
-        public const string PostAttr = "data-post";
         public const string CssOuterWindow = "data-outerwindow";
         public const string CssAttrDataSpecialEdit = "data-specialedit";
         public const string CssAttrActionButton = "data-button";
         public const string CssExtraData = "data-extradata";
+        public const string PostAttr = "data-post";
+
+        public const string CookieDone = "xfercomplete-cookie";
 
         // used on url to select specific module
         public const string ModuleGuid = "__ModuleGuid";
