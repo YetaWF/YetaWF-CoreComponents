@@ -33,10 +33,14 @@ var YetaWF;
             this.AnchorHandling = new YetaWF.Anchors();
             this.ContentHandling = new YetaWF.Content();
         }
+        // Implemented by renderer
+        // Implemented by renderer
+        // Implemented by renderer
+        /** Called when a new full page has been loaded and needs to be initialized */
+        BasicsServices.prototype.initFullPage = function () {
+            YetaWF_BasicsImpl.initFullPage();
+        };
         Object.defineProperty(BasicsServices.prototype, "isLoading", {
-            // Implemented by renderer
-            // Implemented by renderer
-            // Implemented by renderer
             /** Returns whether the loading indicator is on or off */
             get: function () {
                 return YetaWF_BasicsImpl.isLoading;
@@ -220,6 +224,7 @@ var YetaWF;
          */
         BasicsServices.prototype.initPage = function () {
             var _this = this;
+            this.initFullPage();
             this.init();
             // page position
             var scrolled = this.setScrollPosition();

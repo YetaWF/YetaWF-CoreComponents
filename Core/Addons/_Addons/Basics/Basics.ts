@@ -81,6 +81,9 @@ namespace YetaWF {
      */
     export interface IBasicsImpl {
 
+        /** Called when a new full page has been loaded and needs to be initialized */
+        initFullPage(): void;
+
         /** Returns whether the loading indicator is on or off */
         isLoading: boolean;
 
@@ -153,6 +156,11 @@ namespace YetaWF {
         // Implemented by renderer
         // Implemented by renderer
         // Implemented by renderer
+
+        /** Called when a new full page has been loaded and needs to be initialized */
+        public initFullPage(): void {
+            YetaWF_BasicsImpl.initFullPage();
+        }
 
         /** Returns whether the loading indicator is on or off */
         public get isLoading(): boolean {
@@ -363,6 +371,7 @@ namespace YetaWF {
          */
         public initPage(): void {
 
+            this.initFullPage();
             this.init();
 
             // page position

@@ -368,7 +368,7 @@ namespace YetaWF.Core.Controllers {
             public bool Success { get; set; }
         }
         private async Task<CanProcessAsStaticPageInfo> CanProcessAsStaticPageAsync(Uri uri) {
-            if (Manager.CurrentSite.StaticPages && !Manager.HaveUser && !YetaWFController.GetTempEditMode() && Manager.CurrentSite.AllowAnonymousUsers && Manager.HostUsed.ToLower() == Manager.CurrentSite.SiteDomain.ToLower()) {
+            if (Manager.CurrentSite.StaticPages && !Manager.HaveUser && !YetaWFController.GetTempEditMode() && Manager.CurrentSite.AllowAnonymousUsers && string.Compare(Manager.HostUsed, Manager.CurrentSite.SiteDomain, true) == 0) {
                 // support static pages for exact domain match only (so other sites, like blue/green don't use static pages)
                 string localUrl = uri.LocalPath;
                 if (Manager.ActiveDevice == YetaWFManager.DeviceSelected.Desktop && YetaWFController.GoingToPopup()) {
