@@ -114,7 +114,7 @@ namespace YetaWF.Core.Site {
             LockedForIP = null;
             LockedExternalForIP = null;
             AllowPopups = true;
-            CssNoTooltips = "linkpreview-show peelback";
+            CssNoTooltips = "linkpreview-show";
             FavIcon_Data = new byte[0];
             FavIconLrg_Data = new byte[0];
             Country = Globals.DefaultCountry;
