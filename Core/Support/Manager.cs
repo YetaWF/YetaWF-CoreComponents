@@ -941,7 +941,7 @@ namespace YetaWF.Core.Support {
         // HTTPCONTEXT
 
         /// <summary>
-        /// Returns the user's IP address. If none is available, null is returned.
+        /// Returns the user's IP address. If none is available, an empty string is returned.
         /// </summary>
         public string UserHostAddress {
             get {
