@@ -23,7 +23,7 @@ namespace YetaWF {
          */
         validateElementFully(ctrl: HTMLElement): void;
         /**
-         * Re-validates all fields within the div, typically used after paging in a grid to let jquery.validate update all fields
+         * Re-validates all fields within the div, typically used after paging in a grid to let validation update all fields
          */
         updateValidation(div: HTMLElement): void;
         /**
@@ -189,7 +189,7 @@ namespace YetaWF {
             YetaWF_FormsImpl.validateElementFully(ctrl);
         }
         /**
-         * Re-validate all fields within the div, typically used after paging in a grid to let jquery.validate update all fields
+         * Re-validate all fields within the div, typically used after paging in a grid to let validation update all fields
          */
         public updateValidation(div: HTMLElement): void {
             YetaWF_FormsImpl.updateValidation(div);

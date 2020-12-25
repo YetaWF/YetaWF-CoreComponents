@@ -54,7 +54,7 @@ var YetaWF;
             YetaWF_FormsImpl.validateElementFully(ctrl);
         };
         /**
-         * Re-validate all fields within the div, typically used after paging in a grid to let jquery.validate update all fields
+         * Re-validate all fields within the div, typically used after paging in a grid to let validation update all fields
          */
         Forms.prototype.updateValidation = function (div) {
             YetaWF_FormsImpl.updateValidation(div);
