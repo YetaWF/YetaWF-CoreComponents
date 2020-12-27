@@ -283,7 +283,7 @@ namespace YetaWF {
                     $YetaWF.pageChanged = false;
 
                     // Update the browser address bar with the new path
-                    if (setState) //$$$inplace
+                    if (setState)
                         $YetaWF.setUrl(uri.toUrl());
                     if (YVolatile.Basics.UnifiedMode === UnifiedModeEnum.HideDivs) {
                         // hide all unified sections
