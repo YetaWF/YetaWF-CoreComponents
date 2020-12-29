@@ -180,7 +180,7 @@ namespace YetaWF.Core.Packages {
         /// <param name="sort">A collection describing the sort order.</param>
         /// <param name="filters">A collection describing the filtering criteria.</param>
         /// <returns>Returns information about the requested packages.</returns>
-        public static DataProviderGetRecords<Package> GetAvailablePackages(int skip, int take, List<DataProviderSortInfo> sort, List<DataProviderFilterInfo> filters) {
+        public static DataProviderGetRecords<Package> GetAvailablePackages(int skip, int take, List<DataProviderSortInfo>? sort, List<DataProviderFilterInfo>? filters) {
             List<Package> packages = (from p in GetAvailablePackages() select p).ToList();// copy
             //packages.AddRange(GetTemplatePackages());
             //packages.AddRange(GetUtilityPackages());

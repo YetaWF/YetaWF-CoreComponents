@@ -54,6 +54,16 @@ namespace YetaWF.Core.Controllers {
             // process logging type callbacks
             await PageLogging.HandleCallbacksAsync(Manager.CurrentRequestUrl, false);
 
+            // Legacy browser
+            if (CssLegacy.IsLegacyBrowser(Manager.CurrentRequest)) {
+                if (!CssLegacy.SupportLegacyBrowser()) {
+                    Logging.AddLog("302 Found - Legacy {0}", Manager.CurrentSite.UnsupportedBrowserUrl).Truncate(100);
+                    Manager.CurrentResponse.StatusCode = StatusCodes.Status302Found;
+                    Manager.CurrentResponse.Headers.Add("Location", Manager.CurrentSite.UnsupportedBrowserUrl);
+                    return new EmptyResult();
+                }
+            }
+
             // Mobile detection
             bool isMobile;
             // The reason we need to do this is because we may or may not want to go into a popup

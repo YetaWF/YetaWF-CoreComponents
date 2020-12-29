@@ -76,17 +76,6 @@ namespace YetaWF {
         value: string;
     }
 
-    export interface IVolatile {
-        Forms: IVolatileForms;
-    }
-    export interface IVolatileForms {
-        TabStyle: TabStyleEnum;
-    }
-    export enum TabStyleEnum {
-        JQuery = 0,
-        Kendo = 1,
-    }
-
     export interface IConfigs {
         Forms: IConfigsForms;
     }

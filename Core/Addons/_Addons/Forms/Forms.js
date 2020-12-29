@@ -2,11 +2,6 @@
 /* Copyright © 2021 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 var YetaWF;
 (function (YetaWF) {
-    var TabStyleEnum;
-    (function (TabStyleEnum) {
-        TabStyleEnum[TabStyleEnum["JQuery"] = 0] = "JQuery";
-        TabStyleEnum[TabStyleEnum["Kendo"] = 1] = "Kendo";
-    })(TabStyleEnum = YetaWF.TabStyleEnum || (YetaWF.TabStyleEnum = {}));
     var PanelAction;
     (function (PanelAction) {
         PanelAction[PanelAction["Apply"] = 0] = "Apply";

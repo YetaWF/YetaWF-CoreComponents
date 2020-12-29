@@ -163,7 +163,7 @@ namespace YetaWF.Core.Addons {
         /// <returns>List of addons.</returns>
         /// <remarks>This is used by YetaWF Core and Dashboard modules and is not intended for general use.</remarks>
         public static List<AddOnProduct> GetAvailableAddOns() {
-            List<AddOnProduct> list = (from p in Products select p.Value).ToList();
+            List<AddOnProduct> list = Products.Values.ToList();// return a copy
             return list;
         }
 
@@ -338,7 +338,7 @@ namespace YetaWF.Core.Addons {
             } else if (url.StartsWith(Globals.BowerComponentsUrl)) {
                 return AddOnsCustomUrl + YetaWFManager.Manager.CurrentSite.SiteDomain + url;
             }
-            throw new InternalError("Url {0} doesn't start with {1} or {2}", url, Globals.AddOnsUrl, Globals.NodeModulesUrl);
+            throw new InternalError($"URL {url} doesn't start with {Globals.AddOnsUrl}, {Globals.NodeModulesUrl} or {Globals.BowerComponentsUrl}");
         }
 
         // LOAD
