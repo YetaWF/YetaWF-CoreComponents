@@ -163,7 +163,7 @@ namespace YetaWF.Core.Addons {
         /// <returns>List of addons.</returns>
         /// <remarks>This is used by YetaWF Core and Dashboard modules and is not intended for general use.</remarks>
         public static List<AddOnProduct> GetAvailableAddOns() {
-            List<AddOnProduct> list = (from p in Products select p.Value).ToList();
+            List<AddOnProduct> list = Products.Values.ToList();// return a copy
             return list;
         }
 

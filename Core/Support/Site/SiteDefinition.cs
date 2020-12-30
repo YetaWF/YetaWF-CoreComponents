@@ -641,7 +641,7 @@ namespace YetaWF.Core.Site {
         public string? MobileSiteUrl { get; set; }
 
         [Category("URLs"), Caption("Unsupported Browsers URL"), Description("If an unsupported browsers accesses this site, the user is redirected to this URL - If no URL is defined, browser versions are not checked")]
-        [UIHint("Url"), AdditionalMetadata("UrlType", UrlTypeEnum.Local | UrlTypeEnum.Remote), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Local | UrlTypeEnum.Remote)]
+        [UIHint("Url"), AdditionalMetadata("UrlType", UrlTypeEnum.Local | UrlTypeEnum.Remote), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Local | UrlTypeEnum.Remote), Required]
         [StringLength(Globals.MaxUrl), Trim]
         public string? UnsupportedBrowserUrl { get; set; }
 
