@@ -1,6 +1,7 @@
 ﻿/* Copyright © 2021 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -54,6 +55,20 @@ namespace YetaWF.Core.Pages {
             return (bool)_supportLegacyBrowser;
         }
         private static bool? _supportLegacyBrowser = null;
+
+        internal async Task<string> GetLegacyAddonUrlAsync(string addonUrl) {
+            if (!addonUrl.StartsWith(VersionManager.AddOnsUrl, StringComparison.InvariantCultureIgnoreCase)) // only urls in /addons folder support legacy files
+                return addonUrl;
+            SkinDefinition skin = SkinDefinition.EvaluatedSkin(Manager.CurrentPage, Manager.IsInPopup);
+            if (skin.Collection == null)
+                return addonUrl;
+            string[] parts = skin.Collection.Split(new char[] { '/' });
+            string name = parts[1];
+            string file = $"{LEGACYPATH}/{name}{addonUrl}";
+            if (!await FileSystem.FileSystemProvider.FileExistsAsync(Utility.UrlToPhysical(file)))
+                return addonUrl;
+            return file;
+        }
 
         private async Task CreateCssAsync(QueryHelper arg) {
 
@@ -120,43 +135,62 @@ namespace YetaWF.Core.Pages {
 #endif
                 }
 
-                string toFolder = Path.GetDirectoryName(toPath)!;
-                await FileSystem.FileSystemProvider.CreateDirectoryAsync(toFolder);
+                if (await ReplaceVariablesAsync(variables, addon.Url, fromPath, toPath)) {
 
-                await ReplaceVariablesAsync(variables, addon.Url, fromPath, toPath);
+                    // check if there is a .min.css file also, in which case minify that too
+                    if (!fromPath.EndsWith(".min.css", System.StringComparison.Ordinal)) {
+                        fromPath = Path.ChangeExtension(fromPath, ".min.css");
+                        toPath = Path.ChangeExtension(toPath, ".min.css");
+                        await ReplaceVariablesAsync(variables, addon.Url, fromPath, toPath);
+                    }
+                }
             }
         }
 
-        private async Task ReplaceVariablesAsync(Dictionary<string, string> variables, string originalUrl, string fromPath, string toPath) {
+        private async Task<bool> ReplaceVariablesAsync(Dictionary<string, string> variables, string originalUrl, string fromPath, string toPath) {
+
+            bool changed = false;
             string text = await FileSystem.FileSystemProvider.ReadAllTextAsync(fromPath);
 
             // replace all css custom properties
             foreach (string name in variables.Keys) {
                 string key = name.Replace("-", @"\-");// escape special chars
                 Regex reVar = new Regex($@"var\({key}\s*(\,[^\)]*\s*|)\)", RegexOptions.Singleline);
-                text = reVar.Replace(text, variables[name]);
+                text = reVar.Replace(text, (Match m) => {
+                    changed = true;
+                    return variables[name]; 
+                });
             }
 
-            // update any relative url() directives to point to the original URL. Clean up leading ../ in URL
-            text = _reUrl.Replace(text, (Match m) => {
-                string urlOrig = m.Groups["url"].Value.Trim();
-                string url = urlOrig;
-                url = url.Trim(' ');
-                if (string.IsNullOrWhiteSpace(url) || url.Length < 3 || url.StartsWith("data:", System.StringComparison.Ordinal))
-                    return $"url({urlOrig})";
-                if (url[0] == '\'')
-                    url = url.Trim('\'');
-                else if (url[0] == '"')
-                    url = url.Trim('"');
-                string prefix = Utility.PhysicalToUrl(fromPath).RemoveStartingAtLast('/');
-                while (url.StartsWith("../", System.StringComparison.Ordinal)) {
-                    prefix = prefix.RemoveStartingAtLast('/');
-                    url = url.Substring(3);
-                }
-                return $"url({prefix}/{url})"; 
-            });
+            if (changed) {
+                // we're creating a copy of the file with a different path so we need to
+                // update any relative url() directives to point to the original URL and clean up leading ../ in URL
+                text = _reUrl.Replace(text, (Match m) => {
+                    string urlOrig = m.Groups["url"].Value.Trim();
+                    string url = urlOrig;
+                    url = url.Trim(' ');
+                    if (string.IsNullOrWhiteSpace(url) || url.Length < 3 || url.StartsWith("data:", System.StringComparison.Ordinal))
+                        return $"url({urlOrig})";
+                    if (url[0] == '\'')
+                        url = url.Trim('\'');
+                    else if (url[0] == '"')
+                        url = url.Trim('"');
+                    string prefix = Utility.PhysicalToUrl(fromPath).RemoveStartingAtLast('/');
+                    while (url.StartsWith("../", System.StringComparison.Ordinal)) {
+                        prefix = prefix.RemoveStartingAtLast('/');
+                        url = url.Substring(3);
+                    }
+                    return $"url({prefix}/{url})";
+                });
+            }
 
-            await FileSystem.FileSystemProvider.WriteAllTextAsync(toPath, text);
+            if (changed) { // only create legacy file if there are changes
+                string toFolder = Path.GetDirectoryName(toPath)!;
+                await FileSystem.FileSystemProvider.CreateDirectoryAsync(toFolder);
+
+                await FileSystem.FileSystemProvider.WriteAllTextAsync(toPath, text);
+            }
+            return changed;
         }
         private static Regex _reUrl = new Regex(@"url\((?'url'[^\)]*)\s*\)", RegexOptions.Compiled | RegexOptions.Singleline);
 
@@ -201,14 +235,5 @@ namespace YetaWF.Core.Pages {
             }
         }
         private static Regex _reVar = new Regex(@"\s*(?'name'\-\-[^\:]+)\s*\:\s*(?'value'[^\;]+)\s*\;", RegexOptions.Compiled | RegexOptions.Singleline);
-
-        internal string GetLegacyAddonUrl(string addonUrl) {
-            SkinDefinition skin = SkinDefinition.EvaluatedSkin(Manager.CurrentPage, Manager.IsInPopup);
-            if (skin.Collection == null)
-                return addonUrl;
-            string[] parts = skin.Collection.Split(new char[] { '/' });
-            string name = parts[1];
-            return $"{LEGACYPATH}/{name}{addonUrl}";
-        }
     }
 }

@@ -171,15 +171,10 @@ namespace YetaWF.Core.Pages {
 
                             string addonUrl = version.GetAddOnUrl();
                             filePathURL = $"{addonUrl}{file}";
-                            if (LegacyManager != null && args.Length == 0) {// any arguments are substituted in path, where we don't support css variables
-                                filePathURL = LegacyManager.GetLegacyAddonUrl(filePathURL);
-                                // don't verify existence, we don't have original .scss files in legacy folder
-                            } else {
-                                if (YetaWFManager.DiagnosticsMode) {
-                                    string fullPath = Utility.UrlToPhysical(filePathURL);
-                                    if (!await FileSystem.FileSystemProvider.FileExistsAsync(fullPath))
-                                        throw new InternalError($"File list has relative URL {filePathURL} which doesn't exist in {version.Domain}/{version.Product}");
-                                }
+                            if (YetaWFManager.DiagnosticsMode) {
+                                string fullPath = Utility.UrlToPhysical(filePathURL);
+                                if (!await FileSystem.FileSystemProvider.FileExistsAsync(fullPath))
+                                    throw new InternalError($"File list has relative URL {filePathURL} which doesn't exist in {version.Domain}/{version.Product}");
                             }
                         }
                     }
@@ -216,8 +211,7 @@ namespace YetaWF.Core.Pages {
                 fullUrl.StartsWith(Globals.VaultUrl, StringComparison.InvariantCultureIgnoreCase) ||
                 fullUrl.StartsWith(Globals.VaultPrivateUrl, StringComparison.InvariantCultureIgnoreCase) ||
                 fullUrl.StartsWith(VersionManager.AddOnsUrl, StringComparison.InvariantCultureIgnoreCase) ||
-                fullUrl.StartsWith(VersionManager.AddOnsCustomUrl, StringComparison.InvariantCultureIgnoreCase) ||
-                fullUrl.StartsWith(CssLegacy.LEGACYPATH, StringComparison.InvariantCultureIgnoreCase)) {
+                fullUrl.StartsWith(VersionManager.AddOnsCustomUrl, StringComparison.InvariantCultureIgnoreCase)) {
 
                 if (key.EndsWith(".css", StringComparison.InvariantCultureIgnoreCase)) key = key.Substring(0, key.Length - 4);
                 else if (key.EndsWith(".scss", StringComparison.InvariantCultureIgnoreCase)) key = key.Substring(0, key.Length - 5);
@@ -242,6 +236,8 @@ namespace YetaWF.Core.Pages {
                         fullUrl = fullUrl.Substring(0, fullUrl.Length - 4) + ".min.css";
                     }
                 }
+                if (LegacyManager != null)
+                    fullUrl = await LegacyManager.GetLegacyAddonUrlAsync(fullUrl);
             } else {
                 throw new InternalError("Css filename '{0}' is invalid.", fullUrl);
             }

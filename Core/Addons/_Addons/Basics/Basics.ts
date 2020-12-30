@@ -1407,14 +1407,14 @@ namespace YetaWF {
                             break;
                         if (listening === elem)
                             return;// checked all elements
-                        elem = elem.parentElement;
+                        elem = elem.parentElement|| (elem.parentNode as HTMLElement);
                     }
                 } else {
                     // check whether the target or one of its parents is the listening element
                     while (elem) {
                         if (listening === elem)
                             break;
-                        elem = elem.parentElement;
+                        elem = elem.parentElement || (elem.parentNode as HTMLElement);
                     }
                 }
                 if (!elem)

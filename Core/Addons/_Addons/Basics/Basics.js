@@ -1239,7 +1239,10 @@ var YetaWF;
         };
         BasicsServices.prototype.handleEvent = function (listening, ev, selector, callback) {
             // about event handling https://www.sitepoint.com/event-bubbling-javascript/
-            //console.log(`event ${ev.type} selector ${selector} target ${(ev.target as HTMLElement).outerHTML}`);
+            console.log("event " + ev.type + " selector " + selector + " target " + ev.target.outerHTML);
+            if (ev.type === "click")
+                // eslint-disable-next-line no-debugger
+                debugger;
             if (ev.cancelBubble || ev.defaultPrevented)
                 return;
             var elem = ev.target;
@@ -1259,7 +1262,7 @@ var YetaWF;
                             break;
                         if (listening === elem)
                             return; // checked all elements
-                        elem = elem.parentElement;
+                        elem = elem.parentElement || elem.parentNode;
                     }
                 }
                 else {
@@ -1267,7 +1270,7 @@ var YetaWF;
                     while (elem) {
                         if (listening === elem)
                             break;
-                        elem = elem.parentElement;
+                        elem = elem.parentElement || elem.parentNode;
                     }
                 }
                 if (!elem)
@@ -1275,11 +1278,11 @@ var YetaWF;
             }
             else
                 return;
-            //console.log(`event ${ev.type} selector ${selector} match`);
+            console.log("event " + ev.type + " selector " + selector + " match");
             ev.__YetaWFElem = (elem || ev.target); // pass the matching element to the callback
             var result = callback(ev);
             if (!result) {
-                //console.log(`event ${ev.type} selector ${selector} stop bubble`);
+                console.log("event " + ev.type + " selector " + selector + " stop bubble");
                 ev.stopPropagation();
                 ev.preventDefault();
             }
