@@ -68,7 +68,7 @@ namespace YetaWF.Core.Models {
         public List<int> PageSizes { get; set; }
         public const int MaxPages = 999999999;// indicator for All pages in PageSizes
 
-        public bool UseSkinFormatting { get; set; } // use skin theme (jquery-ui)
+        public bool UseSkinFormatting { get; set; } // use skin theme
         public int? DropdownActionWidth { get; set; } // width in characters of action dropdown
 
         // other settings
