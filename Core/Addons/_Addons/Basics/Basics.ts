@@ -290,18 +290,6 @@ namespace YetaWF {
                     }
                 }
             }
-            // We probably don't want to set the focus to any control - made OPT-IN for now
-            //if ($f == null) {
-            //    $items = $('input:visible,select:visible', $obj).not("input[type='hidden']");// just find something usable
-            //    // filter out anything in a grid (filters, pager, etc)
-            //    $items.each(function (index) {
-            //        var $i = $(this)
-            //        if ($i.parents('.ui-jqgrid').length == 0) {
-            //            $f = $i;
-            //            return false; // not in a grid, so it's ok
-            //        }
-            //    });
-            //}
             if (f != null) {
                 try {
                     f.focus();
