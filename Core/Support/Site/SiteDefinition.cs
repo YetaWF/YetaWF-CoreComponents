@@ -161,7 +161,6 @@ namespace YetaWF.Core.Site {
                 FileName = SkinAccess.FallbackPopupFileName,
             };
             BootstrapSkin = null;
-            jQueryUISkin = null;
             KendoUISkin = null;
             MessageType = MessageTypeEnum.ToastLeft;
 
@@ -487,7 +486,7 @@ namespace YetaWF.Core.Site {
         [RequiresPageReload]
         public bool CompressCSSFiles { get; set; }
 
-        [Category("Pages"), Caption("Bundle CSS Files"), Description("Defines whether stylesheets (CSS files) are bundled into one single file (excluding large non-YetaWF files like jQuery, jQuery UI, etc.)")]
+        [Category("Pages"), Caption("Bundle CSS Files"), Description("Defines whether stylesheets (CSS files) are bundled into one single file (excluding large non-YetaWF files like jQuery, Kendo UI, etc.)")]
         [UIHint("Boolean")]
         [RequiresPageReload]
         public bool BundleCSSFiles { get; set; }
@@ -700,12 +699,6 @@ namespace YetaWF.Core.Site {
         [UIHint("BootstrapSkin"), StringLength(SkinDefinition.MaxName), AdditionalMetadata("NoDefault", true), Trim]
         [RequiresPageReload]
         public string? BootstrapSkin { get; set; }
-
-        [Category("Skin"), Caption("Default jQuery UI Skin"), Description("The default skin for jQuery-UI elements (buttons, modal dialogs, etc.) - individual pages can override the default skin")]
-        [HelpLink("http://jqueryui.com/themeroller/")]
-        [UIHint("jQueryUISkin"), StringLength(SkinDefinition.MaxName), AdditionalMetadata("NoDefault", true), Trim]
-        [RequiresPageReload]
-        public string? jQueryUISkin { get; set; }
 
         [Category("Skin"), Caption("Default Kendo UI Skin"), Description("The default skin for Kendo UI elements (buttons, modal dialogs, etc.) - individual pages can override the default skin")]
         [HelpLink("http://demos.telerik.com/kendo-ui/themebuilder/")]

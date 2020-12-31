@@ -29,7 +29,6 @@ namespace YetaWF.Core.Pages {
         public const int MaxKeywords = 100;
         public const int MaxCopyright = 100;
         public const int MaxBootstrapSkin = 100;
-        public const int MaxjQueryUISkin = 100;
         public const int MaxKendoUISkin = 100;
         public const int MaxCssClass = 40;
 
@@ -160,7 +159,6 @@ namespace YetaWF.Core.Pages {
                 FileName = SkinAccess.FallbackPopupFileName,
             };
             BootstrapSkin = null;
-            jQueryUISkin = null;
             KendoUISkin = null;
             Title = new MultiString();
             Description = new MultiString();
@@ -273,9 +271,6 @@ namespace YetaWF.Core.Pages {
         [StringLength(MaxBootstrapSkin)]
         [RequiresPageReload]
         public string? BootstrapSkin { get; set; }
-        [StringLength(MaxjQueryUISkin)]
-        [RequiresPageReload]
-        public string? jQueryUISkin { get; set; }
         [StringLength(MaxKendoUISkin)]
         [RequiresPageReload]
         public string? KendoUISkin { get; set; }

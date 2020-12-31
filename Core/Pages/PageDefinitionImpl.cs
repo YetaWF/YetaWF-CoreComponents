@@ -292,7 +292,6 @@ namespace YetaWF.Core.Pages {
                     page.Copyright = modelPage.Copyright;
                     page.CssClass = modelPage.CssClass;
                     page.Description = string.IsNullOrWhiteSpace(description) ? modelPage.Description : description;
-                    page.jQueryUISkin = modelPage.jQueryUISkin;
                     page.KendoUISkin = modelPage.KendoUISkin;
                     page.Keywords = modelPage.Keywords;
                     page.ModuleDefinitions = new ModuleList();

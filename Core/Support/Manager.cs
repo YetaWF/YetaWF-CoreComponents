@@ -1322,8 +1322,6 @@ namespace YetaWF.Core.Support {
             ScriptManager.AddVolatileOption("Skin", "MinWidthForPopups", SkinInfo.MinWidthForPopups);
             ScriptManager.AddVolatileOption("Skin", "MinWidthForCondense", SkinInfo.MinWidthForCondense);
 
-            if (!string.IsNullOrWhiteSpace(SkinInfo.JQuerySkin) && string.IsNullOrWhiteSpace(CurrentPage.jQueryUISkin))
-                CurrentPage.jQueryUISkin = SkinInfo.JQuerySkin;
             if (!string.IsNullOrWhiteSpace(SkinInfo.KendoSkin) && string.IsNullOrWhiteSpace(CurrentPage.KendoUISkin))
                 CurrentPage.KendoUISkin = SkinInfo.KendoSkin;
         }
@@ -1336,8 +1334,6 @@ namespace YetaWF.Core.Support {
             SkinCollectionInfo info = skinAccess.GetSkinCollectionInfo();
             SkinInfo = info;
 
-            if (!string.IsNullOrWhiteSpace(SkinInfo.JQuerySkin) && string.IsNullOrWhiteSpace(CurrentPage.jQueryUISkin))
-                CurrentPage.jQueryUISkin = SkinInfo.JQuerySkin;
             if (!string.IsNullOrWhiteSpace(SkinInfo.KendoSkin) && string.IsNullOrWhiteSpace(CurrentPage.KendoUISkin))
                 CurrentPage.KendoUISkin = SkinInfo.KendoSkin;
         }

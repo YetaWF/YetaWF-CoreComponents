@@ -141,7 +141,8 @@ namespace YetaWF.Core.Pages {
                     if (!fromPath.EndsWith(".min.css", System.StringComparison.Ordinal)) {
                         fromPath = Path.ChangeExtension(fromPath, ".min.css");
                         toPath = Path.ChangeExtension(toPath, ".min.css");
-                        await ReplaceVariablesAsync(variables, addon.Url, fromPath, toPath);
+                        if (await FileSystem.FileSystemProvider.FileExistsAsync(fromPath))
+                            await ReplaceVariablesAsync(variables, addon.Url, fromPath, toPath);
                     }
                 }
             }
