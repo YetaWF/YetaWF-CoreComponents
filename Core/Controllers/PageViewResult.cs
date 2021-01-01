@@ -99,6 +99,7 @@ namespace YetaWF.Core.Controllers {
             await YetaWFCoreRendering.Render.AddStandardAddOnsAsync();
             await Manager.SetSkinOptions();
             await YetaWFCoreRendering.Render.AddSkinAddOnsAsync();
+            await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF_Core", "SkinBasics");
             await Manager.AddOnManager.AddSkinAsync(skinCollection);
 
             YHtmlHelper htmlHelper = new YHtmlHelper(context, null);

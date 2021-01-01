@@ -1,0 +1,152 @@
+@charset "UTF-8";
+/* Copyright © 2021 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+body {
+  font: var(--body-font);
+  background: var(--body-bg);
+  color: var(--body-clr); }
+
+form {
+  width: 100%; }
+
+body fieldset {
+  padding: .5ch .5em .5ch .5em;
+  margin: 0;
+  border: var(--elem-border-width) solid var(--elem-border-clr); }
+  body fieldset legend {
+    font: var(--body-font);
+    margin-bottom: .5em;
+    width: auto;
+    border: 0; }
+
+label {
+  font-weight: normal;
+  margin: 0;
+  padding: 0; }
+
+.yCondense label {
+  font-weight: bold;
+  margin: 0;
+  padding: 0; }
+
+.y_cleardiv {
+  clear: both; }
+
+.yHidden {
+  display: none; }
+
+.yPane {
+  position: relative; }
+
+.yModule {
+  position: relative; }
+
+/* templates are inline unless they're large, like grids, propertylists etc. */
+/* Not all templates follow this rule (yet) */
+.y_inline {
+  display: inline; }
+
+/* Warnings */
+.yDivAlert {
+  background: var(--tst-error-bg);
+  color: var(--tst-error-clr);
+  margin: 1em 0;
+  padding: 1em;
+  border: var(--elem-border-width) solid var(--elem-border-clr);
+  border-radius: var(--elem-border-radius); }
+
+.yDivSmallAlert {
+  background: var(--tst-error-bg);
+  color: var(--tst-error-clr); }
+
+.yDivWarning {
+  background: var(--tst-warn-bg);
+  color: var(--tst-warn-clr);
+  margin: 1em 0;
+  padding: 1em;
+  border: var(--elem-border-width) solid var(--elem-border-clr);
+  border-radius: var(--elem-border-radius); }
+
+.yDivSmallWarning {
+  background: var(--tst-warn-bg);
+  color: var(--tst-warn-clr); }
+
+.yDivAdmin {
+  background: var(--tst-warn-bg);
+  color: var(--tst-warn-clr);
+  margin: 1em 0;
+  padding: 1em;
+  border: var(--elem-border-width) solid var(--elem-border-clr);
+  border-radius: var(--elem-border-radius); }
+
+.yDivSmallAdmin {
+  background: var(--tst-warn-bg);
+  color: var(--tst-warn-clr); }
+
+/* Module Actions */
+/* make sure module links don't float left/right */
+.yModuleLinksContainer {
+  clear: both; }
+
+/* Print */
+@media print {
+  .yNoPrint {
+    display: none; } }
+
+@media screen {
+  .yDisplayMode .yPrintOnly {
+    display: none; } }
+
+/* Wide Content */
+.widecontent .maincontainer {
+  width: 100%;
+  max-width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+  padding-right: 20px; }
+
+.widecontentfill body {
+  overflow: hidden; }
+
+.widecontentfill .yPane .yModule {
+  margin: 0; }
+
+.widecontentfill .MainPane {
+  padding: 0; }
+
+.widecontentfill .maincontainer {
+  width: 100%;
+  max-width: 100%;
+  margin-left: 0;
+  margin-right: 0; }
+
+.widecontentfill footer {
+  display: none; }
+
+/* PANE IN EDIT MODE */
+.yPage.yEditMode .yPane {
+  padding: 1em;
+  background: var(--body-bg);
+  border: var(--elem-border-width) solid var(--elem-border-clr);
+  border-radius: var(--elem-border-radius); }
+
+/* OWNERSHIP */
+.ypagerole_noUserAnon {
+  background: var(--own-page-noUserAnon); }
+
+.ypagerole_noAnon {
+  background: var(--own-page-noAnon); }
+
+.ypagerole_noUser {
+  background: var(--own-page-noUser); }
+
+.ymodrole_noUserAnon {
+  background: var(--own-mod-noUserAnon);
+  padding: .7em; }
+
+.ymodrole_noAnon {
+  background: var(--own-mod-noAnon);
+  padding: .7em; }
+
+.ymodrole_noUser {
+  background: var(--own-mod-noUser);
+  padding: .7em; }

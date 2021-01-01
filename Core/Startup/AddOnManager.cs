@@ -238,7 +238,7 @@ namespace YetaWF.Core.Addons {
             if (CustomizationCache.TryGetValue(skinCollection, out string? url)) {
                 if (string.IsNullOrWhiteSpace(url))
                     return; // no customization
-                await Manager.CssManager.AddFileAsync(true, url);
+                await Manager.CssManager.AddFileAsync(false, url);
                 return;
             }
 
@@ -246,12 +246,12 @@ namespace YetaWF.Core.Addons {
             url = string.Format("{0}/{1}/Custom.scss", Globals.AddOnsCustomUrl, Manager.CurrentSite.SiteDomain);
             if (await FileSystem.FileSystemProvider.FileExistsAsync(Utility.UrlToPhysical(url))) {
                 AddCache(skinCollection, url);
-                await Manager.CssManager.AddFileAsync(true, url);
+                await Manager.CssManager.AddFileAsync(false, url);
             } else {
                 url = string.Format("{0}/{1}/Custom.css", Globals.AddOnsCustomUrl, Manager.CurrentSite.SiteDomain);
                 if (await FileSystem.FileSystemProvider.FileExistsAsync(Utility.UrlToPhysical(url))) {
                     AddCache(skinCollection, url);
-                    await Manager.CssManager.AddFileAsync(true, url);
+                    await Manager.CssManager.AddFileAsync(false, url);
                 }
             }
 
@@ -260,12 +260,12 @@ namespace YetaWF.Core.Addons {
             url = string.Format("{0}/{1}/{2}/{3}/{4}/{5}/Custom.scss", Globals.AddOnsCustomUrl, Manager.CurrentSite.SiteDomain, domainName, productName, Globals.Addons_SkinsDirectoryName, skinName);
             if (await FileSystem.FileSystemProvider.FileExistsAsync(Utility.UrlToPhysical(url))) {
                 AddCache(skinCollection, url);
-                await Manager.CssManager.AddFileAsync(true, url);
+                await Manager.CssManager.AddFileAsync(false, url);
             } else {
                 url = string.Format("{0}/{1}/{2}/{3}/{4}/{5}/Custom.css", Globals.AddOnsCustomUrl, Manager.CurrentSite.SiteDomain, domainName, productName, Globals.Addons_SkinsDirectoryName, skinName);
                 if (await FileSystem.FileSystemProvider.FileExistsAsync(Utility.UrlToPhysical(url))) {
                     AddCache(skinCollection, url);
-                    await Manager.CssManager.AddFileAsync(true, url);
+                    await Manager.CssManager.AddFileAsync(false, url);
                 }
             }
             AddCache(skinCollection, "");// mark cache as not found

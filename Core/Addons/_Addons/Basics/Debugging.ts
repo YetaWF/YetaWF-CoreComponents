@@ -4,9 +4,9 @@
 
 namespace YetaWF_Core_Debugging {
 
-    // Verify that we don't have duplicate element ids, which would be an error (usually an incorrectly generated component). Id collisions due to SPA should not happen. This will pinpoint any such errors.
-
     $YetaWF.registerCustomEventHandlerDocument(YetaWF.Content.EVENTNAVPAGELOADED, null, (ev: CustomEvent<YetaWF.DetailsEventNavPageLoaded>): boolean => {
+
+        // Verify that we don't have duplicate element ids, which would be an error (usually an incorrectly generated component). Id collisions due to SPA should not happen. This will pinpoint any such errors.
 
         let elems = $YetaWF.getElementsBySelector("[id]");
         let arr: HTMLElement[] = [];
@@ -20,6 +20,15 @@ namespace YetaWF_Core_Debugging {
                 $YetaWF.error(`Duplicate id ${id} in element ${elem.outerHTML} - like ${found.outerHTML}`);
             }
         }
+
+        // Verify that no "ui-" classes are used (remnant from jquery ui)
+        // eslint-disable-next-line no-debugger
+        elems = $YetaWF.getElementsBySelector("*");
+        for (let elem of elems) {
+            if ($YetaWF.elementHasClassPrefix(elem, "ui-").length > 0)
+                $YetaWF.error(`Element with class ui-... found: ${elem.outerHTML}`);
+        }
+
         return true;
     });
 

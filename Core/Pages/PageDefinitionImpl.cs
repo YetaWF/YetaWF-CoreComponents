@@ -439,7 +439,7 @@ namespace YetaWF.Core.Pages {
             HtmlBuilder hb = new HtmlBuilder();
 
             bool empty = true;
-            if (Manager.EditMode && !Manager.IsInPopup && !Manager.CurrentPage.Temporary) { // add the pane name in edit mode
+            if (Manager.EditMode && !Manager.IsInPopup) { // add the pane name in edit mode
                 if (UnifiedMainPage == null || UnifiedMainPage.Url == Manager.CurrentPage.Url) { // but only for main page
                     hb.Append($@"<div class='{Manager.AddOnManager.CheckInvokedCssModule(Globals.CssPaneTag)}'>{Utility.HE(pane)}</div>");
                 }

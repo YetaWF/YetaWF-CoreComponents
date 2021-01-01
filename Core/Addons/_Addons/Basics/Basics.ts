@@ -1023,7 +1023,7 @@ namespace YetaWF {
          * @param selector - The selector to match.
          */
         public elementMatches(elem: Element | null, selector: string): boolean {
-            if (elem)
+            if (elem && elem.matches)
                 return elem.matches(selector);
             return false;
         }
@@ -1165,7 +1165,7 @@ namespace YetaWF {
                     if (elem.classList[i].startsWith(cssPrefix))
                         list.push(elem.classList[i]);
                 }
-            } else {
+            } else if (elem.className) {
                 let cs = elem.className.split(" ");
                 for (let c of cs) {
                     if (c.startsWith(cssPrefix))

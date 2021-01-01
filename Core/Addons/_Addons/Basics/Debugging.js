@@ -3,8 +3,8 @@
 // This is only loaded in non-deployed builds
 var YetaWF_Core_Debugging;
 (function (YetaWF_Core_Debugging) {
-    // Verify that we don't have duplicate element ids, which would be an error (usually an incorrectly generated component). Id collisions due to SPA should not happen. This will pinpoint any such errors.
     $YetaWF.registerCustomEventHandlerDocument(YetaWF.Content.EVENTNAVPAGELOADED, null, function (ev) {
+        // Verify that we don't have duplicate element ids, which would be an error (usually an incorrectly generated component). Id collisions due to SPA should not happen. This will pinpoint any such errors.
         var elems = $YetaWF.getElementsBySelector("[id]");
         var arr = [];
         var _loop_1 = function (elem) {
@@ -20,6 +20,14 @@ var YetaWF_Core_Debugging;
         for (var _i = 0, elems_1 = elems; _i < elems_1.length; _i++) {
             var elem = elems_1[_i];
             _loop_1(elem);
+        }
+        // Verify that no "ui-" classes are used (remnant from jquery ui)
+        // eslint-disable-next-line no-debugger
+        elems = $YetaWF.getElementsBySelector("*");
+        for (var _a = 0, elems_2 = elems; _a < elems_2.length; _a++) {
+            var elem = elems_2[_a];
+            if ($YetaWF.elementHasClassPrefix(elem, "ui-").length > 0)
+                $YetaWF.error("Element with class ui-... found: " + elem.outerHTML);
         }
         return true;
     });

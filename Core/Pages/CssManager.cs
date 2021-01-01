@@ -192,7 +192,7 @@ namespace YetaWF.Core.Pages {
                             bundle = true;
                         }
                     }
-                    if (!await AddFileAsync(version.Type == VersionManager.AddOnType.Skin, filePathURL, !nominify, (bool)bundle))
+                    if (!await AddFileAsync(false, filePathURL, !nominify, (bool)bundle))
                         version.CssFiles.Remove(info);// remove empty file so we don't use it any more
                 }
             }

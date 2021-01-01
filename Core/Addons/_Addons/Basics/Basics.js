@@ -844,7 +844,7 @@ var YetaWF;
          * @param selector - The selector to match.
          */
         BasicsServices.prototype.elementMatches = function (elem, selector) {
-            if (elem)
+            if (elem && elem.matches)
                 return elem.matches(selector);
             return false;
         };
@@ -985,7 +985,7 @@ var YetaWF;
                         list.push(elem.classList[i]);
                 }
             }
-            else {
+            else if (elem.className) {
                 var cs = elem.className.split(" ");
                 for (var _i = 0, cs_1 = cs; _i < cs_1.length; _i++) {
                     var c = cs_1[_i];

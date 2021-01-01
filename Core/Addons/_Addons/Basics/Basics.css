@@ -1,5 +1,23 @@
 @charset "UTF-8";
 /* Copyright © 2021 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+body {
+  font: var(--body-font);
+  background: var(--body-bg);
+  color: var(--body-clr); }
+
+form {
+  width: 100%; }
+
+body fieldset {
+  padding: .5ch .5em .5ch .5em;
+  margin: 0;
+  border: var(--elem-border-width) solid var(--elem-border-clr); }
+  body fieldset legend {
+    font: var(--body-font);
+    margin-bottom: .5em;
+    width: auto;
+    border: 0; }
+
 ol, ul {
   margin-top: 0;
   /*If normalize.css is loaded after bootstrap, this is needed */ }
