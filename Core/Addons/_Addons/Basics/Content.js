@@ -110,7 +110,7 @@ var YetaWF;
             if (YVolatile.Basics.UnifiedMode === YetaWF.UnifiedModeEnum.None)
                 return SetContentResult.NotContent; // not unified mode
             if (popupCB) {
-                if (YVolatile.Basics.UnifiedMode !== YetaWF.UnifiedModeEnum.DynamicContent && YVolatile.Basics.UnifiedMode !== YetaWF.UnifiedModeEnum.SkinDynamicContent)
+                if (YVolatile.Basics.UnifiedMode !== YetaWF.UnifiedModeEnum.DynamicContent && YVolatile.Basics.UnifiedMode !== YetaWF.UnifiedModeEnum.AllPagesDynamicContent)
                     return SetContentResult.NotContent; // popups can only be used with some unified modes
                 if (!YVolatile.Basics.UnifiedPopups)
                     return SetContentResult.NotContent; // popups not wanted for this UPS
@@ -122,7 +122,7 @@ var YetaWF;
             else
                 uri = uriRequested;
             var path = uri.getPath();
-            if (YVolatile.Basics.UnifiedMode === YetaWF.UnifiedModeEnum.DynamicContent || YVolatile.Basics.UnifiedMode === YetaWF.UnifiedModeEnum.SkinDynamicContent) {
+            if (YVolatile.Basics.UnifiedMode === YetaWF.UnifiedModeEnum.DynamicContent || YVolatile.Basics.UnifiedMode === YetaWF.UnifiedModeEnum.AllPagesDynamicContent) {
                 var divs;
                 if (inplace)
                     divs = $YetaWF.getElementsBySelector("." + inplace.FromPane + ".yUnified[data-pane]"); // only requested pane
@@ -141,16 +141,10 @@ var YetaWF;
                     UnifiedAddonMods: $YetaWF.UnifiedAddonModsLoaded,
                     UniqueIdCounters: YVolatile.Basics.UniqueIdCounters,
                     IsMobile: $YetaWF.isMobile(),
-                    UnifiedSkinCollection: null,
-                    UnifiedSkinFileName: null,
                     Panes: [],
                     KnownCss: [],
                     KnownScripts: []
                 };
-                if (YVolatile.Basics.UnifiedMode === YetaWF.UnifiedModeEnum.SkinDynamicContent) {
-                    data.UnifiedSkinCollection = YVolatile.Basics.UnifiedSkinCollection;
-                    data.UnifiedSkinFileName = YVolatile.Basics.UnifiedSkinName;
-                }
                 for (var _i = 0, divs_1 = divs; _i < divs_1.length; _i++) {
                     var div = divs_1[_i];
                     data.Panes.push(div.getAttribute("data-pane"));

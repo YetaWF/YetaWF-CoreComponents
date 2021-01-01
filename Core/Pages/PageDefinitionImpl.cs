@@ -53,8 +53,6 @@ namespace YetaWF.Core.Pages {
             public Guid UnifiedSetGuid { get; set; }
             public bool Disabled { get; set; }
             public UnifiedModeEnum Mode { get; set; }
-            public string? PageSkinCollectionName { get; set; }
-            public string PageSkinFileName { get; set; } = null!;
             public bool Popups { get; set; }
             public int Animation { get; set; }
             public Guid MasterPageGuid { get; set; }
@@ -72,7 +70,7 @@ namespace YetaWF.Core.Pages {
         public static Func<Task<List<string>>> GetDesignedUrlsAsync { get; set; } = null!;
         public static Func<Guid, Task<List<PageDefinition>>> GetPagesFromModuleAsync { get; set; } = null!;
 
-        public static Func<Guid?, string?, string?, Task<UnifiedInfo?>> GetUnifiedPageInfoAsync { get; set; } = null!;
+        public static Func<Guid?, Task<UnifiedInfo?>> GetUnifiedPageInfoAsync { get; set; } = null!;
 
         // When adding new properties, make sure to update EditablePage in PageEditModule so we can actually edit/view the property
         // When adding new properties, make sure to update EditablePage in PageEditModule so we can actually edit/view the property
@@ -237,7 +235,7 @@ namespace YetaWF.Core.Pages {
         public List<string> GetPanes() {
             if (_panes == null) {
                 SkinAccess skinAccess = new SkinAccess();
-                _panes = skinAccess.GetPanes(Manager.IsInPopup ? SelectedPopupSkin : SelectedSkin, Manager.IsInPopup);
+                _panes = skinAccess.GetPanes();
             }
             return _panes;
         }
@@ -292,7 +290,6 @@ namespace YetaWF.Core.Pages {
                     page.Copyright = modelPage.Copyright;
                     page.CssClass = modelPage.CssClass;
                     page.Description = string.IsNullOrWhiteSpace(description) ? modelPage.Description : description;
-                    page.KendoUISkin = modelPage.KendoUISkin;
                     page.Keywords = modelPage.Keywords;
                     page.ModuleDefinitions = new ModuleList();
                     if (copyModules)
@@ -303,8 +300,6 @@ namespace YetaWF.Core.Pages {
                     page.RobotNoFollow = modelPage.RobotNoFollow;
                     page.RobotNoIndex = modelPage.RobotNoIndex;
                     page.RobotNoSnippet = modelPage.RobotNoSnippet;
-                    page.SelectedPopupSkin = modelPage.SelectedPopupSkin;
-                    page.SelectedSkin = modelPage.SelectedSkin;
                     page.Title = string.IsNullOrWhiteSpace(title) ? modelPage.Title : title;
                     page.WantSearch = modelPage.WantSearch;
                     page.TemplateGuid = modelPage.TemplateGuid;

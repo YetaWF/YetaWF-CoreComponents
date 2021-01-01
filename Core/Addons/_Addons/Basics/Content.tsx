@@ -14,8 +14,6 @@ namespace YetaWF {
         UnifiedAddonMods: string[];
         UniqueIdCounters: UniqueIdInfo;
         IsMobile: boolean;
-        UnifiedSkinCollection: string | null;
-        UnifiedSkinFileName: string | null;
         Panes: string[];
         KnownCss: string[];
         KnownScripts: string[];
@@ -186,7 +184,7 @@ namespace YetaWF {
             if (YVolatile.Basics.EditModeActive) return SetContentResult.NotContent; // edit mode
             if (YVolatile.Basics.UnifiedMode === UnifiedModeEnum.None) return SetContentResult.NotContent; // not unified mode
             if (popupCB) {
-                if (YVolatile.Basics.UnifiedMode !== UnifiedModeEnum.DynamicContent && YVolatile.Basics.UnifiedMode !== UnifiedModeEnum.SkinDynamicContent)
+                if (YVolatile.Basics.UnifiedMode !== UnifiedModeEnum.DynamicContent && YVolatile.Basics.UnifiedMode !== UnifiedModeEnum.AllPagesDynamicContent)
                     return SetContentResult.NotContent; // popups can only be used with some unified modes
                 if (!YVolatile.Basics.UnifiedPopups)
                     return SetContentResult.NotContent; // popups not wanted for this UPS
@@ -199,7 +197,7 @@ namespace YetaWF {
             else
                 uri = uriRequested;
             var path = uri.getPath();
-            if (YVolatile.Basics.UnifiedMode === UnifiedModeEnum.DynamicContent || YVolatile.Basics.UnifiedMode === UnifiedModeEnum.SkinDynamicContent) {
+            if (YVolatile.Basics.UnifiedMode === UnifiedModeEnum.DynamicContent || YVolatile.Basics.UnifiedMode === UnifiedModeEnum.AllPagesDynamicContent) {
                 var divs: HTMLElement[];
                 if (inplace)
                     divs = $YetaWF.getElementsBySelector(`.${inplace.FromPane}.yUnified[data-pane]`); // only requested pane
@@ -219,16 +217,10 @@ namespace YetaWF {
                     UnifiedAddonMods: $YetaWF.UnifiedAddonModsLoaded,
                     UniqueIdCounters: YVolatile.Basics.UniqueIdCounters,
                     IsMobile: $YetaWF.isMobile(),
-                    UnifiedSkinCollection: null,
-                    UnifiedSkinFileName: null,
                     Panes: [],
                     KnownCss: [],
                     KnownScripts: []
                 };
-                if (YVolatile.Basics.UnifiedMode === UnifiedModeEnum.SkinDynamicContent) {
-                    data.UnifiedSkinCollection = YVolatile.Basics.UnifiedSkinCollection;
-                    data.UnifiedSkinFileName = YVolatile.Basics.UnifiedSkinName;
-                }
                 for (var div of divs) {
                     data.Panes.push(div.getAttribute("data-pane") as string);
                 }

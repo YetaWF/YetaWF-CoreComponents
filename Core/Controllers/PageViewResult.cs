@@ -25,21 +25,22 @@ namespace YetaWF.Core.Controllers {
                 throw new ArgumentNullException(nameof(context));
 
             PageDefinition requestedPage = Manager.CurrentPage;
-            PageDefinition masterPage = Manager.CurrentPage;
             Manager.PageTitle = requestedPage.Title;
 
             // Unified pages
             Manager.UnifiedMode = PageDefinition.UnifiedModeEnum.None;
             if (!Manager.IsInPopup && !Manager.EditMode && PageDefinition.GetUnifiedPageInfoAsync != null && !requestedPage.Temporary) {
                 // Load all unified pages that this page is part of
-                PageDefinition.UnifiedInfo? info = await PageDefinition.GetUnifiedPageInfoAsync(requestedPage.UnifiedSetGuid, requestedPage.SelectedSkin.Collection, requestedPage.SelectedSkin.FileName);
+
+
+                PageDefinition.UnifiedInfo? info = await PageDefinition.GetUnifiedPageInfoAsync(requestedPage.UnifiedSetGuid);
                 if (info != null && !info.Disabled && info.Mode != PageDefinition.UnifiedModeEnum.None) {
                     // Load the master page for this set
-                    masterPage = await PageDefinition.LoadAsync(info.MasterPageGuid);
+                    PageDefinition masterPage = await PageDefinition.LoadAsync(info.MasterPageGuid);
                     if (masterPage != null) {
                         // get pages that are part of unified set
                         Manager.UnifiedPages = new List<PageDefinition>();
-                        if (info.Mode == PageDefinition.UnifiedModeEnum.DynamicContent || info.Mode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
+                        if (info.Mode == PageDefinition.UnifiedModeEnum.DynamicContent || info.Mode == PageDefinition.UnifiedModeEnum.AllPagesDynamicContent) {
                             Manager.UnifiedPages.Add(requestedPage);
                         } else {
                             if (info.PageGuids != null && info.PageGuids.Count > 0) {
@@ -55,17 +56,12 @@ namespace YetaWF.Core.Controllers {
                         Manager.UnifiedMode = info.Mode;
                         Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedAnimation", info.Animation);
                         Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedSetGuid", info.UnifiedSetGuid.ToString());
-                        if (info.Mode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
-                            Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedPopups", info.Popups);
-                            Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedSkinCollection", info.PageSkinCollectionName);
-                            Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedSkinName", info.PageSkinFileName);
-                        } else if (info.Mode == PageDefinition.UnifiedModeEnum.DynamicContent) {
+                        if (info.Mode == PageDefinition.UnifiedModeEnum.DynamicContent || info.Mode == PageDefinition.UnifiedModeEnum.AllPagesDynamicContent) {
                             Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedPopups", info.Popups);
                         } else
                             Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedPopups", false);
                     } else {
                         // master page was not found, probably deleted, just ignore
-                        masterPage = Manager.CurrentPage;
                     }
                 }
             }
@@ -75,12 +71,12 @@ namespace YetaWF.Core.Controllers {
 
             bool staticPage = false;
             if (YetaWFManager.Deployed)
-                staticPage = requestedPage.StaticPage != PageDefinition.StaticPageEnum.No && Manager.CurrentSite.StaticPages && !Manager.HaveUser && Manager.HostUsed.ToLower() == Manager.CurrentSite.SiteDomain.ToLower();
+                staticPage = requestedPage.StaticPage != PageDefinition.StaticPageEnum.No && Manager.CurrentSite.StaticPages && !Manager.HaveUser && string.Compare(Manager.HostUsed, Manager.CurrentSite.SiteDomain, true) == 0;
             Manager.RenderStaticPage = staticPage;
 
             SkinAccess skinAccess = new SkinAccess();
-            SkinDefinition skin = SkinDefinition.EvaluatedSkin(masterPage, Manager.IsInPopup);
-            string pageViewName = skinAccess.GetPageViewName(skin, Manager.IsInPopup);
+            SkinDefinition skin = SkinDefinition.EvaluatedSkin();
+            string pageViewName = skinAccess.GetPageViewName();
             string skinCollection = skin.Collection!;
 
             Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentSite.ReferencedModules);
@@ -112,7 +108,7 @@ namespace YetaWF.Core.Controllers {
 
             if (Manager.UniqueIdCounters.IsTracked)
                 Manager.ScriptManager.AddVolatileOption("Basics", "UniqueIdCounters", Manager.UniqueIdCounters);
-            if (Manager.UnifiedMode == PageDefinition.UnifiedModeEnum.DynamicContent || Manager.UnifiedMode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
+            if (Manager.UnifiedMode == PageDefinition.UnifiedModeEnum.DynamicContent || Manager.UnifiedMode == PageDefinition.UnifiedModeEnum.AllPagesDynamicContent) {
                 Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedCssBundleFiles", Manager.CssManager.GetBundleFiles());
                 Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedScriptBundleFiles", Manager.ScriptManager.GetBundleFiles());
             }

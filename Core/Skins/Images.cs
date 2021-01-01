@@ -92,7 +92,7 @@ namespace YetaWF.Core.Skins {
             // get skin specific icon
             // TODO: Need a way for this to work in Ajax calls so we get the correct icons
             if (Manager.CurrentPage != null) {
-                SkinDefinition skin = SkinDefinition.EvaluatedSkin(Manager.CurrentPage, Manager.IsInPopup);
+                SkinDefinition skin = SkinDefinition.EvaluatedSkin();
                 string skinCollection = skin.Collection!;
                 url = string.Format(SkinAddOnIconUrl_Format, VersionManager.GetAddOnSkinUrl(skinCollection), imageUrl);
                 urlCustom = VersionManager.GetCustomUrlFromUrl(url);

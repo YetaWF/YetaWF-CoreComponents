@@ -27,8 +27,8 @@ namespace YetaWF.Core.Skins {
 
         protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
-        public string GetPageViewName(SkinDefinition skin, bool popup) {
-            skin = SkinDefinition.EvaluatedSkin(skin, popup);
+        public string GetPageViewName() {
+            SkinDefinition skin = SkinDefinition.EvaluatedSkin();
             SkinCollectionInfo? info = TryFindSkinCollection(skin.Collection!);
             if (info == null)
                 info = FindSkinCollection(Manager.IsInPopup ? SkinAccess.FallbackPopupSkinCollectionName : SkinAccess.FallbackSkinCollectionName);
@@ -36,20 +36,19 @@ namespace YetaWF.Core.Skins {
         }
 
         // Returns the panes defined by the page skin
-        public List<string> GetPanes(SkinDefinition pageSkin, bool popup) {
-            string pageView = GetPageViewName(pageSkin, popup);
-            return YetaWFPageExtender.GetPanes(pageView);
+        public List<string> GetPanes() {
+            return YetaWFPageExtender.GetPanes(GetPageViewName());
         }
 
         public SkinCollectionInfo GetSkinCollectionInfo() {
-            SkinDefinition pageSkin = SkinDefinition.EvaluatedSkin(Manager.CurrentPage, Manager.IsInPopup);
+            SkinDefinition pageSkin = SkinDefinition.EvaluatedSkin();
             SkinCollectionInfo? info = TryFindSkinCollection(pageSkin.Collection!);
             if (info == null)
                 info = FindSkinCollection(Manager.IsInPopup ? SkinAccess.FallbackPopupSkinCollectionName : SkinAccess.FallbackSkinCollectionName);
             return info;
         }
         public PageSkinEntry GetPageSkinEntry() {
-            SkinDefinition pageSkin = SkinDefinition.EvaluatedSkin(Manager.CurrentPage, Manager.IsInPopup);
+            SkinDefinition pageSkin = SkinDefinition.EvaluatedSkin();
             SkinCollectionInfo? info = TryFindSkinCollection(pageSkin.Collection!);
             PageSkinEntry? pageSkinEntry;
             if (info == null) {
@@ -75,7 +74,7 @@ namespace YetaWF.Core.Skins {
         }
         private ModuleSkinEntry GetModuleSkinEntry(ModuleDefinition mod) {
             // Get the skin info for the page's skin collection and get the default module skin
-            SkinDefinition pageSkin = SkinDefinition.EvaluatedSkin(Manager.CurrentPage, Manager.IsInPopup);
+            SkinDefinition pageSkin = SkinDefinition.EvaluatedSkin();
             SkinCollectionInfo? info = TryFindSkinCollection(pageSkin.Collection!);
             ModuleSkinEntry? modSkinEntry;
             if (info == null) {
@@ -83,12 +82,8 @@ namespace YetaWF.Core.Skins {
                 modSkinEntry = info.ModuleSkins.First();
             } else {
                 // Find the module skin name to use for the page's skin collection
-                string? modSkin = (from s in mod.SkinDefinitions where s.Collection == pageSkin.Collection select s.FileName).FirstOrDefault();
-                if (string.IsNullOrWhiteSpace(modSkin))
-                    modSkinEntry = info.ModuleSkins.First();
-                else
-                    modSkinEntry = (from s in info.ModuleSkins where s.CssClass == modSkin select s).FirstOrDefault();
-                if (modSkinEntry == null) throw new InternalError("No module skin {0} found", modSkin);
+                modSkinEntry = info.ModuleSkins.First();
+                if (modSkinEntry == null) throw new InternalError("No module skin found");
             }
             return modSkinEntry;
         }

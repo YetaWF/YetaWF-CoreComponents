@@ -75,7 +75,6 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
                 ModuleGuid = PermanentGuid;
             else
                 ModuleGuid = Guid.NewGuid();
-            SelectedPopupSkin = new SkinDefinition();
 
             //Displayed = true;
             //ActionLinkStyle = Actions.ActionLinkStyleEnum.SiteDefault;
@@ -212,25 +211,6 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
         // SKIN
         // SKIN
         // SKIN
-
-        [Data_Binary]
-        [Category("Skin"), Caption("Module Skins"), Description("The skin used for this module - for each installed skin, a skin can be selected which will be used for the module, if the containing page uses that skin. This way the same module can be used on multiple pages, even if different page skins are used", Order = -100)]
-        [UIHint("ModuleSkins")]
-        public SerializableList<SkinDefinition> SkinDefinitions {
-            get {
-                if (_skinDefinitions == null)
-                    _skinDefinitions = new SerializableList<SkinDefinition>();
-                return _skinDefinitions;
-            }
-            set {
-                _skinDefinitions = value;
-            }
-        }
-        SerializableList<SkinDefinition>? _skinDefinitions;
-
-        [Category("Skin"), Caption("Popup Skin"), Description("The skin used for the popup window when this module is shown in a popup", Order = -97)]
-        [UIHint("PopupSkin"), Trim]
-        public SkinDefinition SelectedPopupSkin { get; set; }
 
         /// <summary>
         /// The CSS class name used on the &lt;div&gt; tag for this module. The allowable CSS class name is a subset of the CSS specification. Only characters _, a-z, A-Z and 0-9 are allowed, Ansi and Unicode escapes are not allowed.

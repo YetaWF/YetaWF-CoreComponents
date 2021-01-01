@@ -278,7 +278,7 @@ namespace YetaWF.Core.Controllers {
                 string url = dataIn.Path;
                 string? newUrl, newQs;
                 if (url.StartsWith(Globals.ModuleUrl, StringComparison.InvariantCultureIgnoreCase)) {
-                    if (dataIn.UnifiedMode == PageDefinition.UnifiedModeEnum.SkinDynamicContent || dataIn.UnifiedMode == PageDefinition.UnifiedModeEnum.DynamicContent) {
+                    if (dataIn.UnifiedMode == PageDefinition.UnifiedModeEnum.AllPagesDynamicContent || dataIn.UnifiedMode == PageDefinition.UnifiedModeEnum.DynamicContent) {
                         PageDefinition.GetUrlFromUrlWithSegments(url, uri.Segments, 3, uri.Query, out newUrl, out newQs);
                         if (newUrl != url) {
                             PageContentResult cr = new PageContentResult();
@@ -295,7 +295,7 @@ namespace YetaWF.Core.Controllers {
                         return cr;
                     }
                 } else if (url.StartsWith(Globals.PageUrl, StringComparison.InvariantCultureIgnoreCase)) {
-                    if (dataIn.UnifiedMode == PageDefinition.UnifiedModeEnum.SkinDynamicContent || dataIn.UnifiedMode == PageDefinition.UnifiedModeEnum.DynamicContent) {
+                    if (dataIn.UnifiedMode == PageDefinition.UnifiedModeEnum.AllPagesDynamicContent || dataIn.UnifiedMode == PageDefinition.UnifiedModeEnum.DynamicContent) {
                         PageDefinition.GetUrlFromUrlWithSegments(url, uri.Segments, 3, uri.Query, out newUrl, out newQs);
                         if (newUrl != url) {
                             PageContentResult cr = new PageContentResult();
@@ -401,31 +401,12 @@ namespace YetaWF.Core.Controllers {
         //}
         private async Task<ProcessingStatus> CanProcessAsDesignedPageAsync(PageDefinition page, DataIn dataIn, PageContentResult cr) {
             // request for a designed page
-            if (dataIn.UnifiedMode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
+            if (dataIn.UnifiedMode == PageDefinition.UnifiedModeEnum.AllPagesDynamicContent) {
                 if (page.UnifiedSetGuid != null) {
                     // this page is part of another unified page set
                     string redirUrl = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
                     cr.Result.Redirect = redirUrl;
                     return ProcessingStatus.Complete;
-                }
-                // make sure it's the same skin
-                if (YetaWFController.GoingToPopup()) {
-                    // popups only care about the skin collection, not the file
-                    if (!SameSkinCollection(page.SelectedPopupSkin.Collection, dataIn.UnifiedSkinCollection, true)) {
-                        // this page is part of another skin
-                        string redirUrl = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
-                        cr.Result.Redirect = redirUrl;
-                        return ProcessingStatus.Complete;
-                    }
-                } else {
-                    if (string.IsNullOrWhiteSpace(page.SelectedSkin.FileName))
-                        page.SelectedSkin.FileName = SkinAccess.FallbackPageFileName;
-                    if (!SameSkinCollection(page.SelectedSkin.Collection, dataIn.UnifiedSkinCollection, false) || page.SelectedSkin.FileName != dataIn.UnifiedSkinFileName) {
-                        // this page is part of another skin
-                        string redirUrl = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
-                        cr.Result.Redirect = redirUrl;
-                        return ProcessingStatus.Complete;
-                    }
                 }
             } else {
                 if (page.UnifiedSetGuid != new Guid(dataIn.UnifiedSetGuid)) {
@@ -513,26 +494,6 @@ namespace YetaWF.Core.Controllers {
                 if (YetaWFController.GoingToPopup()) {
                     // we're going into a popup for this
                     Manager.IsInPopup = true;
-                    page.SelectedPopupSkin = module.SelectedPopupSkin;
-                }
-                // make sure it's the same skin
-                if (YetaWFController.GoingToPopup()) {
-                    // popups only care about the skin collection, not the file
-                    if (!SameSkinCollection(page.SelectedPopupSkin.Collection, dataIn.UnifiedSkinCollection, true)) {
-                        // this page is part of another skin
-                        string redirUrl = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
-                        cr.Result.Redirect = redirUrl;
-                        return ProcessingStatus.Complete;
-                    }
-                } else {
-                    if (string.IsNullOrWhiteSpace(page.SelectedSkin.FileName))
-                        page.SelectedSkin.FileName = SkinAccess.FallbackPageFileName;
-                    if (!SameSkinCollection(page.SelectedSkin.Collection, dataIn.UnifiedSkinCollection, false) || page.SelectedSkin.FileName != dataIn.UnifiedSkinFileName) {
-                        // this page is part of another skin
-                        string redirUrl = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
-                        cr.Result.Redirect = redirUrl;
-                        return ProcessingStatus.Complete;
-                    }
                 }
                 Logging.AddTraceLog("Module {0}", module.ModuleGuid);
                 return ProcessingStatus.Page;
@@ -541,8 +502,8 @@ namespace YetaWF.Core.Controllers {
         }
 
         private bool SameSkinCollection(string? collection1, string? collection2, bool popup) {
-            if (string.IsNullOrWhiteSpace(collection1)) collection1 = popup ? Manager.CurrentSite.SelectedPopupSkin.Collection : Manager.CurrentSite.SelectedSkin.Collection;
-            if (string.IsNullOrWhiteSpace(collection2)) collection2 = popup ? Manager.CurrentSite.SelectedPopupSkin.Collection : Manager.CurrentSite.SelectedSkin.Collection;
+            if (string.IsNullOrWhiteSpace(collection1)) collection1 = Manager.CurrentSite.SelectedSkin.Collection;
+            if (string.IsNullOrWhiteSpace(collection2)) collection2 = Manager.CurrentSite.SelectedSkin.Collection;
             return (collection1 == collection2);
         }
     }

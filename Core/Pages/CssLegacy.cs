@@ -59,7 +59,7 @@ namespace YetaWF.Core.Pages {
         internal async Task<string> GetLegacyAddonUrlAsync(string addonUrl) {
             if (!addonUrl.StartsWith(VersionManager.AddOnsUrl, StringComparison.InvariantCultureIgnoreCase)) // only urls in /addons folder support legacy files
                 return addonUrl;
-            SkinDefinition skin = SkinDefinition.EvaluatedSkin(Manager.CurrentPage, Manager.IsInPopup);
+            SkinDefinition skin = SkinDefinition.EvaluatedSkin();
             if (skin.Collection == null)
                 return addonUrl;
             string[] parts = skin.Collection.Split(new char[] { '/' });

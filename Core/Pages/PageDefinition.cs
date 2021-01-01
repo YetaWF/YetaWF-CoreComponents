@@ -13,7 +13,6 @@ using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Site;
-using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Pages {
@@ -29,7 +28,6 @@ namespace YetaWF.Core.Pages {
         public const int MaxKeywords = 100;
         public const int MaxCopyright = 100;
         public const int MaxBootstrapSkin = 100;
-        public const int MaxKendoUISkin = 100;
         public const int MaxCssClass = 40;
 
         public enum PageSecurityType {
@@ -137,29 +135,20 @@ namespace YetaWF.Core.Pages {
         public enum UnifiedModeEnum {
             [EnumDescription("None", "The Unified Page Set does not combine page content - Each page is shown individually (full page load)")]
             None = 0,
-            [EnumDescription("Hide Others", "Only content for the current Url is shown - Content for other pages is embedded but not visible - Use with small page sets")]
+            [EnumDescription("Hide Others", "Only content for the current URL is shown - Content for other pages is embedded but not visible - Use with small page sets")]
             HideDivs = 1, // divs for other urls are hidden
             [EnumDescription("Show All Content", "All content is shown in the order the pages appear in the Unified Page Set - Use with small page sets")]
             ShowDivs = 2, // all divs are shown
             [EnumDescription("Dynamic Content", "Content is dynamically replaced when navigating between pages (Ajax server request for pane content) - Can be used with large page sets")]
             DynamicContent = 3,
-            [EnumDescription("Same Skin Dynamic Content", "All pages with the same skin as the Master Page are combined and page content is dynamically replaced when navigating between pages (Ajax server request for pane content) - Can be used to combine all site pages (using the same skin) into one single page - Pages that are explicitly part of another Unified Page Set are excluded")]
-            SkinDynamicContent = 4,
+            [EnumDescription("Dynamic Content - All Pages", "Content is dynamically replaced when navigating between pages (Ajax server request for pane content) - Used for ALL pages of a site")]
+            AllPagesDynamicContent = 4,
         }
 
         public PageDefinition() {
             Temporary = true;
             PageGuid = Guid.NewGuid();
-            SelectedSkin = new SkinDefinition {
-                Collection = null,
-                FileName = SkinAccess.FallbackPageFileName,
-            };
-            SelectedPopupSkin = new SkinDefinition {
-                Collection = null,
-                FileName = SkinAccess.FallbackPopupFileName,
-            };
             BootstrapSkin = null;
-            KendoUISkin = null;
             Title = new MultiString();
             Description = new MultiString();
             Keywords = new MultiString();
@@ -222,10 +211,6 @@ namespace YetaWF.Core.Pages {
         [Data_PrimaryKey]
         public Guid PageGuid { get; set; }
 
-        [RequiresPageReload]
-        public SkinDefinition SelectedSkin { get; set; }
-        public SkinDefinition SelectedPopupSkin { get; set; }
-
         /// <summary>
         /// The page used as template for the current page.
         /// </summary>
@@ -271,9 +256,6 @@ namespace YetaWF.Core.Pages {
         [StringLength(MaxBootstrapSkin)]
         [RequiresPageReload]
         public string? BootstrapSkin { get; set; }
-        [StringLength(MaxKendoUISkin)]
-        [RequiresPageReload]
-        public string? KendoUISkin { get; set; }
 
         [StringLength(Globals.MaxUrl)]
         [RequiresPageReload]

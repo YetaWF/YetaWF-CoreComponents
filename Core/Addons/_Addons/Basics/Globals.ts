@@ -37,7 +37,7 @@ namespace YetaWF {
         HideDivs = 1, // divs for other urls are hidden
         ShowDivs = 2, // all divs are shown
         DynamicContent = 3,
-        SkinDynamicContent = 4,
+        AllPagesDynamicContent = 4,
     }
     export enum MessageTypeEnum {
         Popups = 0,
@@ -73,8 +73,6 @@ namespace YetaWF {
         UnifiedAnimation: number;
         UnifiedSetGuid: string;
         UnifiedPopups: boolean;
-        UnifiedSkinCollection: string | null;
-        UnifiedSkinName: string;
         UniqueIdCounters: UniqueIdInfo;
         UnifiedCssBundleFiles: string[];
         UnifiedScriptBundleFiles: string[];

@@ -1,10 +1,10 @@
 ﻿/* Copyright © 2021 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System.Collections.Generic;
+using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
-using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Skins {
@@ -66,6 +66,7 @@ namespace YetaWF.Core.Skins {
         public SkinDefinition() { }
 
         [StringLength(MaxCollection)]
+        [Data_NewValue]
         public string? Collection { get; set; } // may be null for site default
 
         [StringLength(MaxSkinFile)]
@@ -80,43 +81,24 @@ namespace YetaWF.Core.Skins {
         } // may be null for site default
         private string? _fileName;
 
-        public static SkinDefinition EvaluatedSkin(PageDefinition page, bool popup) {
-            SkinDefinition skin = (Manager.IsInPopup) ? page.SelectedPopupSkin : page.SelectedSkin;
-            return EvaluatedSkin(skin, popup);
-        }
-        public static SkinDefinition EvaluatedSkin(SkinDefinition skin, bool popup) {
-            string? fileName = skin.FileName;
-            string? collection = skin.Collection;
-            if (string.IsNullOrWhiteSpace(collection)) {
-                if (popup) {
-                    collection = Manager.CurrentSite.SelectedPopupSkin.Collection;
-                } else {
-                    collection = Manager.CurrentSite.SelectedSkin.Collection;
-                }
+        public static SkinDefinition EvaluatedSkin() {
+            bool popup = Manager.IsInPopup;
+            string? fileName;
+            string? collection;
+            if (popup) {
+                collection = Manager.CurrentSite.SelectedPopupSkin.Collection;
+                fileName = Manager.CurrentSite.SelectedPopupSkin.FileName;
+            } else {
+                collection = Manager.CurrentSite.SelectedSkin.Collection;
+                fileName = Manager.CurrentSite.SelectedSkin.FileName;
             }
             if (string.IsNullOrWhiteSpace(collection)) {
                 if (popup) {
                     collection = SkinAccess.FallbackPopupSkinCollectionName;
+                    fileName = SkinAccess.FallbackPopupFileName;
                 } else {
                     collection = SkinAccess.FallbackSkinCollectionName;
-                }
-            }
-            if (string.IsNullOrWhiteSpace(fileName)) {
-                if (popup) {
-                    collection = Manager.CurrentSite.SelectedPopupSkin.Collection;
-                    fileName = Manager.CurrentSite.SelectedPopupSkin.FileName;
-                } else {
-                    collection = Manager.CurrentSite.SelectedSkin.Collection;
-                    fileName = Manager.CurrentSite.SelectedSkin.FileName;
-                }
-                if (string.IsNullOrWhiteSpace(collection)) {
-                    if (popup) {
-                        collection = SkinAccess.FallbackPopupSkinCollectionName;
-                        fileName = SkinAccess.FallbackPopupFileName;
-                    } else {
-                        collection = SkinAccess.FallbackSkinCollectionName;
-                        fileName = SkinAccess.FallbackPageFileName;
-                    }
+                    fileName = SkinAccess.FallbackPageFileName;
                 }
             }
             return new SkinDefinition {

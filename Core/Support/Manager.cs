@@ -1321,9 +1321,6 @@ namespace YetaWF.Core.Support {
             }
             ScriptManager.AddVolatileOption("Skin", "MinWidthForPopups", SkinInfo.MinWidthForPopups);
             ScriptManager.AddVolatileOption("Skin", "MinWidthForCondense", SkinInfo.MinWidthForCondense);
-
-            if (!string.IsNullOrWhiteSpace(SkinInfo.KendoSkin) && string.IsNullOrWhiteSpace(CurrentPage.KendoUISkin))
-                CurrentPage.KendoUISkin = SkinInfo.KendoSkin;
         }
 
         /// <summary>
@@ -1331,11 +1328,7 @@ namespace YetaWF.Core.Support {
         /// </summary>
         internal void SetSkinOptionsContent() {
             SkinAccess skinAccess = new SkinAccess();
-            SkinCollectionInfo info = skinAccess.GetSkinCollectionInfo();
-            SkinInfo = info;
-
-            if (!string.IsNullOrWhiteSpace(SkinInfo.KendoSkin) && string.IsNullOrWhiteSpace(CurrentPage.KendoUISkin))
-                CurrentPage.KendoUISkin = SkinInfo.KendoSkin;
+            SkinInfo = skinAccess.GetSkinCollectionInfo();
         }
 
         /// <summary>
@@ -1367,7 +1360,7 @@ namespace YetaWF.Core.Support {
                 case PageDefinition.UnifiedModeEnum.DynamicContent:
                     s = CssManager.CombineCss(s, "yUnifiedDynamicContent");
                     break;
-                case PageDefinition.UnifiedModeEnum.SkinDynamicContent:
+                case PageDefinition.UnifiedModeEnum.AllPagesDynamicContent:
                     s = CssManager.CombineCss(s, "yUnifiedSkinDynamicContent");
                     break;
             }
@@ -1381,7 +1374,7 @@ namespace YetaWF.Core.Support {
                 }
             }
             string cssClasses = CurrentPage.GetCssClass(); // get page specific Css (once only, used 2x)
-            if (UnifiedMode == PageDefinition.UnifiedModeEnum.DynamicContent || UnifiedMode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
+            if (UnifiedMode == PageDefinition.UnifiedModeEnum.DynamicContent || UnifiedMode == PageDefinition.UnifiedModeEnum.AllPagesDynamicContent) {
                 // add the extra page css class and generated page specific Css via javascript to body tag (used for dynamic content)
                 ScriptBuilder sb = new Support.ScriptBuilder();
                 sb.Append("document.body.setAttribute('data-pagecss', '{0}');", Utility.JserEncode(cssClasses));

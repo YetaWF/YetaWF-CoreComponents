@@ -21,7 +21,7 @@ var YetaWF;
         UnifiedModeEnum[UnifiedModeEnum["HideDivs"] = 1] = "HideDivs";
         UnifiedModeEnum[UnifiedModeEnum["ShowDivs"] = 2] = "ShowDivs";
         UnifiedModeEnum[UnifiedModeEnum["DynamicContent"] = 3] = "DynamicContent";
-        UnifiedModeEnum[UnifiedModeEnum["SkinDynamicContent"] = 4] = "SkinDynamicContent";
+        UnifiedModeEnum[UnifiedModeEnum["AllPagesDynamicContent"] = 4] = "AllPagesDynamicContent";
     })(UnifiedModeEnum = YetaWF.UnifiedModeEnum || (YetaWF.UnifiedModeEnum = {}));
     var MessageTypeEnum;
     (function (MessageTypeEnum) {
