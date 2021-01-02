@@ -75,7 +75,7 @@ namespace YetaWF.Core.Controllers {
             Manager.RenderStaticPage = staticPage;
 
             SkinAccess skinAccess = new SkinAccess();
-            string pageViewName = skinAccess.GetPageViewName();
+            string pageViewName = skinAccess.GetViewName();
             SkinDefinition skin = Manager.CurrentSite.Skin;
             string skinCollection = skin.Collection!;
 

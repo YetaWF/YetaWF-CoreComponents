@@ -46,7 +46,7 @@ namespace YetaWF.Core.Controllers {
                     Manager.ScriptManager.AddVolatileOption("Skin", "PopupWidth", pageSkin.Width);// Skin size in a popup window
                     Manager.ScriptManager.AddVolatileOption("Skin", "PopupHeight", pageSkin.Height);
                     Manager.ScriptManager.AddVolatileOption("Skin", "PopupMaximize", pageSkin.MaximizeButton);
-                    Manager.ScriptManager.AddVolatileOption("Skin", "PopupCss", pageSkin.Css);
+                    Manager.ScriptManager.AddVolatileOption("Skin", "PopupCss", pageSkin.CSS);
                 }
 
                 YHtmlHelper htmlHelper = new YHtmlHelper(context, null);

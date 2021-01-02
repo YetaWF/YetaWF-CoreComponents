@@ -9,41 +9,51 @@ namespace YetaWF.Core.Skins {
 
     public class PageSkinList : List<PageSkinEntry> { }
     public class PageSkinEntry {
+        [System.ComponentModel.DataAnnotations.Required]
         public string Name { get; set; } = null!;
-        public string PageViewName { get; set; } = null!;
+        [System.ComponentModel.DataAnnotations.Required]
+        public string ViewName { get; set; } = null!;
+        [System.ComponentModel.DataAnnotations.Required]
         public string Description { get; set; } = null!;
-        public string Css { get; set; } = null!;
+        [System.ComponentModel.DataAnnotations.Required]
+        public string CSS { get; set; } = null!;
+        [System.ComponentModel.DataAnnotations.Required]
         public int Width { get; set; } // popup width
+        [System.ComponentModel.DataAnnotations.Required]
         public int Height { get; set; } // popup width
-        public bool MaximizeButton { get; set; } // popup has maximize button
+        public bool MaximizeButton { get; set; } // popup has maximize button RFFU
     }
 
     public class ModuleSkinList : List<ModuleSkinEntry> { }
     public class ModuleSkinEntry {
+        [System.ComponentModel.DataAnnotations.Required]
         public string Name { get; set; } = null!;
-        public string CssClass { get; set; } = null!;
+        [System.ComponentModel.DataAnnotations.Required]
+        public string CSS { get; set; } = null!;
+        [System.ComponentModel.DataAnnotations.Required]
         public string Description { get; set; } = null!;
-        public int CharWidthAvg { get; set; }
-        public int CharHeight { get; set; }
     }
 
     public class SkinCollectionInfoList : List<SkinCollectionInfo> { }
     public class SkinCollectionInfo {
-        public string CollectionName { get; set; } = null!;
-        public string CollectionDescription { get; set; } = null!;
-        public string? JQuerySkin { get; set; }
-        public string? KendoSkin { get; set; }
+        public string Name { get; set; } = null!;
+        public string AreaName { get; set; } = null!;
+        public string Folder { get; set; } = null!;
+
+        [System.ComponentModel.DataAnnotations.Required]
+        public string Description { get; set; } = null!;
         public bool UsingBootstrap { get; set; }
         public bool UseDefaultBootstrap { get; set; }
         public bool UsingBootstrapButtons { get; set; }
         public string? PartialFormCss { get; set; }
         public int MinWidthForPopups { get; set; }
         public int MinWidthForCondense { get; set; }
+        [System.ComponentModel.DataAnnotations.Required]
         public PageSkinList PageSkins { get; set; }
+        [System.ComponentModel.DataAnnotations.Required]
         public PageSkinList PopupSkins { get; set; }
+        [System.ComponentModel.DataAnnotations.Required]
         public ModuleSkinList ModuleSkins { get; set; }
-        public string AreaName { get; set; } = null!;
-        public string Folder { get; set; } = null!;
 
         public SkinCollectionInfo() {
             PageSkins = new PageSkinList();

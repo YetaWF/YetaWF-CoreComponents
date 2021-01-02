@@ -4,7 +4,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Newtonsoft.Json;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
+using YamlDotNet.Core;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NodeDeserializers;
 using YetaWF.Core.Packages;
 
 namespace YetaWF.Core.Support {
@@ -346,6 +350,45 @@ namespace YetaWF.Core.Support {
             string url = "/" + area + "/" + controller + "/" + actionName;
             QueryHelper query = QueryHelper.FromAnonymousObject(args);
             return query.ToUrl(url);
+        }
+
+        // YAML
+        // YAML
+        // YAML
+
+        /// <summary>
+        /// Deserializes a Yaml string to an object.
+        /// </summary>
+        /// <typeparam name="TYPE">The type of the deserialized object.</typeparam>
+        /// <param name="value">The Yaml string.</param>
+        /// <returns>Returns the object.</returns>
+        public static TYPE YamlDeserialize<TYPE>(string value) {
+            YamlDotNet.Serialization.IDeserializer deserializer = GetYamlDeserializer();
+            return deserializer.Deserialize<TYPE>(value);
+        }
+
+        private static IDeserializer GetYamlDeserializer() {
+            if (_YamlDeserializer == null)
+                _YamlDeserializer = new DeserializerBuilder().WithNodeDeserializer(inner => new ValidatingNodeDeserializer(inner), s => s.InsteadOf<ObjectNodeDeserializer>()).Build();
+            return _YamlDeserializer;
+        }
+        private static IDeserializer? _YamlDeserializer;
+
+        public class ValidatingNodeDeserializer : INodeDeserializer {
+            private readonly INodeDeserializer _nodeDeserializer;
+
+            public ValidatingNodeDeserializer(INodeDeserializer nodeDeserializer) {
+                _nodeDeserializer = nodeDeserializer;
+            }
+
+            public bool Deserialize(IParser reader, Type expectedType, Func<IParser, Type, object?> nestedObjectDeserializer, out object? value) {
+                if (_nodeDeserializer.Deserialize(reader, expectedType, nestedObjectDeserializer, out value)) {
+                    System.ComponentModel.DataAnnotations.ValidationContext context = new ValidationContext(value!, null, null);
+                    Validator.ValidateObject(value!, context, true);
+                    return true;
+                }
+                return false;
+            }
         }
 
         // HTTP Sync I/O Handling

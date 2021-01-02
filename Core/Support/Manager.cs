@@ -1342,7 +1342,7 @@ namespace YetaWF.Core.Support {
         public string PageCss() {
             SkinAccess skinAccess = new SkinAccess();
             PageSkinEntry pageSkin = skinAccess.GetPageSkinEntry();
-            string s = pageSkin.Css;
+            string s = pageSkin.CSS;
             s = CssManager.CombineCss(s, ModeCss);// edit/display mode (doesn't change in same Unified page set)
             s = CssManager.CombineCss(s, HaveUser ? "yUser" : "yAnonymous");// add whether we have an authenticated user (doesn't change in same Unified page set)
             s = CssManager.CombineCss(s, IsInPopup ? "yPopup" : "yPage"); // popup or full page (doesn't change in same Unified page set)
