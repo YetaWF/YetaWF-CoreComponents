@@ -97,7 +97,9 @@ namespace YetaWF.Core.Site {
         public const int MaxHead = 1000;
         public const int MaxBodyTop = 1000;
         public const int MaxBodyBottom = 1000;
-
+        public const int MaxBootstrapSkin = 100;
+        public const int MaxKendoUISkin = 100;
+        
         protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
         public SiteDefinition() {
@@ -152,13 +154,10 @@ namespace YetaWF.Core.Site {
             ModuleDefinition.ReferencedModule.AddReferencedModule(ReferencedModules, new Guid("{466C0CCA-3E63-43f3-8754-F4267767EED1}")); // Control Panel (Skin)
             ModuleDefinition.ReferencedModule.AddReferencedModule(ReferencedModules, new Guid("{267f00cc-c619-4854-baed-9e4b812d7e95}")); // Page Edit Mode Selector (Skin)
 
-            SelectedSkin = new SkinDefinition {
+            Skin = new SkinDefinition {
                 Collection = SkinAccess.FallbackSkinCollectionName,
-                FileName = SkinAccess.FallbackPageFileName,
-            };
-            SelectedPopupSkin = new SkinDefinition {
-                Collection = SkinAccess.FallbackPopupSkinCollectionName,
-                FileName = SkinAccess.FallbackPopupFileName,
+                PageFileName = SkinAccess.FallbackPageFileName,
+                PopupFileName = SkinAccess.FallbackPopupFileName,
             };
             BootstrapSkin = null;
             KendoUISkin = null;
@@ -673,14 +672,11 @@ namespace YetaWF.Core.Site {
         // SKIN
         // SKIN
 
-        [Category("Skin"), Caption("Default Page Skin"), Description("The default skin used to for pages - individual pages can override the default skin")]
-        [UIHint("PageSkin"), AdditionalMetadata("NoDefault", true), Trim]
+        [Category("Skin"), Caption("Skin"), Description("The skin used to for pages and popups")]
+        [UIHint("Skin"), AdditionalMetadata("NoDefault", true), Trim]
         [RequiresPageReload]
-        public SkinDefinition SelectedSkin { get; set; }
-
-        [Category("Skin"), Caption("Default Popup Skin"), Description("The default skin used in a popup window - individual pages can override the default skin")]
-        [UIHint("PopupSkin"), AdditionalMetadata("NoDefault", true), Trim]
-        public SkinDefinition SelectedPopupSkin { get; set; }
+        [Data_NewValue]
+        public SkinDefinition Skin { get; set; }
 
         [Category("Skin"), Caption("Message Style"), Description("Defines the display style of notification messages (informational and error messages)")]
         [UIHint("Enum")]
@@ -694,15 +690,15 @@ namespace YetaWF.Core.Site {
         [RequiresPageReload]
         public bool FormErrorsImmed { get; set; }
 
-        [Category("Skin"), Caption("Default Bootstrap Skin"), Description("The default skin for overall page appearance and Bootstrap elements (only supported for skins that support Bootswatch) - individual pages can override the default skin")]
+        [Category("Skin"), Caption("Bootstrap Skin"), Description("The skin for overall page appearance and Bootstrap elements (only supported for skins that support Bootswatch)")]
         [HelpLink("https://www.bootstrapcdn.com/bootswatch/")]
-        [UIHint("BootstrapSkin"), StringLength(SkinDefinition.MaxName), AdditionalMetadata("NoDefault", true), Trim]
+        [UIHint("BootstrapSkin"), StringLength(MaxBootstrapSkin), AdditionalMetadata("NoDefault", true), Trim]
         [RequiresPageReload]
         public string? BootstrapSkin { get; set; }
 
-        [Category("Skin"), Caption("Default Kendo UI Skin"), Description("The default skin for Kendo UI elements (buttons, modal dialogs, etc.) - individual pages can override the default skin")]
+        [Category("Skin"), Caption("Kendo UI Skin"), Description("The skin for Kendo UI elements (buttons, modal dialogs, etc.)")]
         [HelpLink("http://demos.telerik.com/kendo-ui/themebuilder/")]
-        [UIHint("KendoUISkin"), StringLength(SkinDefinition.MaxName), AdditionalMetadata("NoDefault", true), Trim]
+        [UIHint("KendoUISkin"), StringLength(MaxKendoUISkin), AdditionalMetadata("NoDefault", true), Trim]
         [RequiresPageReload]
         public string? KendoUISkin { get; set; }
 

@@ -1309,9 +1309,7 @@ namespace YetaWF.Core.Support {
                 ScriptManager.AddVolatileOption("Skin", "BootstrapButtons", SkinInfo.UsingBootstrapButtons);
                 if (SkinInfo.UseDefaultBootstrap) {
                     // Find the bootstrap theme
-                    string? skin = Manager.CurrentPage.BootstrapSkin;
-                    if (string.IsNullOrWhiteSpace(skin))
-                        skin = Manager.CurrentSite.BootstrapSkin;
+                    string? skin = Manager.CurrentSite.BootstrapSkin;
                     string? themeFolder = await skinAccess.FindBootstrapSkinAsync(skin);
                     if (string.IsNullOrWhiteSpace(themeFolder))
                         await Manager.AddOnManager.AddAddOnNamedAsync(AreaRegistration.CurrentPackage.AreaName, "getbootstrap.com.bootstrap-less");
@@ -1365,9 +1363,7 @@ namespace YetaWF.Core.Support {
                     break;
             }
             if (Manager.SkinInfo.UsingBootstrap && Manager.SkinInfo.UseDefaultBootstrap) {
-                string? skin = Manager.CurrentPage.BootstrapSkin;
-                if (string.IsNullOrWhiteSpace(skin))
-                    skin = Manager.CurrentSite.BootstrapSkin;
+                string? skin = Manager.CurrentSite.BootstrapSkin;
                 if (!string.IsNullOrWhiteSpace(skin)) {
                     skin = skin.ToLower().Replace(' ', '-');
                     s = CssManager.CombineCss(s, $"ySkin-bs-{skin}");

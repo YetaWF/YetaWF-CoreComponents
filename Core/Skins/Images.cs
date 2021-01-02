@@ -92,8 +92,8 @@ namespace YetaWF.Core.Skins {
             // get skin specific icon
             // TODO: Need a way for this to work in Ajax calls so we get the correct icons
             if (Manager.CurrentPage != null) {
-                SkinDefinition skin = SkinDefinition.EvaluatedSkin();
-                string skinCollection = skin.Collection!;
+                SkinDefinition skin = Manager.CurrentSite.Skin;
+                string skinCollection = skin.Collection;
                 url = string.Format(SkinAddOnIconUrl_Format, VersionManager.GetAddOnSkinUrl(skinCollection), imageUrl);
                 urlCustom = VersionManager.GetCustomUrlFromUrl(url);
 #if DEBUGME
@@ -129,7 +129,7 @@ namespace YetaWF.Core.Skins {
 
             // get fallback skin icon
             {
-                string skinCollection = Manager.IsInPopup ? SkinDefinition.FallbackPopupSkin.Collection! : SkinDefinition.FallbackSkin.Collection!;
+                string skinCollection = SkinDefinition.FallbackSkin.Collection;
                 url = string.Format(SkinAddOnIconUrl_Format, VersionManager.GetAddOnSkinUrl(skinCollection), imageUrl);
                 urlCustom = VersionManager.GetCustomUrlFromUrl(url);
 #if DEBUGME

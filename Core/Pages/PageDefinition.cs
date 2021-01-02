@@ -27,7 +27,6 @@ namespace YetaWF.Core.Pages {
         public const int MaxDescription = 200;
         public const int MaxKeywords = 100;
         public const int MaxCopyright = 100;
-        public const int MaxBootstrapSkin = 100;
         public const int MaxCssClass = 40;
 
         public enum PageSecurityType {
@@ -148,7 +147,6 @@ namespace YetaWF.Core.Pages {
         public PageDefinition() {
             Temporary = true;
             PageGuid = Guid.NewGuid();
-            BootstrapSkin = null;
             Title = new MultiString();
             Description = new MultiString();
             Keywords = new MultiString();
@@ -252,10 +250,6 @@ namespace YetaWF.Core.Pages {
             }
             return s;
         }
-
-        [StringLength(MaxBootstrapSkin)]
-        [RequiresPageReload]
-        public string? BootstrapSkin { get; set; }
 
         [StringLength(Globals.MaxUrl)]
         [RequiresPageReload]

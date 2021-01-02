@@ -2,8 +2,6 @@
 
 using System.Collections.Generic;
 using YetaWF.Core.DataProvider.Attributes;
-using YetaWF.Core.Extensions;
-using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Support;
 
@@ -54,61 +52,29 @@ namespace YetaWF.Core.Skins {
         }
     }
 
-    // Skin definition for a page, popup or module
     public class SkinDefinition {
 
         protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
         public const int MaxCollection = 100;
-        public const int MaxName = 100;
-        public const int MaxSkinFile = 100;
+        public const int MaxPageFile = 100;
+        public const int MaxPopupFile = 100;
 
         public SkinDefinition() { }
 
         [StringLength(MaxCollection)]
         [Data_NewValue]
-        public string? Collection { get; set; } // may be null for site default
+        public string Collection { get; set; } = null!;
 
-        [StringLength(MaxSkinFile)]
-        public string? FileName {
-            get {
-                return _fileName;
-            }
-            set {
-                // back when Razor was used, we saved file names with extensions
-                _fileName = value?.TrimEnd(".cshtml");
-            }
-        } // may be null for site default
-        private string? _fileName;
+        [StringLength(MaxPageFile)]
+        [Data_NewValue]
+        public string PageFileName { get; set; } = null!;
+        [StringLength(MaxPopupFile)]
+        [Data_NewValue]
+        public string PopupFileName { get; set; } = null!;
 
         public static SkinDefinition EvaluatedSkin() {
-            bool popup = Manager.IsInPopup;
-            string? fileName;
-            string? collection;
-            if (popup) {
-                collection = Manager.CurrentSite.SelectedPopupSkin.Collection;
-                fileName = Manager.CurrentSite.SelectedPopupSkin.FileName;
-            } else {
-                collection = Manager.CurrentSite.SelectedSkin.Collection;
-                fileName = Manager.CurrentSite.SelectedSkin.FileName;
-            }
-            if (string.IsNullOrWhiteSpace(collection)) {
-                if (popup) {
-                    collection = SkinAccess.FallbackPopupSkinCollectionName;
-                    fileName = SkinAccess.FallbackPopupFileName;
-                } else {
-                    collection = SkinAccess.FallbackSkinCollectionName;
-                    fileName = SkinAccess.FallbackPageFileName;
-                }
-            }
-            return new SkinDefinition {
-                Collection = collection,
-                FileName = fileName,
-            };
-        }
-
-        public SkinDefinition(SkinDefinition copy) {
-            ObjectSupport.CopyData(copy, this);
+            return Manager.CurrentSite.Skin;
         }
 
         public static SkinDefinition FallbackSkin {
@@ -116,23 +82,12 @@ namespace YetaWF.Core.Skins {
                 if (_fallbackSkin == null)
                     _fallbackSkin = new SkinDefinition {
                         Collection = SkinAccess.FallbackSkinCollectionName,
-                        FileName = SkinAccess.FallbackPageFileName,
+                        PageFileName = SkinAccess.FallbackPageFileName,
+                        PopupFileName = SkinAccess.FallbackPopupFileName,
                     };
                 return _fallbackSkin;
             }
         }
         static SkinDefinition? _fallbackSkin;
-
-        public static SkinDefinition FallbackPopupSkin {
-            get {
-                if (_fallbackPopupSkin == null)
-                    _fallbackPopupSkin = new SkinDefinition {
-                        Collection = SkinAccess.FallbackPopupSkinCollectionName,
-                        FileName = SkinAccess.FallbackPopupFileName,
-                    };
-                return _fallbackPopupSkin;
-            }
-        }
-        static SkinDefinition? _fallbackPopupSkin;
     }
 }

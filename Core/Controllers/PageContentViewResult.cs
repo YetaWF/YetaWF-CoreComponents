@@ -35,7 +35,6 @@ namespace YetaWF.Core.Controllers {
 
                 Manager.PageTitle = Manager.CurrentPage.Title;
 
-                PageDefinition currPage = Manager.CurrentPage;
                 SkinAccess skinAccess = new SkinAccess();
 
                 Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentSite.ReferencedModules);

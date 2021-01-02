@@ -18,7 +18,6 @@ namespace YetaWF.Core.Skins {
         public const string FallbackSkinCollectionName = "YetaWF/Core/Standard";
         public const string FallbackPageFileName = "Default";
         public const string FallbackPagePlainFileName = "Plain";
-        public const string FallbackPopupSkinCollectionName = "YetaWF/Core/Standard";
         public const string FallbackPopupFileName = "Popup";
         public const string FallbackPopupMediumFileName = "PopupMedium";
         public const string FallbackPopupSmallFileName = "PopupSmall";
@@ -28,11 +27,11 @@ namespace YetaWF.Core.Skins {
         protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
         public string GetPageViewName() {
-            SkinDefinition skin = SkinDefinition.EvaluatedSkin();
-            SkinCollectionInfo? info = TryFindSkinCollection(skin.Collection!);
+            SkinDefinition skin = Manager.CurrentSite.Skin;
+            SkinCollectionInfo? info = TryFindSkinCollection(skin.Collection);
             if (info == null)
-                info = FindSkinCollection(Manager.IsInPopup ? SkinAccess.FallbackPopupSkinCollectionName : SkinAccess.FallbackSkinCollectionName);
-            return $"{info.AreaName}_{skin.FileName}";
+                info = FindSkinCollection(SkinAccess.FallbackSkinCollectionName);
+            return $"{info.AreaName}_{skin.PageFileName}";
         }
 
         // Returns the panes defined by the page skin
@@ -41,44 +40,45 @@ namespace YetaWF.Core.Skins {
         }
 
         public SkinCollectionInfo GetSkinCollectionInfo() {
-            SkinDefinition pageSkin = SkinDefinition.EvaluatedSkin();
-            SkinCollectionInfo? info = TryFindSkinCollection(pageSkin.Collection!);
+            SkinDefinition skin = Manager.CurrentSite.Skin;
+            SkinCollectionInfo? info = TryFindSkinCollection(skin.Collection);
             if (info == null)
-                info = FindSkinCollection(Manager.IsInPopup ? SkinAccess.FallbackPopupSkinCollectionName : SkinAccess.FallbackSkinCollectionName);
+                info = FindSkinCollection(SkinAccess.FallbackSkinCollectionName);
             return info;
         }
+
         public PageSkinEntry GetPageSkinEntry() {
-            SkinDefinition pageSkin = SkinDefinition.EvaluatedSkin();
-            SkinCollectionInfo? info = TryFindSkinCollection(pageSkin.Collection!);
+            SkinDefinition skin = Manager.CurrentSite.Skin;
+            SkinCollectionInfo? info = TryFindSkinCollection(skin.Collection);
             PageSkinEntry? pageSkinEntry;
             if (info == null) {
-                info = FindSkinCollection(Manager.IsInPopup ? SkinAccess.FallbackPopupSkinCollectionName : SkinAccess.FallbackSkinCollectionName);
+                info = FindSkinCollection(SkinAccess.FallbackSkinCollectionName);
                 pageSkinEntry = Manager.IsInPopup ? info.PopupSkins.First() : info.PageSkins.First();
             } else {
-                string fileName = pageSkin.FileName!;
-                if (string.IsNullOrWhiteSpace(fileName)) {
-                    if (Manager.IsInPopup)
-                        fileName = FallbackPopupFileName;
-                    else
-                        fileName = FallbackPageFileName;
-                }
+                string fileName;
                 if (Manager.IsInPopup) {
+                    fileName = skin.PopupFileName;
+                    if (string.IsNullOrWhiteSpace(fileName))
+                        fileName = FallbackPopupFileName;
                     pageSkinEntry = (from s in info.PopupSkins where s.PageViewName == fileName select s).FirstOrDefault();
                 } else {
+                    fileName = skin.PageFileName;
+                    if (string.IsNullOrWhiteSpace(fileName))
+                        fileName = FallbackPageFileName;
                     pageSkinEntry = (from s in info.PageSkins where s.PageViewName == fileName select s).FirstOrDefault();
                 }
             }
             if (pageSkinEntry == null)
-                throw new InternalError("No page skin {0} found", pageSkin);
+                throw new InternalError("No page skin found");
             return pageSkinEntry;
         }
         private ModuleSkinEntry GetModuleSkinEntry(ModuleDefinition mod) {
             // Get the skin info for the page's skin collection and get the default module skin
-            SkinDefinition pageSkin = SkinDefinition.EvaluatedSkin();
-            SkinCollectionInfo? info = TryFindSkinCollection(pageSkin.Collection!);
+            SkinDefinition skin = Manager.CurrentSite.Skin;
+            SkinCollectionInfo? info = TryFindSkinCollection(skin.Collection);
             ModuleSkinEntry? modSkinEntry;
             if (info == null) {
-                info = FindSkinCollection(Manager.IsInPopup ? SkinAccess.FallbackPopupSkinCollectionName : SkinAccess.FallbackSkinCollectionName);
+                info = FindSkinCollection(SkinAccess.FallbackSkinCollectionName);
                 modSkinEntry = info.ModuleSkins.First();
             } else {
                 // Find the module skin name to use for the page's skin collection

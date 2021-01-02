@@ -242,10 +242,7 @@ namespace YetaWF.Core.Addons {
             // if the skin doesn't exist return the fallback skin
             if (version == null) {
                 // if the skin doesn't exist, use the default skin (it better be there)
-                skinCollection = SkinAccess.FallbackSkinCollectionName;
-                version = TryFindSkinVersion(skinCollection);
-                if (version == null)
-                    throw new InternalError("Skin collection {0} doesn't exist", skinCollection);
+                version = FindSkinVersion(SkinAccess.FallbackSkinCollectionName);
             }
             return version;
         }
@@ -258,12 +255,11 @@ namespace YetaWF.Core.Addons {
             if (version == null) {
                 // if the skin doesn't exist, use the default skin (it better be there)
                 skinDef = new SkinDefinition() {
-                    Collection = popup ? SkinAccess.FallbackPopupSkinCollectionName : SkinAccess.FallbackSkinCollectionName,
-                    FileName = popup ? SkinAccess.FallbackPopupFileName : SkinAccess.FallbackPageFileName,
+                    Collection = SkinAccess.FallbackSkinCollectionName,
+                    PageFileName = SkinAccess.FallbackPageFileName,
+                    PopupFileName = SkinAccess.FallbackPopupFileName,
                 };
-                version = TryFindSkinVersion(popup ? SkinAccess.FallbackPopupSkinCollectionName : SkinAccess.FallbackSkinCollectionName);
-                if (version == null)
-                    throw new InternalError("Skin collection {0} doesn't exist", skinDef.Collection);
+                version = FindSkinVersion(skinDef.Collection);
             }
             return version;
         }
