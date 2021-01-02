@@ -1299,26 +1299,13 @@ namespace YetaWF.Core.Support {
         /// <summary>
         /// Define options for the current page or popup skin.
         /// </summary>
-        internal async Task SetSkinOptions() {
+        internal Task SetSkinOptions() {
             SkinAccess skinAccess = new SkinAccess();
             SkinCollectionInfo info = skinAccess.GetSkinCollectionInfo();
             SkinInfo = info;
-
-            if (SkinInfo.UsingBootstrap) {
-                ScriptManager.AddVolatileOption("Skin", "Bootstrap", true);
-                ScriptManager.AddVolatileOption("Skin", "BootstrapButtons", SkinInfo.UsingBootstrapButtons);
-                if (SkinInfo.UseDefaultBootstrap) {
-                    // Find the bootstrap theme
-                    string? skin = Manager.CurrentSite.BootstrapSkin;
-                    string? themeFolder = await skinAccess.FindBootstrapSkinAsync(skin);
-                    if (string.IsNullOrWhiteSpace(themeFolder))
-                        await Manager.AddOnManager.AddAddOnNamedAsync(AreaRegistration.CurrentPackage.AreaName, "getbootstrap.com.bootstrap-less");
-                    else
-                        await Manager.AddOnManager.AddAddOnNamedAsync(AreaRegistration.CurrentPackage.AreaName, "getbootstrap.com.bootswatch", themeFolder);
-                }
-            }
             ScriptManager.AddVolatileOption("Skin", "MinWidthForPopups", SkinInfo.MinWidthForPopups);
             ScriptManager.AddVolatileOption("Skin", "MinWidthForCondense", SkinInfo.MinWidthForCondense);
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -1361,13 +1348,6 @@ namespace YetaWF.Core.Support {
                 case PageDefinition.UnifiedModeEnum.AllPagesDynamicContent:
                     s = CssManager.CombineCss(s, "yUnifiedSkinDynamicContent");
                     break;
-            }
-            if (Manager.SkinInfo.UsingBootstrap && Manager.SkinInfo.UseDefaultBootstrap) {
-                string? skin = Manager.CurrentSite.BootstrapSkin;
-                if (!string.IsNullOrWhiteSpace(skin)) {
-                    skin = skin.ToLower().Replace(' ', '-');
-                    s = CssManager.CombineCss(s, $"ySkin-bs-{skin}");
-                }
             }
             string cssClasses = CurrentPage.GetCssClass(); // get page specific Css (once only, used 2x)
             if (UnifiedMode == PageDefinition.UnifiedModeEnum.DynamicContent || UnifiedMode == PageDefinition.UnifiedModeEnum.AllPagesDynamicContent) {

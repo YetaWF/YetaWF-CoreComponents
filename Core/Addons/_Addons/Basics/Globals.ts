@@ -98,10 +98,6 @@ namespace YetaWF {
         PopupCss: string;
         MinWidthForPopups: number;
         MinWidthForCondense: number;
-
-        // Bootstrap info
-        Bootstrap: boolean;
-        BootstrapButtons: boolean;
     }
 
     // CONFIGS

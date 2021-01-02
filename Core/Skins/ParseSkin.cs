@@ -78,8 +78,6 @@ namespace YetaWF.Core.Skins {
 
             // optional data, but must appear in the specified order
             info.UsingBootstrap = GetBool(fileName, lines, totalLines, ref lineCount, "UsingBootstrap", false);
-            info.UseDefaultBootstrap = GetBool(fileName, lines, totalLines, ref lineCount, "UseDefaultBootstrap", false);
-            info.UsingBootstrapButtons = GetBool(fileName, lines, totalLines, ref lineCount, "UsingBootstrapButtons", false);
             info.PartialFormCss = GetOptionalString(fileName, lines, totalLines, ref lineCount, "PartialFormCss", "");
             info.MinWidthForPopups = GetInt(fileName, lines, totalLines, ref lineCount, "MinWidthForPopups", 970);
             info.MinWidthForCondense = GetInt(fileName, lines, totalLines, ref lineCount, "MinWidthForCondense", info.MinWidthForPopups);

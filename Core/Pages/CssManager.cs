@@ -113,8 +113,6 @@ namespace YetaWF.Core.Pages {
                 if (count > 0) {
                     // at least a file name is present
                     file = parts[0].Trim();
-                    if (!string.IsNullOrWhiteSpace(Manager.CurrentSite.BootstrapSkin))
-                        file = file.Replace("{BootstrapSkin}", Manager.CurrentSite.BootstrapSkin.ToLower());
                     file = string.Format(file, args);
                     if (count > 1) {
                         // there are some keywords

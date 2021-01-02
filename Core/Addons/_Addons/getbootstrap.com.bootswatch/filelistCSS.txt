@@ -1,3 +1,0 @@
-﻿//stackpath.bootstrapcdn.com/bootswatch/4.5.2/{0}/bootstrap.min.css,CDN
-
-/node_modules/bootswatch/dist/{0}/bootstrap.min.css,noCDN

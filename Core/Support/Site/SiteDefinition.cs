@@ -159,7 +159,6 @@ namespace YetaWF.Core.Site {
                 PageFileName = SkinAccess.FallbackPageFileName,
                 PopupFileName = SkinAccess.FallbackPopupFileName,
             };
-            BootstrapSkin = null;
             KendoUISkin = null;
             MessageType = MessageTypeEnum.ToastLeft;
 
@@ -689,12 +688,6 @@ namespace YetaWF.Core.Site {
         [Data_NewValue]
         [RequiresPageReload]
         public bool FormErrorsImmed { get; set; }
-
-        [Category("Skin"), Caption("Bootstrap Skin"), Description("The skin for overall page appearance and Bootstrap elements (only supported for skins that support Bootswatch)")]
-        [HelpLink("https://www.bootstrapcdn.com/bootswatch/")]
-        [UIHint("BootstrapSkin"), StringLength(MaxBootstrapSkin), AdditionalMetadata("NoDefault", true), Trim]
-        [RequiresPageReload]
-        public string? BootstrapSkin { get; set; }
 
         [Category("Skin"), Caption("Kendo UI Skin"), Description("The skin for Kendo UI elements (buttons, modal dialogs, etc.)")]
         [HelpLink("http://demos.telerik.com/kendo-ui/themebuilder/")]
