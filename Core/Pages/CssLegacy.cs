@@ -186,6 +186,13 @@ namespace YetaWF.Core.Pages {
             }
 
             if (changed) { // only create legacy file if there are changes
+#if DEBUG
+                // make sure there are no stray var() directives. This will miss files where ALL var() are wrong. This is intentional
+                // for now as skins that have not yet been converted will complain about SkinBasics.scss.
+                int varIx = text.IndexOf("var(", StringComparison.Ordinal);
+                if (varIx >= 0)
+                    throw new InternalError($"{fromPath} still contains var() directives: {text.Substring(varIx).Truncate(100)}");
+#endif
                 string toFolder = Path.GetDirectoryName(toPath)!;
                 await FileSystem.FileSystemProvider.CreateDirectoryAsync(toFolder);
 

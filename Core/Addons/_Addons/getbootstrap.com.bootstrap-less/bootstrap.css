@@ -1,5 +1,6 @@
 /* Copyright © 2021 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+/* no longer used - needed with BS < 4 */
 @media print {
     /* Don't print href value for links - (Why would you, Bootstrap?) */
     a[href]:after {

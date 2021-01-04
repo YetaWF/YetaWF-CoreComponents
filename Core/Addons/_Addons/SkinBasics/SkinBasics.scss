@@ -6,13 +6,26 @@ body {
     color:  var(--body-clr);
 }
 
+a {
+    color: var(--a-clr);
+    text-decoration: var(--a-dec);
+    &:hover {
+        color: var(--a-clr-hover);
+        text-decoration: var(--a-dec-hover);
+    }
+    &:focus {
+        color: var(--a-clr-focus);
+        text-decoration: var(--a-dec-focus);
+    }
+}
+
 form {
     width:100%;
 }
 body fieldset {
     padding:.5ch .5em .5ch .5em;
     margin:0;
-    border: var(--elem-border-width) solid var(--elem-border-clr);
+    border: var(--elem-border);
     legend {
         font: var(--body-font);
         margin-bottom: .5em;
@@ -60,7 +73,7 @@ label {
     color: var(--tst-error-clr);
     margin: 1em 0;
     padding: 1em;
-    border: var(--elem-border-width) solid var(--elem-border-clr);
+    border: var(--elem-border);
     border-radius:var(--elem-border-radius);
 }
 .yDivSmallAlert {
@@ -73,7 +86,7 @@ label {
     color: var(--tst-warn-clr);
     margin: 1em 0;
     padding:1em;
-    border: var(--elem-border-width) solid var(--elem-border-clr);
+    border: var(--elem-border);
     border-radius:var(--elem-border-radius);
 }
 
@@ -87,7 +100,7 @@ label {
     color: var(--tst-warn-clr);
     margin: 1em 0;
     padding: 1em;
-    border: var(--elem-border-width) solid var(--elem-border-clr);
+    border: var(--elem-border);
     border-radius:var(--elem-border-radius);
 }
 .yDivSmallAdmin {
@@ -152,7 +165,7 @@ label {
 .yPage.yEditMode .yPane {
     padding: 1em;
     background: var(--body-bg);
-    border: var(--elem-border-width) solid var(--elem-border-clr);
+    border: var(--elem-border);
     border-radius:var(--elem-border-radius);
 }
 

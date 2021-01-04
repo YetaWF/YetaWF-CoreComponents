@@ -1165,7 +1165,7 @@ namespace YetaWF {
                     if (elem.classList[i].startsWith(cssPrefix))
                         list.push(elem.classList[i]);
                 }
-            } else if (elem.className) {
+            } else if (elem.className && typeof elem.className === "string") {
                 let cs = elem.className.split(" ");
                 for (let c of cs) {
                     if (c.startsWith(cssPrefix))

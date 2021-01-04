@@ -985,7 +985,7 @@ var YetaWF;
                         list.push(elem.classList[i]);
                 }
             }
-            else if (elem.className) {
+            else if (elem.className && typeof elem.className === "string") {
                 var cs = elem.className.split(" ");
                 for (var _i = 0, cs_1 = cs; _i < cs_1.length; _i++) {
                     var c = cs_1[_i];
