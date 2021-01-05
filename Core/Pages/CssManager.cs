@@ -20,7 +20,7 @@ namespace YetaWF.Core.Pages {
 
         public CssManager(YetaWFManager manager) { 
             Manager = manager;
-            if (CssLegacy.SupportLegacyBrowser() && CssLegacy.IsLegacyBrowser(manager.CurrentRequest))
+            if (CssLegacy.SupportLegacyBrowser() && CssLegacy.IsLegacyBrowser())
                 LegacyManager = new CssLegacy();
         }
         protected YetaWFManager Manager { get; private set; }

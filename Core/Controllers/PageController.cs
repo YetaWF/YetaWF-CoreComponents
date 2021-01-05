@@ -55,7 +55,7 @@ namespace YetaWF.Core.Controllers {
             await PageLogging.HandleCallbacksAsync(Manager.CurrentRequestUrl, false);
 
             // Legacy browser
-            if (CssLegacy.IsLegacyBrowser(Manager.CurrentRequest)) {
+            if (CssLegacy.IsLegacyBrowser()) {
                 if (!CssLegacy.SupportLegacyBrowser()) {
                     Logging.AddLog("302 Found - Legacy {0}", Manager.CurrentSite.UnsupportedBrowserUrl).Truncate(100);
                     Manager.CurrentResponse.StatusCode = StatusCodes.Status302Found;

@@ -34,20 +34,30 @@ namespace YetaWF.Core.Pages {
                 await CreateCssAsync(new QueryHelper());
         }
 
-        private YetaWFManager Manager { get { return YetaWFManager.Manager; } }
+        private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
         /// <summary>
         /// Constructor.
         /// </summary>
         public CssLegacy() { }
 
-        internal static bool IsLegacyBrowser(HttpRequest request) {
+        /// <summary>
+        /// Returns whether the browser for the current request is considered a legacy browser.
+        /// </summary>
+        /// <returns>Returns whether the browser for the current request is considered a legacy browser.</returns>
+        public static bool IsLegacyBrowser() {
+            HttpRequest request = Manager.CurrentRequest;
             var userAgent = request.Headers["User-Agent"].ToString();
             if (string.IsNullOrWhiteSpace(userAgent)) return false;
             if (userAgent.Contains("MSIE ") || userAgent.Contains("Trident/")) // IE 11 or older
                 return true;
             return false;
         }
+        public static void ExcludeLegacyBrowser() {
+            if (IsLegacyBrowser())
+                throw new InternalError("This feature requires a modern browser");
+        }
+
 
         internal static bool SupportLegacyBrowser() {
             if (_supportLegacyBrowser == null)
