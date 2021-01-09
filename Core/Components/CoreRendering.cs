@@ -71,16 +71,6 @@ namespace YetaWF.Core.Components {
         Task<string> RenderModuleMenuAsync(ModuleDefinition mod);
 
         /// <summary>
-        /// Renders a complete menu.
-        /// </summary>
-        /// <param name="menu">The menu to render.</param>
-        /// <param name="id">The menu ID to generate.</param>
-        /// <param name="cssClass">The optional CSS classes to use for the menu.</param>
-        /// <param name="HtmlHelper">The HtmlHelper instance.</param>
-        /// <returns>Returns the complete menu as HTML.</returns>
-        Task<string> RenderMenuListAsync(MenuList menu, string? id = null, string? cssClass = null, YHtmlHelper? HtmlHelper = null);
-
-        /// <summary>
         /// Renders a module action.
         /// </summary>
         /// <param name="action">The module action to render.</param>
