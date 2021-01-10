@@ -700,12 +700,31 @@ var YetaWF;
          * Retrieves a data object (a Typescript class) from a tag
          * @param tagId - The element id (DOM) where the object is attached
          */
-        BasicsServices.prototype.getObjectDataById = function (tagId) {
+        BasicsServices.prototype.getObjectDataByIdCond = function (tagId) {
             this.getElementById(tagId); // used to validate the existence of the element
             var doe = this.DataObjectCache.filter(function (entry) { return entry.DivId === tagId; });
             if (doe.length === 0)
-                throw "getObjectDataById - tag with id " + tagId + " doesn't have any data"; /*DEBUG*/
+                return null;
             return doe[0].Data;
+        };
+        /**
+         * Retrieves a data object (a Typescript class) from a tag
+         * @param tagId - The element id (DOM) where the object is attached
+         */
+        BasicsServices.prototype.getObjectDataById = function (tagId) {
+            var data = this.getObjectDataByIdCond(tagId);
+            if (!data)
+                throw "getObjectDataById - tag with id " + tagId + " doesn't have any data"; /*DEBUG*/
+            return data;
+        };
+        /**
+         * Retrieves a data object (a Typescript class) from a tag. The data object may not be available.
+         * @param tagId - The element id (DOM) where the object is attached
+         */
+        BasicsServices.prototype.getObjectDataCond = function (element) {
+            if (!element.id)
+                throw "element without id - " + element.outerHTML;
+            return this.getObjectDataByIdCond(element.id);
         };
         /**
          * Retrieves a data object (a Typescript class) from a tag

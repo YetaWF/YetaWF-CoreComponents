@@ -206,15 +206,24 @@ var YetaWF;
             var tag = $YetaWF.getElementById(id);
             return ComponentBaseDataImpl.getControlFromTag(tag, controlSelector);
         };
+        /**
+         * Returns all component instances that match the specified selector with the specified tags.
+         * While components are initializing, their HTML elements may already exist, but the component instance has not yet been created.
+         * Such components are simply ignored and not returned.
+         * @param controlSelector The selector to find matching coomponents.
+         * @param tags The tags within which components are located.
+         */
         ComponentBaseDataImpl.getControls = function (controlSelector, tags) {
             var objs = [];
             var ctrls = $YetaWF.getElementsBySelector(controlSelector, tags);
             for (var _i = 0, ctrls_1 = ctrls; _i < ctrls_1.length; _i++) {
                 var ctrl = ctrls_1[_i];
-                var obj = $YetaWF.getObjectData(ctrl);
-                if (obj.Control !== ctrl)
-                    throw "object data doesn't match control type - " + controlSelector + " - " + ctrl.outerHTML;
-                objs.push(obj);
+                var obj = $YetaWF.getObjectDataCond(ctrl);
+                if (obj) {
+                    if (obj.Control !== ctrl)
+                        throw "object data doesn't match control type - " + controlSelector + " - " + ctrl.outerHTML;
+                    objs.push(obj);
+                }
             }
             return objs;
         };

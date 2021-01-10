@@ -18,12 +18,6 @@ using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Site {
 
-    public enum TabStyleEnum {
-        [EnumDescription("JQuery", "JQuery-UI Tab Controls")]
-        JQuery = 0,
-        [EnumDescription("Kendo", "Kendo UI Core Tab Controls")]
-        Kendo = 1,
-    }
     public enum PageSecurityType {
         [EnumDescription("As Provided in URL", "As Provided in URL - This can be overridden by pages using an explicit mode")]
         AsProvided = 0,
@@ -689,7 +683,7 @@ namespace YetaWF.Core.Site {
         [RequiresPageReload]
         public bool FormErrorsImmed { get; set; }
 
-        [Category("Skin"), Caption("Kendo UI Skin"), Description("The skin for Kendo UI elements (buttons, modal dialogs, etc.)")]
+        [Category("Skin"), Caption("Kendo UI Skin"), Description("The skin for Kendo UI elements (date, time, datetime)")]
         [HelpLink("http://demos.telerik.com/kendo-ui/themebuilder/")]
         [UIHint("KendoUISkin"), StringLength(MaxKendoUISkin), AdditionalMetadata("NoDefault", true), Trim]
         [RequiresPageReload]

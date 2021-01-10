@@ -24,10 +24,6 @@ namespace YetaWF.Core.Modules {
             ButtonIcon = 5,
             ButtonOnly = 6,
         }
-        public enum RenderEngineEnum {
-            KendoMenu = 0,
-            BootstrapSmartMenu = 1,
-        }
 
         // Render an action as button
         public async Task<string> RenderAsButtonAsync(string? id = null) {

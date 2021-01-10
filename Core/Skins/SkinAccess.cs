@@ -31,7 +31,7 @@ namespace YetaWF.Core.Skins {
             SkinCollectionInfo? info = TryFindSkinCollection(skin.Collection);
             if (info == null)
                 info = FindSkinCollection(SkinAccess.FallbackSkinCollectionName);
-            return $"{info.AreaName}_{skin.PageFileName}";
+            return $"{info.AreaName}_{(Manager.IsInPopup ? skin.PopupFileName : skin.PageFileName)}";
         }
 
         // Returns the panes defined by the page skin

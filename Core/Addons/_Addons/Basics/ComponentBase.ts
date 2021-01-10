@@ -209,14 +209,23 @@ namespace YetaWF {
             return ComponentBaseDataImpl.getControlFromTag(tag, controlSelector);
         }
 
+        /**
+         * Returns all component instances that match the specified selector with the specified tags.
+         * While components are initializing, their HTML elements may already exist, but the component instance has not yet been created.
+         * Such components are simply ignored and not returned.
+         * @param controlSelector The selector to find matching coomponents.
+         * @param tags The tags within which components are located.
+         */
         public static getControls<CLSS extends ComponentBaseDataImpl>(controlSelector: string, tags?: HTMLElement[]): CLSS[] {
             let objs: CLSS[] = [];
             let ctrls = $YetaWF.getElementsBySelector(controlSelector, tags);
             for (let ctrl of ctrls) {
-                let obj = $YetaWF.getObjectData(ctrl) as CLSS;
-                if (obj.Control !== ctrl)
-                    throw `object data doesn't match control type - ${controlSelector} - ${ctrl.outerHTML}`;
-                objs.push(obj);
+                let obj = $YetaWF.getObjectDataCond(ctrl) as CLSS;
+                if (obj) {
+                    if (obj.Control !== ctrl)
+                        throw `object data doesn't match control type - ${controlSelector} - ${ctrl.outerHTML}`;
+                    objs.push(obj);
+                }
             }
             return objs;
         }

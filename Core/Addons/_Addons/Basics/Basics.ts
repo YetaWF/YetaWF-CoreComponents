@@ -877,12 +877,31 @@ namespace YetaWF {
          * Retrieves a data object (a Typescript class) from a tag
          * @param tagId - The element id (DOM) where the object is attached
          */
-        public getObjectDataById(tagId: string): any {
+        public getObjectDataByIdCond(tagId: string): any {
             this.getElementById(tagId); // used to validate the existence of the element
             var doe = this.DataObjectCache.filter((entry: DataObjectEntry): boolean => entry.DivId === tagId);
             if (doe.length === 0)
-                throw `getObjectDataById - tag with id ${tagId} doesn't have any data`;/*DEBUG*/
+                return null;
             return doe[0].Data;
+        }
+        /**
+         * Retrieves a data object (a Typescript class) from a tag
+         * @param tagId - The element id (DOM) where the object is attached
+         */
+        public getObjectDataById(tagId: string): any {
+            let data = this.getObjectDataByIdCond(tagId);
+            if (!data)
+                throw `getObjectDataById - tag with id ${tagId} doesn't have any data`;/*DEBUG*/
+            return data;
+        }
+        /**
+         * Retrieves a data object (a Typescript class) from a tag. The data object may not be available.
+         * @param tagId - The element id (DOM) where the object is attached
+         */
+        public getObjectDataCond(element: HTMLElement): any {
+            if (!element.id)
+                throw `element without id - ${element.outerHTML}`;
+            return this.getObjectDataByIdCond(element.id);
         }
         /**
          * Retrieves a data object (a Typescript class) from a tag
