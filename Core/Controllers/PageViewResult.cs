@@ -92,10 +92,11 @@ namespace YetaWF.Core.Controllers {
             }
             Manager.LastUpdated = requestedPage.Updated;
 
+            // Skins first. Skins can/should really only add CSS files.
+            await Manager.AddOnManager.AddSkinAsync(skinCollection, Manager.CurrentSite.Theme ?? "Default"); 
             await YetaWFCoreRendering.Render.AddStandardAddOnsAsync();
             await Manager.SetSkinOptions();
             await YetaWFCoreRendering.Render.AddSkinAddOnsAsync();
-            await Manager.AddOnManager.AddSkinAsync(skinCollection);
             await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF_Core", "SkinBasics");
 
             YHtmlHelper htmlHelper = new YHtmlHelper(context, null);

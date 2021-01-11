@@ -91,9 +91,9 @@ namespace YetaWF.Core.Site {
         public const int MaxHead = 1000;
         public const int MaxBodyTop = 1000;
         public const int MaxBodyBottom = 1000;
-        public const int MaxBootstrapSkin = 100;
         public const int MaxKendoUISkin = 100;
-        
+        public const int MaxTheme = 100;
+
         protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
         public SiteDefinition() {
@@ -682,6 +682,12 @@ namespace YetaWF.Core.Site {
         [Data_NewValue]
         [RequiresPageReload]
         public bool FormErrorsImmed { get; set; }
+
+        [Category("Skin"), Caption("Theme"), Description("The theme used for all pages of the site")]
+        [UIHint("Theme"), StringLength(MaxTheme), SelectionRequired]
+        [RequiresPageReload]
+        [Data_NewValue]
+        public string Theme { get; set; }
 
         [Category("Skin"), Caption("Kendo UI Skin"), Description("The skin for Kendo UI elements (date, time, datetime)")]
         [HelpLink("http://demos.telerik.com/kendo-ui/themebuilder/")]

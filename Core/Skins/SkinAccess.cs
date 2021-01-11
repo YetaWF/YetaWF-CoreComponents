@@ -1,11 +1,14 @@
 ﻿/* Copyright © 2021 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Components;
 using YetaWF.Core.Identity;
+using YetaWF.Core.IO;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Pages;
@@ -260,6 +263,15 @@ namespace YetaWF.Core.Skins {
         public ModuleSkinList GetAllModuleSkins(string skinCollection) {
             VersionManager.AddOnProduct addon = VersionManager.FindSkinVersion(skinCollection);
             return addon.SkinInfo.ModuleSkins;
+        }
+
+        public async Task<List<string>> GetThemesAsync() {
+            List<string> list = new List<string>();
+            SkinCollectionInfo skinInfo = FindSkinCollection(Manager.CurrentSite.Skin.Collection);
+            foreach (string themePath in await FileSystem.FileSystemProvider.GetFilesAsync(Path.Combine(skinInfo.Folder, "Themes"), "*.css")) {
+                list.Add(Path.GetFileNameWithoutExtension(themePath));
+            }
+            return list;
         }
     }
 }

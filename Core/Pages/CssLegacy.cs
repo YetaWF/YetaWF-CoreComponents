@@ -217,7 +217,7 @@ namespace YetaWF.Core.Pages {
             Dictionary<string, string> collected = new Dictionary<string, string>();
 
             foreach (string file in skin.CssFiles) {
-                if (file.Contains("{"))
+                if (file.Contains("{") || file.StartsWith("Themes/"))
                     continue;
                 string realFile = file;
                 string ext = Path.GetExtension(realFile);
