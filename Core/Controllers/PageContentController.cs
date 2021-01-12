@@ -494,6 +494,7 @@ namespace YetaWF.Core.Controllers {
                 if (YetaWFController.GoingToPopup()) {
                     // we're going into a popup for this
                     Manager.IsInPopup = true;
+                    page.PopupPage = module.PopupPage;
                 }
                 Logging.AddTraceLog("Module {0}", module.ModuleGuid);
                 return ProcessingStatus.Page;

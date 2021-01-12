@@ -81,6 +81,8 @@ namespace YetaWF.Core.Site {
 
         public static readonly int SiteIdentitySeed = 1000; // the id of the first site
 
+        public const string DefaultTheme = "Default";
+
         public const int MaxCopyright = 100;
         public const int MaxSiteName = 40;
         public const int MaxSiteDomain = 80;
@@ -93,6 +95,7 @@ namespace YetaWF.Core.Site {
         public const int MaxBodyBottom = 1000;
         public const int MaxKendoUISkin = 100;
         public const int MaxTheme = 100;
+        public const int MaxPopupPage = 40;
 
         protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
@@ -148,6 +151,7 @@ namespace YetaWF.Core.Site {
             ModuleDefinition.ReferencedModule.AddReferencedModule(ReferencedModules, new Guid("{466C0CCA-3E63-43f3-8754-F4267767EED1}")); // Control Panel (Skin)
             ModuleDefinition.ReferencedModule.AddReferencedModule(ReferencedModules, new Guid("{267f00cc-c619-4854-baed-9e4b812d7e95}")); // Page Edit Mode Selector (Skin)
 
+            Theme = DefaultTheme;
             Skin = new SkinDefinition {
                 Collection = SkinAccess.FallbackSkinCollectionName,
                 PageFileName = SkinAccess.FallbackPageFileName,

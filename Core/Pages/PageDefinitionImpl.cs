@@ -235,7 +235,7 @@ namespace YetaWF.Core.Pages {
         public List<string> GetPanes() {
             if (_panes == null) {
                 SkinAccess skinAccess = new SkinAccess();
-                _panes = skinAccess.GetPanes();
+                _panes = skinAccess.GetPanes(PopupPage);
             }
             return _panes;
         }

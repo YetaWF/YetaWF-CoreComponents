@@ -29,17 +29,17 @@ namespace YetaWF.Core.Skins {
 
         protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
-        public string GetViewName() {
+        public string GetViewName(string? popupPage) {
             SkinDefinition skin = Manager.CurrentSite.Skin;
             SkinCollectionInfo? info = TryFindSkinCollection(skin.Collection);
             if (info == null)
                 info = FindSkinCollection(SkinAccess.FallbackSkinCollectionName);
-            return $"{info.AreaName}_{(Manager.IsInPopup ? skin.PopupFileName : skin.PageFileName)}";
+            return $"{info.AreaName}_{(Manager.IsInPopup ? popupPage ?? skin.PopupFileName : skin.PageFileName)}";
         }
 
         // Returns the panes defined by the page skin
-        public List<string> GetPanes() {
-            return YetaWFPageExtender.GetPanes(GetViewName());
+        public List<string> GetPanes(string? popupPage) {
+            return YetaWFPageExtender.GetPanes(GetViewName(popupPage));
         }
 
         public SkinCollectionInfo GetSkinCollectionInfo() {
@@ -58,9 +58,11 @@ namespace YetaWF.Core.Skins {
                 info = FindSkinCollection(SkinAccess.FallbackSkinCollectionName);
                 pageSkinEntry = Manager.IsInPopup ? info.PopupSkins.First() : info.PageSkins.First();
             } else {
-                string fileName;
+                string? fileName;
                 if (Manager.IsInPopup) {
-                    fileName = skin.PopupFileName;
+                    fileName = Manager.CurrentPage.PopupPage;
+                    if (string.IsNullOrWhiteSpace(fileName))
+                        fileName = skin.PopupFileName;
                     if (string.IsNullOrWhiteSpace(fileName))
                         fileName = FallbackPopupFileName;
                     pageSkinEntry = (from s in info.PopupSkins where s.ViewName == fileName select s).FirstOrDefault();
@@ -269,7 +271,10 @@ namespace YetaWF.Core.Skins {
             List<string> list = new List<string>();
             SkinCollectionInfo skinInfo = FindSkinCollection(Manager.CurrentSite.Skin.Collection);
             foreach (string themePath in await FileSystem.FileSystemProvider.GetFilesAsync(Path.Combine(skinInfo.Folder, "Themes"), "*.css")) {
-                list.Add(Path.GetFileNameWithoutExtension(themePath));
+                string fileName = Path.GetFileNameWithoutExtension(themePath);
+                if (fileName.EndsWith(".min", StringComparison.Ordinal))
+                    continue;
+                list.Add(fileName);
             }
             return list;
         }

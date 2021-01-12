@@ -9,6 +9,7 @@ using YetaWF.Core.Components;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Pages;
 using YetaWF.Core.ResponseFilter;
+using YetaWF.Core.Site;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 
@@ -75,7 +76,7 @@ namespace YetaWF.Core.Controllers {
             Manager.RenderStaticPage = staticPage;
 
             SkinAccess skinAccess = new SkinAccess();
-            string pageViewName = skinAccess.GetViewName();
+            string pageViewName = skinAccess.GetViewName(requestedPage.PopupPage);
             SkinDefinition skin = Manager.CurrentSite.Skin;
             string skinCollection = skin.Collection!;
 
@@ -93,7 +94,7 @@ namespace YetaWF.Core.Controllers {
             Manager.LastUpdated = requestedPage.Updated;
 
             // Skins first. Skins can/should really only add CSS files.
-            await Manager.AddOnManager.AddSkinAsync(skinCollection, Manager.CurrentSite.Theme ?? "Default"); 
+            await Manager.AddOnManager.AddSkinAsync(skinCollection, Manager.CurrentSite.Theme ?? SiteDefinition.DefaultTheme); 
             await YetaWFCoreRendering.Render.AddStandardAddOnsAsync();
             await Manager.SetSkinOptions();
             await YetaWFCoreRendering.Render.AddSkinAddOnsAsync();

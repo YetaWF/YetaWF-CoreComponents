@@ -162,6 +162,7 @@ namespace YetaWF.Core.Pages {
             ChangeFrequency = ChangeFrequencyEnum.Default;
             SiteMapPriority = SiteMapPriorityEnum.Medium;
             ReferencedModules = new SerializableList<ModuleDefinition.ReferencedModule>();
+            PopupPage = "Popup";
         }
 
         public enum AllowedEnum {
@@ -208,6 +209,13 @@ namespace YetaWF.Core.Pages {
         /// </summary>
         [Data_PrimaryKey]
         public Guid PageGuid { get; set; }
+
+        /// <summary>
+        /// Defines the popup page used for the popup window when this page is shown in a popup.
+        /// </summary>
+        [Data_NewValue]
+        [StringLength(SiteDefinition.MaxPopupPage)]
+        public string? PopupPage { get; set; }
 
         /// <summary>
         /// The page used as template for the current page.

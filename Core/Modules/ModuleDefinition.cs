@@ -12,6 +12,7 @@ using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Serializers;
+using YetaWF.Core.Site;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 
@@ -95,6 +96,7 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
             Print = true;
             ReferencedModules = new SerializableList<ReferencedModule>();
             DefaultViewName = null;
+            PopupPage = "Popup";
         }
 
         [Data_DontSave]
@@ -211,6 +213,12 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
         // SKIN
         // SKIN
         // SKIN
+
+        [Category("Skin"), Caption("Popup Page"), Description("The popup page used for the popup window when this module is shown in a popup", Order = -93)]
+        [UIHint("SkinNamePopup"), AdditionalMetadata("NoDefault", false), StringLength(SiteDefinition.MaxPopupPage)]
+        [Data_NewValue]
+        public string? PopupPage { get; set; }
+        public string PopupPage_Collection { get { return Manager.CurrentSite.Skin.Collection; } }
 
         /// <summary>
         /// The CSS class name used on the &lt;div&gt; tag for this module. The allowable CSS class name is a subset of the CSS specification. Only characters _, a-z, A-Z and 0-9 are allowed, Ansi and Unicode escapes are not allowed.

@@ -24,7 +24,7 @@ form {
 body fieldset {
   padding: .5ch .5em .5ch .5em;
   margin: 0;
-  border: var(--elem-border); }
+  border: var(--prop-border); }
   body fieldset legend {
     font: var(--body-font);
     margin-bottom: .5em;
@@ -64,8 +64,8 @@ label {
   color: var(--tst-error-clr);
   margin: 1em 0;
   padding: 1em;
-  border: var(--elem-border);
-  border-radius: var(--elem-border-radius); }
+  border: var(--tst-border);
+  border-radius: var(--tst-border-radius); }
 
 .yDivSmallAlert {
   background: var(--tst-error-bg);
@@ -76,8 +76,8 @@ label {
   color: var(--tst-warn-clr);
   margin: 1em 0;
   padding: 1em;
-  border: var(--elem-border);
-  border-radius: var(--elem-border-radius); }
+  border: var(--tst-border);
+  border-radius: var(--tst-border-radius); }
 
 .yDivSmallWarning {
   background: var(--tst-warn-bg);
@@ -88,8 +88,8 @@ label {
   color: var(--tst-warn-clr);
   margin: 1em 0;
   padding: 1em;
-  border: var(--elem-border);
-  border-radius: var(--elem-border-radius); }
+  border: var(--tst-border);
+  border-radius: var(--tst-border-radius); }
 
 .yDivSmallAdmin {
   background: var(--tst-warn-bg);
@@ -139,8 +139,8 @@ label {
 .yPage.yEditMode .yPane {
   padding: 1em;
   background: var(--body-bg);
-  border: var(--elem-border);
-  border-radius: var(--elem-border-radius); }
+  border: var(--prop-border);
+  border-radius: var(--prop-border-radius); }
 
 /* OWNERSHIP */
 .ypagerole_noUserAnon {
