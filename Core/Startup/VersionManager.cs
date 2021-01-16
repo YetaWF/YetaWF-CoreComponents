@@ -15,6 +15,8 @@ using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Addons {
 
+    // TODO: Most of this should be in the Package class. We don't deal with versions.
+
     public class VersionManagerStartup : IInitializeApplicationStartup {
         /// <summary>
         /// Called when any node of a (single- or multi-instance) site is starting up.
@@ -85,7 +87,12 @@ namespace YetaWF.Core.Addons {
             public List<Type> SupportTypes { get; set; }
             public SkinCollectionInfo SkinInfo { get; set; } = null!;
 
+            public string? SVGFolder { get; internal set; }
+            public Dictionary<string, string>? SVGs { get; internal set; }
+            internal string? GetSVG(string name) { return SVGs != null ? (SVGs.TryGetValue(name, out string? html) ? html : null) : null; }
+
             public string Prefix { get { return GetPrefix(Type); } }
+
             public static string GetPrefix(AddOnType type) {
                 switch (type) {
                     case AddOnType.Package: return PackagePrefix;
@@ -531,7 +538,19 @@ namespace YetaWF.Core.Addons {
             };
             await AddFileListsAsync(version, package, folder);
             Products.Add(key, version);
+
+            if (type == AddOnType.Package || type == AddOnType.Skin)
+                await LoadSVGsAsync(version, folder);                
+
             Logging.AddLog("added {0} in {1}", version.AddonKey, folder);
+        }
+
+        private static async Task LoadSVGsAsync(AddOnProduct version, string folder) {
+            string path = Path.Combine(folder, SkinAccess.SVGFolder);
+            if (await FileSystem.FileSystemProvider.DirectoryExistsAsync(path)) {
+                version.SVGFolder = path;
+                version.SVGs = await SkinAccess.GetSVGsAsync(path);
+            }
         }
 
         private static async Task AddFileListsAsync(AddOnProduct version, Package package, string folder) {
@@ -546,7 +565,7 @@ namespace YetaWF.Core.Addons {
             version.SupportTypes = await ReadSupportFileAsync(version, package, folder);
             if (version.Type == AddOnType.Skin) {
                 SkinAccess skinAccess = new SkinAccess();
-                version.SkinInfo = await skinAccess.ParseSkinFileAsync(version.Domain, version.Product, Path.GetFileName(folder), folder);
+                version.SkinInfo = await skinAccess.LoadSkinAsync(package, version.Domain, version.Product, Path.GetFileName(folder), folder);
             }
         }
 

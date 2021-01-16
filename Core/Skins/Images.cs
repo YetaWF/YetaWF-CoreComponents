@@ -92,9 +92,7 @@ namespace YetaWF.Core.Skins {
             // get skin specific icon
             // TODO: Need a way for this to work in Ajax calls so we get the correct icons
             if (Manager.CurrentPage != null) {
-                SkinDefinition skin = Manager.CurrentSite.Skin;
-                string skinCollection = skin.Collection;
-                url = string.Format(SkinAddOnIconUrl_Format, VersionManager.GetAddOnSkinUrl(skinCollection), imageUrl);
+                url = string.Format(SkinAddOnIconUrl_Format, Manager.SkinInfo.Url, imageUrl);
                 urlCustom = VersionManager.GetCustomUrlFromUrl(url);
 #if DEBUGME
                 Logging.AddLog("Searching skin specific icon {0} and {1}", url, urlCustom);
@@ -129,8 +127,7 @@ namespace YetaWF.Core.Skins {
 
             // get fallback skin icon
             {
-                string skinCollection = SkinDefinition.FallbackSkin.Collection;
-                url = string.Format(SkinAddOnIconUrl_Format, VersionManager.GetAddOnSkinUrl(skinCollection), imageUrl);
+                url = string.Format(SkinAddOnIconUrl_Format, SkinAccess.FallbackSkinCollectionInfo.Url, imageUrl);
                 urlCustom = VersionManager.GetCustomUrlFromUrl(url);
 #if DEBUGME
                 Logging.AddLog("Searching fallback icon {0} and {1}", url, urlCustom);
@@ -163,7 +160,7 @@ namespace YetaWF.Core.Skins {
                 }
 
                 // nothing found whatsoever, so get the generic icon
-                url = string.Format(SkinAddOnIconUrl_Format, VersionManager.GetAddOnSkinUrl(skinCollection), GenericIcon);
+                url = string.Format(SkinAddOnIconUrl_Format, SkinAccess.FallbackSkinCollectionInfo.Url, GenericIcon);
                 urlCustom = VersionManager.GetCustomUrlFromUrl(url);
 #if DEBUGME
                 Logging.AddLog("Searching generic icon {0} and {1}", url, urlCustom);

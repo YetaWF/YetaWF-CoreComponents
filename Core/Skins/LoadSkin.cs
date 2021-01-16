@@ -8,16 +8,37 @@ using System.Threading.Tasks;
 using YetaWF.Core.IO;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Log;
+using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Skins {
 
     public partial class SkinAccess {
 
+        public const string SVGFolder = "SVG";
+
         private readonly List<string> RequiredPages = new List<string> { "Default", "Plain" };
         private readonly List<string> RequiredPopups = new List<string> { "Popup", "PopupSmall", "PopupMedium" };
 
-        public async Task<SkinCollectionInfo> ParseSkinFileAsync(string domain, string product, string name, string folder) {
+        public async Task<SkinCollectionInfo> LoadSkinAsync(Package package, string domain, string product, string name, string folder) {
+
+            return await ParseSkinFileAsync(package, domain, product, name, folder);
+        }
+
+        internal static async Task<Dictionary<string,string>> GetSVGsAsync(string path) {
+            Dictionary<string, string> dict = new Dictionary<string, string>();
+            if (await FileSystem.FileSystemProvider.DirectoryExistsAsync(path)) {
+                List<string> files = await FileSystem.FileSystemProvider.GetFilesAsync(path, "*.svg");
+                foreach (string file in files) {
+                    string html = await FileSystem.FileSystemProvider.ReadAllTextAsync(file);
+                    string name = Path.GetFileNameWithoutExtension(file);
+                    dict.Add(name, html);
+                }
+            }
+            return dict;
+        }
+
+        private async Task<SkinCollectionInfo> ParseSkinFileAsync(Package package, string domain, string product, string name, string folder) {
 
             SkinCollectionInfo? info = null;
             string fileName = string.Empty;
@@ -34,6 +55,7 @@ namespace YetaWF.Core.Skins {
             if (info == null)
                 throw new InternalError($"No skin definition found for {domain}/{product}/{name}");
 
+            info.Package = package;
             info.Name = $"{domain}/{product}/{name}";
             info.Folder = folder;
             info.AreaName = $"{domain}_{product}";

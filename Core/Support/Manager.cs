@@ -1297,29 +1297,18 @@ namespace YetaWF.Core.Support {
         // SKIN
 
         /// <summary>
-        /// Define options for the current page or popup skin.
+        /// Returns skin information for the skin used by the current page.
         /// </summary>
-        internal Task SetSkinOptions() {
-            SkinAccess skinAccess = new SkinAccess();
-            SkinCollectionInfo info = skinAccess.GetSkinCollectionInfo();
-            SkinInfo = info;
-            ScriptManager.AddVolatileOption("Skin", "MinWidthForPopups", SkinInfo.MinWidthForPopups);
-            ScriptManager.AddVolatileOption("Skin", "MinWidthForCondense", SkinInfo.MinWidthForCondense);
-            return Task.CompletedTask;
+        public SkinCollectionInfo SkinInfo { 
+            get {
+                if (_skinInfo == null) {
+                    SkinAccess skinAccess = new SkinAccess();
+                    _skinInfo = skinAccess.GetSkinCollectionInfo();
+                }
+                return _skinInfo;
+            }
         }
-
-        /// <summary>
-        /// Define options for the current page or popup skin (UPS).
-        /// </summary>
-        internal void SetSkinOptionsContent() {
-            SkinAccess skinAccess = new SkinAccess();
-            SkinInfo = skinAccess.GetSkinCollectionInfo();
-        }
-
-        /// <summary>
-        /// Contains skin information for the skin used by the current page.
-        /// </summary>
-        public SkinCollectionInfo SkinInfo { get; private set; } = null!;
+        private SkinCollectionInfo? _skinInfo = null;
 
         /// <summary>
         /// Adds the page's or popup's css classes (the current edit mode, the current page's defined css and other page css).

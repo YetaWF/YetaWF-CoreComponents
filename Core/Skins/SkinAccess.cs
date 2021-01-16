@@ -25,15 +25,24 @@ namespace YetaWF.Core.Skins {
         public const string FallbackPopupMediumFileName = "PopupMedium";
         public const string FallbackPopupSmallFileName = "PopupSmall";
 
+        protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
+
         public SkinAccess() {  }
 
-        protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
+        public static SkinCollectionInfo FallbackSkinCollectionInfo {
+            get {
+                if (_fallbackSkinCollectionInfo == null) {
+                    SkinAccess skinAccess = new SkinAccess();
+                    _fallbackSkinCollectionInfo = skinAccess.FindSkinCollection(SkinAccess.FallbackSkinCollectionName);
+                }
+                return _fallbackSkinCollectionInfo;
+            }
+        }
+        private static SkinCollectionInfo? _fallbackSkinCollectionInfo = null;
 
         public string GetViewName(string? popupPage) {
             SkinDefinition skin = Manager.CurrentSite.Skin;
-            SkinCollectionInfo? info = TryFindSkinCollection(skin.Collection);
-            if (info == null)
-                info = FindSkinCollection(SkinAccess.FallbackSkinCollectionName);
+            SkinCollectionInfo info = TryFindSkinCollection(skin.Collection) ?? FallbackSkinCollectionInfo;
             return $"{info.AreaName}_{(Manager.IsInPopup ? popupPage ?? skin.PopupFileName : skin.PageFileName)}";
         }
 
@@ -44,9 +53,7 @@ namespace YetaWF.Core.Skins {
 
         public SkinCollectionInfo GetSkinCollectionInfo() {
             SkinDefinition skin = Manager.CurrentSite.Skin;
-            SkinCollectionInfo? info = TryFindSkinCollection(skin.Collection);
-            if (info == null)
-                info = FindSkinCollection(SkinAccess.FallbackSkinCollectionName);
+            SkinCollectionInfo info = TryFindSkinCollection(skin.Collection) ?? FallbackSkinCollectionInfo;
             return info;
         }
 

@@ -542,7 +542,6 @@ namespace YetaWF.Core.Pages {
         internal async Task RenderPaneContentsAsync(YHtmlHelper htmlHelper,
             PageContentController.DataIn dataIn, PageContentController.PageContentData model, bool MainOnly = false)
         {
-            Manager.SetSkinOptionsContent();
             if (dataIn.Panes == null) throw new InternalError("No panes with Unified=true found in current skin");
 
             List<string> panes = dataIn.Panes;

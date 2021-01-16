@@ -501,11 +501,5 @@ namespace YetaWF.Core.Controllers {
             }
             return ProcessingStatus.No;
         }
-
-        private bool SameSkinCollection(string? collection1, string? collection2, bool popup) {
-            if (string.IsNullOrWhiteSpace(collection1)) collection1 = Manager.CurrentSite.Skin.Collection;
-            if (string.IsNullOrWhiteSpace(collection2)) collection2 = Manager.CurrentSite.Skin.Collection;
-            return (collection1 == collection2);
-        }
     }
 }
