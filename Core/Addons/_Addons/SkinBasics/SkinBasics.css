@@ -41,6 +41,24 @@ label {
   margin: 0;
   padding: 0; }
 
+select.t_native {
+  outline: none;
+  background: var(--dd-bg);
+  color: var(--dd-clr);
+  border: var(--dd-border);
+  border-radius: var(--dd-border-radius); }
+  select.t_native option {
+    outline: none; }
+    select.t_native option:hover {
+      background: var(--dd-bg-hover);
+      color: var(--dd-clr-hover); }
+    select.t_native option:active, select.t_native option:checked {
+      background: var(--dd-bg-active);
+      color: var(--dd-clr-active); }
+    select.t_native option:focus {
+      background: var(--dd-bg-focus);
+      color: var(--dd-clr-focus); }
+
 .y_cleardiv {
   clear: both; }
 

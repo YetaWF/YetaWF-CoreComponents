@@ -45,6 +45,31 @@ label {
     padding:0;
 }
 
+select.t_native { // native select (not DropDownList)
+    outline:none;
+    background: var(--dd-bg);
+    color: var(--dd-clr);
+    border: var(--dd-border);
+    border-radius: var(--dd-border-radius);
+    option {
+        outline:none;
+        &:hover {
+            background: var(--dd-bg-hover);
+            color: var(--dd-clr-hover);
+        }
+        // these don't really work
+        &:active, &:checked {
+            background: var(--dd-bg-active);
+            color: var(--dd-clr-active);
+        }
+        &:focus {
+            background: var(--dd-bg-focus);
+            color: var(--dd-clr-focus);
+        }
+    }
+}
+
+
 .y_cleardiv {
     clear:both;
 }

@@ -54,7 +54,7 @@ namespace YetaWF.Core.Skins {
         }
 
         private async Task<SkinCollectionInfo> ParseSkinYamlFileAsync(string fileName) {
-            string text= await FileSystem.FileSystemProvider.ReadAllTextAsync(fileName);
+            string text = await FileSystem.FileSystemProvider.ReadAllTextAsync(fileName);
             SkinCollectionInfo info = Utility.YamlDeserialize<SkinCollectionInfo>(text);
             return info;
         }
