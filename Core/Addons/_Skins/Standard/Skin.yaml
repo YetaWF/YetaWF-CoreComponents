@@ -1,6 +1,5 @@
 ﻿
 Description: Standard YetaWF skin (also used as fallback skin)
-UsingBootstrap: false
 MinWidthForPopups: 0
 
 PageSkins:

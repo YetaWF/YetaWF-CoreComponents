@@ -53,7 +53,6 @@ namespace YetaWF.Core.Skins {
 
         [System.ComponentModel.DataAnnotations.Required]
         public string Description { get; set; } = null!;
-        public bool UsingBootstrap { get; set; }
         public string? PartialFormCss { get; set; }
         public int MinWidthForPopups { get; set; }
         public int MinWidthForCondense { get; set; }

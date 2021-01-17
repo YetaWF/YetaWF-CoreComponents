@@ -1,5 +1,7 @@
 /* Copyright © 2021 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+// STANDARDS FOR ALL SKINS - ALWAYS INCLUDED AFTER SKIN
+
 body {
     font: var(--body-font);
     background: var(--body-bg);
@@ -7,13 +9,16 @@ body {
 }
 
 a {
+    outline:none;
     color: var(--a-clr);
     text-decoration: var(--a-dec);
     &:hover {
+        outline:none;
         color: var(--a-clr-hover);
         text-decoration: var(--a-dec-hover);
     }
     &:focus {
+        outline:none;
         color: var(--a-clr-focus);
         text-decoration: var(--a-dec-focus);
     }
@@ -41,8 +46,6 @@ label {
 }
 .yCondense label {
     font-weight:bold;
-    margin:0;
-    padding:0;
 }
 
 select.t_native { // native select (not DropDownList)
@@ -69,11 +72,23 @@ select.t_native { // native select (not DropDownList)
     }
 }
 
+.card { // what used to be bootstrap cards
+    padding: 1.25rem;
 
-.y_cleardiv {
+    background: var(--panel-bg);
+    border: var(--panel-border);
+    border-radius: var(--panel-border-radius);
+    box-shadow: var(--panel-shadow);
+
+    // background-image: linear-gradient(white, #e9ecef 60%, #e3e7eb);
+    // background-color: #f8f9fa !important;
+}
+
+
+.y_cleardiv {//TODO: REMOVE
     clear:both;
 }
-.yHidden {
+.yHidden {//TODO: REMOVE
     display:none;
 }
 
@@ -85,9 +100,13 @@ select.t_native { // native select (not DropDownList)
     position: relative;
 }
 
+.yPage .yPane.yModule {
+    padding-bottom:1rem;
+}
+
 /* templates are inline unless they're large, like grids, propertylists etc. */
 /* Not all templates follow this rule (yet) */
-.y_inline {
+.y_inline {//TODO: REMOVE, should be in template css
     display:inline;
 }
 
@@ -217,5 +236,3 @@ select.t_native { // native select (not DropDownList)
     background: var(--own-mod-noUser);
     padding:.7em;
 }
-
-

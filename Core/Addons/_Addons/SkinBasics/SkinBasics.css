@@ -6,14 +6,17 @@ body {
   color: var(--body-clr); }
 
 a {
+  outline: none;
   color: var(--a-clr);
   -webkit-text-decoration: var(--a-dec);
           text-decoration: var(--a-dec); }
   a:hover {
+    outline: none;
     color: var(--a-clr-hover);
     -webkit-text-decoration: var(--a-dec-hover);
             text-decoration: var(--a-dec-hover); }
   a:focus {
+    outline: none;
     color: var(--a-clr-focus);
     -webkit-text-decoration: var(--a-dec-focus);
             text-decoration: var(--a-dec-focus); }
@@ -37,9 +40,7 @@ label {
   padding: 0; }
 
 .yCondense label {
-  font-weight: bold;
-  margin: 0;
-  padding: 0; }
+  font-weight: bold; }
 
 select.t_native {
   outline: none;
@@ -59,6 +60,13 @@ select.t_native {
       background: var(--dd-bg-focus);
       color: var(--dd-clr-focus); }
 
+.card {
+  padding: 1.25rem;
+  background: var(--panel-bg);
+  border: var(--panel-border);
+  border-radius: var(--panel-border-radius);
+  box-shadow: var(--panel-shadow); }
+
 .y_cleardiv {
   clear: both; }
 
@@ -70,6 +78,9 @@ select.t_native {
 
 .yModule {
   position: relative; }
+
+.yPage .yPane.yModule {
+  padding-bottom: 1rem; }
 
 /* templates are inline unless they're large, like grids, propertylists etc. */
 /* Not all templates follow this rule (yet) */
