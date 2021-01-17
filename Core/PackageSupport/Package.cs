@@ -704,8 +704,9 @@ namespace YetaWF.Core.Packages {
 
         /// <summary>
         /// The path to the Addons (JavaScript/CSS) folder for this package.
+        /// Describes the source code folder.
         /// </summary>
-        public string AddonsFolder {
+        public string AddonsSourceFolder {
             get {
                 return Path.Combine(YetaWFManager.RootFolder, Globals.AddOnsFolder, LanguageDomain, Product);
             }

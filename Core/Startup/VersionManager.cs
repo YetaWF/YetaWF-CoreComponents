@@ -253,23 +253,6 @@ namespace YetaWF.Core.Addons {
             }
             return version;
         }
-        /// <summary>
-        /// Returns a specific skin's installed and used version information.
-        /// </summary>
-        public static AddOnProduct FindSkinVersion(ref SkinDefinition skinDef, bool popup) {
-            AddOnProduct? version = TryFindSkinVersion(skinDef.Collection!);
-            // if the skin doesn't exist return the fallback skin
-            if (version == null) {
-                // if the skin doesn't exist, use the default skin (it better be there)
-                skinDef = new SkinDefinition() {
-                    Collection = SkinAccess.FallbackSkinCollectionName,
-                    PageFileName = SkinAccess.FallbackPageFileName,
-                    PopupFileName = SkinAccess.FallbackPopupFileName,
-                };
-                version = FindSkinVersion(skinDef.Collection);
-            }
-            return version;
-        }
 
         // URLS
         // URLS
