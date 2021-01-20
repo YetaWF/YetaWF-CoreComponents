@@ -1454,14 +1454,14 @@ var YetaWF;
                 $YetaWF.sendContainerScrollEvent();
             });
             // Debounce resizing
-            var resizeTimeout;
+            var resizeTimeout = 0;
             window.addEventListener("resize", function (ev) {
                 if (resizeTimeout) {
                     clearTimeout(resizeTimeout);
                 }
                 resizeTimeout = setTimeout(function () {
                     $YetaWF.sendContainerResizeEvent();
-                    resizeTimeout = null;
+                    resizeTimeout = 0;
                 }, 100);
             });
             // WhenReady

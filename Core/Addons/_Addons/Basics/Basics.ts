@@ -1637,14 +1637,14 @@ namespace YetaWF {
 
             // Debounce resizing
 
-            let resizeTimeout;
+            let resizeTimeout: number = 0;
             window.addEventListener("resize", (ev: UIEvent): void => {
                 if (resizeTimeout) {
                     clearTimeout(resizeTimeout);
                 }
                 resizeTimeout = setTimeout((): void => {
                     $YetaWF.sendContainerResizeEvent();
-                    resizeTimeout = null;
+                    resizeTimeout = 0;
                 }, 100);
             });
 
