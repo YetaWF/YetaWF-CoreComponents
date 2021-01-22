@@ -136,20 +136,61 @@ namespace YetaWF.Core {
         public const string CssModuleMenuContainer = "yModuleMenuContainer";
         public const string CssModuleLinksContainer = "yModuleLinksContainer";
         public const string CssModuleLinks = "yModuleLinks"; // module menu action menu
+        /// <summary>
+        /// CSS class that can be added to tags to prevent them from being printed. 
+        /// </summary>
+        /// <remarks>Using CSS styling (in *.scss) is preferred.
+        /// This style should only be used in code where printability is generated dynamically, typically based on settings.</remarks>
         public const string CssModuleNoPrint = "yNoPrint";
+        /// <summary>
+        /// CSS class that can be added to tags to only display them when printed. Only effective in Site View mode and is ignored in Site Edit mode. 
+        /// </summary>
+        /// <remarks>
+        /// Using CSS styling (in *.scss) is preferred.
+        /// This style should only be used in code where printability is generated dynamically, typically based on settings.</remarks>
         public const string CssModulePrintOnly = "yPrintOnly";
-        // A noticeable div with an error/real warning
+        /// <summary>
+        /// CSS class that can be added to tags to render them suitable as a noticeable section.
+        /// </summary>
+        /// <remarks>Adds background/foreground colors, border and padding to allow it to be noticeable.</remarks>
         public const string CssDivAlert = "yDivAlert";
+        /// <summary>
+        /// CSS class that can be added to tags to render them suitable as a small, noticeable section.
+        /// </summary>
+        /// <remarks>Adds background/foreground colors, border and padding to allow it to be noticeable.</remarks>
         public const string CssDivSmallAlert = "yDivSmallAlert";
-        // A noticeable div
+        /// <summary>
+        /// CSS class that can be added to tags to render them suitable as a noticeable warning section.
+        /// </summary>
+        /// <remarks>Adds background/foreground colors, border and padding to allow it to be a noticeable warning.</remarks>
         public const string CssDivWarning = "yDivWarning";
+        /// <summary>
+        /// CSS class that can be added to tags to render them suitable as a small, noticeable warning section.
+        /// </summary>
+        /// <remarks>Adds background/foreground colors, border and padding to allow it to be a noticeable warning.</remarks>
         public const string CssDivSmallWarning = "yDivSmallWarning";
-        // A div seen by admin/superusers only
+        /// <summary>
+        /// CSS class that can be added to tags to render them so they're only visible to administrators and superusers.
+        /// </summary>
+        /// <remarks>Adds background/foreground colors, border and padding.</remarks>
         public const string CssDivAdmin = "yDivAdmin";
+        /// <summary>
+        /// CSS class that can be added to tags to render them as a small section, only visible to administrators and superusers.
+        /// </summary>
+        /// <remarks>Adds background/foreground colors, border and padding.</remarks>
         public const string CssDivSmallAdmin = "yDivSmallAdmin";
 
-        // HTML comments (WhitespaceFilter directive)
+        /// <summary>
+        /// When used in generated HTML, the HTML between LazyHTMLOptimization and <see cref="YetaWF.Core.Globals.LazyHTMLOptimizationEnd"/> are optimized less aggressively.
+        /// </summary>
+        /// <remarks>Aggressive whitespace optimization removes whitespace between adjoining tags (i.e., the spaces between &lt;div&gt; &lt;img ...&gt; are removed).
+        /// Between LazyHTMLOptimization and <see cref="YetaWF.Core.Globals.LazyHTMLOptimizationEnd"/> whitespace between adjoining tags is not removed.</remarks>
         public const string LazyHTMLOptimization = "<!--LazyWSF-->";
+        /// <summary>
+        /// When used in generated HTML, the HTML between <see cref="YetaWF.Core.Globals.LazyHTMLOptimization"/> and LazyHTMLOptimizationEnd are optimized less aggressively.
+        /// </summary>
+        /// <remarks>Aggressive whitespace optimization removes whitespace between adjoining tags (i.e., the spaces between &lt;div&gt; &lt;img ...&gt; are removed).
+        /// Between <see cref="YetaWF.Core.Globals.LazyHTMLOptimization"/> and LazyHTMLOptimizationEnd whitespace between adjoining tags is not removed.</remarks>
         public const string LazyHTMLOptimizationEnd = "<!--LazyWSFEnd-->";
     }
 }
