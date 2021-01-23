@@ -84,7 +84,6 @@ select.t_native { // native select (not DropDownList)
     // background-color: #f8f9fa !important;
 }
 
-
 .y_cleardiv {//TODO: REMOVE
     clear:both;
 }
@@ -211,6 +210,125 @@ select.t_native { // native select (not DropDownList)
     background: var(--body-bg);
     border: var(--prop-border);
     border-radius:var(--prop-border-radius);
+}
+
+/* MODULE SKINS */
+
+.modStandard {
+    .yModuleTitle {
+        h1 {
+            float:left;
+            margin:0;
+            padding:0;
+            padding-bottom: .5em;
+            font: var(--mpnl-title-font);
+        }
+        .yModuleLinksContainer {
+            float:right;
+            clear:none;
+            @media print {
+                display: none;
+            }
+        }
+    }
+    > .yModuleLinksContainer {
+        clear:none;
+        @media print {
+            display: none;
+        }
+        /* a bit of extra space above the module action links */
+        .yModuleLinks {
+            margin:0;
+            margin-top:.5em;
+            padding:0;
+            list-style-type: none;
+            li {
+                display:inline-block;
+            }
+            .yaction-link {
+                i, img {/* a bit of extra space around the image in a module action link */
+                    margin-right:.4ch;
+                }
+                margin-right:1ch;
+            }
+            .y_button { // smaller buttons
+                padding-left:0.2em;
+                padding-right:0.2em;
+                img {
+                    margin-left:0;
+                }
+            }
+        }
+        // .yModuleLinks {
+        //     margin-top:0;
+        //     .yaction-link {
+        //         i, img {
+        //             margin-right:0;
+        //             margin-left:.5ch;
+        //         }
+        //         margin-right:0;
+        //     }
+        // }
+    }
+    // .yModuleContents {
+
+    // }
+}
+
+.modPanel {
+    margin-top: 1rem;
+    background: var(--mpnl-bg);
+    color: var(--mpnl-clr);
+    border: var(--mpnl-border);
+    border-radius: var(--mpnl-border-radius);
+    .yModuleTitle {
+        display: flex;
+        justify-content: left;
+        align-items: center;
+        border-bottom: var(--mpnl-border);
+        padding:.2em;
+        h1 {
+            font: var(--mpnl-title-font);
+            padding: 0;
+            margin: 0 .5em;
+            vertical-align: middle;
+        }
+        .yModuleLinksContainer {
+            display: inline-block;
+            padding-right: .5em;
+            padding-left: .5em;
+            padding-top:.1em;
+            @media print {
+                display: none;
+            }
+            .yModuleLinks {
+                margin:0;
+                padding:0;
+                list-style-type: none;
+                li {
+                    display:inline-block;
+                    line-height:1;
+                    vertical-align: middle;
+                }
+                .yaction-link {
+                    i, img {
+                        margin-right:.4ch;
+                    }
+                    margin-right:.5ch;
+                    margin-bottom:.2em;
+                }
+                .y_button { // smaller buttons
+                    font: var(--mpnl-link-font);
+                    padding:.3em;
+                }
+            }
+        }
+    }
+    .yModuleContents {
+        background: var(--body-bg);
+        color: var(--body-clr);
+        padding: 1em;
+    }
 }
 
 /* OWNERSHIP */

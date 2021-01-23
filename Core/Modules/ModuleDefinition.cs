@@ -96,7 +96,8 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
             Print = true;
             ReferencedModules = new SerializableList<ReferencedModule>();
             DefaultViewName = null;
-            PopupPage = "Popup";
+            PopupPage = SkinAccess.POPUP_VIEW_DEFAULT;
+            ModuleSkin = SkinAccess.MODULE_SKIN_DEFAULT;
         }
 
         [Data_DontSave]
@@ -214,7 +215,13 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
         // SKIN
         // SKIN
 
-        [Category("Skin"), Caption("Popup Page"), Description("The popup page used for the popup window when this module is shown in a popup", Order = -93)]
+        [Category("Skin"), Caption("Module Skin"), Description("The module skin used for the module")]
+        [UIHint("SkinNameModule"), StringLength(SiteDefinition.MaxPopupPage)]
+        [Data_NewValue]
+        public string? ModuleSkin { get; set; }
+        public string ModuleSkin_Collection { get { return Manager.CurrentSite.Skin.Collection; } }
+
+        [Category("Skin"), Caption("Popup Page"), Description("The popup page used for the popup window when this module is shown in a popup")]
         [UIHint("SkinNamePopup"), AdditionalMetadata("NoDefault", false), StringLength(SiteDefinition.MaxPopupPage)]
         [Data_NewValue]
         public string? PopupPage { get; set; }
@@ -223,21 +230,21 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
         /// <summary>
         /// The CSS class name used on the &lt;div&gt; tag for this module. The allowable CSS class name is a subset of the CSS specification. Only characters _, a-z, A-Z and 0-9 are allowed, Ansi and Unicode escapes are not allowed.
         /// </summary>
-        [Category("Skin"), Caption("CSS Class"), Description("The optional CSS classes to be added to the module's <div> tag for further customization through stylesheets", Order = -94)]
+        [Category("Skin"), Caption("CSS Class"), Description("The optional CSS classes to be added to the module's <div> tag for further customization through stylesheets")]
         [UIHint("Text40"), StringLength(MaxCssClass), CssClassesValidationAttribute, Trim]
         public string? CssClass { get; set; }
 
         /// <summary>
         /// The CSS class name to add to a temporary page's &lt;body&gt; tag when this module is used on a temporary page. Temporary pages are used when a module is displayed without a permanent, designed page.
         /// </summary>
-        [Category("Skin"), Caption("Temp. Page CSS Class"), Description("The optional CSS classes to be added to a temporary page's <body> tag when this module is used on a temporary page - Temporary pages are used when a module is displayed without a permanent, designed page", Order = -93)]
+        [Category("Skin"), Caption("Temp. Page CSS Class"), Description("The optional CSS classes to be added to a temporary page's <body> tag when this module is used on a temporary page - Temporary pages are used when a module is displayed without a permanent, designed page")]
         [UIHint("Text40"), StringLength(MaxCssClass), CssClassesValidationAttribute, Trim]
         public string? TempPageCssClass { get; set; }
 
         /// <summary>
         /// Defines whether the skin's partial form CSS is added to partial forms.
         /// </summary>
-        [Category("Skin"), Caption("Partial Form CSS"), Description("Defines whether the skin's partial form CSS is added to partial forms within this module - Partial form CSS is never used in popup windows or on mobile devices", Order = -91)]
+        [Category("Skin"), Caption("Partial Form CSS"), Description("Defines whether the skin's partial form CSS is added to partial forms within this module - Partial form CSS is never used in popup windows or on mobile devices")]
         [UIHint("Boolean")]
         [Data_DontSave]
         public bool UsePartialFormCss { get { return !_SuppressPartialFormCss; } set { _SuppressPartialFormCss = !value; } }
@@ -246,38 +253,38 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
         public bool _SuppressPartialFormCss { get; set; }
 
 
-        [Category("Skin"), Caption("Show Title"), Description("Defines whether the module title is shown", Order = -90)]
+        [Category("Skin"), Caption("Show Title"), Description("Defines whether the module title is shown - Applies to the modStandard skin only")]
         [UIHint("Boolean")]
         public bool ShowTitle { get; set; }
 
-        [Category("Skin"), Caption("Show Actions (Title)"), Description("Defines whether the module's action links are also shown next to the module title - Only the icons are shown if selected", Order = -88)]
+        [Category("Skin"), Caption("Show Actions (Title)"), Description("Defines whether the module's action links are also shown next to the module title - Only the icons are shown if selected - Applies to the modStandard skin only")]
         [UIHint("Boolean"), ProcessIf("ShowTitle", true, Disable = true)]
         [Data_NewValue]
         public bool ShowTitleActions { get; set; }
 
-        [Category("Skin"), Caption("Show Help"), Description("Defines whether the module help link is shown in Display Mode - The help link is always shown in Edit Mode", Order = -86)]
+        [Category("Skin"), Caption("Show Help"), Description("Defines whether the module help link is shown in Display Mode - The help link is always shown in Edit Mode")]
         [UIHint("Boolean")]
         public bool ShowHelp { get; set; }
 
-        [Category("Skin"), Caption("Help URL"), Description("Defines the URL used to display help for this module - If omitted, the package's help link is used instead", Order = -85)]
+        [Category("Skin"), Caption("Help URL"), Description("Defines the URL used to display help for this module - If omitted, the package's help link is used instead")]
         [UIHint("Url"), AdditionalMetadata("UrlType", UrlTypeEnum.Local | UrlTypeEnum.Remote), UrlValidation(UrlValidationAttribute.SchemaEnum.Any, UrlTypeEnum.Local | UrlTypeEnum.Remote)]
         [StringLength(Globals.MaxUrl), Trim]
         [Data_NewValue]
         public string? HelpURL { get; set; }
 
-        [Category("Skin"), Caption("Print Support"), Description("Defines whether the module is printed when a page is printed", Order = -84)]
+        [Category("Skin"), Caption("Print Support"), Description("Defines whether the module is printed when a page is printed")]
         [UIHint("Boolean")]
         public bool Print { get; set; }
 
-        [Category("Skin"), Caption("Show Form Buttons"), Description("If the module has a form with buttons (Save, Close, Return, etc.) these are shown/hidden based on this setting", Order = -82)]
+        [Category("Skin"), Caption("Show Form Buttons"), Description("If the module has a form with buttons (Save, Close, Return, etc.) these are shown/hidden based on this setting")]
         [UIHint("Boolean")]
         public bool ShowFormButtons { get; set; }
 
-        [Category("Skin"), Caption("Anchor Id"), Description("The optional id used as anchor tag for this module - if an id is entered, an anchor tag is generated so the module can be directly located on the page", Order = -80)]
+        [Category("Skin"), Caption("Anchor Id"), Description("The optional id used as anchor tag for this module - if an id is entered, an anchor tag is generated so the module can be directly located on the page")]
         [UIHint("Text40"), StringLength(MaxHtmlId), AnchorValidationAttribute, Trim]
         public virtual string? AnchorId { get; set; }
 
-        [Category("Skin"), Caption("AutoComplete"), Description("Defines whether autocomplete is used for input fields on the form", Order = -78)]
+        [Category("Skin"), Caption("AutoComplete"), Description("Defines whether autocomplete is used for input fields on the form")]
         [UIHint("Boolean")]
         [Data_NewValue]
         public bool FormAutoComplete { get; set; }

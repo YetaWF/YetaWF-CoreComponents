@@ -19,11 +19,11 @@ namespace YetaWF.Core.Skins {
     public partial class SkinAccess {
 
         public const string FallbackSkinCollectionName = "YetaWF/Core/Standard";
-        public const string FallbackPageFileName = "Default";
-        public const string FallbackPagePlainFileName = "Plain";
-        public const string FallbackPopupFileName = "Popup";
-        public const string FallbackPopupMediumFileName = "PopupMedium";
-        public const string FallbackPopupSmallFileName = "PopupSmall";
+        public const string FallbackPageFileName = SkinAccess.PAGE_VIEW_DEFAULT;
+        public const string FallbackPagePlainFileName = SkinAccess.PAGE_VIEW_PLAIN;
+        public const string FallbackPopupFileName = SkinAccess.POPUP_VIEW_DEFAULT;
+        public const string FallbackPopupMediumFileName = SkinAccess.POPUP_VIEW_MEDIUM;
+        public const string FallbackPopupSmallFileName = SkinAccess.POPUP_VIEW_SMALL;
 
         protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
@@ -85,24 +85,22 @@ namespace YetaWF.Core.Skins {
             return pageSkinEntry;
         }
         private ModuleSkinEntry GetModuleSkinEntry(ModuleDefinition mod) {
+
             // Get the skin info for the page's skin collection and get the default module skin
             SkinDefinition skin = Manager.CurrentSite.Skin;
             SkinCollectionInfo? info = TryFindSkinCollection(skin.Collection);
-            ModuleSkinEntry? modSkinEntry;
-            if (info == null) {
+            if (info == null)
                 info = FindSkinCollection(SkinAccess.FallbackSkinCollectionName);
-                modSkinEntry = info.ModuleSkins.First();
-            } else {
-                // Find the module skin name to use for the page's skin collection
-                modSkinEntry = info.ModuleSkins.First();
-                if (modSkinEntry == null) throw new InternalError("No module skin found");
-            }
+
+            // Find the module skin name to use for the page's skin collection
+            string find = mod.ModuleSkin ?? SkinAccess.MODULE_SKIN_DEFAULT;
+            ModuleSkinEntry? modSkinEntry = (from s in info.ModuleSkins where s.CSS == find select s).FirstOrDefault();
+            if (modSkinEntry == null) throw new InternalError("No module skin found");
+
             return modSkinEntry;
         }
 
-        internal async Task<string> MakeModuleContainerAsync(ModuleDefinition mod, string htmlContents, bool ShowMenu = true, bool ShowTitle = true, bool ShowAction = true) {
-            ModuleSkinEntry modSkinEntry = GetModuleSkinEntry(mod);
-            string modSkinCss = modSkinEntry.CSS;
+        internal async Task<string> MakeModuleContainerAsync(ModuleDefinition mod, string htmlContents, bool ShowTitle = true) {
 
             HtmlBuilder hb = new HtmlBuilder();
 
@@ -111,7 +109,16 @@ namespace YetaWF.Core.Skins {
                 hb.Append($@"<div class='yAnchor' id='{mod.AnchorId}'></div>");
             }
 
-            string css = string.Empty;
+            ModuleSkinEntry modSkinEntry = GetModuleSkinEntry(mod);
+
+            string name = modSkinEntry.CSS;
+            if (Manager.IsInPopup) // force standard for popups
+                name = SkinAccess.MODULE_SKIN_DEFAULT;
+
+            string css = name;
+            css = CssManager.CombineCss(css, Globals.CssModule);
+            css = CssManager.CombineCss(css, mod.AreaName + "_" + mod.ModuleName);
+            css = CssManager.CombineCss(css, mod.AreaName);
             if (!string.IsNullOrWhiteSpace(mod.CssClass) && !Manager.EditMode)
                 css = CssManager.CombineCss(css, Manager.AddOnManager.CheckInvokedCssModule(mod.CssClass));
             if (!mod.Print)
@@ -131,16 +138,30 @@ namespace YetaWF.Core.Skins {
                 }
             }
 
-            hb.Append($@"
-<div id='{mod.ModuleHtmlId}' data-moduleguid='{mod.ModuleGuid.ToString()}' class='{Manager.AddOnManager.CheckInvokedCssModule(Globals.CssModule)} {Manager.AddOnManager.CheckInvokedCssModule(mod.AreaName)} {Manager.AddOnManager.CheckInvokedCssModule(mod.AreaName + "_" + mod.ModuleName)} {Manager.AddOnManager.CheckInvokedCssModule(modSkinCss)} {css}'>");
+            switch (name) {
+                default:
+                case SkinAccess.MODULE_SKIN_DEFAULT:
+                    await RenderStandardModuleAsync(mod, hb, htmlContents, css, ShowTitle);
+                    break;
+                case SkinAccess.MODULE_SKIN_PANEL:
+                    await RenderPanelModuleAsync(mod, hb, htmlContents, css, ShowTitle);
+                    break;
+            }
+            return hb.ToString();
+        }
 
-            if (ShowMenu && mod.ShowModuleMenu) {
+        private async Task RenderStandardModuleAsync(ModuleDefinition mod, HtmlBuilder hb, string htmlContents, string css, bool showTitle = true) {
+
+            hb.Append($@"
+<div id='{mod.ModuleHtmlId}' data-moduleguid='{mod.ModuleGuid.ToString()}' class='{css}'>");
+
+            if (!Manager.IsInPopup && mod.ShowModuleMenu) {
                 hb.Append(await YetaWFCoreRendering.Render.RenderModuleMenuAsync(mod));
             }
-            if (ShowTitle) {
+            if (showTitle) {
                 if (mod.ShowTitleActions) {
                     string? actions = null;
-                    if (ShowTitle && mod.ShowTitleActions)
+                    if (showTitle && mod.ShowTitleActions)
                         actions = await YetaWFCoreRendering.Render.RenderModuleLinksAsync(mod, ModuleAction.RenderModeEnum.IconsOnly, Globals.CssModuleLinksContainer);
                     if (!string.IsNullOrWhiteSpace(actions)) {
                         hb.Append($@"
@@ -158,9 +179,11 @@ namespace YetaWF.Core.Skins {
             }
 
             hb.Append($@"
-{htmlContents}");
+    <div class='yModuleContents'>
+{htmlContents}
+    </div>");
 
-            if (ShowAction && !string.IsNullOrWhiteSpace(Manager.PaneRendered)) { // only show action menus in a pane
+            if (!string.IsNullOrWhiteSpace(Manager.PaneRendered)) { // only show action menus in a pane
                 if (mod.ShowActionMenu)
                     hb.Append($@"
 {await YetaWFCoreRendering.Render.RenderModuleLinksAsync(mod, ModuleAction.RenderModeEnum.NormalLinks, Globals.CssModuleLinksContainer)}");
@@ -168,7 +191,27 @@ namespace YetaWF.Core.Skins {
 
             hb.Append($@"
 </div>");
-                return hb.ToString();
+
+        }
+
+        private async Task RenderPanelModuleAsync(ModuleDefinition mod, HtmlBuilder hb, string htmlContents, string css, bool showTitle = true) {
+
+            hb.Append($@"
+<div id='{mod.ModuleHtmlId}' data-moduleguid='{mod.ModuleGuid.ToString()}' class='{css}'>");
+
+            if (!Manager.IsInPopup && mod.ShowModuleMenu) {
+                hb.Append(await YetaWFCoreRendering.Render.RenderModuleMenuAsync(mod));
+            }
+            hb.Append($@"
+    <div class='yModuleTitle'>
+         <h1>{Utility.HE(mod.Title)}</h1>
+         {await YetaWFCoreRendering.Render.RenderModuleLinksAsync(mod, ModuleAction.RenderModeEnum.Button, Globals.CssModuleLinksContainer)}
+    </div>
+    <div class='y_cleardiv'></div> 
+    <div class='yModuleContents'>
+{htmlContents}
+    </div>
+</div>");
         }
 
         /// <summary>
@@ -268,12 +311,16 @@ namespace YetaWF.Core.Skins {
         /// Get all module skins for a collection
         /// </summary>
         /// <param name="skinCollection"></param>
-        /// <returns></returns>
+        /// <returns>A list of module skins.</returns>
         public ModuleSkinList GetAllModuleSkins(string skinCollection) {
             VersionManager.AddOnProduct addon = VersionManager.FindSkinVersion(skinCollection);
             return addon.SkinInfo.ModuleSkins;
         }
 
+        /// <summary>
+        /// Get all available themes for the current skin.
+        /// </summary>
+        /// <returns>A list of themes.</returns>
         public async Task<List<string>> GetThemesAsync() {
             List<string> list = new List<string>();
             SkinCollectionInfo skinInfo = FindSkinCollection(Manager.CurrentSite.Skin.Collection);

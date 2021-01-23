@@ -39,3 +39,6 @@ ModuleSkins:
     - Name: Standard (Default)
       Description: Standard module
       CSS: modStandard
+    - Name: Panel
+      Description: "** not used **"
+      CSS: modPanel

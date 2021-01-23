@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using YetaWF.Core.Modules;
+using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Components {
@@ -16,7 +17,7 @@ namespace YetaWF.Core.Components {
         /// Returns the name of the page.
         /// </summary>
         /// <returns>Returns the name of the page.</returns>
-        public override string GetPageName() { return "Plain"; }
+        public override string GetPageName() { return SkinAccess.PAGE_VIEW_PLAIN; }
 
         /// <summary>
         /// Returns the names of all panes available in this page.

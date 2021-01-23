@@ -14,8 +14,19 @@ namespace YetaWF.Core.Skins {
 
         public const string SVGFolder = "SVG";
 
-        private readonly List<string> RequiredPages = new List<string> { "Default", "Plain" };
-        private readonly List<string> RequiredPopups = new List<string> { "Popup", "PopupSmall", "PopupMedium" };
+        public const string MODULE_SKIN_DEFAULT = "modStandard";
+        public const string MODULE_SKIN_PANEL = "modPanel";
+
+        public const string PAGE_VIEW_DEFAULT = "Default";
+        public const string PAGE_VIEW_PLAIN = "Plain";
+
+        public const string POPUP_VIEW_DEFAULT = "Popup";
+        public const string POPUP_VIEW_SMALL = "PopupSmall";
+        public const string POPUP_VIEW_MEDIUM = "PopupMedium";
+
+        private readonly List<string> RequiredPages = new List<string> { PAGE_VIEW_DEFAULT, PAGE_VIEW_PLAIN };
+        private readonly List<string> RequiredPopups = new List<string> { POPUP_VIEW_DEFAULT, POPUP_VIEW_SMALL, POPUP_VIEW_MEDIUM };
+        private readonly List<string> RequiredModules = new List<string> { MODULE_SKIN_DEFAULT, MODULE_SKIN_PANEL };
 
         public async Task<SkinCollectionInfo> LoadSkinAsync(Package package, string domain, string product, string name, string folder) {
 
@@ -64,6 +75,12 @@ namespace YetaWF.Core.Skins {
                 if ((from s in info.PopupSkins where s.ViewName == p select s).FirstOrDefault() == null)
                     throw new InternalError($"{fileName} Skin collection {info.Name} has no {p} popup");
             }
+            foreach (string p in RequiredModules) {
+                if ((from s in info.ModuleSkins where s.CSS == p select s).FirstOrDefault() == null)
+                    throw new InternalError($"{fileName} Skin collection {info.Name} has no {p} module");
+            }
+
+            
             return info;
         }
 

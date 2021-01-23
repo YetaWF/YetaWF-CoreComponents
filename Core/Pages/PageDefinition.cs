@@ -13,6 +13,7 @@ using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Site;
+using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Pages {
@@ -162,7 +163,7 @@ namespace YetaWF.Core.Pages {
             ChangeFrequency = ChangeFrequencyEnum.Default;
             SiteMapPriority = SiteMapPriorityEnum.Medium;
             ReferencedModules = new SerializableList<ModuleDefinition.ReferencedModule>();
-            PopupPage = "Popup";
+            PopupPage = SkinAccess.POPUP_VIEW_DEFAULT;
         }
 
         public enum AllowedEnum {
