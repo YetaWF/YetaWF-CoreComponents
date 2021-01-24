@@ -1,0 +1,36 @@
+@import "functions";
+
+@mixin color-variant(
+    $background,
+    $hover-background: darken($background, 7.5%),
+    $active-background: darken($background, 10%)
+) {
+    color: color-yiq($background);
+    background: $background;
+
+    @include hover() {
+        color: color-yiq($hover-background);
+        background: $hover-background;
+    }
+
+    &:focus {
+        color: color-yiq($hover-background);
+        background: $hover-background;
+    }
+
+    &:disabled {
+        color: color-yiq($background);
+        background: $background;
+    }
+
+    &:not(:disabled):active {
+        color: color-yiq($active-background);
+        background: $active-background;
+    }
+}
+
+@each $color, $value in $colors {
+    body .y_#{$color} { // more specificity needed
+        @include color-variant($value);
+    }
+}
