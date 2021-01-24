@@ -283,17 +283,20 @@ select.t_native { // native select (not DropDownList)
     border-radius: var(--mpnl-border-radius);
     .yModuleTitle {
         display: flex;
+        flex-direction: row;
         justify-content: left;
         align-items: center;
         border-bottom: var(--mpnl-border);
         padding:.2em;
         h1 {
+            flex: 0 0;
             font: var(--mpnl-title-font);
             padding: 0;
             margin: 0 .5em;
             vertical-align: middle;
         }
         .yModuleLinksContainer {
+            flex: 1 1;
             display: inline-block;
             padding-right: .5em;
             padding-left: .5em;
@@ -323,11 +326,35 @@ select.t_native { // native select (not DropDownList)
                 }
             }
         }
+        .yModuleExpColl {
+            flex: 0 0;
+            margin:.2em;
+        }
     }
     .yModuleContents {
         background: var(--body-bg);
         color: var(--body-clr);
         padding: 1em;
+    }
+}
+
+.modPanel {
+    &.t_expanded {
+        .yModuleExpColl {
+            .t_exp {
+                display:none;
+            }
+        }
+    }
+    &.t_collapsed {
+        .yModuleExpColl {
+            .t_coll {
+                display:none;
+            }
+        }
+        .yModuleContents {
+            display:none;
+        }
     }
 }
 

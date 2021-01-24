@@ -42,4 +42,8 @@
     <Compile Remove="Controllers\YetaWFApplicationModelProvider.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Addons\_Main\SVGs\" />
+  </ItemGroup>
+
 </Project>

@@ -219,6 +219,9 @@ select.t_native {
   .modPanel .yModuleTitle {
     display: -webkit-box;
     display: flex;
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+            flex-direction: row;
     -webkit-box-pack: left;
             justify-content: left;
     -webkit-box-align: center;
@@ -226,11 +229,15 @@ select.t_native {
     border-bottom: var(--mpnl-border);
     padding: .2em; }
     .modPanel .yModuleTitle h1 {
+      -webkit-box-flex: 0;
+              flex: 0 0;
       font: var(--mpnl-title-font);
       padding: 0;
       margin: 0 .5em;
       vertical-align: middle; }
     .modPanel .yModuleTitle .yModuleLinksContainer {
+      -webkit-box-flex: 1;
+              flex: 1 1;
       display: inline-block;
       padding-right: .5em;
       padding-left: .5em;
@@ -254,10 +261,23 @@ select.t_native {
         .modPanel .yModuleTitle .yModuleLinksContainer .yModuleLinks .y_button {
           font: var(--mpnl-link-font);
           padding: .3em; }
+    .modPanel .yModuleTitle .yModuleExpColl {
+      -webkit-box-flex: 0;
+              flex: 0 0;
+      margin: .2em; }
   .modPanel .yModuleContents {
     background: var(--body-bg);
     color: var(--body-clr);
     padding: 1em; }
+
+.modPanel.t_expanded .yModuleExpColl .t_exp {
+  display: none; }
+
+.modPanel.t_collapsed .yModuleExpColl .t_coll {
+  display: none; }
+
+.modPanel.t_collapsed .yModuleContents {
+  display: none; }
 
 /* OWNERSHIP */
 .ypagerole_noUserAnon {

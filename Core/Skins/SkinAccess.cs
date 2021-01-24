@@ -196,16 +196,45 @@ namespace YetaWF.Core.Skins {
 
         private async Task RenderPanelModuleAsync(ModuleDefinition mod, HtmlBuilder hb, string htmlContents, string css, bool showTitle = true) {
 
+            await Manager.AddOnManager.AddAddOnNamedAsync(AreaRegistration.CurrentPackage.AreaName, "PanelModule");
+
+            string expCss = " t_expanded";
+            if (mod.CanMinimize) {
+                bool expanded = Manager.SessionSettings.GetModuleSettings(mod.ModuleGuid).GetValue<bool>("PanelExpanded", !mod.Minimized);
+                if (!expanded)
+                    expCss = " t_collapsed";
+            }
+
             hb.Append($@"
-<div id='{mod.ModuleHtmlId}' data-moduleguid='{mod.ModuleGuid.ToString()}' class='{css}'>");
+<div id='{mod.ModuleHtmlId}' data-moduleguid='{mod.ModuleGuid.ToString()}' class='{css}{expCss}'>");
 
             if (!Manager.IsInPopup && mod.ShowModuleMenu) {
                 hb.Append(await YetaWFCoreRendering.Render.RenderModuleMenuAsync(mod));
             }
+
+            string actions = await YetaWFCoreRendering.Render.RenderModuleLinksAsync(mod, ModuleAction.RenderModeEnum.Button, Globals.CssModuleLinksContainer);
+            if (string.IsNullOrWhiteSpace(actions))
+                actions = "<div class='yModuleLinksContainer'></div>"; // empty div for flex
+
             hb.Append($@"
     <div class='yModuleTitle'>
          <h1>{Utility.HE(mod.Title)}</h1>
-         {await YetaWFCoreRendering.Render.RenderModuleLinksAsync(mod, ModuleAction.RenderModeEnum.Button, Globals.CssModuleLinksContainer)}
+         {actions}");
+
+            if (mod.CanMinimize) {
+                
+                hb.Append($@"
+    <div class='yModuleExpColl'>
+        <button class='y_buttonlite t_exp' {Basics.CssTooltip}='{Utility.HAE(this.__ResStr("exp", "Click to expand this panel"))}'>
+            {SkinSVGs.Get(AreaRegistration.CurrentPackage, "fas-window-maximize")}
+        </button>
+        <button class='y_buttonlite t_coll' {Basics.CssTooltip}='{Utility.HAE(this.__ResStr("exp", "Click to collapse this panel"))}'>
+            {SkinSVGs.Get(AreaRegistration.CurrentPackage, "fas-window-minimize")}
+        </button>
+    </div>");
+            }
+
+            hb.Append($@"
     </div>
     <div class='y_cleardiv'></div> 
     <div class='yModuleContents'>
