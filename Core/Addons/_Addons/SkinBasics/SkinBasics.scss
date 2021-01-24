@@ -220,14 +220,29 @@ select.t_native { // native select (not DropDownList)
             float:left;
             margin:0;
             padding:0;
-            padding-bottom: .5em;
-            font: var(--mpnl-title-font);
+            font: var(--mstd-title-font);
         }
         .yModuleLinksContainer {
             float:right;
             clear:none;
             @media print {
                 display: none;
+            }
+            /* a bit of extra space above the module action links */
+            .yModuleLinks {
+                margin:0;
+                margin-top:.5em;
+                padding:0;
+                list-style-type: none;
+                li {
+                    display:inline-block;
+                }
+                .yaction-link {
+                    i, img {/* a bit of extra space around the image in a module action link */
+                        margin-right:.4ch;
+                    }
+                    margin-right:.4ch;
+                }
             }
         }
     }
@@ -251,28 +266,8 @@ select.t_native { // native select (not DropDownList)
                 }
                 margin-right:1ch;
             }
-            .y_button { // smaller buttons
-                padding-left:0.2em;
-                padding-right:0.2em;
-                img {
-                    margin-left:0;
-                }
-            }
         }
-        // .yModuleLinks {
-        //     margin-top:0;
-        //     .yaction-link {
-        //         i, img {
-        //             margin-right:0;
-        //             margin-left:.5ch;
-        //         }
-        //         margin-right:0;
-        //     }
-        // }
     }
-    // .yModuleContents {
-
-    // }
 }
 
 .modPanel {

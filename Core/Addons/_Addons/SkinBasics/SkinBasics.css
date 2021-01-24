@@ -176,15 +176,27 @@ select.t_native {
   float: left;
   margin: 0;
   padding: 0;
-  padding-bottom: .5em;
-  font: var(--mpnl-title-font); }
+  font: var(--mstd-title-font); }
 
 .modStandard .yModuleTitle .yModuleLinksContainer {
   float: right;
-  clear: none; }
+  clear: none;
+  /* a bit of extra space above the module action links */ }
   @media print {
     .modStandard .yModuleTitle .yModuleLinksContainer {
       display: none; } }
+  .modStandard .yModuleTitle .yModuleLinksContainer .yModuleLinks {
+    margin: 0;
+    margin-top: .5em;
+    padding: 0;
+    list-style-type: none; }
+    .modStandard .yModuleTitle .yModuleLinksContainer .yModuleLinks li {
+      display: inline-block; }
+    .modStandard .yModuleTitle .yModuleLinksContainer .yModuleLinks .yaction-link {
+      margin-right: .4ch; }
+      .modStandard .yModuleTitle .yModuleLinksContainer .yModuleLinks .yaction-link i, .modStandard .yModuleTitle .yModuleLinksContainer .yModuleLinks .yaction-link img {
+        /* a bit of extra space around the image in a module action link */
+        margin-right: .4ch; }
 
 .modStandard > .yModuleLinksContainer {
   clear: none;
@@ -204,11 +216,6 @@ select.t_native {
       .modStandard > .yModuleLinksContainer .yModuleLinks .yaction-link i, .modStandard > .yModuleLinksContainer .yModuleLinks .yaction-link img {
         /* a bit of extra space around the image in a module action link */
         margin-right: .4ch; }
-    .modStandard > .yModuleLinksContainer .yModuleLinks .y_button {
-      padding-left: 0.2em;
-      padding-right: 0.2em; }
-      .modStandard > .yModuleLinksContainer .yModuleLinks .y_button img {
-        margin-left: 0; }
 
 .modPanel {
   margin-top: 1rem;

@@ -228,7 +228,7 @@ namespace YetaWF.Core.Skins {
         <button class='y_buttonlite t_exp' {Basics.CssTooltip}='{Utility.HAE(this.__ResStr("exp", "Click to expand this panel"))}'>
             {SkinSVGs.Get(AreaRegistration.CurrentPackage, "fas-window-maximize")}
         </button>
-        <button class='y_buttonlite t_coll' {Basics.CssTooltip}='{Utility.HAE(this.__ResStr("exp", "Click to collapse this panel"))}'>
+        <button class='y_buttonlite t_coll' {Basics.CssTooltip}='{Utility.HAE(this.__ResStr("coll", "Click to collapse this panel"))}'>
             {SkinSVGs.Get(AreaRegistration.CurrentPackage, "fas-window-minimize")}
         </button>
     </div>");
