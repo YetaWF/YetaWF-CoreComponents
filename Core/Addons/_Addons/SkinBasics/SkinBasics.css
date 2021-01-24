@@ -229,8 +229,6 @@ select.t_native {
     border-bottom: var(--mpnl-border);
     padding: .2em; }
     .modPanel .yModuleTitle h1 {
-      -webkit-box-flex: 0;
-              flex: 0 0;
       font: var(--mpnl-title-font);
       padding: 0;
       margin: 0 .5em;
