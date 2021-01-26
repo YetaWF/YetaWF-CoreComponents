@@ -19,7 +19,7 @@ var YetaWF_Core;
         return PanelModuleHandler;
     }());
     YetaWF_Core.PanelModuleHandler = PanelModuleHandler;
-    $YetaWF.registerEventHandlerBody("click", ".yModuleExpColl button", function (ev) {
+    $YetaWF.registerEventHandlerBody("click", ".modPanel .yModuleExpColl button", function (ev) {
         var exp = ev.__YetaWFElem;
         var mod = $YetaWF.elementClosestCond(exp, ".modPanel");
         if (!mod)

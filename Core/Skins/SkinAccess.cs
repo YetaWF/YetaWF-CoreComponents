@@ -159,23 +159,24 @@ namespace YetaWF.Core.Skins {
                 hb.Append(await YetaWFCoreRendering.Render.RenderModuleMenuAsync(mod));
             }
             if (showTitle) {
+
+                hb.Append($@"
+    <div class='yModuleTitle'>
+         <h1>{Utility.HE(mod.Title)}</h1>");
+
                 if (mod.ShowTitleActions) {
                     string? actions = null;
                     if (showTitle && mod.ShowTitleActions)
                         actions = await YetaWFCoreRendering.Render.RenderModuleLinksAsync(mod, ModuleAction.RenderModeEnum.IconsOnly, Globals.CssModuleLinksContainer);
                     if (!string.IsNullOrWhiteSpace(actions)) {
                         hb.Append($@"
-    <div class='yModuleTitle'>
-         <h1>{Utility.HE(mod.Title)}</h1>
-        {actions}
+        {actions}");
+                    }
+                }
+
+                hb.Append($@"
     </div>
     <div class='y_cleardiv'></div>");
-                    } else {
-                        hb.Append($@"<h1>{Utility.HE(mod.Title)}</h1>");
-                    }
-                } else {
-                    hb.Append($@"<h1>{Utility.HE(mod.Title)}</h1>");
-                }
             }
 
             hb.Append($@"

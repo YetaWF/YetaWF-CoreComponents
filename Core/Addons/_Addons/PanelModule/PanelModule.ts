@@ -17,7 +17,7 @@ namespace YetaWF_Core {
         }
     }
 
-    $YetaWF.registerEventHandlerBody("click",".yModuleExpColl button", (ev: MouseEvent): boolean => {
+    $YetaWF.registerEventHandlerBody("click",".modPanel .yModuleExpColl button", (ev: MouseEvent): boolean => {
         let exp = ev.__YetaWFElem;
         let mod = $YetaWF.elementClosestCond(exp, ".modPanel");
         if (!mod) return true;

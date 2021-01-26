@@ -7,6 +7,7 @@ using YetaWF.Core.Components;
 using YetaWF.Core.DataProvider;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models.Attributes;
+using YetaWF.Core.Modules;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
 
@@ -66,10 +67,20 @@ namespace YetaWF.Core.Models {
 
         public int InitialPageSize { get; set; }
         public List<int> PageSizes { get; set; }
-        public const int MaxPages = 999999999;// indicator for All pages in PageSizes
+        public const int AllPages = 999999999;// indicator for All pages in PageSizes
 
         public bool UseSkinFormatting { get; set; } // use skin theme
         public int? DropdownActionWidth { get; set; } // width in characters of action dropdown
+
+        public bool PanelHeader { get; set; }
+        public string? PanelHeaderTitle { get; set; }
+        public bool PanelCanMinimize { get; set; }
+        public MenuList? PanelHeaderActions { get; set; }
+        public bool PanelHeaderSearch { get; set; }
+        public List<string>? PanelHeaderSearchColumns { get; set; }
+        public int PanelHeaderAutoSearch { get; set; }
+        public bool PanelHeaderColumnSelection { get; set; }
+        public string? PanelHeaderSearchTT { get; set; }
 
         // other settings
         public string Id { get; set; } // html id of the grid
