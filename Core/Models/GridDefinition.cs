@@ -7,7 +7,6 @@ using YetaWF.Core.Components;
 using YetaWF.Core.DataProvider;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models.Attributes;
-using YetaWF.Core.Modules;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
 
@@ -35,9 +34,11 @@ namespace YetaWF.Core.Models {
             public int Width { get; set; }
             public string? FilterOperator { get; set; }
             public string? FilterValue { get; set; }
+            public bool Visible { get; set; }
 
             public ColumnInfo() {
                 Width = -1;
+                Visible = true;
             }
         }
         public class ColumnDictionary : SerializableDictionary<string, ColumnInfo> { }

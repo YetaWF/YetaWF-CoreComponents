@@ -1539,6 +1539,27 @@ namespace YetaWF {
          * @param sub The element to be position below/above the main element.
          */
         public positionLeftAlignedBelow(main: HTMLElement, sub: HTMLElement): void {
+            this.positionAlignedBelow(main, sub, true);
+        }
+
+        /**
+         * Position an element (sub) below an element (main), or above if there is insufficient space below.
+         * The elements are always aligned at their right edges.
+         * @param main The main element.
+         * @param sub The element to be position below/above the main element.
+         */
+        public positionRightAlignedBelow(main: HTMLElement, sub: HTMLElement): void {
+            this.positionAlignedBelow(main, sub, false);
+        }
+
+        /**
+         * Position an element (sub) below an element (main), or above if there is insufficient space below.
+         * The elements are always aligned at their left or right edges.
+         * @param main The main element.
+         * @param sub The element to be position below/above the main element.
+         * @param left Defines whether the sub element is positioned to the left (true) or right (false).
+         */
+        private positionAlignedBelow(main: HTMLElement, sub: HTMLElement, left: boolean): void {
 
             // position within view to calculate size
             sub.style.top = "0px";
@@ -1570,10 +1591,17 @@ namespace YetaWF {
                     sub.style.bottom = "0px";
                 sub.style.top = `${top + window.pageYOffset}px`;
             }
-            // set left
-            sub.style.left = `${mainRect.left + window.pageXOffset}px`;
-            if (mainRect.left + subRect.right > window.innerWidth)
-                sub.style.right = "0px";
+            if (left) {
+                // set left
+                sub.style.left = `${mainRect.left + window.pageXOffset}px`;
+                if (mainRect.left + subRect.right > window.innerWidth)
+                    sub.style.right = "0px";
+            } else {
+                // set right
+                let left = mainRect.right - subRect.width + window.pageXOffset;
+                if (left < 0) left = 0;
+                sub.style.left = `${left}px`;
+            }
         }
 
         constructor() {
