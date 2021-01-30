@@ -1,4 +1,4 @@
-# Generated from flat grid definition file on 1/30/2021 12:49:18 PM
+# Generated from flat grid definition file on 1/30/2021 4:39:05 PM
 
 SizeStyle: SizeToFit
 Panel: {}
@@ -9,39 +9,39 @@ Columns:
   Align: Center
 - Name: DisplayUserId
   FilterOptions: []
-  ChWidth: 40
+  Width: 40
   Align: Unspecified
 - Name: View
   FilterOptions: []
-  ChWidth: 7
+  Width: 7
   Align: Center
 - Name: Edit
   FilterOptions: []
-  ChWidth: 7
+  Width: 7
   Align: Center
 - Name: Remove
   FilterOptions: []
-  ChWidth: 7
+  Width: 7
   Align: Center
 - Name: Extra1
   FilterOptions: []
-  ChWidth: 7
+  Width: 7
   Align: Center
 - Name: Extra2
   FilterOptions: []
-  ChWidth: 7
+  Width: 7
   Align: Center
 - Name: Extra3
   FilterOptions: []
-  ChWidth: 7
+  Width: 7
   Align: Center
 - Name: Extra4
   FilterOptions: []
-  ChWidth: 7
+  Width: 7
   Align: Center
 - Name: Extra5
   FilterOptions: []
-  ChWidth: 7
+  Width: 7
   Align: Center
 - Name: UserId
   FilterOptions: []
