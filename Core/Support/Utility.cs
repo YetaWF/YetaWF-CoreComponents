@@ -357,6 +357,22 @@ namespace YetaWF.Core.Support {
         // YAML
 
         /// <summary>
+        /// Serializes an object to Yaml.
+        /// </summary>
+        /// <param name="value">The object to serialize.</param>
+        /// <returns>Returns a string containing yaml.</returns>
+        public static string YamlSerialize(object obj) {
+            YamlDotNet.Serialization.ISerializer serializer = GetYamlSerializer();
+            return serializer.Serialize(obj);
+        }
+        private static ISerializer GetYamlSerializer() {
+            if (_YamlSerializer == null)
+                _YamlSerializer = new SerializerBuilder().ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults).Build();
+            return _YamlSerializer;
+        }
+        private static ISerializer? _YamlSerializer;
+
+        /// <summary>
         /// Deserializes a Yaml string to an object.
         /// </summary>
         /// <typeparam name="TYPE">The type of the deserialized object.</typeparam>

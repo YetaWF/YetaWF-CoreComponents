@@ -54,34 +54,34 @@ namespace YetaWF.Core.Models {
         public Guid ModuleGuid { get; set; } // the module owning the grid
         public Guid? SettingsModuleGuid { get; set; } // the module guid used to save/restore grid settings and is optional
 
-        public bool SupportReload { get; set; } // whether the data can be reloaded by the user (reload button, ajax only)
         public bool ShowHeader { get; set; }
         public bool? ShowFilter { get; set; } // if null use user settings, otherwise use ShowFilter true/false overriding any other defaults
         public bool ShowPager { get; set; }
-        public bool Reorderable { get; set; }
+        public bool SupportReload { get; set; } // whether the data can be reloaded by the user (reload button, ajax only)
+
         public SizeStyleEnum SizeStyle { get; set; }
-        public bool HighlightOnClick { get; set; }
-
-        public ColumnDictionary InitialFilters { get; set; }
-
-        public string NoRecordsText { get; set; }// text shown when there are no records
 
         public int InitialPageSize { get; set; }
         public List<int> PageSizes { get; set; }
         public const int AllPages = 999999999;// indicator for All pages in PageSizes
 
+        public bool Reorderable { get; set; }
+        public bool HighlightOnClick { get; set; }
         public bool UseSkinFormatting { get; set; } // use skin theme
-        public int? DropdownActionWidth { get; set; } // width in characters of action dropdown
 
         public bool PanelHeader { get; set; }
-        public string? PanelHeaderTitle { get; set; }
         public bool PanelCanMinimize { get; set; }
-        public MenuList? PanelHeaderActions { get; set; }
         public bool PanelHeaderSearch { get; set; }
-        public List<string>? PanelHeaderSearchColumns { get; set; }
         public int PanelHeaderAutoSearch { get; set; }
         public bool PanelHeaderColumnSelection { get; set; }
+        public string? PanelHeaderTitle { get; set; }
+        public MenuList? PanelHeaderActions { get; set; }
+        public List<string>? PanelHeaderSearchColumns { get; set; }
         public string? PanelHeaderSearchTT { get; set; }
+
+        public ColumnDictionary InitialFilters { get; set; }
+        public string NoRecordsText { get; set; }// text shown when there are no records
+        public int? DropdownActionWidth { get; set; } // width in characters of action dropdown
 
         // other settings
         public string Id { get; set; } // html id of the grid

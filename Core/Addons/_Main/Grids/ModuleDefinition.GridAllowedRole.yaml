@@ -1,0 +1,45 @@
+# Generated from flat grid definition file on 1/30/2021 12:49:18 PM
+
+SizeStyle: SizeToFit
+Panel: {}
+Columns:
+- Name: RoleName
+  FilterOptions: []
+  ChWidth: 30
+  Align: Unspecified
+- Name: View
+  FilterOptions: []
+  ChWidth: 7
+  Align: Center
+- Name: Edit
+  FilterOptions: []
+  ChWidth: 7
+  Align: Center
+- Name: Remove
+  FilterOptions: []
+  ChWidth: 7
+  Align: Center
+- Name: Extra1
+  FilterOptions: []
+  ChWidth: 7
+  Align: Center
+- Name: Extra2
+  FilterOptions: []
+  ChWidth: 7
+  Align: Center
+- Name: Extra3
+  FilterOptions: []
+  ChWidth: 7
+  Align: Center
+- Name: Extra4
+  FilterOptions: []
+  ChWidth: 7
+  Align: Center
+- Name: Extra5
+  FilterOptions: []
+  ChWidth: 7
+  Align: Center
+- Name: RoleId
+  FilterOptions: []
+  Align: Unspecified
+  Hidden: true
