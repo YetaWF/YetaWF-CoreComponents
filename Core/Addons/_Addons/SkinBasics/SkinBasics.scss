@@ -22,6 +22,9 @@ a {
         color: var(--a-clr-focus);
         text-decoration: var(--a-dec-focus);
     }
+    &[data-nohref] {
+        cursor: default;
+    }
 }
 
 form {
@@ -215,6 +218,7 @@ select.t_native { // native select (not DropDownList)
 /* MODULE SKINS */
 
 .modStandard {
+    clear: both;
     .yModuleTitle {
         h1 {
             float:left;
