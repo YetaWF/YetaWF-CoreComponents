@@ -981,6 +981,8 @@ var YetaWF;
             css = css.trim();
             if (!elem)
                 return false;
+            if (css.startsWith("."))
+                throw "elementHasClass called with class starting with a . \"" + css + "\" - that probably wasn't intended";
             if (elem.classList)
                 return elem.classList.contains(css);
             else
@@ -997,6 +999,8 @@ var YetaWF;
             cssPrefix = cssPrefix.trim();
             if (!elem)
                 return list;
+            if (cssPrefix.startsWith("."))
+                throw "elementHasClassPrefix called with cssPrefix starting with a . \"" + cssPrefix + "\" - that probably wasn't intended";
             if (elem.classList) {
                 // eslint-disable-next-line @typescript-eslint/prefer-for-of
                 for (var i = 0; i < elem.classList.length; ++i) {
@@ -1040,6 +1044,8 @@ var YetaWF;
          * Add css class to an element.
          */
         BasicsServices.prototype.elementAddClass = function (elem, className) {
+            if (className.startsWith("."))
+                throw "elementAddClass called with class starting with a . \"" + className + "\" - that probably wasn't intended";
             if (elem.classList)
                 elem.classList.add(className);
             else
@@ -1071,6 +1077,8 @@ var YetaWF;
          * Remove a css class from an element.
          */
         BasicsServices.prototype.elementRemoveClass = function (elem, className) {
+            if (className.startsWith("."))
+                throw "elementRemoveClass called with class starting with a . \"" + className + "\" - that probably wasn't intended";
             if (elem.classList)
                 elem.classList.remove(className);
             else

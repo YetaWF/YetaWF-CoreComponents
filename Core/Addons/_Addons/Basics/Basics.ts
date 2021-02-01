@@ -1163,6 +1163,7 @@ namespace YetaWF {
         public elementHasClass(elem: Element | null, css: string): boolean {
             css = css.trim();
             if (!elem) return false;
+            if (css.startsWith(".")) throw `elementHasClass called with class starting with a . "${css}" - that probably wasn't intended`;
             if (elem.classList)
                 return elem.classList.contains(css);
             else
@@ -1178,6 +1179,7 @@ namespace YetaWF {
             let list: string[] = [];
             cssPrefix = cssPrefix.trim();
             if (!elem) return list;
+            if (cssPrefix.startsWith(".")) throw `elementHasClassPrefix called with cssPrefix starting with a . "${cssPrefix}" - that probably wasn't intended`;
             if (elem.classList) {
                 // eslint-disable-next-line @typescript-eslint/prefer-for-of
                 for (let i = 0; i < elem.classList.length; ++i) {
@@ -1216,6 +1218,7 @@ namespace YetaWF {
          * Add css class to an element.
          */
         public elementAddClass(elem: Element, className: string): void {
+            if (className.startsWith(".")) throw `elementAddClass called with class starting with a . "${className}" - that probably wasn't intended`;
             if (elem.classList)
                 elem.classList.add(className);
             else
@@ -1244,6 +1247,7 @@ namespace YetaWF {
          * Remove a css class from an element.
          */
         public elementRemoveClass(elem: Element, className: string): void {
+            if (className.startsWith(".")) throw `elementRemoveClass called with class starting with a . "${className}" - that probably wasn't intended`;
             if (elem.classList)
                 elem.classList.remove(className);
             else

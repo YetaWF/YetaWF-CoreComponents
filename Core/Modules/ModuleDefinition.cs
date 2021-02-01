@@ -255,7 +255,6 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
 
         [Category("Skin"), Caption("Show Title"), Description("Defines whether the module title is shown - Applies to the modStandard skin only")]
         [UIHint("Boolean")]
-        [RequiredIf(nameof(ModuleSkin), SkinAccess.MODULE_SKIN_DEFAULT, Disable = true)]
         [ProcessIf(nameof(ModuleSkin), SkinAccess.MODULE_SKIN_DEFAULT, Disable = true)]
         public bool ShowTitle { get; set; }
 
