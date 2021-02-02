@@ -1338,6 +1338,8 @@ namespace YetaWF.Core.Support {
                     s = CssManager.CombineCss(s, "yUnifiedSkinDynamicContent");
                     break;
             }
+            s = CssManager.CombineCss(s, $"pageTheme{Manager.CurrentSite.Theme}");
+
             string cssClasses = CurrentPage.GetCssClass(); // get page specific Css (once only, used 2x)
             if (UnifiedMode == PageDefinition.UnifiedModeEnum.DynamicContent || UnifiedMode == PageDefinition.UnifiedModeEnum.AllPagesDynamicContent) {
                 // add the extra page css class and generated page specific Css via javascript to body tag (used for dynamic content)
