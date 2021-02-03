@@ -255,12 +255,12 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
 
         [Category("Skin"), Caption("Show Title"), Description("Defines whether the module title is shown - Applies to the modStandard skin only")]
         [UIHint("Boolean")]
-        [ProcessIf(nameof(ModuleSkin), SkinAccess.MODULE_SKIN_DEFAULT, Disable = true)]
+        [ProcessIfNot(nameof(ModuleSkin), SkinAccess.MODULE_SKIN_PANEL, Disable = true)]
         public bool ShowTitle { get; set; }
 
         [Category("Skin"), Caption("Show Actions (Title)"), Description("Defines whether the module's action links are also shown next to the module title - Only the icons are shown if selected - Applies to the modStandard skin only")]
         [UIHint("Boolean")]
-        [ProcessIf(nameof(ModuleSkin), SkinAccess.MODULE_SKIN_DEFAULT, nameof(ShowTitle), true, Disable = true)]
+        [ProcessIfNot(nameof(ModuleSkin), SkinAccess.MODULE_SKIN_PANEL, nameof(ShowTitle), false, Disable = true)]
         [Data_NewValue]
         public bool ShowTitleActions { get; set; }
 

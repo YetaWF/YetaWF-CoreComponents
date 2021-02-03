@@ -174,47 +174,47 @@ select.t_native {
   border-radius: var(--prop-border-radius); }
 
 /* MODULE SKINS */
-.modStandard {
+.yModule {
   clear: both; }
-  .modStandard .yModuleTitle h1 {
+  .yModule .yModuleTitle h1 {
     float: left;
     margin: 0;
     padding: 1rem 0 1rem 0;
     font: var(--mstd-title-font); }
-  .modStandard .yModuleTitle .yModuleLinksContainer {
+  .yModule .yModuleTitle .yModuleLinksContainer {
     float: right;
     clear: none;
     /* a bit of extra space above the module action links */ }
     @media print {
-      .modStandard .yModuleTitle .yModuleLinksContainer {
+      .yModule .yModuleTitle .yModuleLinksContainer {
         display: none; } }
-    .modStandard .yModuleTitle .yModuleLinksContainer .yModuleLinks {
+    .yModule .yModuleTitle .yModuleLinksContainer .yModuleLinks {
       margin: 0;
       padding: 0;
       list-style-type: none; }
-      .modStandard .yModuleTitle .yModuleLinksContainer .yModuleLinks li {
+      .yModule .yModuleTitle .yModuleLinksContainer .yModuleLinks li {
         display: inline-block; }
-      .modStandard .yModuleTitle .yModuleLinksContainer .yModuleLinks .yaction-link {
+      .yModule .yModuleTitle .yModuleLinksContainer .yModuleLinks .yaction-link {
         margin-right: .4ch; }
-        .modStandard .yModuleTitle .yModuleLinksContainer .yModuleLinks .yaction-link i, .modStandard .yModuleTitle .yModuleLinksContainer .yModuleLinks .yaction-link img {
+        .yModule .yModuleTitle .yModuleLinksContainer .yModuleLinks .yaction-link i, .yModule .yModuleTitle .yModuleLinksContainer .yModuleLinks .yaction-link img {
           /* a bit of extra space around the image in a module action link */
           margin-right: .4ch; }
-  .modStandard > .yModuleLinksContainer {
+  .yModule > .yModuleLinksContainer {
     clear: none;
     /* a bit of extra space above the module action links */ }
     @media print {
-      .modStandard > .yModuleLinksContainer {
+      .yModule > .yModuleLinksContainer {
         display: none; } }
-    .modStandard > .yModuleLinksContainer .yModuleLinks {
+    .yModule > .yModuleLinksContainer .yModuleLinks {
       margin: 0;
       margin-top: .5em;
       padding: 0;
       list-style-type: none; }
-      .modStandard > .yModuleLinksContainer .yModuleLinks li {
+      .yModule > .yModuleLinksContainer .yModuleLinks li {
         display: inline-block; }
-      .modStandard > .yModuleLinksContainer .yModuleLinks .yaction-link {
+      .yModule > .yModuleLinksContainer .yModuleLinks .yaction-link {
         margin-right: 1ch; }
-        .modStandard > .yModuleLinksContainer .yModuleLinks .yaction-link i, .modStandard > .yModuleLinksContainer .yModuleLinks .yaction-link img {
+        .yModule > .yModuleLinksContainer .yModuleLinks .yaction-link i, .yModule > .yModuleLinksContainer .yModuleLinks .yaction-link img {
           /* a bit of extra space around the image in a module action link */
           margin-right: .4ch; }
 
