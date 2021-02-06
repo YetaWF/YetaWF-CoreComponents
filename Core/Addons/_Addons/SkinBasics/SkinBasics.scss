@@ -378,3 +378,232 @@ select.t_native { // native select (not DropDownList)
     background: var(--own-mod-noUser);
     padding:.7em;
 }
+
+/* Remaining Kendo components */
+
+.yt_datetime.t_edit,
+.yt_date.t_edit,
+.yt_time.t_edit {
+    input {
+        background: var(--inp-bg); // used to avoid FOUC before .k-widget is attached by kendo
+        color: var(--inp-clr);
+    }
+}
+
+.yt_datetime.t_edit,
+.yt_date.t_edit,
+.yt_time.t_edit {
+    background: var(--dd-bg); // used to avoid FOUC before .k-widget is attached by kendo
+    color: var(--dd-clr);
+    .k-widget {
+        .k-picker-wrap {
+            background: var(--dd-bg);
+            color: var(--dd-clr);
+            border: var(--dd-border);
+            border-radius: var(--dd-border-radius);
+            padding:0;
+            .k-input {
+                background: var(--inp-bg);
+                color: var(--inp-clr);
+                border-radius: var(--dd-border-radius);
+            }
+            &.k-state-hover {
+                background: var(--dd-bg-hover);
+                color: var(--dd-clr-hover);
+                border: var(--dd-border-hover);
+            }
+            &.k-state-focused {
+                background: var(--dd-bg-focus);
+                color: var(--dd-clr-focus);
+                border: var(--dd-border-focus);
+                box-shadow:none;
+            }
+            &.k-state-disabled {
+                opacity: var(--body-dis-opacity);
+            }
+            & > .k-select {
+                background: var(--dd-bg);
+                color: var(--dd-clr);
+                border: none;
+                border-left: var(--dd-border);
+                border-top-right-radius: var(--dd-border-radius);
+                border-bottom-right-radius: var(--dd-border-radius);
+            }
+            .k-link {
+                color: var(--dd-clr);
+            }
+        }
+    }
+}
+
+.k-animation-container { // specificity
+    .k-popup.k-calendar-container {
+        background: var(--dd-p-bg);
+        color: var(--dd-p-clr);
+        border: var(--dd-p-border);
+        border-radius: 0 0 var(--dd-p-border-radius) var(--dd-p-border-radius);
+        box-shadow: var(--dd-p-shadow);
+        .k-widget {
+            background: var(--dd-p-bg);
+            color: var(--dd-p-clr);
+        }
+        .k-header {
+            background: var(--tbl-header-bg); // abusing table vars
+            color: var(--tbl-header-clr);
+            border:none;
+            .k-link {
+                background: var(--tbl-header-bg);
+                color: var(--tbl-header-clr);
+                border-radius: var(--buttonlite-border-radius);
+                &.k-state-hover {
+                    background: var(--tbl-header-bg-hover);
+                    color: var(--tbl-header-clr-hover);
+                }
+            }
+        }
+        .k-calendar-view {
+            table.k-content {
+                background: var(--dd-p-bg);
+                color: var(--dd-p-clr);
+                th {
+                    background: var(--dd-p-bg);
+                    color: var(--dd-p-clr);
+                    border-top: var(--dd-p-border);
+                    border-bottom: var(--dd-p-border);
+                    border-radius: 0 0 var(--dd-p-border-radius) var(--dd-p-border-radius);
+                }
+                td {
+                    background: var(--dd-p-bg);
+                    color: var(--dd-p-clr);
+                    border-radius: var(--buttonlite-border-radius);
+                    &.k-other-month:not(.k-today) {
+                        opacity:.7;
+                    }
+                    &.k-weekend:not(.k-today) {
+                        opacity:.5;
+                    }
+                    &.k-state-hover,
+                    &.k-state-hover .k-link {
+                        background: var(--dd-p-bg-hover);
+                        color: var(--dd-p-clr-hover);
+                    }
+                    &.k-today,
+                    &.k-today .k-link {
+                        background: var(--dd-p-bg-focus);
+                        color: var(--dd-p-clr-focus);
+                        box-shadow: inset 0 0 0 3px var(--dd-p-bg-hover);
+                    }
+                    &.k-state-focused,
+                    &.k-state-focused .k-link {
+                        background: var(--dd-p-bg-focus);
+                        color: var(--dd-p-clr-focus);
+                        box-shadow: none;
+                    }
+                }
+            }
+        }
+        .k-footer {
+            background: var(--dd-p-bg);
+            color: var(--dd-p-clr);
+            .k-link {
+                background: var(--dd-p-bg);
+                color: var(--dd-p-clr);
+            }
+        }
+    }
+}
+
+.k-animation-container { // specificity
+    .k-popup.k-calendar-container {
+        background: var(--dd-p-bg);
+        color: var(--dd-p-clr);
+        border: var(--dd-p-border);
+        border-radius: 0 0 var(--dd-p-border-radius) var(--dd-p-border-radius);
+        box-shadow: var(--dd-p-shadow);
+        .k-widget {
+            background: var(--dd-p-bg);
+            color: var(--dd-p-clr);
+        }
+        .k-header {
+            background: var(--tbl-header-bg); // abusing table vars
+            color: var(--tbl-header-clr);
+            border:none;
+            .k-link {
+                background: var(--tbl-header-bg);
+                color: var(--tbl-header-clr);
+                border-radius: var(--buttonlite-border-radius);
+                &.k-state-hover {
+                    background: var(--tbl-header-bg-hover);
+                    color: var(--tbl-header-clr-hover);
+                }
+            }
+        }
+        .k-calendar-view {
+            table.k-content {
+                background: var(--dd-p-bg);
+                color: var(--dd-p-clr);
+                th {
+                    background: var(--dd-p-bg);
+                    color: var(--dd-p-clr);
+                    border-top: var(--dd-p-border);
+                    border-bottom: var(--dd-p-border);
+                    border-radius: 0 0 var(--dd-p-border-radius) var(--dd-p-border-radius);
+                }
+                td {
+                    background: var(--dd-p-bg);
+                    color: var(--dd-p-clr);
+                    border-radius: var(--buttonlite-border-radius);
+                    &.k-other-month:not(.k-today) {
+                        opacity:.7;
+                    }
+                    &.k-weekend:not(.k-today) {
+                        opacity:.5;
+                    }
+                    &.k-state-hover,
+                    &.k-state-hover .k-link {
+                        background: var(--dd-p-bg-hover);
+                        color: var(--dd-p-clr-hover);
+                    }
+                    &.k-today,
+                    &.k-today .k-link {
+                        background: var(--dd-p-bg-focus);
+                        color: var(--dd-p-clr-focus);
+                        box-shadow: inset 0 0 0 3px var(--dd-p-bg-hover);
+                    }
+                    &.k-state-focused,
+                    &.k-state-focused .k-link {
+                        background: var(--dd-p-bg-focus);
+                        color: var(--dd-p-clr-focus);
+                        box-shadow: none;
+                    }
+                }
+            }
+        }
+        .k-footer {
+            background: var(--dd-p-bg);
+            color: var(--dd-p-clr);
+            .k-link {
+                background: var(--dd-p-bg);
+                color: var(--dd-p-clr);
+            }
+        }
+    }
+
+    .k-list-container {
+        background: var(--dd-p-bg);
+        color: var(--dd-p-clr);
+        border: var(--dd-p-border);
+        border-radius: 0 0 var(--dd-p-border-radius) var(--dd-p-border-radius);
+        box-shadow: var(--dd-p-shadow);
+       .k-item {
+            &.k-state-hover {
+                background: var(--dd-p-bg-hover);
+                color: var(--dd-p-clr-hover);
+            }
+            &.k-state-selected {
+                background: var(--dd-p-bg-focus);
+                color: var(--dd-p-clr-focus);
+            }
+        }
+    }
+}

@@ -25,6 +25,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Addons\_Main\SVGs\**" />
+    <EmbeddedResource Remove="Addons\_Main\SVGs\**" />
+    <None Remove="Addons\_Main\SVGs\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.2" />
     <PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="5.0.1" />
@@ -40,10 +46,6 @@
 
   <ItemGroup>
     <Compile Remove="Controllers\YetaWFApplicationModelProvider.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Addons\_Main\SVGs\" />
   </ItemGroup>
 
 </Project>

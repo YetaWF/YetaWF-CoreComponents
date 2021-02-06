@@ -13,7 +13,7 @@ namespace YetaWF.Core.Components {
     /// <remarks>
     /// Components and views are always rendered as HTML with JavaScript and CSS. The actual implementation of the components and views
     /// is determined by the package implementing the component.
-    /// The default package YetaWF.ComponentsHTML implements all default components and views and renders them using Kendo UI, jQuery and jQuery-UI.
+    /// The default package YetaWF.ComponentsHTML implements all default components and views.
     ///
     /// Other application packages can also implement their own components and views in their own package folder .\Components and .\Views respectively.
     /// Any components and views an application implements (referencing the YetaWF.ComponentsHTML package) must be located in the

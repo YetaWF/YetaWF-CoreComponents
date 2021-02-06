@@ -93,7 +93,6 @@ namespace YetaWF.Core.Site {
         public const int MaxHead = 1000;
         public const int MaxBodyTop = 1000;
         public const int MaxBodyBottom = 1000;
-        public const int MaxKendoUISkin = 100;
         public const int MaxTheme = 100;
         public const int MaxPopupPage = 40;
 
@@ -157,7 +156,6 @@ namespace YetaWF.Core.Site {
                 PageFileName = SkinAccess.FallbackPageFileName,
                 PopupFileName = SkinAccess.FallbackPopupFileName,
             };
-            KendoUISkin = null;
             MessageType = MessageTypeEnum.ToastLeft;
 
             UseCDN = false;
@@ -539,13 +537,13 @@ namespace YetaWF.Core.Site {
         // CDN
         // CDN
 
-        [Category("CDN"), Caption("Use CDN (Global Addons)"), Description("Defines whether a Content Delivery Network is used for some of the 3rd party packages where a CDN is available (e.g., jQuery, jQuery-UI, KendoUI, etc.) - This is typically only used for production sites - Appsettings.json (Application.P.YetaWF_Core.UseCDNComponents) must be set to true for this setting to be honored, otherwise a CDN is not used for 3rd party packages - The site (and all instances) must be restarted for this setting to take effect")]
+        [Category("CDN"), Caption("Use CDN (Global Addons)"), Description("Defines whether a Content Delivery Network is used for some of the 3rd party packages where a CDN is available (e.g., jQuery, KendoUI, etc.) - This is typically only used for production sites - Appsettings.json (Application.P.YetaWF_Core.UseCDNComponents) must be set to true for this setting to be honored, otherwise a CDN is not used for 3rd party packages - The site (and all instances) must be restarted for this setting to take effect")]
         [UIHint("Boolean")]
         [Data_NewValue]
         [RequiresRestart(RestartEnum.All)]
         public bool UseCDNComponents { get; set; }
 
-        [Category("CDN"), Caption("Current Status"), Description("Shows whether a Content Delivery Network is currently used for some of the 3rd party packages where a CDN is available (e.g., jQuery, jQuery-UI, KendoUI, etc.) - Appsettings.json (Application.P.YetaWF_Core.UseCDNComponents) must be set to true for the \"Use CDN (Global Addons)\" setting to be honored, otherwise a CDN is not used for 3rd party packages")]
+        [Category("CDN"), Caption("Current Status"), Description("Shows whether a Content Delivery Network is currently used for some of the 3rd party packages where a CDN is available (e.g., jQuery, KendoUI, etc.) - Appsettings.json (Application.P.YetaWF_Core.UseCDNComponents) must be set to true for the \"Use CDN (Global Addons)\" setting to be honored, otherwise a CDN is not used for 3rd party packages")]
         [UIHint("Boolean"), ReadOnly]
         public bool CanUseCDNComponents { get { return YetaWFManager.CanUseCDNComponents && UseCDNComponents; } }
 
@@ -692,12 +690,6 @@ namespace YetaWF.Core.Site {
         [RequiresPageReload]
         [Data_NewValue]
         public string Theme { get; set; }
-
-        [Category("Skin"), Caption("Kendo UI Skin"), Description("The skin for Kendo UI elements (date, time, datetime)")]
-        [HelpLink("http://demos.telerik.com/kendo-ui/themebuilder/")]
-        [UIHint("KendoUISkin"), StringLength(MaxKendoUISkin), AdditionalMetadata("NoDefault", true), Trim]
-        [RequiresPageReload]
-        public string? KendoUISkin { get; set; }
 
         // ENCRYPTION
         // ENCRYPTION
