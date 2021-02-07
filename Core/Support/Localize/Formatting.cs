@@ -230,6 +230,16 @@ namespace YetaWF.Core.Localize {
             if (dow == DayOfWeek.Saturday) return __ResStr("Saturday", "Saturday");
             return "???";
         }
+        public static string GetDayName2Chars(DayOfWeek dow) {
+            if (dow == DayOfWeek.Sunday) return __ResStr("Sunday2", "Su");
+            if (dow == DayOfWeek.Monday) return __ResStr("Monday2", "Mo");
+            if (dow == DayOfWeek.Tuesday) return __ResStr("Tuesday2", "Tu");
+            if (dow == DayOfWeek.Wednesday) return __ResStr("Wednesday2", "We");
+            if (dow == DayOfWeek.Thursday) return __ResStr("Thursday2", "Th");
+            if (dow == DayOfWeek.Friday) return __ResStr("Friday2", "Fr");
+            if (dow == DayOfWeek.Saturday) return __ResStr("Saturday2", "Sa");
+            return "???";
+        }
         public static string GetMonthName(int month) {
             if (month == 1) return __ResStr("January", "January");
             if (month == 2) return __ResStr("February", "February");
