@@ -1677,7 +1677,7 @@ namespace YetaWF {
                 resizeTimeout = setTimeout((): void => {
                     $YetaWF.sendContainerResizeEvent();
                     resizeTimeout = 0;
-                }, 100);
+                }, 50);
             });
 
             // WhenReady
