@@ -1549,7 +1549,6 @@ namespace YetaWF.Core.Support {
                 bool useAlt = Manager.CurrentSite.CanUseStaticDomain;
                 if (useCDN || useAlt) {
                     if (url.StartsWith(Globals.NodeModulesUrl) ||
-                            url.StartsWith(Globals.BowerComponentsUrl) ||
                             url.StartsWith(Globals.SiteFilesUrl) ||
                             url.StartsWith(Globals.VaultUrl) ||
                             url.StartsWith(Globals.VaultPrivateUrl) ||

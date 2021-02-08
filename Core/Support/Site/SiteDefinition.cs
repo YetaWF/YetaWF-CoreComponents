@@ -480,7 +480,7 @@ namespace YetaWF.Core.Site {
         [RequiresPageReload]
         public bool CompressCSSFiles { get; set; }
 
-        [Category("Pages"), Caption("Bundle CSS Files"), Description("Defines whether stylesheets (CSS files) are bundled into one single file (excluding large non-YetaWF files like jQuery, Kendo UI, etc.)")]
+        [Category("Pages"), Caption("Bundle CSS Files"), Description("Defines whether stylesheets (CSS files) are bundled into one single file (excluding large non-YetaWF files)")]
         [UIHint("Boolean")]
         [RequiresPageReload]
         public bool BundleCSSFiles { get; set; }
@@ -496,7 +496,7 @@ namespace YetaWF.Core.Site {
         [RequiresPageReload]
         public bool CompressJSFiles { get; set; }
 
-        [Category("Pages"), Caption("Bundle JavaScript Files"), Description("Defines whether JavaScript files are bundled into one single file (excluding large non-YetaWF files like jQuery, jQuery UI, etc.)")]
+        [Category("Pages"), Caption("Bundle JavaScript Files"), Description("Defines whether JavaScript files are bundled into one single file (excluding large non-YetaWF files)")]
         [UIHint("Boolean")]
         [RequiresPageReload]
         public bool BundleJSFiles { get; set; }
@@ -537,13 +537,13 @@ namespace YetaWF.Core.Site {
         // CDN
         // CDN
 
-        [Category("CDN"), Caption("Use CDN (Global Addons)"), Description("Defines whether a Content Delivery Network is used for some of the 3rd party packages where a CDN is available (e.g., jQuery, KendoUI, etc.) - This is typically only used for production sites - Appsettings.json (Application.P.YetaWF_Core.UseCDNComponents) must be set to true for this setting to be honored, otherwise a CDN is not used for 3rd party packages - The site (and all instances) must be restarted for this setting to take effect")]
+        [Category("CDN"), Caption("Use CDN (Global Addons)"), Description("Defines whether a Content Delivery Network is used for some of the 3rd party packages where a CDN is available - This is typically only used for production sites - Appsettings.json (Application.P.YetaWF_Core.UseCDNComponents) must be set to true for this setting to be honored, otherwise a CDN is not used for 3rd party packages - The site (and all instances) must be restarted for this setting to take effect")]
         [UIHint("Boolean")]
         [Data_NewValue]
         [RequiresRestart(RestartEnum.All)]
         public bool UseCDNComponents { get; set; }
 
-        [Category("CDN"), Caption("Current Status"), Description("Shows whether a Content Delivery Network is currently used for some of the 3rd party packages where a CDN is available (e.g., jQuery, KendoUI, etc.) - Appsettings.json (Application.P.YetaWF_Core.UseCDNComponents) must be set to true for the \"Use CDN (Global Addons)\" setting to be honored, otherwise a CDN is not used for 3rd party packages")]
+        [Category("CDN"), Caption("Current Status"), Description("Shows whether a Content Delivery Network is currently used for some of the 3rd party packages where a CDN is available - Appsettings.json (Application.P.YetaWF_Core.UseCDNComponents) must be set to true for the \"Use CDN (Global Addons)\" setting to be honored, otherwise a CDN is not used for 3rd party packages")]
         [UIHint("Boolean"), ReadOnly]
         public bool CanUseCDNComponents { get { return YetaWFManager.CanUseCDNComponents && UseCDNComponents; } }
 

@@ -116,8 +116,6 @@ namespace YetaWF.Core {
 
         public const string NodeModulesFolder = "node_modules";
         public const string NodeModulesUrl = "/node_modules/";
-        public const string BowerComponentsFolder = "bower_components";
-        public const string BowerComponentsUrl = "/bower_components/";
 
         // Module format strings
         public const string PermanentModuleNameFormat = "{0}.{1}";

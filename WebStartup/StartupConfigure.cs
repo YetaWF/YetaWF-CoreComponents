@@ -316,13 +316,6 @@ namespace YetaWF.Core.WebStartup {
                     }
                 });
                 app.UseStaticFiles(new StaticFileOptions {
-                    FileProvider = new PhysicalFileProvider(Path.Combine(YetaWFManager.RootFolderWebProject, @"bower_components")),
-                    RequestPath = new PathString("/" + Globals.BowerComponentsFolder),
-                    OnPrepareResponse = (context) => {
-                        YetaWFManager.SetStaticCacheInfo(context.Context);
-                    }
-                });
-                app.UseStaticFiles(new StaticFileOptions {
                     FileProvider = new PhysicalFileProvider(Path.Combine(YetaWFManager.RootFolder, @".well-known")),
                     RequestPath = new PathString("/.well-known")
                 });

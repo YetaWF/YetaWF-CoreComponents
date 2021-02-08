@@ -75,8 +75,6 @@ namespace YetaWF.Core.Support {
             string path;
             if (url.StartsWith(Globals.NodeModulesUrl, StringComparison.OrdinalIgnoreCase)) {
                 path = YetaWFManager.RootFolderWebProject + Utility.UrlToPhysicalRaw(url);
-            } else if (url.StartsWith(Globals.BowerComponentsUrl, StringComparison.OrdinalIgnoreCase)) {
-                path = YetaWFManager.RootFolderWebProject + Utility.UrlToPhysicalRaw(url);
             } else if (url.StartsWith(Globals.VaultPrivateUrl, StringComparison.OrdinalIgnoreCase)) {
                 path = YetaWFManager.RootFolderWebProject + Utility.UrlToPhysicalRaw(url);
             } else {

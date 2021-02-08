@@ -155,8 +155,6 @@ namespace YetaWF.Core.Pages {
                             string f;
                             if (file.StartsWith("/" + Globals.NodeModulesFolder + "/"))
                                 f = Path.Combine(YetaWFManager.RootFolderWebProject, Utility.FileToPhysical(file.Substring(1)));
-                            else if (file.StartsWith("/" + Globals.BowerComponentsFolder + "/"))
-                                f = Path.Combine(YetaWFManager.RootFolderWebProject, Utility.FileToPhysical(file.Substring(1)));
                             else
                                 f = Path.Combine(YetaWFManager.RootFolder, Utility.FileToPhysical(file.Substring(1)));
                             if (YetaWFManager.DiagnosticsMode) {
@@ -183,7 +181,7 @@ namespace YetaWF.Core.Pages {
                             filePathURL = customUrl;
                     }
                     if (bundle == null) {
-                        if (filePathURL.ContainsIgnoreCase(Globals.NodeModulesUrl) || filePathURL.ContainsIgnoreCase(Globals.BowerComponentsUrl)) {
+                        if (filePathURL.ContainsIgnoreCase(Globals.NodeModulesUrl)) {
                             /* While possible to add these to a bundle, it's inefficient and can cause errors with scripts that load their own scripts */
                             bundle = false;
                         } else {
@@ -204,7 +202,6 @@ namespace YetaWF.Core.Pages {
                 // nothing to do
                 bundle = false;
             } else if (fullUrl.StartsWith(Globals.NodeModulesUrl, StringComparison.InvariantCultureIgnoreCase) ||
-                fullUrl.StartsWith(Globals.BowerComponentsUrl, StringComparison.InvariantCultureIgnoreCase) ||
                 fullUrl.StartsWith(Globals.SiteFilesUrl, StringComparison.InvariantCultureIgnoreCase) ||
                 fullUrl.StartsWith(Globals.VaultUrl, StringComparison.InvariantCultureIgnoreCase) ||
                 fullUrl.StartsWith(Globals.VaultPrivateUrl, StringComparison.InvariantCultureIgnoreCase) ||

@@ -321,10 +321,8 @@ namespace YetaWF.Core.Addons {
                 return AddOnsCustomUrl + YetaWFManager.Manager.CurrentSite.SiteDomain + url.Substring(Globals.AddOnsUrl.Length);
             } else if (url.StartsWith(Globals.NodeModulesUrl)) {
                 return AddOnsCustomUrl + YetaWFManager.Manager.CurrentSite.SiteDomain + url;
-            } else if (url.StartsWith(Globals.BowerComponentsUrl)) {
-                return AddOnsCustomUrl + YetaWFManager.Manager.CurrentSite.SiteDomain + url;
             }
-            throw new InternalError($"URL {url} doesn't start with {Globals.AddOnsUrl}, {Globals.NodeModulesUrl} or {Globals.BowerComponentsUrl}");
+            throw new InternalError($"URL {url} doesn't start with {Globals.AddOnsUrl} or {Globals.NodeModulesUrl}");
         }
 
         // LOAD

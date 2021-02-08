@@ -16,12 +16,12 @@ using YetaWF.Core.Support;
 // https://developer.yahoo.com/performance/rules.HTML
 // YetaWF satisfies most of these suggestions (except *)
 // Minimize HTTP Requests
-//    YetaWF bundles js and CSS files (except for large packages like jquery, kendo, etc.)
+//    YetaWF bundles js and CSS files (except for large packages)
 //    (*) No use of inline images
 //    Unified Page Sets use 1 Ajax request to render a new page within the unified page set
 // Use a Content Delivery Network
 //   Built-in CDN support (off by default until you have a CDN provider)
-//   Optional CDN support for all major JavaScript addons (jQuery, KendoUI, CKEditor, etc.)
+//   Optional CDN support for all major JavaScript addons
 // Add an Expires or a Cache-Control Header
 //   YetaWF uses Expires and a Cache-Control Header
 // Gzip Components
@@ -254,8 +254,6 @@ namespace YetaWF.Core.Pages {
                             string f;
                             if (file.StartsWith("/" + Globals.NodeModulesFolder + "/"))
                                 f = Path.Combine(YetaWFManager.RootFolderWebProject, file.Substring(1));
-                            else if (file.StartsWith("/" + Globals.BowerComponentsFolder + "/"))
-                                f = Path.Combine(YetaWFManager.RootFolderWebProject, file.Substring(1));
                             else
                                 f = Path.Combine(YetaWFManager.RootFolder, file.Substring(1));
                             if (YetaWFManager.DiagnosticsMode) {
@@ -282,7 +280,7 @@ namespace YetaWF.Core.Pages {
                             throw new InternalError("Can't use async/defer with bundle/last for {0} in {1}/{2}", filePathURL, version.Domain, version.Product);
                     }
                     if (bundle == null) {
-                        if (filePathURL.ContainsIgnoreCase(Globals.NodeModulesUrl) || filePathURL.ContainsIgnoreCase(Globals.BowerComponentsUrl)) {
+                        if (filePathURL.ContainsIgnoreCase(Globals.NodeModulesUrl)) {
                             /* While possible to add these to a bundle, it's inefficient and can cause errors with scripts that load their own scripts */
                             bundle = false;
                         } else {
@@ -319,7 +317,6 @@ namespace YetaWF.Core.Pages {
                 // nothing to do
                 bundle = false;
             } else if (fullUrl.StartsWith(Globals.NodeModulesUrl, StringComparison.InvariantCultureIgnoreCase) ||
-                fullUrl.StartsWith(Globals.BowerComponentsUrl, StringComparison.InvariantCultureIgnoreCase) ||
                 fullUrl.StartsWith(VersionManager.AddOnsUrl, StringComparison.InvariantCultureIgnoreCase) ||
                 fullUrl.StartsWith(VersionManager.AddOnsCustomUrl, StringComparison.InvariantCultureIgnoreCase)) {
 
