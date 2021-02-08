@@ -2,7 +2,7 @@
 
 using System;
 using YetaWF.Core.DataProvider.Attributes;
-using YetaWF.Core.Localize;
+using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Components {
 
@@ -14,7 +14,6 @@ namespace YetaWF.Core.Components {
         /// <summary>
         /// Defines the date.
         /// </summary>
-        //[UIHint("DateTime")] // required so controller translates this to UTC - no longer needed.
         public DateTime Date { get; set; }
 
         /// <summary>
@@ -71,40 +70,7 @@ namespace YetaWF.Core.Components {
         /// </summary>
         /// <remarks>If no date/time is specified, the current date is used.</remarks>
         public DayTimeRange() {
-            Date = Formatting.GetUserDateTime(DateTime.UtcNow);// user's date with timezone
-        }
-
-        /// <summary>
-        /// Retrieves the starting time of the first time start/end range.
-        /// </summary>
-        /// <returns>Returns the starting time.</returns>
-        public DateTime? GetStart() {
-            if (Start == null) return null;
-            return Formatting.GetUtcDateTime(new DateTime(Date.Year, Date.Month, Date.Day, Start.Hours, Start.Minutes, Start.Seconds, DateTimeKind.Local));
-        }
-        /// <summary>
-        /// Retrieves the ending time of the first time start/end range.
-        /// </summary>
-        /// <returns>Returns the ending time.</returns>
-        public DateTime? GetEnd() {
-            if (End == null) return null;
-            return Formatting.GetUtcDateTime(new DateTime(Date.Year, Date.Month, Date.Day, End.Hours, End.Minutes, End.Seconds, DateTimeKind.Local));
-        }
-        /// <summary>
-        /// Retrieves the starting time of the second time start/end range.
-        /// </summary>
-        /// <returns>Returns the starting time.</returns>
-        public DateTime? GetStart2() {
-            if (Start2 == null) return null;
-            return Formatting.GetUtcDateTime(new DateTime(Date.Year, Date.Month, Date.Day, Start2.Hours, Start2.Minutes, Start2.Seconds, DateTimeKind.Local));
-        }
-        /// <summary>
-        /// Retrieves the ending time of the second time start/end range.
-        /// </summary>
-        /// <returns>Returns the ending time.</returns>
-        public DateTime? GetEnd2() {
-            if (End2 == null) return null;
-            return Formatting.GetUtcDateTime(new DateTime(Date.Year, Date.Month, Date.Day, End2.Hours, End2.Minutes, End2.Seconds, DateTimeKind.Local));
+            Date = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -143,6 +109,23 @@ namespace YetaWF.Core.Components {
         /// <returns>Returns a DayTimeRange for a typical weekend day/holiday.</returns>
         public static DayTimeRange GetClosedDay() {
             return new DayTimeRange();
+        }
+
+        public TimeOfDay GetTimeStart() {
+            DateTime dt = new DateTime(Date.Year, Date.Month, Date.Day, Start?.Hours ?? 0, Start?.Minutes ?? 0, Start?.Seconds ?? 0, DateTimeKind.Utc);
+            return new TimeOfDay(dt.Add(- YetaWFManager.Manager.GetTimeZoneInfo().BaseUtcOffset));
+        }
+        public TimeOfDay GetTimeEnd() {
+            DateTime dt = new DateTime(Date.Year, Date.Month, Date.Day, End?.Hours ?? 0, End?.Minutes ?? 0, End?.Seconds ?? 0, DateTimeKind.Utc);
+            return new TimeOfDay(dt.Add(- YetaWFManager.Manager.GetTimeZoneInfo().BaseUtcOffset));
+        }
+        public TimeOfDay GetTimeStart2() {
+            DateTime dt = new DateTime(Date.Year, Date.Month, Date.Day, Start2?.Hours ?? 0, Start2?.Minutes ?? 0, Start2?.Seconds ?? 0, DateTimeKind.Utc);
+            return new TimeOfDay(dt.Add(- YetaWFManager.Manager.GetTimeZoneInfo().BaseUtcOffset));
+        }
+        public TimeOfDay GetTimeEnd2() {
+            DateTime dt = new DateTime(Date.Year, Date.Month, Date.Day, End2?.Hours ?? 0, End2?.Minutes ?? 0, End2?.Seconds ?? 0, DateTimeKind.Utc);
+            return new TimeOfDay(dt.Add(- YetaWFManager.Manager.GetTimeZoneInfo().BaseUtcOffset));
         }
     }
 }

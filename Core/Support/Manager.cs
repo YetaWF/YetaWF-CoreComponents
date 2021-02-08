@@ -1518,7 +1518,7 @@ namespace YetaWF.Core.Support {
                     } catch (Exception) { }
                 }
                 if (timeZoneInfo == null)
-                    timeZoneInfo = TimeZoneInfo.Local;
+                    throw new InternalError("Retrieving time zone information without user settings");
             }
             return timeZoneInfo;
         }

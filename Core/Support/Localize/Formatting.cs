@@ -1,6 +1,7 @@
 ﻿/* Copyright © 2021 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
+using YetaWF.Core.Components;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Support;
 
@@ -126,6 +127,32 @@ namespace YetaWF.Core.Localize {
             dt = GetUserDateTime(dt);
             string fmt = GetFormatDateFormat(dateFormat);
             return dt.ToString(fmt);
+        }
+
+        public static string FormatTimeOfDay(TimeOfDay? timeOfDay, TimeFormatEnum? timeFormat = null) {
+            if (timeOfDay == null) return string.Empty;
+            TimeFormatEnum tf = UserSettings.GetProperty<TimeFormatEnum>("TimeFormat");
+            switch (tf) {
+                default:
+                case TimeFormatEnum.HHMMAM:
+                case TimeFormatEnum.HHMMSSAM: {
+                        int hours = timeOfDay.Hours % 12;
+                        if (hours == 0) hours += 12;
+                        return $"{hours:D2}:{timeOfDay.Minutes:D2} {(timeOfDay.Hours < 12 ? "AM" : "PM")}";
+                    }
+                case TimeFormatEnum.HHMMAMdot:
+                case TimeFormatEnum.HHMMSSAMdot: {
+                        int hours = timeOfDay.Hours % 12;
+                        if (hours == 0) hours += 12;
+                        return $"{hours:D2}.{timeOfDay.Minutes:D2} {(timeOfDay.Hours < 12 ? "AM" : "PM")}";
+                    }
+                case TimeFormatEnum.HHMM:
+                case TimeFormatEnum.HHMMSS:
+                    return $"{timeOfDay.Hours:D2}:{timeOfDay.Minutes:D2}";
+                case TimeFormatEnum.HHMMdot:
+                case TimeFormatEnum.HHMMSSdot:
+                    return $"{timeOfDay.Hours:D2}:{timeOfDay.Minutes:D2}";
+            }
         }
 
         public static string GetFormatTimeFormat(TimeFormatEnum? timeFormat = null) {
