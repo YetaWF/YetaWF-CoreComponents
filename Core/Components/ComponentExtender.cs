@@ -412,7 +412,7 @@ namespace YetaWF.Core.Components {
         ///
         /// The AddComponentForType method is used during the initial HTTP Get request to add all required addons for all components used so they are later available when record data is added to the component.
         /// </remarks>
-        public static async Task AddComponentForType(Type type) {
+        public static async Task AddComponentsForType(Type type) {
             List<PropertyData> propData = ObjectSupport.GetPropertyData(type);
             foreach (PropertyData prop in propData) {
                 if (prop.UIHint != null) {
@@ -421,7 +421,7 @@ namespace YetaWF.Core.Components {
                     else
                         await YetaWFComponentExtender.MarkUsedEditAsync(prop.UIHint);
                     if (prop.PropInfo.PropertyType.IsClass)
-                        await AddComponentForType(prop.PropInfo.PropertyType);
+                        await AddComponentsForType(prop.PropInfo.PropertyType);
                 }
             }
         }
