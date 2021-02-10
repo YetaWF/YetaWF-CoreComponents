@@ -1531,8 +1531,11 @@ namespace YetaWF.Core.Support {
                         timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(tz);
                     } catch (Exception) { }
                 }
-                if (timeZoneInfo == null)
-                    throw new InternalError("Retrieving time zone information without user settings");
+                if (timeZoneInfo == null) {
+                    if (!Manager.LocalizationSupportEnabled) // if false, ResolveUserAsync has not been called, so we can't determine the timezone
+                        throw new InternalError("Retrieving time zone information without user settings");
+                    timeZoneInfo = TimeZoneInfo.Local;
+                }
             }
             return timeZoneInfo;
         }

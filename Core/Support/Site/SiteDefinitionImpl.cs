@@ -286,13 +286,6 @@ namespace YetaWF.Core.Site {
             return uri.ToString();
         }
 
-        // Helpers
-        public string CurrentYear {
-            get {
-                return Localize.Formatting.FormatDateTimeYear(DateTime.UtcNow);
-            }
-        }
-
         // FAVICON
         // FAVICON
         // FAVICON

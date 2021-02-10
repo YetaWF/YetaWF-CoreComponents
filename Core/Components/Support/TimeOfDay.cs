@@ -58,6 +58,12 @@ namespace YetaWF.Core.Components {
                 }
                 return dt.TimeOfDay;
             }
+            set {
+                // Used for serialization, not referenced by code
+                DateTime dt = BaseDate.Date.Add(value);
+                TODwDateValue = dt;
+                TODwDateLocal = true;
+            }
         }
 
         private DateTime TODwDateValue { get; set; }
