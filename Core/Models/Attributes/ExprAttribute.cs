@@ -420,9 +420,11 @@ namespace YetaWF.Core.Models.Attributes {
                 return true;
 
             TypeConverter conv = TypeDescriptor.GetConverter(value.GetType());
-            string v = conv.ConvertToString(value);
-            if (string.IsNullOrWhiteSpace(v))
-                return true;
+            try {
+                string v = conv.ConvertToString(value);
+                if (string.IsNullOrWhiteSpace(v))
+                    return true;
+            } catch (Exception) { }
             return false;
         }
         private bool IsEmptyOrZero(object? value) {

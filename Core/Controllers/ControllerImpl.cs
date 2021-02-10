@@ -261,6 +261,17 @@ namespace YetaWF.Core.Controllers {
                 ViewData.Add(Globals.RVD_ModuleDefinition, CurrentModule);
             }
 
+            // Handle model binding errors
+            if (Manager.HasModelBindingErrorManager) {
+                IDictionary<string, object> parms = filterContext.ActionArguments;
+                if (parms != null) {
+                    Controller controller = (Controller)filterContext.Controller;
+                    ViewDataDictionary viewData = controller.ViewData;
+                    ModelStateDictionary modelState = viewData.ModelState;
+                    Manager.ModelBindingErrorManager.Update(modelState, filterContext.ActionArguments);
+                }
+            }
+
             await base.OnActionExecutionAsync(filterContext, next);
         }
 

@@ -900,6 +900,20 @@ namespace YetaWF.Core.Support {
         }
         private StaticPageManager? _staticPageManager = null;
 
+        /// <summary>
+        /// Returns the instance of ModelBindingErrorManager associated with the current HTTP request.
+        /// </summary>
+        public ModelBindingErrorManager ModelBindingErrorManager {
+            get {
+                if (_modelBindingErrorManager == null)
+                    _modelBindingErrorManager = new ModelBindingErrorManager();
+                return _modelBindingErrorManager;
+            }
+        }
+        private ModelBindingErrorManager? _modelBindingErrorManager = null;
+
+        public bool HasModelBindingErrorManager { get { return _modelBindingErrorManager != null;  } }
+
         // CONTROLLER/VIEW SUPPORT
         // CONTROLLER/VIEW SUPPORT
         // CONTROLLER/VIEW SUPPORT

@@ -13,12 +13,16 @@ namespace YetaWF.Core.Components {
     /// </summary>
     [TypeConverter(typeof(TimeOfDayConv))]
     public class TimeOfDay {
+
+        public static DateTime BaseDate = new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
         /// <summary>
         /// Constructor.
         /// </summary>
         public TimeOfDay() {
-            TODValue = new TimeSpan(0, 0, 0);
-            TODLocal = true;
+            DateTime dt = new DateTime(BaseDate.Year, BaseDate.Month, BaseDate.Day, 0, 0, 0, DateTimeKind.Utc);
+            TODwDateValue = dt;
+            TODwDateLocal = true;
         }
         /// <summary>
         /// Constructor.
@@ -27,8 +31,9 @@ namespace YetaWF.Core.Components {
         /// <param name="minutes">Defines the number of minutes in the time of day.</param>
         /// <param name="seconds">Defines the number of seconds in the time of day.</param>
         public TimeOfDay(int hours, int minutes, int seconds) {
-            TODValue = new TimeSpan(hours, minutes, seconds);
-            TODLocal = true;
+            DateTime dt = new DateTime(BaseDate.Year, BaseDate.Month, BaseDate.Day, hours, minutes, seconds, DateTimeKind.Utc);
+            TODwDateValue = dt;
+            TODwDateLocal = true;
         }
         /// <summary>
         /// Constructor.
@@ -36,8 +41,8 @@ namespace YetaWF.Core.Components {
         /// <param name="dt">A date and time. The time portion is used as time of day. The date portion is not used.</param>
         public TimeOfDay(DateTime dt) {
             if (dt.Kind != DateTimeKind.Utc) throw new InternalError($"DateTime has incorrect Kind {dt.Kind}, must be Utc");
-            TODValue = dt.TimeOfDay;
-            TODLocal = false;
+            TODwDateValue = dt;
+            TODwDateLocal = false;
         }
 
         /// <summary>
@@ -45,19 +50,18 @@ namespace YetaWF.Core.Components {
         /// </summary>
         public TimeSpan TOD { 
             get {
-                if (!TODLocal) {
-                    DateTime nowUtc = DateTime.UtcNow;
-                    DateTime dt = new DateTime(nowUtc.Year, nowUtc.Month, nowUtc.Day, TODValue.Hours, TODValue.Minutes, TODValue.Seconds, DateTimeKind.Utc);
+                DateTime dt = TODwDateValue;
+                if (!TODwDateLocal) {
                     dt = dt.Add(YetaWFManager.Manager.GetTimeZoneInfo().BaseUtcOffset);
-                    TODValue = dt.TimeOfDay;
-                    TODLocal = true;
+                    TODwDateValue = dt;
+                    TODwDateLocal = true;
                 }
-                return TODValue;
+                return dt.TimeOfDay;
             }
         }
 
-        private TimeSpan TODValue { get; set; }
-        private bool TODLocal { get; set; }
+        private DateTime TODwDateValue { get; set; }
+        private bool TODwDateLocal { get; set; }
 
         /// <summary>
         /// The number of hours in the defined time of day.
@@ -146,15 +150,14 @@ namespace YetaWF.Core.Components {
         /// </summary>
         /// <returns>Returns the defined time of day (TOD property) with today's date.</returns>
         public DateTime AsDateTime() {
-            DateTime nowUtc = DateTime.UtcNow;
-            DateTime dt = new DateTime(nowUtc.Year, nowUtc.Month, nowUtc.Day, TODValue.Hours, TODValue.Minutes, TODValue.Seconds, DateTimeKind.Utc);
-            if (TODLocal)
+            DateTime dt = TODwDateValue;
+            if (TODwDateLocal)
                 dt = dt.Add(-YetaWFManager.Manager.GetTimeZoneInfo().BaseUtcOffset);
             return dt;
         }
         public bool HasTimeOfDay { 
             get {
-                return !TODLocal || TODValue.Hours > 0 || TODValue.Minutes > 0 || TODValue.Seconds > 0;
+                return !TODwDateLocal || TODwDateValue.Hour > 0 || TODwDateValue.Minute > 0 || TODwDateValue.Second > 0;
             }
         }
     }
@@ -187,7 +190,7 @@ namespace YetaWF.Core.Components {
             if (value != null && value.GetType() == typeof(string)) {
                 DateTime dt;
                 if (!DateTime.TryParse((string)value, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AllowWhiteSpaces, out dt))
-                    return DateTime.MinValue;
+                    throw new FormatException($"'{(string)value}' is an invalid time of day value");
                 return new TimeOfDay(dt);
             }
             return base.ConvertFrom(context, culture, value);

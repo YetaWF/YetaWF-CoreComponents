@@ -209,6 +209,14 @@ namespace YetaWF.Core.WebStartup {
 
                 // AreaConvention to simplify Area discovery (using IControllerModelConvention)
                 options.Conventions.Add(new AreaConventionAttribute());
+
+                // Model binding error message overrides
+                options.ModelBindingMessageProvider.SetAttemptedValueIsInvalidAccessor(
+                    (attemptedValue, propertyName) => {
+                        YetaWFManager manager = YetaWFManager.Manager;
+                        manager.ModelBindingErrorManager.AddError("AttemptedValueIsInvalidAccessor", propertyName, attemptedValue);
+                        return $"The value '{attemptedValue}' is not valid for property {propertyName}";
+                    });
             })
             .AddNewtonsoftJson()
             .ConfigureApplicationPartManager((partManager) => { YetaWFApplicationPartManager.AddAssemblies(partManager); })
