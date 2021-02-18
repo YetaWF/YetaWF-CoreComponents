@@ -713,6 +713,33 @@ namespace YetaWF {
             }
         }
 
+        public post(url: string, data: any, callback: (success: boolean, data: any) => void): void {
+            var request: XMLHttpRequest = new XMLHttpRequest();
+            request.open("POST", url);
+            request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+            $YetaWF.handleReadyStateChange(request, callback);
+            request.send(data);
+        }
+
+        public handleReadyStateChange(request: XMLHttpRequest, callback: (success: boolean, data: any) => void): void {
+            request.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+            request.onreadystatechange = (ev: Event): any => {
+                if (request.readyState === 4 /*DONE*/) {
+                    if (request.status === 200) {
+                        callback(true, request.responseText);
+                        return;
+                    } else if (request.status >= 400 && request.status <= 499) {
+                        $YetaWF.error(YLocs.Forms.AjaxError.format(request.status, YLocs.Forms.AjaxNotAuth), YLocs.Forms.AjaxErrorTitle);
+                    } else if (request.status === 0) {
+                        $YetaWF.error(YLocs.Forms.AjaxError.format(request.status, YLocs.Forms.AjaxConnLost), YLocs.Forms.AjaxErrorTitle);
+                    } else {
+                        $YetaWF.error(YLocs.Forms.AjaxError.format(request.status, request.responseText), YLocs.Forms.AjaxErrorTitle);
+                    }
+                    callback(false, null);
+                }
+            };
+        }
+
         // JSX
 
         /**

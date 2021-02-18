@@ -551,6 +551,34 @@ var YetaWF;
                 return false;
             }
         };
+        BasicsServices.prototype.post = function (url, data, callback) {
+            var request = new XMLHttpRequest();
+            request.open("POST", url);
+            request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+            $YetaWF.handleReadyStateChange(request, callback);
+            request.send(data);
+        };
+        BasicsServices.prototype.handleReadyStateChange = function (request, callback) {
+            request.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+            request.onreadystatechange = function (ev) {
+                if (request.readyState === 4 /*DONE*/) {
+                    if (request.status === 200) {
+                        callback(true, request.responseText);
+                        return;
+                    }
+                    else if (request.status >= 400 && request.status <= 499) {
+                        $YetaWF.error(YLocs.Forms.AjaxError.format(request.status, YLocs.Forms.AjaxNotAuth), YLocs.Forms.AjaxErrorTitle);
+                    }
+                    else if (request.status === 0) {
+                        $YetaWF.error(YLocs.Forms.AjaxError.format(request.status, YLocs.Forms.AjaxConnLost), YLocs.Forms.AjaxErrorTitle);
+                    }
+                    else {
+                        $YetaWF.error(YLocs.Forms.AjaxError.format(request.status, request.responseText), YLocs.Forms.AjaxErrorTitle);
+                    }
+                    callback(false, null);
+                }
+            };
+        };
         // JSX
         /**
          * React-like createElement function so we can use JSX in our TypeScript/JavaScript code.
