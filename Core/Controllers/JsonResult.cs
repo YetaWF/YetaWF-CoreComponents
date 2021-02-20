@@ -2,7 +2,7 @@
 
 using Microsoft.AspNetCore.Mvc;
 
-namespace YetaWF.Core.Support {
+namespace YetaWF.Core.Controllers {
 
     public class YJsonResult : JsonResult {
 
