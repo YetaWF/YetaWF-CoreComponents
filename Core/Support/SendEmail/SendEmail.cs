@@ -100,8 +100,8 @@ namespace YetaWF.Core.SendEmail {
             if (SendEmailProvider != null) {
                 return await SendEmailProvider.GetEmailFileAsync(package, filename);
             } else {
-                string moduleAddOnUrl = VersionManager.GetAddOnPackageUrl(package.AreaName);
-                string customModuleAddOnUrl = VersionManager.GetCustomUrlFromUrl(moduleAddOnUrl);
+                string moduleAddOnUrl = Package.GetAddOnPackageUrl(package.AreaName);
+                string customModuleAddOnUrl = Package.GetCustomUrlFromUrl(moduleAddOnUrl);
 
                 // locate site specific custom email
                 string file = Utility.UrlToPhysical(string.Format("{0}/{1}/{2}", customModuleAddOnUrl, EmailsFolder, filename));

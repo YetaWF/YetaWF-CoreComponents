@@ -11,6 +11,7 @@ using YetaWF.Core.Addons;
 using YetaWF.Core.Controllers;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.IO;
+using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
 
 // https://developer.yahoo.com/performance/rules.HTML
@@ -160,14 +161,14 @@ namespace YetaWF.Core.Pages {
         // ADDON
         // ADDON
 
-        internal async Task AddAddOnAsync(VersionManager.AddOnProduct version, params object?[] args) {
+        internal async Task AddAddOnAsync(Package.AddOnProduct version, params object?[] args) {
             await AddFromSupportTypesAsync(version);
             string productUrl = version.GetAddOnUrl();
             await AddFromFileListAsync(version, productUrl, args);
         }
 
         // Add localizations and configurations
-        private async Task AddFromSupportTypesAsync(VersionManager.AddOnProduct version) {
+        private async Task AddFromSupportTypesAsync(Package.AddOnProduct version) {
             foreach (var type in version.SupportTypes) {
                 object? o = Activator.CreateInstance(type);
                 if (o == null)
@@ -180,8 +181,8 @@ namespace YetaWF.Core.Pages {
         }
 
         // Add all JavaScript files listed in filelistJS.txt
-        private async Task AddFromFileListAsync(VersionManager.AddOnProduct version, string productUrl, params object?[] args) {
-            foreach (VersionManager.AddOnProduct.UsesInfo uses in version.JsUses) {
+        private async Task AddFromFileListAsync(Package.AddOnProduct version, string productUrl, params object?[] args) {
+            foreach (Package.AddOnProduct.UsesInfo uses in version.JsUses) {
                 await Manager.AddOnManager.AddAddOnNamedJavaScriptAsync(uses.PackageName, uses.AddonName);
             }
             List<string> list = version.JsFiles.ToList();// make a copy in case we remove an empty file
@@ -270,7 +271,7 @@ namespace YetaWF.Core.Pages {
                         }
                     }
                     if (allowCustom) {
-                        string customUrl = VersionManager.GetCustomUrlFromUrl(filePathURL);
+                        string customUrl = Package.GetCustomUrlFromUrl(filePathURL);
                         string f = Utility.UrlToPhysical(customUrl);
                         if (await FileSystem.FileSystemProvider.FileExistsAsync(f))
                             filePathURL = customUrl;
@@ -297,7 +298,7 @@ namespace YetaWF.Core.Pages {
         /// Adds a JavaScript file explicitly. This is rarely used because JavaScript files are automatically added for modules, templates, etc.
         /// </summary>
         public async Task AddScriptAsync(string areaName, string relativePath, int dummy = 0, bool Minify = true, bool Bundle = true, bool Async = false, bool Defer = false, object? HtmlAttributes = null) {
-            VersionManager.AddOnProduct addon = VersionManager.FindPackageVersion(areaName);
+            Package.AddOnProduct addon = Package.FindPackage(areaName);
             await AddAsync(addon.GetAddOnJsUrl() + relativePath, Minify, Bundle, false, false, false, HtmlAttributes);
         }
         /// <summary>
@@ -317,8 +318,8 @@ namespace YetaWF.Core.Pages {
                 // nothing to do
                 bundle = false;
             } else if (fullUrl.StartsWith(Globals.NodeModulesUrl, StringComparison.InvariantCultureIgnoreCase) ||
-                fullUrl.StartsWith(VersionManager.AddOnsUrl, StringComparison.InvariantCultureIgnoreCase) ||
-                fullUrl.StartsWith(VersionManager.AddOnsCustomUrl, StringComparison.InvariantCultureIgnoreCase)) {
+                fullUrl.StartsWith(Package.AddOnsUrl, StringComparison.InvariantCultureIgnoreCase) ||
+                fullUrl.StartsWith(Package.AddOnsCustomUrl, StringComparison.InvariantCultureIgnoreCase)) {
 
                 if (key.EndsWith(".js")) key = key.Substring(0, key.Length - 3);
                 if (key.EndsWith(".min")) key = key.Substring(0, key.Length - 4);

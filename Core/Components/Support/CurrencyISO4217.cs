@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using YetaWF.Core.Addons;
 using YetaWF.Core.IO;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
@@ -158,8 +157,8 @@ namespace YetaWF.Core.Components {
         private static async Task<List<Currency>> ReadCurrencyListAsync() {
             if (_currencyList == null) {
                 Package package = YetaWF.Core.AreaRegistration.CurrentPackage;// Core package
-                string url = VersionManager.GetAddOnTemplateUrl(package.AreaName, "CurrencyISO4217");
-                string customUrl = VersionManager.GetCustomUrlFromUrl(url);
+                string url = Package.GetAddOnTemplateUrl(package.AreaName, "CurrencyISO4217");
+                string customUrl = Package.GetCustomUrlFromUrl(url);
 
                 string path = Utility.UrlToPhysical(url);
                 string customPath = Utility.UrlToPhysical(customUrl);

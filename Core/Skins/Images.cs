@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using YetaWF.Core.Addons;
 using YetaWF.Core.Components;
 using YetaWF.Core.IO;
 using YetaWF.Core.Packages;
@@ -33,17 +32,17 @@ namespace YetaWF.Core.Skins {
             if (package == null)
                 return await FindIconAsync(imageUrl, null);
             else
-                return await FindIconAsync(imageUrl, VersionManager.FindPackageVersion(package.AreaName));
+                return await FindIconAsync(imageUrl, Package.FindPackage(package.AreaName));
         }
 
         // locate an icon image for a template
         public async Task<string> FindIcon_TemplateAsync(string imageUrl, Package package, string template) {
             // Check package specific icons
-            VersionManager.AddOnProduct version = VersionManager.FindTemplateVersion(package.AreaName, template);
+            Package.AddOnProduct version = Package.FindTemplate(package.AreaName, template);
             return await FindIconAsync(imageUrl, version);
         }
 
-        private async Task<string> FindIconAsync(string imageUrl, VersionManager.AddOnProduct? addOnVersion) {
+        private async Task<string> FindIconAsync(string imageUrl, Package.AddOnProduct? addOnVersion) {
 
             string url, urlCustom;
             string file;
@@ -57,7 +56,7 @@ namespace YetaWF.Core.Skins {
                 // Check addon specific icons
                 string addonUrl = addOnVersion.GetAddOnUrl();
                 url = string.Format(SkinAddOnIconUrl_Format, addonUrl, imageUrl);
-                urlCustom = VersionManager.GetCustomUrlFromUrl(url);
+                urlCustom = Package.GetCustomUrlFromUrl(url);
 #if DEBUGME
                 Logging.AddLog("Searching addon specific icon {0} and {1}", url, urlCustom);
 #endif
@@ -93,7 +92,7 @@ namespace YetaWF.Core.Skins {
             // TODO: Need a way for this to work in Ajax calls so we get the correct icons
             if (Manager.CurrentPage != null) {
                 url = string.Format(SkinAddOnIconUrl_Format, Manager.SkinInfo.Url, imageUrl);
-                urlCustom = VersionManager.GetCustomUrlFromUrl(url);
+                urlCustom = Package.GetCustomUrlFromUrl(url);
 #if DEBUGME
                 Logging.AddLog("Searching skin specific icon {0} and {1}", url, urlCustom);
 #endif
@@ -128,7 +127,7 @@ namespace YetaWF.Core.Skins {
             // get fallback skin icon
             {
                 url = string.Format(SkinAddOnIconUrl_Format, SkinAccess.FallbackSkinCollectionInfo.Url, imageUrl);
-                urlCustom = VersionManager.GetCustomUrlFromUrl(url);
+                urlCustom = Package.GetCustomUrlFromUrl(url);
 #if DEBUGME
                 Logging.AddLog("Searching fallback icon {0} and {1}", url, urlCustom);
 #endif
@@ -161,7 +160,7 @@ namespace YetaWF.Core.Skins {
 
                 // nothing found whatsoever, so get the generic icon
                 url = string.Format(SkinAddOnIconUrl_Format, SkinAccess.FallbackSkinCollectionInfo.Url, GenericIcon);
-                urlCustom = VersionManager.GetCustomUrlFromUrl(url);
+                urlCustom = Package.GetCustomUrlFromUrl(url);
 #if DEBUGME
                 Logging.AddLog("Searching generic icon {0} and {1}", url, urlCustom);
 #endif

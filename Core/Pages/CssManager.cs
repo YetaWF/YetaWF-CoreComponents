@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using YetaWF.Core.Addons;
 using YetaWF.Core.Controllers;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.IO;
+using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
 
 // RESEARCH: evaluate @import and replace inline to avoid multiple http requests
@@ -90,14 +90,14 @@ namespace YetaWF.Core.Pages {
             return (from p in parts where p == search select p).FirstOrDefault() != null;
         }
 
-        public async Task AddAddOnAsync(VersionManager.AddOnProduct version, params object?[] args) {
+        public async Task AddAddOnAsync(Package.AddOnProduct version, params object?[] args) {
             if (Manager.IsPostRequest) return;// we never add css files for Post requests
             await AddFromFileListAsync(version, args);
         }
 
         // Add all css files listed in filelistCSS.txt
-        private async Task AddFromFileListAsync(VersionManager.AddOnProduct version, params object?[] args) {
-            foreach (VersionManager.AddOnProduct.UsesInfo uses in version.CssUses) {
+        private async Task AddFromFileListAsync(Package.AddOnProduct version, params object?[] args) {
+            foreach (Package.AddOnProduct.UsesInfo uses in version.CssUses) {
                 await Manager.AddOnManager.AddAddOnNamedCssAsync(uses.PackageName, uses.AddonName);
             }
             List<string> list = version.CssFiles.ToList(); // make a copy in case we remove an empty file
@@ -175,7 +175,7 @@ namespace YetaWF.Core.Pages {
                         }
                     }
                     if (allowCustom) {
-                        string customUrl = VersionManager.GetCustomUrlFromUrl(filePathURL);
+                        string customUrl = Package.GetCustomUrlFromUrl(filePathURL);
                         string f = Utility.UrlToPhysical(customUrl);
                         if (await FileSystem.FileSystemProvider.FileExistsAsync(f))
                             filePathURL = customUrl;
@@ -205,8 +205,8 @@ namespace YetaWF.Core.Pages {
                 fullUrl.StartsWith(Globals.SiteFilesUrl, StringComparison.InvariantCultureIgnoreCase) ||
                 fullUrl.StartsWith(Globals.VaultUrl, StringComparison.InvariantCultureIgnoreCase) ||
                 fullUrl.StartsWith(Globals.VaultPrivateUrl, StringComparison.InvariantCultureIgnoreCase) ||
-                fullUrl.StartsWith(VersionManager.AddOnsUrl, StringComparison.InvariantCultureIgnoreCase) ||
-                fullUrl.StartsWith(VersionManager.AddOnsCustomUrl, StringComparison.InvariantCultureIgnoreCase)) {
+                fullUrl.StartsWith(Package.AddOnsUrl, StringComparison.InvariantCultureIgnoreCase) ||
+                fullUrl.StartsWith(Package.AddOnsCustomUrl, StringComparison.InvariantCultureIgnoreCase)) {
 
                 if (key.EndsWith(".css", StringComparison.InvariantCultureIgnoreCase)) key = key.Substring(0, key.Length - 4);
                 else if (key.EndsWith(".scss", StringComparison.InvariantCultureIgnoreCase)) key = key.Substring(0, key.Length - 5);

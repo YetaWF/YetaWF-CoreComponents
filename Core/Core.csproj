@@ -46,6 +46,7 @@
 
   <ItemGroup>
     <Compile Remove="Controllers\YetaWFApplicationModelProvider.cs" />
+    <Compile Remove="Startup\VersionManager.cs" />
   </ItemGroup>
 
 </Project>

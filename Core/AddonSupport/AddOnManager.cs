@@ -35,7 +35,7 @@ namespace YetaWF.Core.Addons {
             }
         }
 
-        private List<VersionManager.AddOnProduct> _AddedProducts = new List<VersionManager.AddOnProduct>();
+        private List<Package.AddOnProduct> _AddedProducts = new List<Package.AddOnProduct>();
         private List<Module> _AddedInvokedCssModules = new List<Module>();
 
         private static List<Module> UniqueInvokedCssModules = new List<Module>();
@@ -51,7 +51,7 @@ namespace YetaWF.Core.Addons {
         /// Will fail if the addon doesn't exist.</remarks>
         public async Task AddAddOnNamedAsync(string areaName, string name, params object?[] args) {
             if (Manager.IsPostRequest) return;
-            VersionManager.AddOnProduct version = VersionManager.FindAddOnNamedVersion(areaName, name);
+            Package.AddOnProduct version = Package.FindAddOnNamed(areaName, name);
             if (_AddedProducts.Contains(version)) return;
             _AddedProducts.Add(version);
             await Manager.ScriptManager.AddAddOnAsync(version, args);
@@ -59,7 +59,7 @@ namespace YetaWF.Core.Addons {
         }
         internal async Task AddAddOnNamedJavaScriptAsync(string areaName, string name, params object?[] args) {
             if (Manager.IsPostRequest) return;
-            VersionManager.AddOnProduct version = VersionManager.FindAddOnNamedVersion(areaName, name);
+            Package.AddOnProduct version = Package.FindAddOnNamed(areaName, name);
             if (_AddedProducts.Contains(version)) return;
             //_AddedProducts.Add(version); // do not add, only partial, script manager will catch duplicates
             await Manager.ScriptManager.AddAddOnAsync(version, args);
@@ -67,7 +67,7 @@ namespace YetaWF.Core.Addons {
 
         internal async Task AddAddOnNamedCssAsync(string areaName, string name, params object?[] args) {
             if (Manager.IsPostRequest) return;
-            VersionManager.AddOnProduct version = VersionManager.FindAddOnNamedVersion(areaName, name);
+            Package.AddOnProduct version = Package.FindAddOnNamed(areaName, name);
             if (_AddedProducts.Contains(version)) return;
             // _AddedProducts.Add(version); // do not add, only partial, css manager will catch duplicates
             await Manager.CssManager.AddAddOnAsync(version, args);
@@ -80,7 +80,7 @@ namespace YetaWF.Core.Addons {
         /// <param name="name">The name of the addon.</param>
         /// <returns></returns>
         public string GetAddOnNamedUrl(string areaName, string name) {
-            VersionManager.AddOnProduct version = VersionManager.FindAddOnNamedVersion(areaName, name);
+            Package.AddOnProduct version = Package.FindAddOnNamed(areaName, name);
             return version.GetAddOnUrl();
         }
         /// <summary>
@@ -93,7 +93,7 @@ namespace YetaWF.Core.Addons {
         /// <remarks>Named addons are located in the package folder ./Addons/_Addons/name.</remarks>
         public async Task<bool> TryAddAddOnNamedAsync(string areaName, string name, params object?[] args) {
             if (Manager.IsPostRequest) return false;
-            VersionManager.AddOnProduct? version = VersionManager.TryFindAddOnNamedVersion(areaName, name);
+            Package.AddOnProduct? version = Package.TryFindAddOnNamed(areaName, name);
             if (version == null) return false;
             if (_AddedProducts.Contains(version)) return true;
             _AddedProducts.Add(version);
@@ -138,7 +138,7 @@ namespace YetaWF.Core.Addons {
             return await AddTemplateAsync(areaName, $"{templateName}Both");
         }
         private async Task<bool> AddTemplateAsync(string areaName, string templateName) {
-            VersionManager.AddOnProduct? version = VersionManager.TryFindTemplateVersion(areaName, templateName);
+            Package.AddOnProduct? version = Package.TryFindTemplate(areaName, templateName);
             if (version != null) {
                 if (!_AddedProducts.Contains(version)) {
                     _AddedProducts.Add(version);
@@ -198,7 +198,7 @@ namespace YetaWF.Core.Addons {
             // Add the package
             if (!packagesFound.Contains(package)) {
                 packagesFound.Add(package);
-                VersionManager.AddOnProduct? version = VersionManager.TryFindPackageVersion(package.AreaName);
+                Package.AddOnProduct? version = Package.TryFindPackage(package.AreaName);
                 if (version == null || _AddedProducts.Contains(version)) return;
                 _AddedProducts.Add(version);
                 await Manager.ScriptManager.AddAddOnAsync(version);
@@ -219,7 +219,7 @@ namespace YetaWF.Core.Addons {
         /// <param name="args"></param>
         public async Task AddSkinAsync(string skinCollection, params object?[] args) {
             Manager.Verify_NotPostRequest();
-            VersionManager.AddOnProduct version = VersionManager.FindSkinVersion(skinCollection);
+            Package.AddOnProduct version = Package.FindSkin(skinCollection);
             if (_AddedProducts.Contains(version)) return;
             _AddedProducts.Add(version);
             await Manager.ScriptManager.AddAddOnAsync(version, args);
@@ -256,7 +256,7 @@ namespace YetaWF.Core.Addons {
             }
 
             string domainName, productName, skinName;
-            VersionManager.AddOnProduct.GetSkinComponents(skinCollection, out domainName, out productName, out skinName);
+            Package.AddOnProduct.GetSkinComponents(skinCollection, out domainName, out productName, out skinName);
             url = string.Format("{0}/{1}/{2}/{3}/{4}/{5}/Custom.scss", Globals.AddOnsCustomUrl, Manager.CurrentSite.SiteDomain, domainName, productName, Globals.Addons_SkinsDirectoryName, skinName);
             if (await FileSystem.FileSystemProvider.FileExistsAsync(Utility.UrlToPhysical(url))) {
                 AddCache(skinCollection, url);

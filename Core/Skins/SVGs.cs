@@ -1,7 +1,5 @@
 ﻿/* Copyright © 2021 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-using System.IO;
-using YetaWF.Core.Addons;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
 
@@ -22,12 +20,12 @@ namespace YetaWF.Core.Skins {
 
             string? html = null;
             // Search skin package
-            VersionManager.AddOnProduct? addon = VersionManager.TryFindSkinVersion(Manager.CurrentSite.Skin.Collection);
+            Package.AddOnProduct? addon = Package.TryFindSkin(Manager.CurrentSite.Skin.Collection);
             if (addon != null)
                 html = addon.GetSVG($"{package.AreaName}_{name}");
 
             if (html == null) {
-                addon = VersionManager.TryFindPackageVersion(package.AreaName);
+                addon = Package.TryFindPackage(package.AreaName);
                 if (addon != null)
                     html = addon.GetSVG(name);
             }
@@ -50,7 +48,7 @@ namespace YetaWF.Core.Skins {
             string? html = null;
             // Search skin package
             Package skinPackage = Manager.SkinInfo.Package;
-            VersionManager.AddOnProduct? addon = VersionManager.TryFindSkinVersion(Manager.CurrentSite.Skin.Collection);
+            Package.AddOnProduct? addon = Package.TryFindSkin(Manager.CurrentSite.Skin.Collection);
             if (addon != null)
                 html = addon.GetSVG(name);
 #if DEBUG

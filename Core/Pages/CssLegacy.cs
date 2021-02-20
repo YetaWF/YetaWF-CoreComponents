@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.IO;
+using YetaWF.Core.Packages;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 
@@ -67,7 +68,7 @@ namespace YetaWF.Core.Pages {
         private static bool? _supportLegacyBrowser = null;
 
         internal async Task<string> GetLegacyAddonUrlAsync(string addonUrl) {
-            if (!addonUrl.StartsWith(VersionManager.AddOnsUrl, StringComparison.InvariantCultureIgnoreCase)) // only urls in /addons folder support legacy files
+            if (!addonUrl.StartsWith(Package.AddOnsUrl, StringComparison.InvariantCultureIgnoreCase)) // only urls in /addons folder support legacy files
                 return addonUrl;
             SkinDefinition skin = Manager.CurrentSite.Skin;
             if (skin.Collection == null)
@@ -84,24 +85,24 @@ namespace YetaWF.Core.Pages {
 
             await FileSystem.FileSystemProvider.DeleteDirectoryAsync(Utility.UrlToPhysical(LEGACYPATH));
 
-            List<VersionManager.AddOnProduct> addons = VersionManager.GetAvailableAddOns();
-            List<VersionManager.AddOnProduct> skins = (from a in addons where a.Type == VersionManager.AddOnType.Skin select a).ToList();
+            List<Package.AddOnProduct> addons = Package.GetAvailableAddOns();
+            List<Package.AddOnProduct> skins = (from a in addons where a.Type == Package.AddOnType.Skin select a).ToList();
 
             // process each skin and copy all css files to the legacy css folder
-            foreach (VersionManager.AddOnProduct skin in skins) {
+            foreach (Package.AddOnProduct skin in skins) {
                 Dictionary<string, string> variables = await GetSkinVariablesAsync(skin);
                 await CopyAddonsCSSFilesAsync(skin, addons, variables);
             }
         }
 
-        private async Task CopyAddonsCSSFilesAsync(VersionManager.AddOnProduct skin, List<VersionManager.AddOnProduct> addons, Dictionary<string, string> variables) {
+        private async Task CopyAddonsCSSFilesAsync(Package.AddOnProduct skin, List<Package.AddOnProduct> addons, Dictionary<string, string> variables) {
             string url = $"{LEGACYPATH}/{skin.Product}";
-            foreach (VersionManager.AddOnProduct addon in addons) {
+            foreach (Package.AddOnProduct addon in addons) {
                 await CopyOneAddonCSSFilesAsync(skin, url, addon, variables);
             }
         }
 
-        private async Task CopyOneAddonCSSFilesAsync(VersionManager.AddOnProduct skin, string url, VersionManager.AddOnProduct addon, Dictionary<string, string> variables) {
+        private async Task CopyOneAddonCSSFilesAsync(Package.AddOnProduct skin, string url, Package.AddOnProduct addon, Dictionary<string, string> variables) {
             // copy css files    
             foreach (string file in addon.CssFiles) {
                 if (!string.IsNullOrWhiteSpace(addon.CssPath)) // redirected, so not one of ours, no css variables 
@@ -212,7 +213,7 @@ namespace YetaWF.Core.Pages {
         }
         private static Regex _reUrl = new Regex(@"url\((?'url'[^\)]*)\s*\)", RegexOptions.Compiled | RegexOptions.Singleline);
 
-        private async Task<Dictionary<string, string>> GetSkinVariablesAsync(VersionManager.AddOnProduct skin) {
+        private async Task<Dictionary<string, string>> GetSkinVariablesAsync(Package.AddOnProduct skin) {
 
             Dictionary<string, string> collected = new Dictionary<string, string>();
 

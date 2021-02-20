@@ -11,6 +11,7 @@ using YetaWF.Core.Identity;
 using YetaWF.Core.IO;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Modules;
+using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 
@@ -250,9 +251,9 @@ namespace YetaWF.Core.Skins {
         /// <returns></returns>
         public SkinCollectionInfoList GetAllSkinCollections() {
             if (_skinCollections == null) {
-                List<VersionManager.AddOnProduct> addonSkinColls = VersionManager.GetAvailableSkinCollections();
+                List<Package.AddOnProduct> addonSkinColls = Package.GetAvailableSkinCollections();
                 SkinCollectionInfoList newList = new SkinCollectionInfoList();
-                foreach (VersionManager.AddOnProduct addon in addonSkinColls) {
+                foreach (Package.AddOnProduct addon in addonSkinColls) {
                     newList.Add(addon.SkinInfo);
                 }
                 _skinCollections = newList;
@@ -266,7 +267,7 @@ namespace YetaWF.Core.Skins {
         /// </summary>
         /// <returns></returns>
         protected SkinCollectionInfo? TryFindSkinCollection(string collection) {
-            return (from c in VersionManager.GetAvailableSkinCollections() where c.SkinInfo.Name == collection select c.SkinInfo).FirstOrDefault();
+            return (from c in Package.GetAvailableSkinCollections() where c.SkinInfo.Name == collection select c.SkinInfo).FirstOrDefault();
         }
         /// <summary>
         /// Find a skin collection.
@@ -333,7 +334,7 @@ namespace YetaWF.Core.Skins {
         }
 
         private PageSkinList GetAllSkins(string skinCollection, bool Popup = false) {
-            VersionManager.AddOnProduct addon = VersionManager.FindSkinVersion(skinCollection);
+            Package.AddOnProduct addon = Package.FindSkin(skinCollection);
             return Popup ? addon.SkinInfo.PopupSkins : addon.SkinInfo.PageSkins;
         }
 
@@ -343,7 +344,7 @@ namespace YetaWF.Core.Skins {
         /// <param name="skinCollection"></param>
         /// <returns>A list of module skins.</returns>
         public ModuleSkinList GetAllModuleSkins(string skinCollection) {
-            VersionManager.AddOnProduct addon = VersionManager.FindSkinVersion(skinCollection);
+            Package.AddOnProduct addon = Package.FindSkin(skinCollection);
             return addon.SkinInfo.ModuleSkins;
         }
 
