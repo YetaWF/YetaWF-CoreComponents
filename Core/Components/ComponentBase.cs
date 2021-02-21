@@ -161,7 +161,7 @@ namespace YetaWF.Core.Components {
         {
             HtmlHelper = htmlHelper;
             Container = container;
-            PropertyName = propertyName;
+            PropertyName = propertyName!;// Containers may use null names
             if (propData != null)
                 PropData = propData;
             FieldNamePrefix = Manager.NestedComponentPrefix;
@@ -208,7 +208,7 @@ namespace YetaWF.Core.Components {
         /// Defines the name of the property in the container that this components represents.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
-        public string? PropertyName {
+        public string PropertyName {
             get {
                 if (IsContainerComponent) throw new InternalError($"{this.GetType().FullName} was invoked as a container");
                 return _propertyName;
@@ -217,7 +217,7 @@ namespace YetaWF.Core.Components {
                 _propertyName = value;
             }
         }
-        string? _propertyName;
+        string _propertyName = null!;
 
         /// <summary>
         /// Defines the YetaWF.Core.Models.PropertyData instance of the property in the container that this components represents.
@@ -370,18 +370,18 @@ namespace YetaWF.Core.Components {
         /// <summary>
         /// Retrieves a sibling property. Used to extract related properties from container, which typically are used for additional component customization.
         /// </summary>
-        public bool TryGetSiblingProperty<TYPE>(string property, [MaybeNullWhen(false)] out TYPE? value) {
+        public bool TryGetSiblingProperty<TYPE>(string property, out TYPE? value) {
             if (!ObjectSupport.TryGetPropertyValue<TYPE>(Container, property, out value))
                 return false;
             return true;
         }
         /// <summary>
-        /// Retrieves a sibling property. Used to extract related properties from container, which typically are used for additional component customization.
+        /// Retrieves a sibling property. Used to extract related properties from a container, which typically are used for additional component customization.
         /// </summary>
         public TYPE? GetSiblingProperty<TYPE>(string property) {
-            if (!ObjectSupport.TryGetPropertyValue<TYPE>(Container, property, out TYPE value))
+            if (!ObjectSupport.TryGetPropertyValue<TYPE>(Container, property, out TYPE? value))
                 throw new InternalError($"No sibling property {property} found");
-            return value;
+            return value!;
         }
     }
 }

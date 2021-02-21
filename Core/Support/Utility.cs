@@ -139,7 +139,7 @@ namespace YetaWF.Core.Support {
         /// <param name="value">The object to serialize.</param>
         /// <param name="Indented">Defines whether indentation is used in the generated JSON string.</param>
         /// <returns>Returns the serialized object as a JSON string.</returns>
-        public static string JsonSerialize(object value, bool Indented = false) {
+        public static string JsonSerialize(object? value, bool Indented = false) {
             return JsonConvert.SerializeObject(value, Indented ? _JsonSettingsIndented : _JsonSettings);
         }
         /// <summary>

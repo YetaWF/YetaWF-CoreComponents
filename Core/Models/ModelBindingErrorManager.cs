@@ -3,6 +3,7 @@
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Support;
@@ -65,7 +66,7 @@ namespace YetaWF.Core.Models {
             }
         }
 
-        public bool TryGetAttemptedValue(string propertyName, out string? attemptedValue) {
+        public bool TryGetAttemptedValue(string propertyName, [MaybeNullWhen(false)] out string attemptedValue) {
             attemptedValue = null;
             ErrorInstance? error = Errors.Where((x) => x.PropertyName == propertyName).FirstOrDefault();
             if (error == null) return false;

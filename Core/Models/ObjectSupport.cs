@@ -358,7 +358,7 @@ namespace YetaWF.Core.Models {
         /// <param name="name">The name specified on the AdditionalMetadataAttribute.</param>
         /// <param name="dflt">The default value returned if the AdditionalMetadataAttribute is not found.</param>
         /// <returns>The value found on the AdditionalMetadataAttribute, or the value defined using the dflt parameter.</returns>
-        public bool TryGetAdditionalAttributeValue<TYPE>(string name, [MaybeNullWhen(false)] out TYPE? value) {
+        public bool TryGetAdditionalAttributeValue<TYPE>(string name, out TYPE? value) {
             value = default(TYPE);
             AdditionalMetadataAttribute? attr = (AdditionalMetadataAttribute?) (from a in AdditionalAttributes where a.Key == name select a.Value).FirstOrDefault();
             if (attr == null) return false;

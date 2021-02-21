@@ -354,7 +354,7 @@ namespace YetaWF.Core.Site {
         public static Func<string?, Task<SiteDefinition>> LoadSiteDefinitionAsync { get; set; } = null!;
         public static Func<SiteDefinition, Task> SaveSiteDefinitionAsync { get; set; } = null!;
         public static Func<Task> RemoveSiteDefinitionAsync { get; set; } = null!;
-        public static Func<int, int, List<DataProviderSortInfo>, List<DataProviderFilterInfo>, Task<DataProviderGetRecords<SiteDefinition>>> GetSitesAsync { get; set; } = null!;
+        public static Func<int, int, List<DataProviderSortInfo>?, List<DataProviderFilterInfo>?, Task<DataProviderGetRecords<SiteDefinition>>> GetSitesAsync { get; set; } = null!;
         public static Func<string, Task<SiteDefinition>> LoadStaticSiteDefinitionAsync { get; set; } = null!;
         public static Func<string, Task<SiteDefinition>> LoadTestSiteDefinitionAsync { get; set; } = null!;
 

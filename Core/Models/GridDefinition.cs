@@ -33,7 +33,7 @@ namespace YetaWF.Core.Models {
             public SortBy Sort { get; set; }
             public int Width { get; set; }
             public string? FilterOperator { get; set; }
-            public string? FilterValue { get; set; }
+            public string FilterValue { get; set; } = null!;
             public bool Visible { get; set; }
 
             public ColumnInfo() {
@@ -115,7 +115,7 @@ namespace YetaWF.Core.Models {
             SettingsModuleGuid = null;
             ExtraData = null;
         }
-        public static DataSourceResult DontSortFilter(List<object> data, int skip, int take, List<DataProviderSortInfo> sorts, List<DataProviderFilterInfo> filters) {
+        public static DataSourceResult DontSortFilter(List<object> data, int skip, int take, List<DataProviderSortInfo>? sorts, List<DataProviderFilterInfo>? filters) {
             return new DataSourceResult {
                 Data = data,
                 Total = data.Count,

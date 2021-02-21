@@ -285,7 +285,7 @@ namespace YetaWF.Core.Skins {
         /// </summary>
         /// <param name="skinCollection"></param>
         /// <returns></returns>
-        public PageSkinList GetAllPageSkins(string skinCollection) {
+        public PageSkinList GetAllPageSkins(string? skinCollection) {
             if (string.IsNullOrWhiteSpace(skinCollection)) {
                 PageSkinList skinList = new PageSkinList {
                     new PageSkinEntry {
@@ -309,7 +309,7 @@ namespace YetaWF.Core.Skins {
         /// </summary>
         /// <param name="skinCollection"></param>
         /// <returns></returns>
-        public PageSkinList GetAllPopupSkins(string skinCollection) {
+        public PageSkinList GetAllPopupSkins(string? skinCollection) {
             if (string.IsNullOrWhiteSpace(skinCollection)) {
                 PageSkinList skinList = new PageSkinList {
                     new PageSkinEntry {
