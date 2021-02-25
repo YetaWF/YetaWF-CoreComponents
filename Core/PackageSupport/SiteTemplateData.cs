@@ -46,6 +46,7 @@ namespace YetaWF.Core.Packages {
             "YetaWF.Security",
             "YetaWF.SiteProperties",
             "YetaWF.Sites",
+            "YetaWF.SkinPalette",
             "YetaWF.SyntaxHighlighter",
             "YetaWF.TawkTo",
             "YetaWF.Text",

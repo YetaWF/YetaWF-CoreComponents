@@ -308,6 +308,10 @@ namespace YetaWF.Core.Packages {
         private static async Task RegisterTemplatesAsync(Package package, string asmFolder) {
             List<string> templateFolders = await FileSystem.FileSystemProvider.GetDirectoriesAsync(asmFolder);
             foreach (var folder in templateFolders) {
+                // there are some stray folders (when templates are renamed) that may have *.min.css/js without filelistJS/CSS.txt files
+                // ignore these
+                if ((await FileSystem.FileSystemProvider.GetFilesAsync(folder, "*.txt")).Count == 0)
+                    throw new InternalError($"Remove _Template folder with unused files: {folder}");
                 string directoryName = Path.GetFileName(folder);
                 await RegisterTemplateAddonAsync(package, folder, directoryName);
             }
