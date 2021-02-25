@@ -164,7 +164,6 @@ namespace YetaWF {
                 }
                 this.waitForCookie(cookieToReturn); // if any
 
-                // Handle unified page clicks by activating the desired pane(s) or swapping out pane contents
                 if (cookieToReturn) return true; // expecting cookie return
                 if (uri.getHostName() !== "" && uri.getHostName() !== window.document.domain) return true; // wrong domain
                 // if we're switching from https->http or from http->https don't use a unified page set

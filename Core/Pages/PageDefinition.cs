@@ -132,19 +132,6 @@ namespace YetaWF.Core.Pages {
             [EnumDescription("Highest")]
             Top = 100,
         }
-        public enum UnifiedModeEnum {
-            [EnumDescription("None", "The Unified Page Set does not combine page content - Each page is shown individually (full page load)")]
-            None = 0,
-            [EnumDescription("Hide Others", "Only content for the current URL is shown - Content for other pages is embedded but not visible - Use with small page sets")]
-            HideDivs = 1, // divs for other urls are hidden
-            [EnumDescription("Show All Content", "All content is shown in the order the pages appear in the Unified Page Set - Use with small page sets")]
-            ShowDivs = 2, // all divs are shown
-            [EnumDescription("Dynamic Content", "Content is dynamically replaced when navigating between pages (Ajax server request for pane content) - Can be used with large page sets")]
-            DynamicContent = 3,
-            [EnumDescription("Dynamic Content - All Pages", "Content is dynamically replaced when navigating between pages (Ajax server request for pane content) - Used for ALL pages of a site")]
-            AllPagesDynamicContent = 4,
-        }
-
         public PageDefinition() {
             Temporary = true;
             PageGuid = Guid.NewGuid();
@@ -223,12 +210,6 @@ namespace YetaWF.Core.Pages {
         /// </summary>
         [RequiresPageReload]
         public Guid? TemplateGuid { get; set; }
-        /// <summary>
-        /// Defines the unified set of pages this page belongs to (if any).
-        /// </summary>
-        [Data_Index]
-        [RequiresPageReload]
-        public Guid? UnifiedSetGuid { get; set; }
 
         [StringLength(MaxCssClass)]
         [RequiresPageReload]

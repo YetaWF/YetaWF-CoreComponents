@@ -15,14 +15,6 @@ var YetaWF;
         CssLocationEnum[CssLocationEnum["Top"] = 0] = "Top";
         CssLocationEnum[CssLocationEnum["Bottom"] = 1] = "Bottom";
     })(CssLocationEnum = YetaWF.CssLocationEnum || (YetaWF.CssLocationEnum = {}));
-    var UnifiedModeEnum;
-    (function (UnifiedModeEnum) {
-        UnifiedModeEnum[UnifiedModeEnum["None"] = 0] = "None";
-        UnifiedModeEnum[UnifiedModeEnum["HideDivs"] = 1] = "HideDivs";
-        UnifiedModeEnum[UnifiedModeEnum["ShowDivs"] = 2] = "ShowDivs";
-        UnifiedModeEnum[UnifiedModeEnum["DynamicContent"] = 3] = "DynamicContent";
-        UnifiedModeEnum[UnifiedModeEnum["AllPagesDynamicContent"] = 4] = "AllPagesDynamicContent";
-    })(UnifiedModeEnum = YetaWF.UnifiedModeEnum || (YetaWF.UnifiedModeEnum = {}));
     var MessageTypeEnum;
     (function (MessageTypeEnum) {
         MessageTypeEnum[MessageTypeEnum["Popups"] = 0] = "Popups";

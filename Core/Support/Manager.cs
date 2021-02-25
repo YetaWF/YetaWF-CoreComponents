@@ -1185,14 +1185,6 @@ namespace YetaWF.Core.Support {
         /// The current page.
         /// </summary>
         public PageDefinition CurrentPage { get; set; } = null!;
-        /// <summary>
-        /// The set of pages the current page belongs to, if the current page is part of a set of unified pages.
-        /// </summary>
-        public List<PageDefinition>? UnifiedPages { get; set; }
-        /// <summary>
-        /// The page mode used for unified pages.
-        /// </summary>
-        public PageDefinition.UnifiedModeEnum UnifiedMode { get; set; }
 
         /// <summary>
         /// The current page title. Modules can override the page title (we don't use the title in the page definition, except to set the default title).
@@ -1336,31 +1328,15 @@ namespace YetaWF.Core.Support {
             s = CssManager.CombineCss(s, ModeCss);// edit/display mode (doesn't change in same Unified page set)
             s = CssManager.CombineCss(s, HaveUser ? "yUser" : "yAnonymous");// add whether we have an authenticated user (doesn't change in same Unified page set)
             s = CssManager.CombineCss(s, IsInPopup ? "yPopup" : "yPage"); // popup or full page (doesn't change in same Unified page set)
-            switch (UnifiedMode) { // unified page set mode (if any) (doesn't change in same Unified page set)
-                case PageDefinition.UnifiedModeEnum.None:
-                    break;
-                case PageDefinition.UnifiedModeEnum.HideDivs:
-                    s = CssManager.CombineCss(s, "yUnifiedHideDivs");
-                    break;
-                case PageDefinition.UnifiedModeEnum.ShowDivs:
-                    s = CssManager.CombineCss(s, "yUnifiedShowDivs");
-                    break;
-                case PageDefinition.UnifiedModeEnum.DynamicContent:
-                    s = CssManager.CombineCss(s, "yUnifiedDynamicContent");
-                    break;
-                case PageDefinition.UnifiedModeEnum.AllPagesDynamicContent:
-                    s = CssManager.CombineCss(s, "yUnifiedSkinDynamicContent");
-                    break;
-            }
             s = CssManager.CombineCss(s, $"pageTheme{Manager.CurrentSite.Theme}");
 
             string cssClasses = CurrentPage.GetCssClass(); // get page specific Css (once only, used 2x)
-            if (UnifiedMode == PageDefinition.UnifiedModeEnum.DynamicContent || UnifiedMode == PageDefinition.UnifiedModeEnum.AllPagesDynamicContent) {
-                // add the extra page css class and generated page specific Css via javascript to body tag (used for dynamic content)
-                ScriptBuilder sb = new Support.ScriptBuilder();
-                sb.Append("document.body.setAttribute('data-pagecss', '{0}');", Utility.JserEncode(cssClasses));
-                Manager.ScriptManager.AddLast(sb.ToString());
-            }
+
+            // add the extra page css class and generated page specific Css via javascript to body tag (used for dynamic content)
+            ScriptBuilder sb = new Support.ScriptBuilder();
+            sb.Append("document.body.setAttribute('data-pagecss', '{0}');", Utility.JserEncode(cssClasses));
+            Manager.ScriptManager.AddLast(sb.ToString());
+
             return CssManager.CombineCss(s, cssClasses);
         }
 

@@ -28,45 +28,6 @@ namespace YetaWF.Core.Controllers {
             PageDefinition requestedPage = Manager.CurrentPage;
             Manager.PageTitle = requestedPage.Title;
 
-            // Unified pages
-            Manager.UnifiedMode = PageDefinition.UnifiedModeEnum.None;
-            if (!Manager.IsInPopup && !Manager.EditMode && PageDefinition.GetUnifiedPageInfoAsync != null && !requestedPage.Temporary) {
-                // Load all unified pages that this page is part of
-
-
-                PageDefinition.UnifiedInfo? info = await PageDefinition.GetUnifiedPageInfoAsync(requestedPage.UnifiedSetGuid);
-                if (info != null && !info.Disabled && info.Mode != PageDefinition.UnifiedModeEnum.None) {
-                    // Load the master page for this set
-                    PageDefinition masterPage = await PageDefinition.LoadAsync(info.MasterPageGuid);
-                    if (masterPage != null) {
-                        // get pages that are part of unified set
-                        Manager.UnifiedPages = new List<PageDefinition>();
-                        if (info.Mode == PageDefinition.UnifiedModeEnum.DynamicContent || info.Mode == PageDefinition.UnifiedModeEnum.AllPagesDynamicContent) {
-                            Manager.UnifiedPages.Add(requestedPage);
-                        } else {
-                            if (info.PageGuids != null && info.PageGuids.Count > 0) {
-                                foreach (Guid guid in info.PageGuids) {
-                                    PageDefinition page = await PageDefinition.LoadAsync(guid);
-                                    if (page != null) {
-                                        Manager.UnifiedPages.Add(page);
-                                        Manager.AddOnManager.AddExplicitlyInvokedModules(page.ReferencedModules);
-                                    }
-                                };
-                            }
-                        }
-                        Manager.UnifiedMode = info.Mode;
-                        Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedAnimation", info.Animation);
-                        Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedSetGuid", info.UnifiedSetGuid.ToString());
-                        if (info.Mode == PageDefinition.UnifiedModeEnum.DynamicContent || info.Mode == PageDefinition.UnifiedModeEnum.AllPagesDynamicContent) {
-                            Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedPopups", info.Popups);
-                        } else
-                            Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedPopups", false);
-                    } else {
-                        // master page was not found, probably deleted, just ignore
-                    }
-                }
-            }
-            Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedMode", (int)Manager.UnifiedMode);
             Manager.ScriptManager.AddVolatileOption("Basics", "PageGuid", requestedPage.PageGuid);
             Manager.ScriptManager.AddVolatileOption("Basics", "TemporaryPage", requestedPage.Temporary);
 
@@ -113,10 +74,8 @@ namespace YetaWF.Core.Controllers {
 
             if (Manager.UniqueIdCounters.IsTracked)
                 Manager.ScriptManager.AddVolatileOption("Basics", "UniqueIdCounters", Manager.UniqueIdCounters);
-            if (Manager.UnifiedMode == PageDefinition.UnifiedModeEnum.DynamicContent || Manager.UnifiedMode == PageDefinition.UnifiedModeEnum.AllPagesDynamicContent) {
-                Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedCssBundleFiles", Manager.CssManager.GetBundleFiles());
-                Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedScriptBundleFiles", Manager.ScriptManager.GetBundleFiles());
-            }
+            Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedCssBundleFiles", Manager.CssManager.GetBundleFiles());
+            Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedScriptBundleFiles", Manager.ScriptManager.GetBundleFiles());
             ModuleDefinitionExtensions.AddVolatileOptionsUniqueModuleAddOns(MarkPrevious: true);
 
             PageProcessing pageProc = new PageProcessing(Manager);

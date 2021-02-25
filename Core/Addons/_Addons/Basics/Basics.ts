@@ -365,16 +365,6 @@ namespace YetaWF {
             // page position
 
             var scrolled = this.setScrollPosition();
-            if (!scrolled) {
-                if (YVolatile.Basics.UnifiedMode === UnifiedModeEnum.ShowDivs) {
-                    var uri = this.parseUrl(window.location.href);
-                    var divs = this.getElementsBySelector(`.yUnified[data-url="${uri.getPath()}"]`);
-                    if (divs.length > 0) {
-                        window.scroll(0, divs[0].offsetTop);
-                        scrolled = true;
-                    }
-                }
-            }
 
             // FOCUS
             // FOCUS
@@ -493,10 +483,9 @@ namespace YetaWF {
             uri.removeSearch("!rand");
             uri.addSearch("!rand", ((new Date()).getTime()).toString());// cache buster
 
-            if (YVolatile.Basics.UnifiedMode !== UnifiedModeEnum.None) {
-                if (this.ContentHandling.setContent(uri, true) !== SetContentResult.NotContent)
-                    return;
-            }
+            if (this.ContentHandling.setContent(uri, true) !== SetContentResult.NotContent)
+                return;
+
             if (keepPosition) {
                 w.location.assign(uri.toUrl());
                 return;

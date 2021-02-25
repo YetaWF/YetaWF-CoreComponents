@@ -9,8 +9,6 @@ namespace YetaWF {
         CacheFailUrl: string | null;
         Path: string;
         QueryString: string;
-        UnifiedSetGuid: string;
-        UnifiedMode: number;
         UnifiedAddonMods: string[];
         UniqueIdCounters: UniqueIdInfo;
         IsMobile: boolean;
@@ -182,13 +180,6 @@ namespace YetaWF {
         public setContentForce(uriRequested: YetaWF.Url, setState: boolean, popupCB?: (result: ContentResult, done: (dialog: HTMLElement) => void) => void, inplace?: InplaceContents, contentCB?: (result: ContentResult|null) => void): SetContentResult {
 
             if (YVolatile.Basics.EditModeActive) return SetContentResult.NotContent; // edit mode
-            if (YVolatile.Basics.UnifiedMode === UnifiedModeEnum.None) return SetContentResult.NotContent; // not unified mode
-            if (popupCB) {
-                if (YVolatile.Basics.UnifiedMode !== UnifiedModeEnum.DynamicContent && YVolatile.Basics.UnifiedMode !== UnifiedModeEnum.AllPagesDynamicContent)
-                    return SetContentResult.NotContent; // popups can only be used with some unified modes
-                if (!YVolatile.Basics.UnifiedPopups)
-                    return SetContentResult.NotContent; // popups not wanted for this UPS
-            }
 
             // check if we're clicking a link which is part of this unified page
             let uri: YetaWF.Url;
@@ -197,136 +188,73 @@ namespace YetaWF {
             else
                 uri = uriRequested;
             var path = uri.getPath();
-            if (YVolatile.Basics.UnifiedMode === UnifiedModeEnum.DynamicContent || YVolatile.Basics.UnifiedMode === UnifiedModeEnum.AllPagesDynamicContent) {
-                var divs: HTMLElement[];
-                if (inplace)
-                    divs = $YetaWF.getElementsBySelector(`.${inplace.FromPane}.yUnified[data-pane]`); // only requested pane
-                else
-                    divs = $YetaWF.getElementsBySelector(".yUnified[data-pane]"); // all panes
-                if (divs.length === 0)
-                    throw "No panes support dynamic content";
 
-                // build data context (like scripts, css files we have)
-                var data: ContentData = {
-                    CacheVersion: YVolatile.Basics.CacheVersion,
-                    CacheFailUrl: inplace ? inplace.PageUrl : null,
-                    Path: path,
-                    QueryString: uri.getQuery(),
-                    UnifiedSetGuid: YVolatile.Basics.UnifiedSetGuid,
-                    UnifiedMode: YVolatile.Basics.UnifiedMode,
-                    UnifiedAddonMods: $YetaWF.UnifiedAddonModsLoaded,
-                    UniqueIdCounters: YVolatile.Basics.UniqueIdCounters,
-                    IsMobile: $YetaWF.isMobile(),
-                    Panes: [],
-                    KnownCss: [],
-                    KnownScripts: []
-                };
-                for (var div of divs) {
-                    data.Panes.push(div.getAttribute("data-pane") as string);
-                }
-                var css = $YetaWF.getElementsBySelector("link[rel=\"stylesheet\"][data-name]");
-                for (var c of css) {
-                    data.KnownCss.push(c.getAttribute("data-name") as string);
-                }
-                css = $YetaWF.getElementsBySelector("style[type=\"text/css\"][data-name]");
-                for (var c of css) {
-                    data.KnownCss.push(c.getAttribute("data-name") as string);
-                }
-                data.KnownCss = data.KnownCss.concat(YVolatile.Basics.UnifiedCssBundleFiles || []);// add known css files that were added via bundles
-                var scripts = $YetaWF.getElementsBySelector("script[src][data-name]");
-                for (var s of scripts) {
-                    data.KnownScripts.push(s.getAttribute("data-name") as string);
-                }
-                data.KnownScripts = data.KnownScripts.concat(YVolatile.Basics.KnownScriptsDynamic || []);// known javascript files that were added by content pages
-                data.KnownScripts = data.KnownScripts.concat(YVolatile.Basics.UnifiedScriptBundleFiles || []);// add known javascript files that were added via bundles
+            var divs: HTMLElement[];
+            if (inplace)
+                divs = $YetaWF.getElementsBySelector(`.${inplace.FromPane}.yUnified[data-pane]`); // only requested pane
+            else
+                divs = $YetaWF.getElementsBySelector(".yUnified[data-pane]"); // all panes
+            if (divs.length === 0)
+                throw "No panes support dynamic content";
 
-                $YetaWF.setLoading();
-
-                var request: XMLHttpRequest = new XMLHttpRequest();
-                request.open("POST", "/YetaWF_Core/PageContent/Show" + uri.getQuery(true), true);
-                request.setRequestHeader("Content-Type", "application/json");
-                request.setRequestHeader("X-HTTP-Method-Override", "GET");// server has to think this is a GET request so all actions that are invoked actually work
-                request.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-                request.onreadystatechange = (ev: Event) : any => {
-                    if (request.readyState === 4 /*DONE*/) {
-                        $YetaWF.setLoading(false);
-                        if (request.status === 200) {
-                            var result: ContentResult = JSON.parse(request.responseText);
-                            this.processReceivedContent(result, uri, divs, setState, popupCB, inplace, contentCB);
-                        } else if (request.status === 0) {
-                            $YetaWF.error(YLocs.Forms.AjaxError.format(request.status, YLocs.Forms.AjaxConnLost), YLocs.Forms.AjaxErrorTitle);
-                            return SetContentResult.NotContent;
-                        } else {
-                            $YetaWF.setLoading(false);
-                            $YetaWF.error(YLocs.Forms.AjaxError.format(request.status, request.statusText), YLocs.Forms.AjaxErrorTitle);
-                            // eslint-disable-next-line no-debugger
-                            debugger;
-                        }
-                    }
-                };
-                request.send(JSON.stringify(data));
-                return SetContentResult.ContentReplaced;
-            } else {
-                // check if we have anything with that path as a unified pane and activate the panes
-                var divs = $YetaWF.getElementsBySelector(`.yUnified[data-url="${path}"]`);
-                if (divs.length > 0) {
-
-                    $YetaWF.closeOverlays();
-                    $YetaWF.pageChanged = false;
-
-                    // Update the browser address bar with the new path
-                    if (setState)
-                        $YetaWF.setUrl(uri.toUrl());
-                    if (YVolatile.Basics.UnifiedMode === UnifiedModeEnum.HideDivs) {
-                        // hide all unified sections
-                        var uni = $YetaWF.getElementsBySelector(".yUnified");
-                        for (var u of uni) {
-                            u.style.display = "none";
-                        }
-                        // show all unified sections that are on the current page
-                        for (var d of divs) {
-                            d.style.display = "block";
-                        }
-                        // send event that a new sections became active/visible
-                        $YetaWF.sendActivateDivEvent(divs);
-                        // scroll
-                        var scrolled = $YetaWF.setScrollPosition();
-                        if (!scrolled)
-                            window.scroll(0, 0);
-                        $YetaWF.setFocus();
-                    } else if (YVolatile.Basics.UnifiedMode === UnifiedModeEnum.ShowDivs) {
-
-                        divs[0].scrollIntoView({ behavior: "smooth", block: "start" });
-
-                        //// calculate an approximate animation time so the shorter the distance, the shorter the animation
-                        //var h = document.body.scrollHeight;
-                        //var newTop = divs[0].offsetTop;
-                        //var scrollDuration = YVolatile.Basics.UnifiedAnimation * (Math.abs(newTop - window.scrollY) / h);
-
-                        //var scrollStep = (newTop - window.scrollY) / (scrollDuration / 15);
-                        //if (!isNaN(scrollStep)) {
-
-                        //    console.log(`scrolling ${scrollDuration} ${scrollStep}`);
-                        //    var scrollInterval = setInterval(function () {
-                        //        if (scrollStep > 0 ? window.scrollY + scrollStep > newTop : window.scrollY + scrollStep < newTop) {
-                        //            console.log(`scrolling done`);
-                        //            window.scrollTo(0, newTop);
-                        //            clearInterval(scrollInterval);
-                        //        } else {
-                        //            console.log(`scrolling step`);
-                        //            window.scrollBy(0, scrollStep);
-                        //        }
-                        //    }, scrollDuration / 15);
-                        //}
-                    } else
-                        throw `Invalid UnifiedMode ${YVolatile.Basics.UnifiedMode}`;
-                    $YetaWF.setLoading(false);
-                    if (contentCB) contentCB(null);
-                    return SetContentResult.ContentReplaced;
-                }
-                //$YetaWF.setLoading(false); // don't hide, let new page take over
-                return SetContentResult.NotContent;
+            // build data context (like scripts, css files we have)
+            var data: ContentData = {
+                CacheVersion: YVolatile.Basics.CacheVersion,
+                CacheFailUrl: inplace ? inplace.PageUrl : null,
+                Path: path,
+                QueryString: uri.getQuery(),
+                UnifiedAddonMods: $YetaWF.UnifiedAddonModsLoaded,
+                UniqueIdCounters: YVolatile.Basics.UniqueIdCounters,
+                IsMobile: $YetaWF.isMobile(),
+                Panes: [],
+                KnownCss: [],
+                KnownScripts: []
+            };
+            for (var div of divs) {
+                data.Panes.push(div.getAttribute("data-pane") as string);
             }
+            var css = $YetaWF.getElementsBySelector("link[rel=\"stylesheet\"][data-name]");
+            for (var c of css) {
+                data.KnownCss.push(c.getAttribute("data-name") as string);
+            }
+            css = $YetaWF.getElementsBySelector("style[type=\"text/css\"][data-name]");
+            for (var c of css) {
+                data.KnownCss.push(c.getAttribute("data-name") as string);
+            }
+            data.KnownCss = data.KnownCss.concat(YVolatile.Basics.UnifiedCssBundleFiles || []);// add known css files that were added via bundles
+            var scripts = $YetaWF.getElementsBySelector("script[src][data-name]");
+            for (var s of scripts) {
+                data.KnownScripts.push(s.getAttribute("data-name") as string);
+            }
+            data.KnownScripts = data.KnownScripts.concat(YVolatile.Basics.KnownScriptsDynamic || []);// known javascript files that were added by content pages
+            data.KnownScripts = data.KnownScripts.concat(YVolatile.Basics.UnifiedScriptBundleFiles || []);// add known javascript files that were added via bundles
+
+            $YetaWF.setLoading();
+
+            var request: XMLHttpRequest = new XMLHttpRequest();
+            request.open("POST", "/YetaWF_Core/PageContent/Show" + uri.getQuery(true), true);
+            request.setRequestHeader("Content-Type", "application/json");
+            request.setRequestHeader("X-HTTP-Method-Override", "GET");// server has to think this is a GET request so all actions that are invoked actually work
+            request.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+            request.onreadystatechange = (ev: Event) : any => {
+                if (request.readyState === 4 /*DONE*/) {
+                    $YetaWF.setLoading(false);
+                    if (request.status === 200) {
+                        var result: ContentResult = JSON.parse(request.responseText);
+                        this.processReceivedContent(result, uri, divs, setState, popupCB, inplace, contentCB);
+                    } else if (request.status === 0) {
+                        $YetaWF.error(YLocs.Forms.AjaxError.format(request.status, YLocs.Forms.AjaxConnLost), YLocs.Forms.AjaxErrorTitle);
+                        return SetContentResult.NotContent;
+                    } else {
+                        $YetaWF.setLoading(false);
+                        $YetaWF.error(YLocs.Forms.AjaxError.format(request.status, request.statusText), YLocs.Forms.AjaxErrorTitle);
+                        // eslint-disable-next-line no-debugger
+                        debugger;
+                    }
+                }
+            };
+            request.send(JSON.stringify(data));
+            return SetContentResult.ContentReplaced;
         }
 
         private allowNavigateAway(): boolean {
@@ -406,9 +334,6 @@ namespace YetaWF {
                         for (var div of divs) {
                             $YetaWF.processClearDiv(div);
                             div.innerHTML = "";
-                            if (div.getAttribute("data-conditional")) {
-                                div.style.display = "none";// hide, it's a conditional pane
-                            }
                         }
                     }
                     // remove prior page css classes

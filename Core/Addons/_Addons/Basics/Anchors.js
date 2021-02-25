@@ -148,7 +148,6 @@ var YetaWF;
                         $YetaWF.pleaseWait(s);
                 }
                 _this.waitForCookie(cookieToReturn); // if any
-                // Handle unified page clicks by activating the desired pane(s) or swapping out pane contents
                 if (cookieToReturn)
                     return true; // expecting cookie return
                 if (uri.getHostName() !== "" && uri.getHostName() !== window.document.domain)

@@ -32,13 +32,6 @@ namespace YetaWF {
         EditMode: boolean;
         InPopup: boolean;
     }
-    export enum UnifiedModeEnum {
-        None = 0,
-        HideDivs = 1, // divs for other urls are hidden
-        ShowDivs = 2, // all divs are shown
-        DynamicContent = 3,
-        AllPagesDynamicContent = 4,
-    }
     export enum MessageTypeEnum {
         Popups = 0,
         ToastRight = 10,
@@ -69,10 +62,6 @@ namespace YetaWF {
         TemporaryPage: boolean;
 
         // Unified Page Sets
-        UnifiedMode: UnifiedModeEnum;
-        UnifiedAnimation: number;
-        UnifiedSetGuid: string;
-        UnifiedPopups: boolean;
         UniqueIdCounters: UniqueIdInfo;
         UnifiedCssBundleFiles: string[];
         UnifiedScriptBundleFiles: string[];

@@ -140,27 +140,8 @@ namespace YetaWF.Core.Components {
         /// <returns>Returns the name of the page.</returns>
         public abstract string GetPageName();
 
-        public async Task<string> RenderPaneAsync(string pane, string? cssClass = null, bool Conditional = true, bool Unified = false) {
-
-            if (!Manager.EditMode && Unified && Manager.UnifiedPages != null) {
-                PageDefinition realPage = Manager.CurrentPage;
-                StringBuilder sb = new StringBuilder();
-                foreach (PageDefinition page in Manager.UnifiedPages) {
-                    // for now we don't validate skins
-                    // if (page.SelectedSkin.Collection != realPage.SelectedSkin.Collection)
-                    //    throw new InternalError("The requested page {0} and the page {1}, part of the unified pages, don't use the same skin collection ({2} vs. {3})", realPage.Url, page.Url, realPage.SelectedSkin.Collection, page.SelectedSkin.Collection);
-                    //if (page.SelectedSkin.FileName != realPage.SelectedSkin.FileName)
-                    //    throw new InternalError("The requested page {0} and the page {1}, part of the unified pages, don't use the same skin file ({2} vs. {3})", realPage.Url, page.Url, realPage.SelectedSkin.FileName, page.SelectedSkin.FileName);
-                    //if (page.TemplatePage != realPage.TemplatePage)
-                    //    throw new InternalError("The requested page {0} and the page {1}, part of the unified pages, don't use the template page ({2} vs. {3})", realPage.Url, page.Url, realPage.TemplatePage.Url ?? "(none)", page.TemplatePage.Url ?? "(none)");
-                    Manager.CurrentPage = page;
-                    sb.Append(await Manager.CurrentPage.RenderPaneAsync(HtmlHelper, pane, cssClass, Conditional: Conditional, UnifiedMainPage: realPage));
-                }
-                Manager.CurrentPage = realPage;
-                return sb.ToString();
-            } else {
-                return await Manager.CurrentPage.RenderPaneAsync(HtmlHelper, pane, cssClass, Conditional: Conditional);
-            }
+        public async Task<string> RenderPaneAsync(string pane, string? cssClass = null, bool Unified = false) {
+            return await Manager.CurrentPage.RenderPaneAsync(HtmlHelper, pane, cssClass, Unified: !Manager.EditMode && Unified);
         }
     }
 }

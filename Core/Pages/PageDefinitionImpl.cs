@@ -49,15 +49,6 @@ namespace YetaWF.Core.Pages {
             public string Url { get; set; } = null!; // absolute Url (w/o http: or domain) e.g., /Home or /Test/Page123
             public Guid PageGuid { get; set; }
         }
-        public class UnifiedInfo {
-            public Guid UnifiedSetGuid { get; set; }
-            public bool Disabled { get; set; }
-            public UnifiedModeEnum Mode { get; set; }
-            public bool Popups { get; set; }
-            public int Animation { get; set; }
-            public Guid MasterPageGuid { get; set; }
-            public List<Guid>? PageGuids { get; set; }
-        }
 
         // this must be provided during app startup by a package implementing a page data provider
         public static Func<string, Task<PageDefinition>> CreatePageDefinitionAsync { get; set; } = null!;
@@ -69,8 +60,6 @@ namespace YetaWF.Core.Pages {
         public static Func<Task<List<Guid>>> GetDesignedGuidsAsync { get; set; } = null!;
         public static Func<Task<List<string>>> GetDesignedUrlsAsync { get; set; } = null!;
         public static Func<Guid, Task<List<PageDefinition>>> GetPagesFromModuleAsync { get; set; } = null!;
-
-        public static Func<Guid?, Task<UnifiedInfo?>> GetUnifiedPageInfoAsync { get; set; } = null!;
 
         // When adding new properties, make sure to update EditablePage in PageEditModule so we can actually edit/view the property
         // When adding new properties, make sure to update EditablePage in PageEditModule so we can actually edit/view the property
@@ -413,7 +402,7 @@ namespace YetaWF.Core.Pages {
         // RENDERING
         // RENDERING
 
-        public async Task<string> RenderPaneAsync(YHtmlHelper htmlHelper, string? pane, string? cssClass = null, bool Conditional = true, PageDefinition? UnifiedMainPage = null, bool PaneDiv = true, object? Args = null) {
+        public async Task<string> RenderPaneAsync(YHtmlHelper htmlHelper, string? pane, string? cssClass = null, bool Unified = false, bool PaneDiv = true, object? Args = null) {
 
             pane = string.IsNullOrEmpty(pane) ? Globals.MainPane : pane;
 
@@ -433,16 +422,12 @@ namespace YetaWF.Core.Pages {
             // render all modules that are on this pane
             HtmlBuilder hb = new HtmlBuilder();
 
-            bool empty = true;
             if (Manager.EditMode && !Manager.IsInPopup) { // add the pane name in edit mode
-                if (UnifiedMainPage == null || UnifiedMainPage.Url == Manager.CurrentPage.Url) { // but only for main page
-                    hb.Append($@"<div class='{Manager.AddOnManager.CheckInvokedCssModule(Globals.CssPaneTag)}'>{Utility.HE(pane)}</div>");
-                }
+                hb.Append($@"<div class='{Manager.AddOnManager.CheckInvokedCssModule(Globals.CssPaneTag)}'>{Utility.HE(pane)}</div>");
             }
 
             foreach (var modEntry in moduleList) {
                 if (string.Compare(modEntry.Pane, pane, true) == 0) {
-                    empty = false;
                     ModuleDefinition? module = null;
                     Exception? modExc = null;
                     try {
@@ -474,50 +459,20 @@ namespace YetaWF.Core.Pages {
             // generate pane if requested
             bool generate = PaneDiv;
             if (generate) {
-                bool hide = false;
-                if (Manager.EditMode) {
-                    // all panes are always generated in edit mode
-                    if (UnifiedMainPage != null && UnifiedMainPage.Url != Manager.CurrentPage.Url) // but only for main page
-                        generate = false;
-                } else if (empty && Conditional) {
-                    // this pane is empty and the pane is marked as conditional, meaning don't generate if empty
-                    generate = false;
-                    if (UnifiedMainPage != null && UnifiedMainPage.Url == Manager.CurrentPage.Url) {
-                        // however, we're not generating the main page of a unified page set
-                        // do we generate it but hide it
-                        generate = true;
-                        hide = true;
-                    }
-                }
-                if (generate) {
-                    string css = string.Empty;
-                    if (!string.IsNullOrWhiteSpace(cssClass))
-                        css = CssManager.CombineCss(css, Manager.AddOnManager.CheckInvokedCssModule(cssClass.Trim()));
-                    css = CssManager.CombineCss(css, Manager.AddOnManager.CheckInvokedCssModule("yPane"));
+                string css = string.Empty;
+                if (!string.IsNullOrWhiteSpace(cssClass))
+                    css = CssManager.CombineCss(css, Manager.AddOnManager.CheckInvokedCssModule(cssClass.Trim()));
+                css = CssManager.CombineCss(css, Manager.AddOnManager.CheckInvokedCssModule("yPane"));
 
-                    string conditional = string.Empty;
-                    if (Conditional)
-                        conditional = " data-conditional='true'";
+                if (Unified)
+                    css = CssManager.CombineCss(css, "yUnified");
 
-                    string dataUrl = string.Empty;
-                    if (UnifiedMainPage != null) {
-                        dataUrl = $@" data-url='{Utility.HAE(Manager.CurrentPage.Url)}'"; // add url to div so we can identify for which Url this pane is active
-                        css = CssManager.CombineCss(css, "yUnified");
-                        if (Manager.UnifiedMode == PageDefinition.UnifiedModeEnum.HideDivs && UnifiedMainPage.Url != Manager.CurrentPage.Url)
-                            hide = true;
-                    }
-
-                    string style = string.Empty;
-                    if (hide)
-                        style = " style='display:none'";
-
-                    HtmlBuilder hbOuter = new HtmlBuilder();
-                    hbOuter.Append($@"
-<div data-pane='{pane}' class='{css}' {conditional}{dataUrl}{style}>
+                HtmlBuilder hbOuter = new HtmlBuilder();
+                hbOuter.Append($@"
+<div data-pane='{pane}' class='{css}'>
     {hb.ToString()}
 </div>");
-                    hb = hbOuter;
-                }
+                hb = hbOuter;
             }
 
             Manager.PaneRendered = oldPaneRendered;
@@ -549,7 +504,7 @@ namespace YetaWF.Core.Pages {
                 panes = new List<string> { Globals.MainPane };
             foreach (string pane in panes) {
 
-                string paneHtml = await RenderPaneAsync(htmlHelper, pane, UnifiedMainPage: Manager.CurrentPage, PaneDiv: false);
+                string paneHtml = await RenderPaneAsync(htmlHelper, pane, Unified: true, PaneDiv: false);
 
                 // Inspect for redirect, if so create PageContentData to reflect that, no need to process the remaining panes
                 string url = (string)Manager.CurrentResponse.Headers["Location"];
