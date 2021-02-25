@@ -194,8 +194,8 @@ namespace YetaWF {
                 divs = $YetaWF.getElementsBySelector(`.${inplace.FromPane}.yUnified[data-pane]`); // only requested pane
             else
                 divs = $YetaWF.getElementsBySelector(".yUnified[data-pane]"); // all panes
-            if (divs.length === 0)
-                throw "No panes support dynamic content";
+            if (divs.length === 0) // can occur in popups while in edit mode
+                return SetContentResult.NotContent; // edit mode
 
             // build data context (like scripts, css files we have)
             var data: ContentData = {
