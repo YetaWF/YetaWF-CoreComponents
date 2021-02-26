@@ -35,10 +35,10 @@ namespace YetaWF.Core.Addons {
             }
         }
 
-        private List<Package.AddOnProduct> _AddedProducts = new List<Package.AddOnProduct>();
-        private List<Module> _AddedInvokedCssModules = new List<Module>();
+        private readonly List<Package.AddOnProduct> _AddedProducts = new List<Package.AddOnProduct>();
+        private readonly List<Module> _AddedInvokedCssModules = new List<Module>();
 
-        private static List<Module> UniqueInvokedCssModules = new List<Module>();
+        private static readonly List<Module> UniqueInvokedCssModules = new List<Module>();
 
         /// <summary>
         /// Add a named addon (normal).
@@ -271,7 +271,7 @@ namespace YetaWF.Core.Addons {
             AddCache(skinCollection, "");// mark cache as not found
         }
         // Caching for skin customizations
-        private static Dictionary<string, string> CustomizationCache = new Dictionary<string, string>();
+        private static readonly Dictionary<string, string> CustomizationCache = new Dictionary<string, string>();
 
         private static void AddCache(string skinCollection, string url) {
             if (!YetaWFManager.Deployed) return;

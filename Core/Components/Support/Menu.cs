@@ -95,8 +95,9 @@ namespace YetaWF.Core.Components {
         /// Evaluates the menu and returns an updated (copied) list based on the user's actual permissions.
         /// </summary>
         public async Task<MenuList> GetUserMenuAsync() {
-            MenuList menu = new MenuList();
-            menu.RenderMode = this.RenderMode;
+            MenuList menu = new MenuList {
+                RenderMode = RenderMode
+            };
             foreach (ModuleAction m in this) {
                 ModuleAction? newAction = await EvaluateActionAsync(m);
                 if (newAction != null)
@@ -112,7 +113,7 @@ namespace YetaWF.Core.Components {
             }
             return new SerializableList<ModuleAction>(
                 (from m in menu
-                 where m.EntryType != ModuleAction.MenuEntryType.Parent || (m.SubMenu != null && m.SubMenu.Count() > 0) select m).ToList()
+                 where m.EntryType != ModuleAction.MenuEntryType.Parent || (m.SubMenu != null && m.SubMenu.Count > 0) select m).ToList()
             );
         }
         private  async Task<ModuleAction?> EvaluateActionAsync(ModuleAction origAction) {

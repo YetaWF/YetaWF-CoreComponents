@@ -25,7 +25,7 @@ namespace YetaWF.Core.Controllers {
             try {
 
                 if (context == null)
-                    throw new ArgumentNullException("context");
+                    throw new ArgumentNullException(nameof(context));
 
                 foreach (AddonContentController.AddonDescription addon in DataIn.Addons) {
                     await Manager.AddOnManager.AddAddOnNamedAsync(addon.AreaName, addon.ShortName, addon.Argument1);

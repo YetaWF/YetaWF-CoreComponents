@@ -146,7 +146,6 @@ namespace YetaWF.Core.Components {
         /// <summary>
         /// Constructor.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public YetaWFComponentBase() {
             Package = GetPackage();
         }
@@ -179,7 +178,6 @@ namespace YetaWF.Core.Components {
         /// <summary>
         /// Returns the HtmlHelper instance.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public YHtmlHelper HtmlHelper
         {
             get {
@@ -207,7 +205,6 @@ namespace YetaWF.Core.Components {
         /// <summary>
         /// Defines the name of the property in the container that this components represents.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public string PropertyName {
             get {
                 if (IsContainerComponent) throw new InternalError($"{this.GetType().FullName} was invoked as a container");
@@ -222,7 +219,6 @@ namespace YetaWF.Core.Components {
         /// <summary>
         /// Defines the YetaWF.Core.Models.PropertyData instance of the property in the container that this components represents.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public PropertyData PropData {
             get {
                 if (IsContainerComponent) throw new InternalError($"{this.GetType().FullName} was invoked as a container");
@@ -243,7 +239,6 @@ namespace YetaWF.Core.Components {
         /// <summary>
         /// The HTML field name of the components.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public string FieldName {
             get {
                 if (IsContainerComponent) throw new InternalError($"{this.GetType().FullName} was invoked as a container");

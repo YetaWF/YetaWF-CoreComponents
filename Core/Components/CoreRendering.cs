@@ -97,7 +97,6 @@ namespace YetaWF.Core.Components {
         /// </summary>
         /// <remarks>The package implementing rendering components and views sets this accessor during application startup.
         /// All application rendering is performed using this interface.</remarks>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public static IYetaWFCoreRendering Render {
             get {
                 if (_render == null) throw new InternalError($"No {nameof(IYetaWFCoreRendering)} handler installed");

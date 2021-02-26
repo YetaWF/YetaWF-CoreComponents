@@ -433,8 +433,7 @@ namespace YetaWF.Core.Controllers {
                 if (!Manager.HaveUser) {
                     Manager.OriginList.Clear();
                     Manager.OriginList.Add(new Origin() { Url = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString) });
-                    string loginUrl;
-                    QueryHelper qh = QueryHelper.FromUrl(Manager.CurrentSite.LoginUrl, out loginUrl);
+                    QueryHelper qh = QueryHelper.FromUrl(Manager.CurrentSite.LoginUrl, out string loginUrl);
                     qh.Add("__f", "true");// add __f=true to login url so we get a 401
                     Manager.OriginList.Add(new Origin() { Url = qh.ToUrl(loginUrl) });
                     string retUrl = Manager.ReturnToUrl;

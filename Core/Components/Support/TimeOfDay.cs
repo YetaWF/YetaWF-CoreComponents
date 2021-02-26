@@ -14,7 +14,7 @@ namespace YetaWF.Core.Components {
     [TypeConverter(typeof(TimeOfDayConv))]
     public class TimeOfDay {
 
-        public static DateTime BaseDate = new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        public static readonly DateTime BaseDate = new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         /// <summary>
         /// Constructor.
@@ -194,8 +194,7 @@ namespace YetaWF.Core.Components {
         /// <inheritdoc/>
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) {
             if (value != null && value.GetType() == typeof(string)) {
-                DateTime dt;
-                if (!DateTime.TryParse((string)value, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AllowWhiteSpaces, out dt))
+                if (!DateTime.TryParse((string)value, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AllowWhiteSpaces, out DateTime dt))
                     throw new FormatException($"'{(string)value}' is an invalid time of day value");
                 return new TimeOfDay(dt);
             }

@@ -43,14 +43,12 @@ namespace YetaWF.Core.Components {
                 return null;
             YetaWFComponentBase component = (YetaWFComponentBase)Activator.CreateInstance(compType) ! ;
 
-            ISelectionListInt? iSelList = component as ISelectionListInt;
-            if (iSelList != null) {
+            if (component is ISelectionListInt iSelList) {
                 List<SelectionItem<int>> list = await iSelList.GetSelectionListIntAsync(false);
                 return (from l in list select new SelectionItem<int?> { Text = l.Text, Tooltip = l.Tooltip, Value = l.Value }).ToList();
             }
 
-            ISelectionListIntNull? iSelNullList = component as ISelectionListIntNull;
-            if (iSelNullList != null)
+            if (component is ISelectionListIntNull iSelNullList)
                 return await iSelNullList.GetSelectionListIntNullAsync(false);
 
             return null;
@@ -69,8 +67,7 @@ namespace YetaWF.Core.Components {
             if (!YetaWFComponentBaseStartup.GetComponentsDisplay().TryGetValue(uiHint, out Type? compType))
                 return null;
             YetaWFComponentBase component = (YetaWFComponentBase)Activator.CreateInstance(compType) ! ;
-            ISelectionListString? iSelList = component as ISelectionListString;
-            if (iSelList == null)
+            if (component is not ISelectionListString iSelList)
                 return null;
             return await iSelList.GetSelectionListStringAsync(false);
         }
@@ -85,8 +82,7 @@ namespace YetaWF.Core.Components {
             if (!YetaWFComponentBaseStartup.GetComponentsDisplay().TryGetValue(uiHint, out Type? compType))
                 return null;
             YetaWFComponentBase component = (YetaWFComponentBase)Activator.CreateInstance(compType) ! ;
-            IComplexFilter? iFilter = component as IComplexFilter;
-            if (iFilter == null)
+            if (component is not IComplexFilter iFilter)
                 return null;
             return await iFilter.GetComplexFilterAsync(uiHint);
         }
@@ -104,8 +100,7 @@ namespace YetaWF.Core.Components {
             if (!YetaWFComponentBaseStartup.GetComponentsDisplay().TryGetValue(uiHint, out Type? compType))
                 return null;
             YetaWFComponentBase component = (YetaWFComponentBase)Activator.CreateInstance(compType) ! ;
-            IComplexFilter? iFilter = component as IComplexFilter;
-            if (iFilter == null)
+            if (component is not IComplexFilter iFilter)
                 return null;
             return iFilter.GetDataProviderFilterInfo(jsonData, propName);
         }
@@ -362,7 +357,7 @@ namespace YetaWF.Core.Components {
                 // Container
                 component.SetRenderInfo(htmlHelper, container, null, null, null, htmlAttributes, validation);
                 // Invoke IncludeAsync
-                MethodInfo? miAsync = compType.GetMethod(nameof(IYetaWFContainer<object>.IncludeAsync), new Type[] { });
+                MethodInfo? miAsync = compType.GetMethod(nameof(IYetaWFContainer<object>.IncludeAsync), Array.Empty<Type>());
                 if (miAsync == null)
                     throw new InternalError($"{compType.FullName} doesn't have an {nameof(IYetaWFContainer<object>.IncludeAsync)} method for {containerType.FullName}");
                 Task methRetvalTask = (Task)miAsync.Invoke(component, null) !;
@@ -380,7 +375,7 @@ namespace YetaWF.Core.Components {
                     propData = ObjectSupport.GetPropertyData(containerType, propertyName);
                 component.SetRenderInfo(htmlHelper, container, propertyName, fieldName, propData, htmlAttributes, validation);
                 // Invoke IncludeAsync
-                MethodInfo? miAsync = compType.GetMethod(nameof(IYetaWFComponent<object?>.IncludeAsync), new Type[] { });
+                MethodInfo? miAsync = compType.GetMethod(nameof(IYetaWFComponent<object?>.IncludeAsync), Array.Empty<Type>());
                 if (miAsync == null)
                     throw new InternalError($"{compType.FullName} doesn't have an {nameof(IYetaWFComponent<object?>.IncludeAsync)} method for {containerType.FullName}, {propertyName}");
                 Task methRetvalTask = (Task)miAsync.Invoke(component, null) ! ;
@@ -452,7 +447,7 @@ namespace YetaWF.Core.Components {
             }
 
             // Invoke IncludeAsync
-            MethodInfo? miAsync = compType.GetMethod(nameof(IYetaWFContainer<object>.IncludeAsync), new Type[] { });
+            MethodInfo? miAsync = compType.GetMethod(nameof(IYetaWFContainer<object>.IncludeAsync), Array.Empty<Type>());
             if (miAsync == null)
                 throw new InternalError($"{compType.FullName} doesn't have an {nameof(IYetaWFContainer<object>.IncludeAsync)} method");
             Task methRetvalTask = (Task)miAsync.Invoke(component, null) ! ;

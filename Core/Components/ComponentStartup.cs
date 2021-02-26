@@ -24,23 +24,23 @@ namespace YetaWF.Core.Components {
         /// <summary>
         /// List of edit components.
         /// </summary>
-        private static Dictionary<string, Type> ComponentsEdit = new Dictionary<string, Type>();
+        private static readonly Dictionary<string, Type> ComponentsEdit = new Dictionary<string, Type>();
         /// <summary>
         /// List of display components.
         /// </summary>
-        private static Dictionary<string, Type> ComponentsDisplay = new Dictionary<string, Type>();
+        private static readonly Dictionary<string, Type> ComponentsDisplay = new Dictionary<string, Type>();
         /// <summary>
         /// List of available views.
         /// </summary>
-        private static Dictionary<string, Type> Views = new Dictionary<string, Type>();
+        private static readonly Dictionary<string, Type> Views = new Dictionary<string, Type>();
         /// <summary>
         /// List of available pages.
         /// </summary>
-        private static Dictionary<string, Type> Pages = new Dictionary<string, Type>();
+        private static readonly Dictionary<string, Type> Pages = new Dictionary<string, Type>();
         /// <summary>
         /// Dictionary of components that have a controller preprocessor action.
         /// </summary>
-        private static Dictionary<string, MethodInfo> ComponentsWithControllerPreprocessAction = new Dictionary<string, MethodInfo>();
+        private static readonly Dictionary<string, MethodInfo> ComponentsWithControllerPreprocessAction = new Dictionary<string, MethodInfo>();
 
         /// <summary>
         /// Called during application startup.

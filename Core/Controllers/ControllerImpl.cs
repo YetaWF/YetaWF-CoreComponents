@@ -38,7 +38,6 @@ namespace YetaWF.Core.Controllers {
         /// <summary>
         /// Returns the module definitions YetaWF.Core.Modules.ModuleDefinition for the current module implementing the controller.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         protected TMod Module { get { return (TMod)CurrentModule; } }
     }
 
@@ -403,8 +402,7 @@ namespace YetaWF.Core.Controllers {
                         } catch (Exception) { }
                     } else if (indexParmsLen == 1 && indexParms[0].ParameterType == typeof(int)) {
                         // enumerable types
-                        IEnumerable<object>? ienum = parm as IEnumerable<object>;
-                        if (ienum != null) {
+                        if (parm is IEnumerable<object> ienum) {
                             IEnumerator<object> ienumerator = ienum.GetEnumerator();
                             for (int i = 0; ienumerator.MoveNext(); i++) {
                                 await FixDataAsync(ienumerator.Current);
@@ -482,15 +480,10 @@ namespace YetaWF.Core.Controllers {
                         if (pi.CanWrite) {
                             string? val = (string?)pi.GetValue(parm, null); ;
                             if (!string.IsNullOrEmpty(val)) {
-                                switch (style) {
-                                    default:
-                                    case CaseAttribute.EnumStyle.Upper:
-                                        val = val.ToUpper();
-                                        break;
-                                    case CaseAttribute.EnumStyle.Lower:
-                                        val = val.ToLower();
-                                        break;
-                                }
+                                val = style switch {
+                                    CaseAttribute.EnumStyle.Lower => val.ToLower(),
+                                    _ => val.ToUpper(),
+                                };
                                 pi.SetValue(parm, val, null);
                             }
                         }
@@ -518,8 +511,7 @@ namespace YetaWF.Core.Controllers {
                         if (actionAttr != null) {
                             if (actionAttr.Value == templateName) {
                                 object? objVal = prop.GetPropertyValue<object?>(parm);
-                                ITemplateAction? act = objVal as ITemplateAction;
-                                if (act == null)
+                                if (objVal is not ITemplateAction act)
                                     throw new InternalError("ITemplateAction not implemented for {0}", prop.Name);
                                 int actionVal = 0;
                                 if (!string.IsNullOrWhiteSpace(actionValStr))
@@ -597,7 +589,6 @@ namespace YetaWF.Core.Controllers {
         /// </summary>
         /// <param name="model">The model.</param>
         /// <returns>A YetaWFViewResult.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1061:DoNotHideBaseClassMethods", Justification = "This is deliberate so the base class implementation isn't used accidentally")]
         protected new YetaWFViewResult View(object? model) {
             return View(null, model, UseAreaViewName: true);
         }
@@ -710,15 +701,11 @@ namespace YetaWF.Core.Controllers {
         /// <returns></returns>
         protected ActionResult Reload(object? model = null, int dummy = 0, string? PopupText = null, string? PopupTitle = null, ReloadEnum Reload = ReloadEnum.Page) {
             if (Manager.IsPostRequest) {
-                switch (Reload) {
-                    default:
-                    case ReloadEnum.Page:
-                        return Reload_Page(PopupText, PopupTitle);
-                    case ReloadEnum.Module:
-                        return Reload_Module(model, PopupText, PopupTitle);
-                    case ReloadEnum.ModuleParts:
-                        return Reload_ModuleParts(model, PopupText, PopupTitle);
-                }
+                return Reload switch {
+                    ReloadEnum.Module => Reload_Module(model, PopupText, PopupTitle),
+                    ReloadEnum.ModuleParts => Reload_ModuleParts(model, PopupText, PopupTitle),
+                    _ => Reload_Page(PopupText, PopupTitle),
+                };
             } else {
                 if (string.IsNullOrEmpty(PopupText))
                     throw new InternalError("We don't have a message to display - programmer error");
@@ -884,13 +871,12 @@ namespace YetaWF.Core.Controllers {
 
             popupText = string.IsNullOrWhiteSpace(popupText) ? null : Utility.JsonSerialize(popupText);
             popupTitle = Utility.JsonSerialize(popupTitle ?? __ResStr("completeTitle", "Success"));
-            PopupOptions = PopupOptions ?? "null";
+            PopupOptions ??= "null";
 
             if (PreserveOriginList && !string.IsNullOrWhiteSpace(NextPage)) {
                 string url = NextPage;
                 if (Manager.OriginList != null) {
-                    string urlOnly;
-                    QueryHelper qh = QueryHelper.FromUrl(url, out urlOnly);
+                    QueryHelper qh = QueryHelper.FromUrl(url, out string urlOnly);
                     qh.Add(Globals.Link_OriginList, Utility.JsonSerialize(Manager.OriginList), Replace: true);
                     NextPage = qh.ToUrl(urlOnly);
                 }
@@ -1253,8 +1239,7 @@ $YetaWF.message({popupText}, {popupTitle}, function() {{
 
         private static string AddUrlPayload(string url, bool SetCurrentEditMode, bool SetCurrentControlPanelMode, string? ExtraData) {
 
-            string urlOnly;
-            QueryHelper qhUrl = QueryHelper.FromUrl(url, out urlOnly);
+            QueryHelper qhUrl = QueryHelper.FromUrl(url, out string urlOnly);
             // If we're coming from a referring page with edit/noedit, we need to propagate that to the redirect
             if (SetCurrentEditMode) { // forced set edit mode
                 qhUrl.Remove(Globals.Link_EditMode);
@@ -1270,8 +1255,7 @@ $YetaWF.message({popupText}, {popupTitle}, function() {{
                     // not in edit mode, use referrer mode
                     string referrer = Manager.ReferrerUrl;
                     if (!string.IsNullOrWhiteSpace(referrer)) {
-                        string refUrlOnly;
-                        QueryHelper qhRef = QueryHelper.FromUrl(referrer, out refUrlOnly);
+                        QueryHelper qhRef = QueryHelper.FromUrl(referrer, out string refUrlOnly);
                         if (qhRef.HasEntry(Globals.Link_EditMode)) { // referrer is edit
                             qhUrl.Add(Globals.Link_EditMode, "y", Replace: true);
                         }

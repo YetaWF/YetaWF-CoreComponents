@@ -56,7 +56,6 @@ namespace YetaWF.Core.Components {
         /// <summary>
         /// Constructor.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public YetaWFViewBase() {
             Package = GetPackage();
         }
@@ -69,7 +68,6 @@ namespace YetaWF.Core.Components {
         /// <summary>
         /// The HtmlHelper instance.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public YHtmlHelper HtmlHelper {
             get {
                 if (_htmlHelper == null) throw new InternalError("No htmlHelper available");
