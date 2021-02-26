@@ -1234,8 +1234,8 @@ var YetaWF;
             var _this = this;
             var _loop_1 = function (tag) {
                 if (tag) {
-                    for (var _i = 0, eventNames_4 = eventNames; _i < eventNames_4.length; _i++) {
-                        var eventName = eventNames_4[_i];
+                    for (var _a = 0, eventNames_4 = eventNames; _a < eventNames_4.length; _a++) {
+                        var eventName = eventNames_4[_a];
                         tag.addEventListener(eventName, function (ev) { return _this.handleEvent(tag, ev, selector, callback); });
                     }
                 }
@@ -1257,8 +1257,8 @@ var YetaWF;
             var _this = this;
             var _loop_2 = function (tag) {
                 if (tag) {
-                    for (var _i = 0, eventNames_5 = eventNames; _i < eventNames_5.length; _i++) {
-                        var eventName = eventNames_5[_i];
+                    for (var _a = 0, eventNames_5 = eventNames; _a < eventNames_5.length; _a++) {
+                        var eventName = eventNames_5[_a];
                         tag.addEventListener(eventName, function (ev) { return _this.handleEvent(tag, ev, selector, callback); });
                     }
                 }

@@ -389,7 +389,7 @@ namespace YetaWF.Core.WebStartup {
             StartYetaWF();
         }
 
-        private static object _lockObject = new object();
+        private static readonly object _lockObject = new object();
 
         private static void StartYetaWF() {
 
