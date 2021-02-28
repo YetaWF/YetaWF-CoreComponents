@@ -148,6 +148,11 @@ namespace YetaWF.Core.Models {
             /// </summary>
             [EnumDescription("Mini Dropdown Menu", "Displayed as a dropdown menu, accessible through a small button without text")]
             Mini = 2,
+            /// <summary>
+            /// Actions are displayed as a button bar.
+            /// </summary>
+            [EnumDescription("Button Bar", "Actions are displayed as a button bar")]
+            ButtonBar = 3,
         }
 
         /// <summary>
@@ -164,6 +169,12 @@ namespace YetaWF.Core.Models {
             /// </summary>
             [EnumDescription("Dropdown Menu", "If more than one action is available they are displayed as a dropdown menu, accessible through a button, otherwise a single icon is displayed")]
             DropdownMenu = 1,
+            // /// <summary>
+            // /// Actions are displayed as a button bar.
+            // /// </summary>
+            // [EnumDescription("Button Bar", "Actions are displayed as a button bar")]
+            // Not user selectable
+            // ButtonBar = 3,
         }
     }
 
