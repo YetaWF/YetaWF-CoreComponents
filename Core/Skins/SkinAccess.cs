@@ -216,7 +216,7 @@ namespace YetaWF.Core.Skins {
 
             string actions = await YetaWFCoreRendering.Render.RenderModuleLinksAsync(mod, ModuleAction.RenderModeEnum.Button, Globals.CssModuleLinksContainer);
             if (string.IsNullOrWhiteSpace(actions))
-                actions = "<div class='yModuleLinksContainer'></div>"; // empty div for flex
+                actions = $"<div class='{Globals.CssModuleLinksContainer}'></div>"; // empty div for flex
 
             hb.Append($@"
     <div class='yModuleTitle'>

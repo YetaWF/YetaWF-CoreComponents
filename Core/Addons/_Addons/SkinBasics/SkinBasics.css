@@ -9,7 +9,15 @@ a {
   outline: none;
   color: var(--a-clr);
   -webkit-text-decoration: var(--a-dec);
-          text-decoration: var(--a-dec); }
+          text-decoration: var(--a-dec);
+  /* a link should not break into two lines */
+  white-space: nowrap; }
+  h1 a,
+  h2 a,
+  h3 a,
+  h4 a,
+  h5 a {
+    white-space: normal; }
   a:hover {
     outline: none;
     color: var(--a-clr-hover);
@@ -126,11 +134,6 @@ select.t_native {
   background: var(--tst-warn-bg);
   color: var(--tst-warn-clr); }
 
-/* Module Actions */
-/* make sure module links don't float left/right */
-.yModuleLinksContainer {
-  clear: both; }
-
 /* Print */
 @media print {
   .yNoPrint {
@@ -182,41 +185,12 @@ select.t_native {
     padding: 1rem 0 1rem 0;
     font: var(--mstd-title-font); }
   .yModule .yModuleTitle .yModuleLinksContainer {
+    clear: none;
     float: right;
-    clear: none;
-    /* a bit of extra space above the module action links */ }
-    @media print {
-      .yModule .yModuleTitle .yModuleLinksContainer {
-        display: none; } }
-    .yModule .yModuleTitle .yModuleLinksContainer .yModuleLinks {
-      margin: 0;
-      padding: 0;
-      list-style-type: none; }
-      .yModule .yModuleTitle .yModuleLinksContainer .yModuleLinks li {
-        display: inline-block; }
-      .yModule .yModuleTitle .yModuleLinksContainer .yModuleLinks .yaction-link {
-        margin-right: .4ch; }
-        .yModule .yModuleTitle .yModuleLinksContainer .yModuleLinks .yaction-link i, .yModule .yModuleTitle .yModuleLinksContainer .yModuleLinks .yaction-link img {
-          /* a bit of extra space around the image in a module action link */
-          margin-right: .4ch; }
+    margin-top: 0; }
   .yModule > .yModuleLinksContainer {
-    clear: none;
-    /* a bit of extra space above the module action links */ }
-    @media print {
-      .yModule > .yModuleLinksContainer {
-        display: none; } }
-    .yModule > .yModuleLinksContainer .yModuleLinks {
-      margin: 0;
-      margin-top: .5em;
-      padding: 0;
-      list-style-type: none; }
-      .yModule > .yModuleLinksContainer .yModuleLinks li {
-        display: inline-block; }
-      .yModule > .yModuleLinksContainer .yModuleLinks .yaction-link {
-        margin-right: 1ch; }
-        .yModule > .yModuleLinksContainer .yModuleLinks .yaction-link i, .yModule > .yModuleLinksContainer .yModuleLinks .yaction-link img {
-          /* a bit of extra space around the image in a module action link */
-          margin-right: .4ch; }
+    clear: both;
+    margin-top: .5em; }
 
 .modPanel {
   margin-top: 1rem;
@@ -251,22 +225,10 @@ select.t_native {
       @media print {
         .modPanel .yModuleTitle .yModuleLinksContainer {
           display: none; } }
-      .modPanel .yModuleTitle .yModuleLinksContainer .yModuleLinks {
-        margin: 0;
-        padding: 0;
-        list-style-type: none; }
-        .modPanel .yModuleTitle .yModuleLinksContainer .yModuleLinks li {
-          display: inline-block;
-          line-height: 1;
-          vertical-align: middle; }
-        .modPanel .yModuleTitle .yModuleLinksContainer .yModuleLinks .yaction-link {
-          margin-right: .5ch;
-          margin-bottom: .2em; }
-          .modPanel .yModuleTitle .yModuleLinksContainer .yModuleLinks .yaction-link i, .modPanel .yModuleTitle .yModuleLinksContainer .yModuleLinks .yaction-link img {
-            margin-right: .4ch; }
-        .modPanel .yModuleTitle .yModuleLinksContainer .yModuleLinks .y_button {
-          font: var(--mpnl-link-font);
-          padding: .3em; }
+      .modPanel .yModuleTitle .yModuleLinksContainer .y_button {
+        font: var(--mpnl-link-font);
+        padding: .3em;
+        margin-bottom: .1em; }
     .modPanel .yModuleTitle .yModuleExpColl {
       -webkit-box-flex: 0;
               flex: 0 0;

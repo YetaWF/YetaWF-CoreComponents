@@ -7,6 +7,7 @@ using YetaWF.Core.Components;
 using YetaWF.Core.DataProvider;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models.Attributes;
+using YetaWF.Core.Modules;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
 
@@ -75,7 +76,7 @@ namespace YetaWF.Core.Models {
         public int PanelHeaderAutoSearch { get; set; }
         public bool PanelHeaderColumnSelection { get; set; }
         public string? PanelHeaderTitle { get; set; }
-        public MenuList? PanelHeaderActions { get; set; }
+        public List<ModuleAction>? PanelHeaderActions { get; set; }
         public List<string>? PanelHeaderSearchColumns { get; set; }
         public string? PanelHeaderSearchTT { get; set; }
 

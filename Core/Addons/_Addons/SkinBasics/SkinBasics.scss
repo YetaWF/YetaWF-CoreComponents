@@ -12,6 +12,17 @@ a {
     outline:none;
     color: var(--a-clr);
     text-decoration: var(--a-dec);
+
+    /* a link should not break into two lines */
+    white-space:nowrap;
+    h1 &,
+    h2 &,
+    h3 &,
+    h4 &,
+    h5 & {
+        white-space:normal;
+    }
+
     &:hover {
         outline:none;
         color: var(--a-clr-hover);
@@ -154,12 +165,6 @@ select.t_native { // native select (not DropDownList)
     color: var(--tst-warn-clr);
 }
 
-/* Module Actions */
-/* make sure module links don't float left/right */
-.yModuleLinksContainer {
-    clear:both;
-}
-
 /* Print */
 
 @media print {
@@ -227,49 +232,14 @@ select.t_native { // native select (not DropDownList)
             font: var(--mstd-title-font);
         }
         .yModuleLinksContainer {
+            clear: none;
             float:right;
-            clear:none;
-            @media print {
-                display: none;
-            }
-            /* a bit of extra space above the module action links */
-            .yModuleLinks {
-                margin:0;
-                padding:0;
-                list-style-type: none;
-                li {
-                    display:inline-block;
-                }
-                .yaction-link {
-                    i, img {/* a bit of extra space around the image in a module action link */
-                        margin-right:.4ch;
-                    }
-                    margin-right:.4ch;
-                }
-            }
+            margin-top: 0;
         }
     }
     > .yModuleLinksContainer {
-        clear:none;
-        @media print {
-            display: none;
-        }
-        /* a bit of extra space above the module action links */
-        .yModuleLinks {
-            margin:0;
-            margin-top:.5em;
-            padding:0;
-            list-style-type: none;
-            li {
-                display:inline-block;
-            }
-            .yaction-link {
-                i, img {/* a bit of extra space around the image in a module action link */
-                    margin-right:.4ch;
-                }
-                margin-right:1ch;
-            }
-        }
+        clear:both;
+        margin-top:.5em;
     }
 }
 
@@ -301,26 +271,10 @@ select.t_native { // native select (not DropDownList)
             @media print {
                 display: none;
             }
-            .yModuleLinks {
-                margin:0;
-                padding:0;
-                list-style-type: none;
-                li {
-                    display:inline-block;
-                    line-height:1;
-                    vertical-align: middle;
-                }
-                .yaction-link {
-                    i, img {
-                        margin-right:.4ch;
-                    }
-                    margin-right:.5ch;
-                    margin-bottom:.2em;
-                }
-                .y_button { // smaller buttons
-                    font: var(--mpnl-link-font);
-                    padding:.3em;
-                }
+            .y_button { // smaller buttons
+                font: var(--mpnl-link-font);
+                padding:.3em;
+                margin-bottom:.1em;
             }
         }
         .yModuleExpColl {

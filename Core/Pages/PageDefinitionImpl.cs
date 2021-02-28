@@ -448,7 +448,7 @@ namespace YetaWF.Core.Pages {
                                 if (action != null) {
                                     string act = await action.RenderAsync(ModuleAction.RenderModeEnum.NormalLinks);
                                     if (!string.IsNullOrWhiteSpace(act)) // only render if the action actually is available
-                                        hb.Append($@"<ul class='{Globals.CssModuleLinks}'><li>{act}</li></ul>");
+                                        hb.Append(act);
                                 }
                             }
                         }

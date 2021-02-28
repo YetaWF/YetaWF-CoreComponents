@@ -133,7 +133,6 @@ namespace YetaWF.Core {
         public const string CssModuleMenuEditIcon = "yModuleMenuEditIcon";
         public const string CssModuleMenuContainer = "yModuleMenuContainer";
         public const string CssModuleLinksContainer = "yModuleLinksContainer";
-        public const string CssModuleLinks = "yModuleLinks"; // module menu action menu
         /// <summary>
         /// CSS class that can be added to tags to prevent them from being printed. 
         /// </summary>

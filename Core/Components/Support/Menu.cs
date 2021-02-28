@@ -80,14 +80,6 @@ namespace YetaWF.Core.Components {
                     Add(action);
             }
         }
-        public void NewIf(ModuleAction? action, ModuleAction.ActionLocationEnum desiredLocation, ModuleAction.ActionLocationEnum location = ModuleAction.ActionLocationEnum.Explicit) {
-            if (action != null) {
-                if ((location & ModuleAction.ActionLocationEnum.Explicit) != 0) // grid links are always explicit calls
-                    Add(action);
-                else if ((desiredLocation & location) != 0)
-                    Add(action);
-            }
-        }
 
         public ModuleAction.RenderModeEnum RenderMode { get; set; }
 
@@ -107,7 +99,7 @@ namespace YetaWF.Core.Components {
             return menu;
         }
         private SerializableList<ModuleAction> DropEmptySubmenus(SerializableList<ModuleAction>? menu) {
-            if (menu == null) return new MenuList();
+            if (menu == null) return new SerializableList<ModuleAction>();
             foreach (ModuleAction m in menu) {
                 m.SubMenu = DropEmptySubmenus(m.SubMenu);
             }
