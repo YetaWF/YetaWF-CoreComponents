@@ -17,7 +17,9 @@ namespace YetaWF_Core_Debugging {
             if (!found) {
                 arr.push(elem);
             } else {
-                $YetaWF.error(`Duplicate id ${id} in element ${elem.outerHTML} - like ${found.outerHTML}`);
+                let msg = `Duplicate id ${id} in element ${elem.outerHTML} - like ${found.outerHTML}`;
+                $YetaWF.error(msg);
+                console.log(msg);
             }
         }
 
@@ -25,8 +27,11 @@ namespace YetaWF_Core_Debugging {
         // eslint-disable-next-line no-debugger
         elems = $YetaWF.getElementsBySelector("*");
         for (let elem of elems) {
-            if ($YetaWF.elementHasClassPrefix(elem, "ui-").length > 0)
-                $YetaWF.error(`Element with class ui-... found: ${elem.outerHTML}`);
+            if ($YetaWF.elementHasClassPrefix(elem, "ui-").length > 0) {
+                let msg = `Element with class ui-... found: ${elem.outerHTML}`;
+                $YetaWF.error(msg);
+                console.log(msg);
+            }
         }
 
         return true;
@@ -43,7 +48,10 @@ namespace YetaWF_Core_Debugging {
             // avoid recursive error with video controls. a bit hacky but this is just a debugging tool.
             if (evMsg.startsWith("ResizeObserver")) return;
 
-            $YetaWF.error(`${evMsg} (${url}:${lineNo}) ${error?.stack}`);
+            let msg = `${evMsg} (${url}:${lineNo}) ${error?.stack}`;
+            $YetaWF.error(msg);
+            console.log(msg);
+
             inDebug = false;
         }
     };
