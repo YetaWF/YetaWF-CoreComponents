@@ -186,10 +186,13 @@ var YetaWF_Core_Debugging;
         return true;
     });
     var LinksTest = new Links();
-    $YetaWF.registerEventHandler($YetaWF.getElement1BySelector(".YetaWF_Menus_MainMenu a.DebugLoadTest"), "click", null, function (ev) {
-        LinksTest.testAll();
-        return false;
-    });
+    var a = $YetaWF.getElement1BySelectorCond(".YetaWF_Menus_MainMenu a.DebugLoadTest");
+    if (a) {
+        $YetaWF.registerEventHandler(a, "click", null, function (ev) {
+            LinksTest.testAll();
+            return false;
+        });
+    }
 })(YetaWF_Core_Debugging || (YetaWF_Core_Debugging = {}));
 
 //# sourceMappingURL=Debugging.js.map

@@ -202,8 +202,11 @@ namespace YetaWF_Core_Debugging {
     });
 
     let LinksTest = new Links();
-    $YetaWF.registerEventHandler($YetaWF.getElement1BySelector(".YetaWF_Menus_MainMenu a.DebugLoadTest"), "click", null, (ev: MouseEvent): boolean => {
-        LinksTest.testAll();
-        return false;
-    });
+    let a = $YetaWF.getElement1BySelectorCond(".YetaWF_Menus_MainMenu a.DebugLoadTest");
+    if (a) {
+        $YetaWF.registerEventHandler(a, "click", null, (ev: MouseEvent): boolean => {
+            LinksTest.testAll();
+            return false;
+        });
+    }
 }

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -107,6 +108,15 @@ namespace YetaWF.Core.Support {
                 }
             }
             return hb.ToString();
+        }
+
+        public static void AddClass(IDictionary<string, object?> htmlAttributes, string cls) {
+            if (htmlAttributes.TryGetValue("class", out object? classes)) {
+                classes = CssManager.CombineCss((string?)classes, cls);
+                htmlAttributes["class"] = classes;
+            } else {
+                htmlAttributes.Add("class", cls);
+            }
         }
 
         /// <summary>
