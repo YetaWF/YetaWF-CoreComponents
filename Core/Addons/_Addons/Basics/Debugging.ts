@@ -19,18 +19,17 @@ namespace YetaWF_Core_Debugging {
             } else {
                 let msg = `Duplicate id ${id} in element ${elem.outerHTML} - like ${found.outerHTML}`;
                 $YetaWF.error(msg);
-                console.log(msg);
+                console.error(msg);
             }
         }
 
         // Verify that no "ui-" classes are used (remnant from jquery ui)
-        // eslint-disable-next-line no-debugger
         elems = $YetaWF.getElementsBySelector("*");
         for (let elem of elems) {
             if ($YetaWF.elementHasClassPrefix(elem, "ui-").length > 0) {
                 let msg = `Element with class ui-... found: ${elem.outerHTML}`;
                 $YetaWF.error(msg);
-                console.log(msg);
+                console.error(msg);
             }
         }
 
@@ -50,7 +49,7 @@ namespace YetaWF_Core_Debugging {
 
             let msg = `${evMsg} (${url}:${lineNo}) ${error?.stack}`;
             $YetaWF.error(msg);
-            console.log(msg);
+            console.error(msg);
 
             inDebug = false;
         }

@@ -1,13 +1,16 @@
 /* Copyright © 2021 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+/* eslint-disable id-blacklist */
+/* eslint-disable no-bitwise */
+/* eslint-disable prefer-arrow/prefer-arrow-functions */
 
 // string.startsWith
-if (typeof String.prototype.startsWith != 'function') {
+if (typeof String.prototype.startsWith != "function") {
     String.prototype.startsWith = function (str) {
         return this.indexOf(str) == 0;
     };
 }
 // string endsWith
-if (typeof String.prototype.endsWith != 'function') {
+if (typeof String.prototype.endsWith != "function") {
     String.prototype.endsWith = function (str) {
         return this.indexOf(str) == this.length - str.length;
     };
@@ -16,14 +19,15 @@ if (typeof String.prototype.endsWith != 'function') {
 // string.isValidInt - check for valid int
 String.prototype.isValidInt = function (start, end) { // http://stackoverflow.com/questions/10834796/validate-that-a-string-is-a-positive-integer
     var n = ~~Number(this);
-    return String(n) == this && n >= start && (end == undefined || n <= end);
-}
+    return String(n) === this && n >= start && (end === undefined || n <= end);
+};
 
 // String.format
 String.prototype.format = function () {
     var args = arguments;
+    // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
     return this.replace(/{(\d+)}/g, function (match, number) {
-        return typeof args[number] != 'undefined'
+        return typeof args[number] != "undefined"
             ? args[number]
             : match
         ;
@@ -49,10 +53,10 @@ if (!Element.prototype.matches) {
 // from:https://github.com/jserz/js_piece/blob/master/DOM/ChildNode/remove()/remove().md
 (function (arr) {
     arr.forEach(function (item) {
-        if (item.hasOwnProperty('remove')) {
+        if (item.hasOwnProperty("remove")) {
             return;
         }
-        Object.defineProperty(item, 'remove', {
+        Object.defineProperty(item, "remove", {
             configurable: true,
             enumerable: true,
             writable: true,
@@ -77,11 +81,11 @@ if (!Number.MIN_SAFE_INTEGER) {
 
 // https://tc39.github.io/ecma262/#sec-array.prototype.find
 if (!Array.prototype.find) {
-    Object.defineProperty(Array.prototype, 'find', {
+    Object.defineProperty(Array.prototype, "find", {
         value: function (predicate) {
             // 1. Let O be ? ToObject(this value).
             if (this == null) {
-                throw new TypeError('"this" is null or not defined');
+                throw new TypeError("\"this\" is null or not defined");
             }
 
             var o = Object(this);
@@ -90,8 +94,8 @@ if (!Array.prototype.find) {
             var len = o.length >>> 0;
 
             // 3. If IsCallable(predicate) is false, throw a TypeError exception.
-            if (typeof predicate !== 'function') {
-                throw new TypeError('predicate must be a function');
+            if (typeof predicate !== "function") {
+                throw new TypeError("predicate must be a function");
             }
 
             // 4. If thisArg was supplied, let T be thisArg; else let T be undefined.
@@ -126,8 +130,8 @@ if (!Array.prototype.find) {
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter
 if (!Array.prototype.filter) {
     Array.prototype.filter = function (func, thisArg) {
-        'use strict';
-        if (!((typeof func === 'Function' || typeof func === 'function') && this))
+        "use strict";
+        if (!((typeof func === "Function" || typeof func === "function") && this))
             throw new TypeError();
 
         var len = this.length >>> 0,
@@ -166,7 +170,7 @@ if (!Array.from) {
     Array.from = (function () {
         var toStr = Object.prototype.toString;
         var isCallable = function (fn) {
-            return typeof fn === 'function' || toStr.call(fn) === '[object Function]';
+            return typeof fn === "function" || toStr.call(fn) === "[object Function]";
         };
         var toInteger = function (value) {
             var number = Number(value);
@@ -190,17 +194,17 @@ if (!Array.from) {
 
             // 3. ReturnIfAbrupt(items).
             if (arrayLike == null) {
-                throw new TypeError('Array.from requires an array-like object - not null or undefined');
+                throw new TypeError("Array.from requires an array-like object - not null or undefined");
             }
 
             // 4. If mapfn is undefined, then let mapping be false.
             var mapFn = arguments.length > 1 ? arguments[1] : void undefined;
             var T;
-            if (typeof mapFn !== 'undefined') {
+            if (typeof mapFn !== "undefined") {
                 // 5. else
                 // 5. a If IsCallable(mapfn) is false, throw a TypeError exception.
                 if (!isCallable(mapFn)) {
-                    throw new TypeError('Array.from: when provided, the second argument must be a function');
+                    throw new TypeError("Array.from: when provided, the second argument must be a function");
                 }
 
                 // 5. b. If thisArg was supplied, let T be thisArg; else let T be undefined.
@@ -226,7 +230,7 @@ if (!Array.from) {
             while (k < len) {
                 kValue = items[k];
                 if (mapFn) {
-                    A[k] = typeof T === 'undefined' ? mapFn(kValue, k) : mapFn.call(T, kValue, k);
+                    A[k] = typeof T === "undefined" ? mapFn(kValue, k) : mapFn.call(T, kValue, k);
                 } else {
                     A[k] = kValue;
                 }
@@ -247,7 +251,7 @@ if (!Array.from) {
 
     function CustomEvent(event, params) {
         params = params || { bubbles: false, cancelable: false, detail: null };
-        var evt = document.createEvent('CustomEvent');
+        var evt = document.createEvent("CustomEvent");
         evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
         return evt;
     }
@@ -262,22 +266,22 @@ if (!Array.from) {
 // Whether it is actually faster remains to be seen.
 if (!Array.prototype.indexOf)
     Array.prototype.indexOf = (function (Object, max, min) {
-        "use strict"
+        "use strict";
         return function indexOf(member, fromIndex) {
             if (this === null || this === undefined)
-                throw TypeError("Array.prototype.indexOf called on null or undefined")
+                throw TypeError("Array.prototype.indexOf called on null or undefined");
 
-            var that = Object(this), Len = that.length >>> 0, i = min(fromIndex | 0, Len)
-            if (i < 0) i = max(0, Len + i)
-            else if (i >= Len) return -1
+            var that = Object(this), Len = that.length >>> 0, i = min(fromIndex | 0, Len);
+            if (i < 0) i = max(0, Len + i);
+            else if (i >= Len) return -1;
 
             if (member === void 0) {        // undefined
-                for (; i !== Len; ++i) if (that[i] === void 0 && i in that) return i
+                for (; i !== Len; ++i) if (that[i] === void 0 && i in that) return i;
             } else if (member !== member) { // NaN
                 return -1 // Since NaN !== NaN, it will never be found. Fast-path it.
             } else                          // all else
-                for (; i !== Len; ++i) if (that[i] === member) return i
+                for (; i !== Len; ++i) if (that[i] === member) return i;
 
-            return -1 // if the value was not found, then return -1
-        }
-    })(Object, Math.max, Math.min)
+            return -1; // if the value was not found, then return -1
+        };
+    })(Object, Math.max, Math.min);

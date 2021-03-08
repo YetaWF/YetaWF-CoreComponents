@@ -455,6 +455,7 @@ var YetaWF;
             return str1 === str2;
         };
         // Ajax result handling
+        /** OBSOLETE: handle Ajax response - use $YetaWF.post() instead */
         BasicsServices.prototype.processAjaxReturn = function (result, textStatus, xhr, tagInModule, onSuccessNoData, onRawDataResult, onJSONResult) {
             //if (xhr.responseType != "json") throw `processAjaxReturn: unexpected responseType ${xhr.responseType}`;
             try {
@@ -539,31 +540,93 @@ var YetaWF;
                 return false;
             }
         };
-        BasicsServices.prototype.post = function (url, data, callback) {
+        /** POST data to the specified URL, expecting a JSON response. Errors are automatically handled. The callback is called once the POST response is available.
+         * @param url The URL used for the POST request.
+         * @param data The data to send as form data with the POST request.
+         * @param callback The callback to call when the POST response is available. Errors are automatically handled.
+         * @param tagInModule The optional tag in a module to refresh when AjaxJavascriptReloadModuleParts is returned.
+         */
+        BasicsServices.prototype.post = function (url, data, callback, tagInModule) {
+            this.setLoading(true);
             var request = new XMLHttpRequest();
             request.open("POST", url);
             request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-            $YetaWF.handleReadyStateChange(request, callback);
+            $YetaWF.handleReadyStateChange(request, callback, tagInModule);
             request.send(data);
         };
-        BasicsServices.prototype.handleReadyStateChange = function (request, callback) {
+        BasicsServices.prototype.handleReadyStateChange = function (request, callback, tagInModule) {
+            var _this = this;
             request.setRequestHeader("X-Requested-With", "XMLHttpRequest");
             request.onreadystatechange = function (ev) {
                 if (request.readyState === 4 /*DONE*/) {
+                    _this.setLoading(false);
                     if (request.status === 200) {
-                        callback(true, request.responseText);
-                        return;
+                        var result = JSON.parse(request.responseText);
+                        if (typeof result === "string") {
+                            if (result.startsWith(YConfigs.Basics.AjaxJavascriptReturn)) {
+                                var script = result.substring(YConfigs.Basics.AjaxJavascriptReturn.length);
+                                if (script.length > 0) {
+                                    // eslint-disable-next-line no-eval
+                                    eval(script);
+                                }
+                                callback(true, null);
+                                return;
+                            }
+                            else if (result.startsWith(YConfigs.Basics.AjaxJSONReturn)) {
+                                var json = result.substring(YConfigs.Basics.AjaxJSONReturn.length);
+                                callback(true, JSON.parse(json));
+                                return;
+                            }
+                            else if (result.startsWith(YConfigs.Basics.AjaxJavascriptErrorReturn)) {
+                                var script_1 = result.substring(YConfigs.Basics.AjaxJavascriptErrorReturn.length);
+                                // eslint-disable-next-line no-eval
+                                eval(script_1);
+                                callback(false, null);
+                                return;
+                            }
+                            else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadPage)) {
+                                var script_2 = result.substring(YConfigs.Basics.AjaxJavascriptReloadPage.length);
+                                // eslint-disable-next-line no-eval
+                                eval(script_2); // if this uses $YetaWF.message or other "modal" calls, the page will reload immediately (use AjaxJavascriptReturn instead and explicitly reload page in your javascript)
+                                _this.reloadPage(true);
+                                callback(true, null);
+                                return;
+                            }
+                            else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModule)) {
+                                var script_3 = result.substring(YConfigs.Basics.AjaxJavascriptReloadModule.length);
+                                // eslint-disable-next-line no-eval
+                                eval(script_3); // if this uses $YetaWF.message or other "modal" calls, the module will reload immediately (use AjaxJavascriptReturn instead and explicitly reload module in your javascript)
+                                _this.reloadModule();
+                                callback(true, null);
+                                return;
+                            }
+                            else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModuleParts)) {
+                                var script_4 = result.substring(YConfigs.Basics.AjaxJavascriptReloadModuleParts.length);
+                                // eslint-disable-next-line no-eval
+                                eval(script_4);
+                                if (tagInModule)
+                                    _this.refreshModuleByAnyTag(tagInModule);
+                                return true;
+                            }
+                            else {
+                                callback(true, result);
+                                return;
+                            }
+                        }
+                        callback(true, result);
                     }
                     else if (request.status >= 400 && request.status <= 499) {
                         $YetaWF.error(YLocs.Forms.AjaxError.format(request.status, YLocs.Forms.AjaxNotAuth), YLocs.Forms.AjaxErrorTitle);
+                        callback(false, null);
                     }
                     else if (request.status === 0) {
                         $YetaWF.error(YLocs.Forms.AjaxError.format(request.status, YLocs.Forms.AjaxConnLost), YLocs.Forms.AjaxErrorTitle);
+                        callback(false, null);
                     }
                     else {
                         $YetaWF.error(YLocs.Forms.AjaxError.format(request.status, request.responseText), YLocs.Forms.AjaxErrorTitle);
+                        callback(false, null);
                     }
-                    callback(false, null);
                 }
             };
         };

@@ -68,8 +68,12 @@ var YetaWF;
                 if (!elem)
                     return null;
                 // we found an element (a composite field). This may be a template within another template (usually a propertylist)
-                // so we use its parent element instead
-                elem = elem.parentElement;
+                // get its template
+                var childTemplate = ComponentBase.elementClosestTemplateCond(elem);
+                if (!childTemplate)
+                    return null;
+                // then take its parent element (so we get the main template later)
+                elem = childTemplate.parentElement;
                 if (!elem)
                     return null;
             }

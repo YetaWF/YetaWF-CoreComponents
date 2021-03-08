@@ -625,6 +625,7 @@ namespace YetaWF {
 
         // Ajax result handling
 
+        /** OBSOLETE: handle Ajax response - use $YetaWF.post() instead */
         public processAjaxReturn(result: string, textStatus: string, xhr: XMLHttpRequest, tagInModule?: HTMLElement,
             onSuccessNoData?: () => void,
             onRawDataResult?: (result: string) => void,
@@ -702,29 +703,84 @@ namespace YetaWF {
             }
         }
 
-        public post(url: string, data: any, callback: (success: boolean, data: any) => void): void {
-            var request: XMLHttpRequest = new XMLHttpRequest();
+        /** POST data to the specified URL, expecting a JSON response. Errors are automatically handled. The callback is called once the POST response is available.
+         * @param url The URL used for the POST request.
+         * @param data The data to send as form data with the POST request.
+         * @param callback The callback to call when the POST response is available. Errors are automatically handled.
+         * @param tagInModule The optional tag in a module to refresh when AjaxJavascriptReloadModuleParts is returned.
+         */
+        public post(url: string, data: any, callback: (success: boolean, data: any) => void, tagInModule?: HTMLElement): void {
+            this.setLoading(true);
+            let request: XMLHttpRequest = new XMLHttpRequest();
             request.open("POST", url);
             request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-            $YetaWF.handleReadyStateChange(request, callback);
+            $YetaWF.handleReadyStateChange(request, callback, tagInModule);
             request.send(data);
         }
 
-        public handleReadyStateChange(request: XMLHttpRequest, callback: (success: boolean, data: any) => void): void {
+        private handleReadyStateChange(request: XMLHttpRequest, callback: (success: boolean, data: any) => void, tagInModule?: HTMLElement): void {
             request.setRequestHeader("X-Requested-With", "XMLHttpRequest");
             request.onreadystatechange = (ev: Event): any => {
                 if (request.readyState === 4 /*DONE*/) {
+                    this.setLoading(false);
                     if (request.status === 200) {
-                        callback(true, request.responseText);
-                        return;
+                        let result = JSON.parse(request.responseText);
+                        if (typeof result === "string") {
+                            if (result.startsWith(YConfigs.Basics.AjaxJavascriptReturn)) {
+                                var script = result.substring(YConfigs.Basics.AjaxJavascriptReturn.length);
+                                if (script.length > 0) {
+                                    // eslint-disable-next-line no-eval
+                                    eval(script);
+                                }
+                                callback(true, null);
+                                return;
+                            } else if (result.startsWith(YConfigs.Basics.AjaxJSONReturn)) {
+                                var json = result.substring(YConfigs.Basics.AjaxJSONReturn.length);
+                                callback(true, JSON.parse(json));
+                                return;
+                            } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptErrorReturn)) {
+                                let script = result.substring(YConfigs.Basics.AjaxJavascriptErrorReturn.length);
+                                // eslint-disable-next-line no-eval
+                                eval(script);
+                                callback(false, null);
+                                return;
+                            } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadPage)) {
+                                let script = result.substring(YConfigs.Basics.AjaxJavascriptReloadPage.length);
+                                // eslint-disable-next-line no-eval
+                                eval(script);// if this uses $YetaWF.message or other "modal" calls, the page will reload immediately (use AjaxJavascriptReturn instead and explicitly reload page in your javascript)
+                                this.reloadPage(true);
+                                callback(true, null);
+                                return;
+                            } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModule)) {
+                                let script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModule.length);
+                                // eslint-disable-next-line no-eval
+                                eval(script);// if this uses $YetaWF.message or other "modal" calls, the module will reload immediately (use AjaxJavascriptReturn instead and explicitly reload module in your javascript)
+                                this.reloadModule();
+                                callback(true, null);
+                                return;
+                            } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModuleParts)) {
+                                let script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModuleParts.length);
+                                // eslint-disable-next-line no-eval
+                                eval(script);
+                                if (tagInModule)
+                                    this.refreshModuleByAnyTag(tagInModule);
+                                return true;
+                            } else {
+                                callback(true, result);
+                                return;
+                            }
+                        }
+                        callback(true, result);
                     } else if (request.status >= 400 && request.status <= 499) {
                         $YetaWF.error(YLocs.Forms.AjaxError.format(request.status, YLocs.Forms.AjaxNotAuth), YLocs.Forms.AjaxErrorTitle);
+                        callback(false, null);
                     } else if (request.status === 0) {
                         $YetaWF.error(YLocs.Forms.AjaxError.format(request.status, YLocs.Forms.AjaxConnLost), YLocs.Forms.AjaxErrorTitle);
+                        callback(false, null);
                     } else {
                         $YetaWF.error(YLocs.Forms.AjaxError.format(request.status, request.responseText), YLocs.Forms.AjaxErrorTitle);
+                        callback(false, null);
                     }
-                    callback(false, null);
                 }
             };
         }
