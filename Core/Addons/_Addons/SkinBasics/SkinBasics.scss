@@ -23,7 +23,7 @@ a {
         white-space:normal;
     }
 
-    &:hover {
+    &:hover:not(.t_disabled) {
         outline:none;
         color: var(--a-clr-hover);
         text-decoration: var(--a-dec-hover);
@@ -32,6 +32,9 @@ a {
         outline:none;
         color: var(--a-clr-focus);
         text-decoration: var(--a-dec-focus);
+    }
+    &.t_disabled {
+        opacity: var(--body-dis-opacity);
     }
     &[data-nohref] {
         cursor: default;

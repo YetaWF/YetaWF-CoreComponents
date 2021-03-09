@@ -132,6 +132,10 @@ namespace YetaWF {
          */
         elementEnableToggle(elem: HTMLElement, enable: boolean): void;
         /**
+         * Returns whether the element is enabled.
+         */
+        isEnabled(elem: HTMLElement): boolean;
+        /**
          * Returns whether a message popup dialog is currently active.
          */
         messagePopupActive(): boolean;
@@ -1381,6 +1385,12 @@ namespace YetaWF {
                 this.elementEnable(elem);
             else
                 this.elementDisable(elem);
+        }
+        /**
+         * Returns whether the element is enabled.
+         */
+        public isEnabled(elem: HTMLElement): boolean {
+            return YetaWF_BasicsImpl.isEnabled(elem);
         }
         /**
          * Given an element, returns the owner (typically a module) that owns the element.

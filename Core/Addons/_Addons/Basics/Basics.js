@@ -1220,6 +1220,12 @@ var YetaWF;
                 this.elementDisable(elem);
         };
         /**
+         * Returns whether the element is enabled.
+         */
+        BasicsServices.prototype.isEnabled = function (elem) {
+            return YetaWF_BasicsImpl.isEnabled(elem);
+        };
+        /**
          * Given an element, returns the owner (typically a module) that owns the element.
          * The DOM hierarchy may not reflect this ownership, for example with popup menus which are appended to the <body> tag, but are owned by specific modules.
          */

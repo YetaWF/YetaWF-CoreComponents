@@ -178,15 +178,17 @@ var YetaWF;
                                 if (partForm)
                                     partForm.className = cls;
                             }
-                            $YetaWF.sendCustomEvent(document.body, Forms.EVENTPOSTSUBMIT, { form: form });
+                            $YetaWF.sendCustomEvent(form, Forms.EVENTPOSTSUBMIT, { success: true, form: form });
                             $YetaWF.setFocus([form]);
                         })) {
                             if (successFunc)
                                 successFunc(_this.hasErrors(form));
+                            $YetaWF.sendCustomEvent(form, Forms.EVENTPOSTSUBMIT, { success: true, form: form });
                         }
                         else {
                             if (failFunc)
                                 failFunc();
+                            $YetaWF.sendCustomEvent(form, Forms.EVENTPOSTSUBMIT, { success: false, form: form });
                         }
                     }
                 };

@@ -18,7 +18,7 @@ a {
   h4 a,
   h5 a {
     white-space: normal; }
-  a:hover {
+  a:hover:not(.t_disabled) {
     outline: none;
     color: var(--a-clr-hover);
     -webkit-text-decoration: var(--a-dec-hover);
@@ -28,6 +28,8 @@ a {
     color: var(--a-clr-focus);
     -webkit-text-decoration: var(--a-dec-focus);
             text-decoration: var(--a-dec-focus); }
+  a.t_disabled {
+    opacity: var(--body-dis-opacity); }
   a[data-nohref] {
     cursor: default; }
 
