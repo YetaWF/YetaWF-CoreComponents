@@ -218,6 +218,10 @@ namespace YetaWF.Core.Models {
         /// The filter options for the grid.
         /// </summary>
         public List<DataProviderFilterInfo>? Filters { get; set; }
+        /// <summary>
+        /// Filters define a multi-coluimn search (used to prevent filter save)
+        /// </summary>
+        public bool Search { get; set; }
     }
     /// <summary>
     /// Describes one grid record.

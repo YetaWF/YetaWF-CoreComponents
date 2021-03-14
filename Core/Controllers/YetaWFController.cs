@@ -274,7 +274,7 @@ namespace YetaWF.Core.Controllers {
         protected async Task<PartialViewResult> GridPartialViewAsync(GridDefinition gridModel, GridPartialViewData gridPVData) {
             gridPVData.UpdateSearchLogic();
             DataSourceResult ds = await gridModel.DirectDataAsync(gridPVData.Skip, gridPVData.Take, gridPVData.Sorts?.ToList(), gridPVData.Filters?.ToList());// copy sort/filter in case changes are made (we save this later)
-            return await GridPartialViewAsync(gridModel, ds, null, gridPVData.FieldPrefix, gridPVData.Skip, gridPVData.Take, gridPVData.Sorts, gridPVData.Filters);
+            return await GridPartialViewAsync(gridModel, ds, null, gridPVData.FieldPrefix, gridPVData.Skip, gridPVData.Take, gridPVData.Sorts, gridPVData.Filters, gridPVData.Search);
         }
 
         /// <summary>
@@ -287,14 +287,14 @@ namespace YetaWF.Core.Controllers {
             List<object> objList = (from l in list select (object)l).ToList();
             gridPVData.UpdateSearchLogic();
             DataSourceResult ds = gridModel.SortFilterStaticData!(objList, 0, int.MaxValue, gridPVData.Sorts?.ToList(), gridPVData.Filters?.ToList());// copy sort/filter in case changes are made (we save this later)
-            return await GridPartialViewAsync(gridModel, ds, objList, gridPVData.FieldPrefix, gridPVData.Skip, gridPVData.Take, gridPVData.Sorts, gridPVData.Filters);
+            return await GridPartialViewAsync(gridModel, ds, objList, gridPVData.FieldPrefix, gridPVData.Skip, gridPVData.Take, gridPVData.Sorts, gridPVData.Filters, gridPVData.Search);
         }
 
         /// <summary>
         /// Returns an action result that renders grid contents as a partial view.
         /// </summary>
         /// <remarks>Returns an action result that renders a grid as a partial view.</remarks>
-        private Task<PartialViewResult> GridPartialViewAsync(GridDefinition gridModel, DataSourceResult data, List<object>? staticData, string fieldPrefix, int skip, int take, List<DataProviderSortInfo>? sorts, List<DataProviderFilterInfo>? filters) {
+        private Task<PartialViewResult> GridPartialViewAsync(GridDefinition gridModel, DataSourceResult data, List<object>? staticData, string fieldPrefix, int skip, int take, List<DataProviderSortInfo>? sorts, List<DataProviderFilterInfo>? filters, bool search) {
             GridPartialData gridPartialModel = new GridPartialData() {
                 Data = data,
                 StaticData = staticData,
@@ -302,6 +302,7 @@ namespace YetaWF.Core.Controllers {
                 Take = take,
                 Sorts = sorts,
                 Filters = filters,
+                Search = search,
                 FieldPrefix = fieldPrefix,
                 GridDef = gridModel,
             };
