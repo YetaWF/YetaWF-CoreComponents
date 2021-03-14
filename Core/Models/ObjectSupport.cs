@@ -547,7 +547,7 @@ namespace YetaWF.Core.Models {
 
         private static object lockObject = new object();
 
-        private class LanguageObjectData {
+        internal class LanguageObjectData {
             public string Language { get; set; } = null!;
             public Dictionary<Type, ObjectClassData> ObjectClassDatas { get; set; }
             public Dictionary<Type, ObjectEnumData> ObjectEnumDatas { get; set; }
@@ -556,7 +556,7 @@ namespace YetaWF.Core.Models {
                 ObjectEnumDatas = new Dictionary<Type, ObjectEnumData>();
             }
         }
-        private class ObjectClassData {
+        internal class ObjectClassData {
             public Type ClassType { get; set; } = null!;
             public ClassData ClassData { get; set; } = null!;
             public Dictionary<string, PropertyData> PropertyData { get; set; }
@@ -564,28 +564,55 @@ namespace YetaWF.Core.Models {
                 PropertyData = new Dictionary<string, PropertyData>();
             }
         }
-        private class ObjectEnumData {
+        internal class ObjectEnumData {
             public Type ClassType { get; set; } = null!;
             public EnumData EnumData { get; set; } = null!;
         }
 
-        // SITE SPECIFIC in PermanentManager:
-        // Dictionary<string, LanguageObjectData> LanguageObject
+        internal static class LanguageCacheManager {
+
+            private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
+            private static bool HaveManager { get { return YetaWFManager.HaveManager; } }
+
+            private static string Key(string language) {
+                int identity = (HaveManager && Manager.HaveCurrentSite) ? Manager.CurrentSite.Identity : 0;
+                return $"{identity}/{language}/{nameof(LanguageObjectData)}";
+            }
+            public static void AddObject(string language, LanguageObjectData obj) {
+                RemoveObject(language);
+                ObjDictionary.Add(Key(language), obj);
+            }
+            public static bool TryGetObject(string language, [NotNullWhen(true)] out LanguageObjectData? obj) {
+                obj = null;
+                if (!ObjDictionary.TryGetValue(Key(language), out LanguageObjectData? tempObj))
+                    return false;
+                obj = tempObj;
+                return true;
+            }
+            public static void RemoveObject(string language) {
+                ObjDictionary.Remove(Key(language));
+            }
+            public static void InvalidateAll() {
+                ObjDictionary = new Dictionary<string, LanguageObjectData>();
+            }
+            private static Dictionary<string, LanguageObjectData> ObjDictionary = new Dictionary<string, LanguageObjectData>();
+        }
 
         /// <summary>
         /// Removes all cached data.
         /// </summary>
         public static void InvalidateAll() {
-            PermanentManager.RemoveObject<Dictionary<string, LanguageObjectData>>();
+            LanguageCacheManager.InvalidateAll();
         }
+
         private static ObjectClassData GetObjectClassData(Type type, bool Cache = true) {
 
             ObjectClassData? objClassData = null;
 
-            string lang = MultiString.ActiveLanguage;
-            LanguageObjectData langObjData = GetLanguageObjectData(lang);
-
             lock (lockObject) { // protect local data LanguageObjectData
+
+                string lang = MultiString.ActiveLanguage;
+                LanguageObjectData langObjData = GetLanguageObjectData(lang);
 
                 // Get class info from language info & localization resource files
                 if (!langObjData.ObjectClassDatas.TryGetValue(type, out objClassData)) {
@@ -831,21 +858,14 @@ namespace YetaWF.Core.Models {
 
         private static LanguageObjectData GetLanguageObjectData(string lang) {
 
-            lock (_lockObject) { // lock sync language object - used to sync language objects
-                // get language dictionary
-                if (!PermanentManager.TryGetObject<Dictionary<string, LanguageObjectData>>(out Dictionary<string, LanguageObjectData>? langObjDatas)) {
-                    langObjDatas = new Dictionary<string, LanguageObjectData>();
-                    PermanentManager.AddObject<Dictionary<string, LanguageObjectData>>(langObjDatas);
-                }
-                // get language info from language dictionary
-                if (!langObjDatas.TryGetValue(lang, out LanguageObjectData? langObjData)) {
-                    langObjData = new LanguageObjectData {
-                        Language = lang,
-                    };
-                    langObjDatas.Add(lang, langObjData);
-                }
-                return langObjData;
+            // get language info from language dictionary
+            if (!LanguageCacheManager.TryGetObject(lang, out LanguageObjectData? langObjData)) {
+                langObjData = new LanguageObjectData {
+                    Language = lang,
+                };
+                LanguageCacheManager.AddObject(lang, langObjData);
             }
+            return langObjData;
         }
 
         /// <summary>

@@ -25,7 +25,7 @@ namespace YetaWF.Core.Pages {
             SiteDefinition currentSite = Manager.CurrentSite;
 
             string yetawfMsg;
-            if (!currentSite.DEBUGMODE && currentSite.Compression) {
+            if (!currentSite.DEBUGMODE && (currentSite.Compression || Manager.RenderStaticPage)) {
                 yetawfMsg = $"/**** Powered by Yet Another Web Framework - https://YetaWF.com - (c) Copyright {DateTime.Now.Year.ToString()} Softel vdm, Inc. */";// local time
             } else {
                 yetawfMsg = "\n" +
