@@ -913,7 +913,7 @@ namespace YetaWF.Core.Controllers {
                 string? url = NextPage;
                 if (string.IsNullOrWhiteSpace(url))
                     url = Manager.CurrentSite.HomePageUrl;
-                url = AddUrlPayload(url, false, false, ExtraData);
+                url = AddUrlPayload(url, false, ExtraData);
                 if (ForceRedirect)
                     url = QueryHelper.AddRando(url);
                 url = Utility.JsonSerialize(url);
@@ -1161,14 +1161,13 @@ $YetaWF.message({popupText}, {popupTitle}, function() {{
         /// <param name="ForcePopup">true if the redirect should occur in a popup window, false otherwise for a redirect within the browser window.</param>
         /// <param name="SetCurrentEditMode">true if the new page should be shown using the current Site Edit/Display Mode, false otherwise.</param>
         /// <param name="ExtraJavascript">Optional Javascript code executed when redirecting to another URL within a Unified Page Set.</param>
-        /// <param name="SetCurrentControlPanelMode">Sets the current control panel mode (visibility).</param>
         /// <param name="ForceRedirect">true to force a page load (even in a Unified Page Set), false otherwise to use the default page or page content loading.</param>
         /// <returns>An ActionResult to be returned by the controller.</returns>
         /// <remarks>
         /// The Redirect method can be used for GET, PUT, Ajax requests and also within popups.
         /// This works in cooperation with client-side code to redirect popups, etc., which is normally not supported in MVC.
         /// </remarks>
-        protected ActionResult Redirect(string? url, bool ForcePopup = false, bool SetCurrentEditMode = false, bool SetCurrentControlPanelMode = false, bool ForceRedirect = false, string? ExtraJavascript = null) {
+        protected ActionResult Redirect(string? url, bool ForcePopup = false, bool SetCurrentEditMode = false, bool ForceRedirect = false, string? ExtraJavascript = null) {
 
             if (ForceRedirect && ForcePopup) throw new InternalError("Can't use ForceRedirect and ForcePopup at the same time");
             if (!string.IsNullOrWhiteSpace(ExtraJavascript) && !Manager.IsPostRequest) throw new InternalError("ExtraJavascript is only supported with POST requests");
@@ -1176,7 +1175,7 @@ $YetaWF.message({popupText}, {popupTitle}, function() {{
             if (string.IsNullOrWhiteSpace(url))
                 url = Manager.CurrentSite.HomePageUrl;
 
-            url = AddUrlPayload(url, SetCurrentEditMode, SetCurrentControlPanelMode, null);
+            url = AddUrlPayload(url, SetCurrentEditMode, null);
             if (ForceRedirect)
                 url = QueryHelper.AddRando(url);
 
@@ -1237,7 +1236,7 @@ $YetaWF.message({popupText}, {popupTitle}, function() {{
             }
         }
 
-        private static string AddUrlPayload(string url, bool SetCurrentEditMode, bool SetCurrentControlPanelMode, string? ExtraData) {
+        private static string AddUrlPayload(string url, bool SetCurrentEditMode, string? ExtraData) {
 
             QueryHelper qhUrl = QueryHelper.FromUrl(url, out string urlOnly);
             // If we're coming from a referring page with edit/noedit, we need to propagate that to the redirect
@@ -1262,20 +1261,9 @@ $YetaWF.message({popupText}, {popupTitle}, function() {{
                     }
                 }
             }
-            if (SetCurrentControlPanelMode) {
-                qhUrl.Remove(Globals.Link_PageControl);
-                qhUrl.Remove(Globals.Link_NoPageControl);
-                if (Manager.PageControlShown)
-                    qhUrl.Add(Globals.Link_PageControl, "y");
-                else
-                    qhUrl.Add(Globals.Link_NoPageControl, "y");
-            } else {
-                // check whether control panel should be open
-                if (!qhUrl.HasEntry(Globals.Link_PageControl) && !qhUrl.HasEntry(Globals.Link_NoPageControl)) {
-                    if (Manager.PageControlShown)
-                        qhUrl.Add(Globals.Link_PageControl, "y");
-                }
-            }
+            qhUrl.Remove(Globals.Link_PageControl);
+            if (Manager.PageControlShown)
+                qhUrl.Add(Globals.Link_PageControl, "y");
             if (!string.IsNullOrWhiteSpace(ExtraData))
                 qhUrl.Add("_ExtraData", ExtraData, Replace: true);
 

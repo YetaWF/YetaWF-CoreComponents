@@ -65,7 +65,6 @@ namespace YetaWF.Core {
         public const string Link_InPopup = "!InPopup"; // we're in a popup
         public const string Link_ToPopup = "!ToPopup"; // we're going into a popup
         public const string Link_PageControl = "!Pagectl"; // show page control module
-        public const string Link_NoPageControl = "!Nopagectl"; // no page control module
         public const string Link_SubmitIsApply = "!Apply"; // a submit button was clicked and should be handled as Apply
         public const string Link_SubmitIsReload = "!Reload"; // a submit button was clicked and should be handled as a form reload
         public const string Link_EditMode = "!Edit"; // site edit mode
