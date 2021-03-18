@@ -1242,10 +1242,9 @@ $YetaWF.message({popupText}, {popupTitle}, function() {{
             // If we're coming from a referring page with edit/noedit, we need to propagate that to the redirect
             if (SetCurrentEditMode) { // forced set edit mode
                 qhUrl.Remove(Globals.Link_EditMode);
-                qhUrl.Remove(Globals.Link_NoEditMode);
                 if (Manager.EditMode)
                     qhUrl.Add(Globals.Link_EditMode, "y");
-            } else if (!qhUrl.HasEntry(Globals.Link_EditMode) && !qhUrl.HasEntry(Globals.Link_NoEditMode)) {
+            } else if (!qhUrl.HasEntry(Globals.Link_EditMode)) {
                 // current url has no edit/noedit preference
                 if (Manager.EditMode) {
                     // in edit mode, force edit again

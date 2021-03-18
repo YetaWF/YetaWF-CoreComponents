@@ -68,7 +68,6 @@ namespace YetaWF.Core {
         public const string Link_SubmitIsApply = "!Apply"; // a submit button was clicked and should be handled as Apply
         public const string Link_SubmitIsReload = "!Reload"; // a submit button was clicked and should be handled as a form reload
         public const string Link_EditMode = "!Edit"; // site edit mode
-        public const string Link_NoEditMode = "!Noedit"; // site display mode
         public const string Link_ForceSite = "!Domain"; // force a specific site
         public const string Link_ScrollLeft = "!Left";
         public const string Link_ScrollTop = "!Top";

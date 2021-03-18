@@ -50,12 +50,6 @@ namespace YetaWF {
                 let uri = $YetaWF.parseUrl(url);
                 if (uri.getPath().length === 0 || (!uri.getSchema().startsWith("http:") && !uri.getSchema().startsWith("https:"))) return true;
 
-                // if we're on an edit page, propagate edit to new link unless the new uri explicitly has !Noedit
-                if (!uri.hasSearch(YConfigs.Basics.Link_EditMode) && !uri.hasSearch(YConfigs.Basics.Link_NoEditMode)) {
-                    let currUri = $YetaWF.parseUrl(window.location.href);
-                    if (currUri.hasSearch(YConfigs.Basics.Link_EditMode))
-                        uri.addSearch(YConfigs.Basics.Link_EditMode, "y");
-                }
                 // add status/visibility of page control module
                 uri.removeSearch(YConfigs.Basics.Link_PageControl);
                 if (YVolatile.Basics.PageControlVisible)
