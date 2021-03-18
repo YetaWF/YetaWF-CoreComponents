@@ -135,7 +135,7 @@ namespace YetaWF.Core.Components {
         /// </summary>
         /// <param name="text">The string to encode.</param>
         /// <returns>Returns an encoded HTML attribute data value.</returns>
-        public string HAE(string text) {
+        public string HAE(string? text) {
             return Utility.HAE(text);
         }
         /// <summary>
@@ -143,7 +143,7 @@ namespace YetaWF.Core.Components {
         /// </summary>
         /// <param name="text">The string to encode.</param>
         /// <returns>Returns encoded HTML.</returns>
-        public string HE(string text) {
+        public string HE(string? text) {
             return Utility.HE(text);
         }
         /// <summary>
@@ -154,7 +154,7 @@ namespace YetaWF.Core.Components {
         /// The string to encode should not use surrounding quotes.
         /// These must be added after encoding.
         /// </returns>
-        public string JE(string text) {
+        public string JE(string? text) {
             return Utility.JserEncode(text);
         }
         /// <summary>
