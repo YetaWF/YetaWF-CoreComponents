@@ -36,10 +36,6 @@ namespace YetaWF.Core.Components {
             /// The default currency ID.
             /// </summary>
             public const string DefaultId = "USD";
-            /// <summary>
-            /// The default number of digits for the fractional portion of the currency.
-            /// </summary>
-            public const int DefaultMinorUnit = 2;
 
             /// <summary>
             /// The name of the currency.
@@ -57,9 +53,35 @@ namespace YetaWF.Core.Components {
             /// The number of digits for the fractional portion of the currency.  Can be 0 or -1 if there is no fractional portion.
             /// </summary>
             public int MinorUnit { get; set; }
+            /// <summary>
+            /// The formatting string used when displaying a formatted amount.
+            /// </summary>
+            public string Format { get; set; } = null!;
+            /// <summary>
+            /// The string used when displaying a formatted amount (leading string).
+            /// </summary>
+            public string Lead { get; set; } = null!;
+            /// <summary>
+            /// The string used when displaying a formatted amount (trailing string).
+            /// </summary>
+            public string Trail { get; set; } = null!;
         }
 
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
+
+        /// <summary>
+        /// Returns currency information for a given currency.
+        /// </summary>
+        /// <param name="currency">The currency name.</param>
+        /// <param name="AllowMismatch">true to return a default value if the currency doesn't exist, false otherwise (throws an error).</param>
+        /// <returns>Returns currency information.</returns>
+        /// <remarks>Implemented as a synchronous method for convenience. Currencies are cached so only the initial retrieval is async.</remarks>
+        public static Currency GetCurrencyInfo(string? currencyId) {
+            if (string.IsNullOrWhiteSpace(currencyId))
+                currencyId = Manager.CurrentSite.Currency;
+            Currency info = (from c in GetCurrenciesAsync().Result where c.Id == currencyId select c).FirstOrDefault() ?? throw new InternalError($"Invalid currency {currencyId}");
+            return info;
+        }
 
         /// <summary>
         /// Converts a currency name to an ISO 4217 three character ID.
@@ -67,7 +89,7 @@ namespace YetaWF.Core.Components {
         /// <param name="currency">The currency name.</param>
         /// <param name="AllowMismatch">true to return a default value if the currency doesn't exist, false otherwise (throws an error).</param>
         /// <returns>Returns a three character currency ID.</returns>
-        public static async Task<string> CurrencyToIdAsync(string currency, bool AllowMismatch = false) {
+        public static async Task<string> CurrencyToIdAsync(string? currency, bool AllowMismatch = false) {
             if (string.IsNullOrWhiteSpace(currency))
                 return Manager.CurrentSite.Currency;
             string? id = (from c in await GetCurrenciesAsync() where c.Name == currency select c.Id).FirstOrDefault();
@@ -83,7 +105,7 @@ namespace YetaWF.Core.Components {
         /// <param name="id">The three character currency ID.</param>
         /// <param name="AllowMismatch">true to return a default value if the currency doesn't exist, false otherwise (throws an error).</param>
         /// <returns>Returns the currency name.</returns>
-        public static async Task<string> IdToCurrencyAsync(string id, bool AllowMismatch = false) {
+        public static async Task<string> IdToCurrencyAsync(string? id, bool AllowMismatch = false) {
             if (string.IsNullOrWhiteSpace(id))
                 id = Manager.CurrentSite.Currency;
             string? currency = (from c in await GetCurrenciesAsync() where c.Id == id select c.Name).FirstOrDefault();
@@ -100,7 +122,7 @@ namespace YetaWF.Core.Components {
         /// <param name="id">The three character currency ID.</param>
         /// <param name="AllowMismatch">true to return a default value if the currency name doesn't exist, false otherwise (throws an error).</param>
         /// <returns>Returns the numeric currency ID.</returns>
-        public static async Task<int> CurrencyIdToNumberAsync(string id, bool AllowMismatch = false) {
+        public static async Task<int> CurrencyIdToNumberAsync(string? id, bool AllowMismatch = false) {
             if (string.IsNullOrWhiteSpace(id))
                 id = Manager.CurrentSite.Currency;
             int number = (from c in await GetCurrenciesAsync() where c.Name == id select c.Number).FirstOrDefault();
@@ -175,14 +197,17 @@ namespace YetaWF.Core.Components {
                 List<string> cts = await FileSystem.FileSystemProvider.ReadAllLinesAsync(file);
                 foreach (var st in cts) {
                     if (st.Trim().Length > 0) {
-                        string[] s = st.Trim().Split(new string[] { "," }, 4, StringSplitOptions.RemoveEmptyEntries);
-                        if (s.Length != 4)
+                        string[] s = st.Trim().Split(new string[] { ";" }, 7, StringSplitOptions.RemoveEmptyEntries);
+                        if (s.Length < 4 || s.Length > 7)
                             throw new InternalError("Invalid input in currency list - {0} - {1}", st, file);
                         newList.Add(new Currency {
                             Name = s[0],
                             Id = s[1].ToUpper(),
                             Number = Convert.ToInt32(s[2]),
                             MinorUnit = Convert.ToInt32(s[3]),
+                            Format = s.Length >= 5 ? s[4].Trim('\"') : "#,0.00",
+                            Lead = s.Length >= 6 ? s[5].Trim('\"') : string.Empty,
+                            Trail = s.Length >= 7 ? s[6].Trim('\"') : string.Empty,
                         });
                     }
                 }

@@ -337,10 +337,7 @@ namespace YetaWF.Core.Localize {
         }
 
         public static string GetFormatCurrencyFormat() {
-            string cf = Manager.CurrentSite.CurrencyFormat;
-            if (string.IsNullOrWhiteSpace(cf))
-                return Globals.DefaultCurrencyFormat;
-            return cf;
+            return Manager.CurrentSite.CurrencyFormat;
         }
         public static string FormatAmount(decimal amount) {
             return amount.ToString(GetFormatCurrencyFormat());

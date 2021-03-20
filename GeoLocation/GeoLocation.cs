@@ -107,7 +107,7 @@ namespace YetaWF.Core.GeoLocation {
         /// <returns>Returns the geolocation information or null if none is available.
         ///
         /// An exception occurs if no requests can be issued.</returns>
-        public async Task<UserInfo?> GetUserInfoAsync(string ipAddress) {
+        public async Task<UserInfo> GetUserInfoAsync(string ipAddress) {
             UserInfo info = new UserInfo();
 
             // make sure we have any remaining requests available

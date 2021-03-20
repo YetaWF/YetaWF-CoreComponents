@@ -27,6 +27,7 @@ using YetaWF.Core.HttpHandler;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Language;
 using YetaWF.Core.Log;
+using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
@@ -211,11 +212,16 @@ namespace YetaWF.Core.WebStartup {
                 options.Conventions.Add(new AreaConventionAttribute());
 
                 // Model binding error message overrides
-                options.ModelBindingMessageProvider.SetAttemptedValueIsInvalidAccessor(
+                // TODO: as use cases come in, add additional support
+                options.ModelBindingMessageProvider.SetAttemptedValueIsInvalidAccessor(// sample use case, DateTime with invalid string value
                     (attemptedValue, propertyName) => {
-                        YetaWFManager manager = YetaWFManager.Manager;
-                        manager.ModelBindingErrorManager.AddError("AttemptedValueIsInvalidAccessor", propertyName, attemptedValue);
-                        return $"The value '{attemptedValue}' is not valid for property {propertyName}";
+                        YetaWFManager.Manager.ModelBindingErrorManager.AddError("AttemptedValueIsInvalidAccessor", propertyName, null, attemptedValue);
+                        return $"The value is not valid for property {propertyName}";// default message, changed later when fixing the model state 
+                    });
+                options.ModelBindingMessageProvider.SetValueMustNotBeNullAccessor(// sample use case, null decimal when model is non-nullable
+                    (attemptedValue) => {//Why do we get the value, which is known to be null, but not the property name???
+                        YetaWFManager.Manager.ModelBindingErrorManager.AddError("ValueMustNotBeNullAccessor", null, ModelBindingErrorManager.AttemptedValueIsInvalidMessage, string.Empty);
+                        return ModelBindingErrorManager.AttemptedValueIsInvalidMessage;
                     });
             })
             .AddNewtonsoftJson()

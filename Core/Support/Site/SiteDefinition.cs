@@ -117,8 +117,6 @@ namespace YetaWF.Core.Site {
             FavIconLrg_Data = new byte[0];
             Country = Globals.DefaultCountry;
             Currency = CurrencyISO4217.Currency.DefaultId;
-            CurrencyFormat = Globals.DefaultCurrencyFormat;
-            CurrencyDecimals = CurrencyISO4217.Currency.DefaultMinorUnit;
 
             AllowCacheUse = true;
             Compression = false;
@@ -417,16 +415,6 @@ namespace YetaWF.Core.Site {
         [UIHint("CurrencyISO4217"), StringLength(CurrencyISO4217.Currency.MaxId), Trim, Required]
         [RequiresPageReload]
         public string Currency { get; set; }
-
-        [Category("Site"), Caption("Currency Format"), Description("The currency format used on this site - the default is $US if omitted")]
-        [UIHint("Text20"), StringLength(20)]
-        [RequiresPageReload]
-        public string CurrencyFormat { get; set; }
-
-        [Category("Site"), Caption("Currency Rounding"), Description("The number of decimal places for the currency used on this site")]
-        [UIHint("IntValue2"), Range(0, 5), Required]
-        [RequiresPageReload]
-        public int CurrencyDecimals { get; set; }
 
         [Category("Variables"), Caption("Copyright"), Description("The Copyright property with evaluated substitutions")]
         [UIHint("String"), ReadOnly]

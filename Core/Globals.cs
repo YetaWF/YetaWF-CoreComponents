@@ -55,7 +55,6 @@ namespace YetaWF.Core {
 
         public const string DontDeployMarker = "dontdeploy.txt"; // if seen in a folder, its files will not be deployed by DeploySite
 
-        public const string DefaultCurrencyFormat = "$ #,0.00";
         public const string DefaultCountry = "United States";
 
         // Url parts
