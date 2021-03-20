@@ -328,7 +328,7 @@ var YetaWF;
                 w.location.assign(uri.toUrl());
                 return;
             }
-            w.location.reload(true);
+            w.location.reload();
         };
         /**
          * Reloads a module in place, defined by the specified tag (any tag within the module).

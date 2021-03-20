@@ -40,18 +40,18 @@ namespace YetaWF.Core.Upload {
         /// </summary>
         /// <param name="uploadFile">Package file being uploaded.</param>
         /// <returns>Returns a file name (with path) of the uploaded file in the site's temporary folder.</returns>
-        public async Task<string?> StoreTempPackageFileAsync(IFormFile uploadFile) {
+        public async Task<string> StoreTempPackageFileAsync(IFormFile uploadFile) {
             string name = await StoreFileAsync(uploadFile, null, MimeSection.PackageUse, TempFile: true);
-            return await GetTempFilePathFromNameAsync(name);
+            return await GetTempFilePathFromNameAsync(name) ?? throw new InternalError($"{nameof(StoreTempPackageFileAsync)} expected temp file name");
         }
         /// <summary>
         /// Saves a remote package file as a temporary file.
         /// </summary>
         /// <param name="remoteUrl">Remote URL of a package file being uploaded.</param>
         /// <returns>Returns a file name (with path) of the uploaded file in the site's temporary folder.</returns>
-        public async Task<string?> StoreTempPackageFileAsync(string remoteUrl) {
+        public async Task<string> StoreTempPackageFileAsync(string remoteUrl) {
             string name = await StoreTempFileAsync(remoteUrl, MimeSection.PackageUse);
-            return await GetTempFilePathFromNameAsync(name);
+            return await GetTempFilePathFromNameAsync(name) ?? throw new InternalError($"{nameof(StoreTempPackageFileAsync)} expected temp file name");
         }
 
         /// <summary>

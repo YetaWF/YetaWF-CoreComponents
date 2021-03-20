@@ -857,7 +857,7 @@ namespace YetaWF.Core.Controllers {
         /// <param name="ExtraData">Additional data added to URL as _extraData argument. Length should be minimal, otherwise URL and Referer header may grow too large.</param>
         /// <param name="ForcePopup">The message is shown as a popup even if toasts are enabled.</param>
         /// <returns>An ActionResult to be returned by the controller.</returns>
-        protected ActionResult FormProcessed(object model, string? popupText = null, string? popupTitle = null,
+        protected ActionResult FormProcessed(object? model, string? popupText = null, string? popupTitle = null,
                 OnCloseEnum OnClose = OnCloseEnum.Return, OnPopupCloseEnum OnPopupClose = OnPopupCloseEnum.ReloadParentPage, OnApplyEnum OnApply = OnApplyEnum.ReloadModule,
                 string? NextPage = null, bool PreserveOriginList = false, string? ExtraData = null,
                 string? PreSaveJavaScript = null, string? PostSaveJavaScript = null, bool ForceRedirect = false, string? PopupOptions = null, bool ForceApply = false,

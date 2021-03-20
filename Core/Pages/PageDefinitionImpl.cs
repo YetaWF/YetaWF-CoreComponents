@@ -36,7 +36,7 @@ namespace YetaWF.Core.Pages {
         private async Task<ImageSupport.GetImageInBytesInfo> RetrieveImageAsync(string? name, string? location) {
             if (!string.IsNullOrWhiteSpace(location)) return new ImageSupport.GetImageInBytesInfo();
             if (string.IsNullOrWhiteSpace(name)) return new ImageSupport.GetImageInBytesInfo();
-            PageDefinition page = await PageDefinition.LoadAsync(new Guid(name));
+            PageDefinition? page = await PageDefinition.LoadAsync(new Guid(name));
             if (page == null) return new ImageSupport.GetImageInBytesInfo();
             if (page.FavIcon_Data == null || page.FavIcon_Data.Length == 0) return new ImageSupport.GetImageInBytesInfo();
             return new ImageSupport.GetImageInBytesInfo() {
@@ -52,8 +52,8 @@ namespace YetaWF.Core.Pages {
 
         // this must be provided during app startup by a package implementing a page data provider
         public static Func<string, Task<PageDefinition>> CreatePageDefinitionAsync { get; set; } = null!;
-        public static Func<Guid, Task<PageDefinition>> LoadPageDefinitionAsync { get; set; } = null!;
-        public static Func<string, Task<PageDefinition>> LoadPageDefinitionByUrlAsync { get; set; } = null!;
+        public static Func<Guid, Task<PageDefinition?>> LoadPageDefinitionAsync { get; set; } = null!;
+        public static Func<string, Task<PageDefinition?>> LoadPageDefinitionByUrlAsync { get; set; } = null!;
         public static Func<PageDefinition, Task> SavePageDefinitionAsync { get; set; } = null!;
         public static Func<Guid, Task<bool>> RemovePageDefinitionAsync { get; set; } = null!;
         public static Func<Task<List<DesignedPage>>> GetDesignedPagesAsync { get; set; } = null!;
@@ -238,7 +238,7 @@ namespace YetaWF.Core.Pages {
         /// Loads a page definition.
         /// If the page doesn't exist, null is returned.
         /// </summary>
-        public static async Task<PageDefinition> LoadAsync(Guid pageGuid) {
+        public static async Task<PageDefinition?> LoadAsync(Guid pageGuid) {
             return await PageDefinition.LoadPageDefinitionAsync(pageGuid);
         }
         /// <summary>

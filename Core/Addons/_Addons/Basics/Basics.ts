@@ -494,7 +494,7 @@ namespace YetaWF {
                 w.location.assign(uri.toUrl());
                 return;
             }
-            w.location.reload(true);
+            w.location.reload();
         }
 
         /**
