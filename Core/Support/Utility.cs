@@ -214,12 +214,11 @@ namespace YetaWF.Core.Support {
         /// <summary>
         /// JSON settings used to de/serialize only properties with Get and Set accessors and UIHint.
         /// </summary>
-        public static JsonSerializerSettings GetJsonSettingsGetSetUIHint(Newtonsoft.Json.Formatting formatting = Formatting.None) {
-            return new JsonSerializerSettings {
+        public static JsonSerializerSettings JsonSettingsGetSetUIHint { get; } = 
+            new JsonSerializerSettings {
                 ContractResolver = new Utility.PropertyGetSetContractResolver(),
-                Formatting = formatting,
+                Formatting = Formatting.None,
             };
-        }
 
         /// <summary>
         /// A JSON contract resolver so only properties with Get and Set accessors are serialized.
@@ -250,12 +249,11 @@ namespace YetaWF.Core.Support {
         /// <summary>
         /// JSON settings used to de/serialize only properties with Get and Set accessors.
         /// </summary>
-        public static JsonSerializerSettings GetJsonSettingsGetSet(Newtonsoft.Json.Formatting formatting = Formatting.None) {
-            return new JsonSerializerSettings {
+        public static JsonSerializerSettings JsonSettingsGetSet { get; } = 
+            new JsonSerializerSettings {
                 ContractResolver = new Utility.PropertyGetSetContractResolver(),
-                Formatting = formatting,
+                Formatting = Formatting.None,
             };
-        }
 
         /// <summary>
         /// Encodes a string for use with JavaScript. The returned string must be surrounded by quotes.
