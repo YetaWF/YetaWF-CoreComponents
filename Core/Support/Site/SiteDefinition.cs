@@ -171,7 +171,6 @@ namespace YetaWF.Core.Site {
         [Copy]
         public int Identity { get; set; }
 
-        [JsonIgnore]
         public virtual List<string> CategoryOrder { get { return new List<string> { "Site", "Pages", "CDN", "Email", "URLs", "References", "Encryption", "Skin", "Addons", "Meta", "Variables" }; } }
 
         [Data_PrimaryKey]
@@ -430,7 +429,7 @@ namespace YetaWF.Core.Site {
         public bool StaticPages { get; set; }
 
         [Category("Pages"), Caption("Debug Mode"), Description("Defines whether all data caching and compression is disabled through Appsettings.json - typically used for debugging (can only be set using Appsettings.json)")]
-        [UIHint("Boolean")]
+        [UIHint("Boolean"), ReadOnly]
         public bool DEBUGMODE {
             get {
                 return GetDEBUGMODE();

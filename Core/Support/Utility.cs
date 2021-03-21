@@ -3,12 +3,16 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Text;
 using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NodeDeserializers;
+using YetaWF.Core.Models;
 using YetaWF.Core.Packages;
 
 namespace YetaWF.Core.Support {
@@ -180,6 +184,78 @@ namespace YetaWF.Core.Support {
 
             Formatting = Newtonsoft.Json.Formatting.Indented,
         };
+
+        /// <summary>
+        /// A JSON contract resolver so only properties with Get and Set accessors and UIHint are serialized.
+        /// </summary>
+        public class PropertyGetSetUIHintContractResolver : DefaultContractResolver {
+
+            /// <summary>
+            /// Constructor.
+            /// </summary>
+            public PropertyGetSetUIHintContractResolver() { }
+
+            /// <inheritdoc/>
+            protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization) {
+                IList<JsonProperty> properties = base.CreateProperties(type, memberSerialization);
+                if (type != typeof(object)) {
+                    List<string> propList = new List<string>();
+                    List<PropertyData> props = ObjectSupport.GetPropertyData(type);
+                    foreach (PropertyData prop in props) {
+                        if (prop.Name.StartsWith("__") || (prop.PropInfo.CanRead && prop.PropInfo.CanWrite && !string.IsNullOrWhiteSpace(prop.UIHint))) {
+                            propList.Add(prop.Name);
+                        }
+                    }
+                    properties = (from p in properties where propList.Contains(p.PropertyName) select p).ToList();
+                }
+                return properties;
+            }
+        }
+        /// <summary>
+        /// JSON settings used to de/serialize only properties with Get and Set accessors and UIHint.
+        /// </summary>
+        public static JsonSerializerSettings GetJsonSettingsGetSetUIHint(Newtonsoft.Json.Formatting formatting = Formatting.None) {
+            return new JsonSerializerSettings {
+                ContractResolver = new Utility.PropertyGetSetContractResolver(),
+                Formatting = formatting,
+            };
+        }
+
+        /// <summary>
+        /// A JSON contract resolver so only properties with Get and Set accessors are serialized.
+        /// </summary>
+        public class PropertyGetSetContractResolver : DefaultContractResolver {
+
+            /// <summary>
+            /// Constructor.
+            /// </summary>
+            public PropertyGetSetContractResolver() { }
+
+            /// <inheritdoc/>
+            protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization) {
+                IList<JsonProperty> properties = base.CreateProperties(type, memberSerialization);
+                if (type != typeof(object)) {
+                    List<string> propList = new List<string>();
+                    List<PropertyData> props = ObjectSupport.GetPropertyData(type);
+                    foreach (PropertyData prop in props) {
+                        if (prop.Name.StartsWith("__") || (prop.PropInfo.CanRead && prop.PropInfo.CanWrite)) {
+                            propList.Add(prop.Name);
+                        }
+                    }
+                    properties = (from p in properties where propList.Contains(p.PropertyName) select p).ToList();
+                }
+                return properties;
+            }
+        }
+        /// <summary>
+        /// JSON settings used to de/serialize only properties with Get and Set accessors.
+        /// </summary>
+        public static JsonSerializerSettings GetJsonSettingsGetSet(Newtonsoft.Json.Formatting formatting = Formatting.None) {
+            return new JsonSerializerSettings {
+                ContractResolver = new Utility.PropertyGetSetContractResolver(),
+                Formatting = formatting,
+            };
+        }
 
         /// <summary>
         /// Encodes a string for use with JavaScript. The returned string must be surrounded by quotes.
