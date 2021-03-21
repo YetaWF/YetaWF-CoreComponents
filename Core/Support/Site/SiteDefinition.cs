@@ -147,6 +147,7 @@ namespace YetaWF.Core.Site {
             ReferencedModules = new SerializableList<ModuleDefinition.ReferencedModule>();
             ModuleDefinition.ReferencedModule.AddReferencedModule(ReferencedModules, new Guid("{466C0CCA-3E63-43f3-8754-F4267767EED1}")); // Control Panel (Skin)
             ModuleDefinition.ReferencedModule.AddReferencedModule(ReferencedModules, new Guid("{267f00cc-c619-4854-baed-9e4b812d7e95}")); // Page Edit Mode Selector (Skin)
+            ModuleDefinition.ReferencedModule.AddReferencedModule(ReferencedModules, new Guid("{915a366d-facb-4d02-b8f8-bb1acef73c4c}")); // Skin Palette (Skin)
 
             Theme = DefaultTheme;
             Skin = new SkinDefinition {
