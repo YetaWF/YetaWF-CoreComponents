@@ -56,11 +56,19 @@ var YetaWF;
                         uri.addSearch(YConfigs.Basics.ModuleGuid, guid);
                     }
                 }
+                // first try to handle this as a link to the outer window (only used in a popup)
+                if ($YetaWF.PopupsAvailable()) {
+                    if ($YetaWF.Popups.handleOuterWindow(anchor))
+                        return false;
+                    // try to handle this as a popup link
+                    if ($YetaWF.Popups.handlePopupLink(anchor))
+                        return false;
+                }
                 // fix the url to include where we came from
                 var target = anchor.getAttribute("target");
                 if (!target || target === "" || target === "_self") {
-                    var originList = YVolatile.Basics.OriginList.slice(0); // copy saved originlist
                     if (anchor.getAttribute(YConfigs.Basics.CssSaveReturnUrl) != null) {
+                        var originList = YVolatile.Basics.OriginList.slice(0); // copy saved originlist
                         // add where we currently are so we can save it in case we need to return to this page
                         var currUri = $YetaWF.parseUrl(window.location.href);
                         currUri.removeSearch(YConfigs.Basics.Link_OriginList); // remove originlist from current URL
@@ -71,24 +79,14 @@ var YetaWF;
                             if (originList.length > 5) // only keep the last 5 urls
                                 originList = originList.slice(originList.length - 5);
                         }
+                        // now update url (where we're going with originlist)
+                        uri.removeSearch(YConfigs.Basics.Link_OriginList);
+                        if (originList.length > 0)
+                            uri.addSearch(YConfigs.Basics.Link_OriginList, JSON.stringify(originList));
                     }
-                    // now update url (where we're going with originlist)
-                    uri.removeSearch(YConfigs.Basics.Link_OriginList);
-                    if (originList.length > 0)
-                        uri.addSearch(YConfigs.Basics.Link_OriginList, JSON.stringify(originList));
                     target = "_self";
                 }
                 anchor.href = uri.toUrl(); // update original href in case default handling takes place
-                // first try to handle this as a link to the outer window (only used in a popup)
-                if ($YetaWF.PopupsAvailable()) {
-                    if ($YetaWF.Popups.handleOuterWindow(anchor))
-                        return false;
-                }
-                // try to handle this as a popup link
-                if ($YetaWF.PopupsAvailable()) {
-                    if ($YetaWF.Popups.handlePopupLink(anchor))
-                        return false;
-                }
                 var cookieToReturn = null;
                 var post = false;
                 if (anchor.getAttribute(YConfigs.Basics.CookieDoneCssAttr) != null) {
