@@ -29,6 +29,7 @@ namespace YetaWF.Core.Pages {
         public const int MaxKeywords = 100;
         public const int MaxCopyright = 100;
         public const int MaxCssClass = 40;
+        public const int MaxFav_SVG = 1500;
 
         public enum PageSecurityType {
             [EnumDescription("Always Show")]
@@ -376,6 +377,10 @@ namespace YetaWF.Core.Pages {
 
         [Data_Binary, CopyAttribute]
         public byte[] FavIcon_Data { get; set; }
+
+        [StringLength(MaxFav_SVG)]
+        [Data_NewValue]
+        public string Fav_SVG { get; set; }
 
         [Data_Binary]
         [RequiresPageReload]

@@ -37,7 +37,7 @@ namespace YetaWF.Core.Skins {
         }
 
         /// <summary>
-        /// Returns a named SVG image from the current skin. If the current skin doesn't define the image, the YetaWF Core image is used instead.
+        /// Returns a named SVG image from the current skin. If the current skin doesn't define the image, the YetaWF Core default image is used instead.
         /// If neither exists, an empty string is returned.
         /// </summary>
         /// <param name="name">The SVG image name.</param>
@@ -51,6 +51,12 @@ namespace YetaWF.Core.Skins {
             Package.AddOnProduct? addon = Package.TryFindSkin(Manager.CurrentSite.Skin.Collection);
             if (addon != null)
                 html = addon.GetSVG(name);
+
+            if (html == null) {
+                addon = Package.TryFindPackage(YetaWF.Core.AreaRegistration.CurrentPackage.AreaName);
+                if (addon != null)
+                    html = addon.GetSVG(name);
+            }
 #if DEBUG
             if (html == null)
                 throw new InternalError($"SVG {name} in current skin package not found");
