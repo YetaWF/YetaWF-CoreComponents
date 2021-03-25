@@ -33,29 +33,29 @@ var YetaWF;
                 this.processScript(scripts, payload, total, ix, run);
             }
             else {
-                var loaded;
-                var js = document.createElement("script");
-                js.type = "text/javascript";
-                js.async = false; // need to preserve execution order
-                js.src = urlEntry.Url;
+                var loaded_1 = false;
+                var js_1 = document.createElement("script");
+                js_1.type = "text/javascript";
+                js_1.async = false; // need to preserve execution order
+                js_1.src = urlEntry.Url;
                 // eslint-disable-next-line guard-for-in
                 for (var attr in urlEntry.Attributes)
-                    $YetaWF.setAttribute(js, attr, urlEntry.Attributes[attr]);
-                js.setAttribute("data-name", name);
-                js.onload = js.onerror = js["onreadystatechange"] = function (ev) {
-                    if ((js["readyState"] && !(/^c|loade/.test(js["readyState"]))) || loaded)
+                    $YetaWF.setAttribute(js_1, attr, urlEntry.Attributes[attr]);
+                js_1.setAttribute("data-name", name);
+                js_1.onload = js_1.onerror = js_1["onreadystatechange"] = function (ev) {
+                    if ((js_1["readyState"] && !(/^c|loade/.test(js_1["readyState"]))) || loaded_1)
                         return;
-                    js.onload = js["onreadystatechange"] = null;
-                    loaded = true;
+                    js_1.onload = js_1["onreadystatechange"] = null;
+                    loaded_1 = true;
                     _this.processScript(scripts, payload, total, ix, run);
                 };
                 if (YVolatile.Basics.JSLocation === YetaWF.JSLocationEnum.Top) { // location doesn't really matter, but done for consistency
                     var head = document.getElementsByTagName("head")[0];
-                    head.insertBefore(js, head.lastChild);
+                    head.insertBefore(js_1, head.lastChild);
                 }
                 else {
                     var body = document.getElementsByTagName("body")[0];
-                    body.insertBefore(js, body.lastChild);
+                    body.insertBefore(js_1, body.lastChild);
                 }
             }
         };
@@ -214,9 +214,9 @@ var YetaWF;
             // run all global scripts (YConfigs, etc.)
             $YetaWF.runGlobalScript(result.Scripts);
             var _loop_1 = function (urlEntry) {
-                found = result.CssFilesPayload.filter(function (elem) { return elem.Name === urlEntry.Name; });
+                var found = result.CssFilesPayload.filter(function (elem) { return elem.Name === urlEntry.Name; });
                 if (found.length > 0) {
-                    elem = $YetaWF.createElement("style", { type: "text/css", "data-name": found[0].Name }, found[0].Text);
+                    var elem = $YetaWF.createElement("style", { type: "text/css", "data-name": found[0].Name }, found[0].Text);
                     if (YVolatile.Basics.CssLocation === YetaWF.CssLocationEnum.Top) {
                         document.head.appendChild(elem);
                     }
@@ -225,7 +225,7 @@ var YetaWF;
                     }
                 }
                 else {
-                    elem = $YetaWF.createElement("link", { rel: "stylesheet", type: "text/css", "data-name": urlEntry.Name, href: urlEntry.Url });
+                    var elem = $YetaWF.createElement("link", { rel: "stylesheet", type: "text/css", "data-name": urlEntry.Name, href: urlEntry.Url });
                     if (YVolatile.Basics.CssLocation === YetaWF.CssLocationEnum.Top) {
                         document.head.appendChild(elem);
                     }
@@ -234,7 +234,6 @@ var YetaWF;
                     }
                 }
             };
-            var found, elem, elem;
             // add all new css files
             for (var _i = 0, _a = result.CssFiles; _i < _a.length; _i++) {
                 var urlEntry = _a[_i];
@@ -439,17 +438,16 @@ var YetaWF;
             // run all global scripts (YConfigs, etc.)
             $YetaWF.runGlobalScript(result.Scripts);
             var _loop_2 = function (urlEntry) {
-                found = result.CssFilesPayload.filter(function (elem) { return elem.Name === urlEntry.Name; });
+                var found = result.CssFilesPayload.filter(function (elem) { return elem.Name === urlEntry.Name; });
                 if (found.length > 0) {
-                    elem = $YetaWF.createElement("style", { type: "text/css", "data-name": found[0].Name }, found[0].Text);
+                    var elem = $YetaWF.createElement("style", { type: "text/css", "data-name": found[0].Name }, found[0].Text);
                     document.body.appendChild(elem);
                 }
                 else {
-                    elem = $YetaWF.createElement("link", { rel: "stylesheet", type: "text/css", "data-name": urlEntry.Name, href: urlEntry.Url });
+                    var elem = $YetaWF.createElement("link", { rel: "stylesheet", type: "text/css", "data-name": urlEntry.Name, href: urlEntry.Url });
                     document.body.appendChild(elem);
                 }
             };
-            var found, elem, elem;
             // add all new css files
             for (var _i = 0, _a = result.CssFiles; _i < _a.length; _i++) {
                 var urlEntry = _a[_i];

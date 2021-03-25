@@ -87,7 +87,7 @@ namespace YetaWF {
         private loadScripts(scripts: UrlEntry[], payload: Payload[], run: () => void): void {
 
             YVolatile.Basics.KnownScriptsDynamic = YVolatile.Basics.KnownScriptsDynamic || [];
-            var total = scripts.length;
+            let total = scripts.length;
             if (total === 0) {
                 run();
                 return;
@@ -97,17 +97,17 @@ namespace YetaWF {
 
         private loadNextScript(scripts: UrlEntry[], payload: Payload[], total: number, ix: number, run: () => void) : void {
 
-            var urlEntry = scripts[ix];
-            var name = urlEntry.Name;
+            let urlEntry = scripts[ix];
+            let name = urlEntry.Name;
 
-            var found = payload.filter((elem: Payload): boolean => { return elem.Name === name; });
+            let found = payload.filter((elem: Payload): boolean => { return elem.Name === name; });
             if (found.length > 0) {
                 $YetaWF.runGlobalScript(found[0].Text);
                 YVolatile.Basics.KnownScriptsDynamic.push(name);// save as dynamically loaded script
                 this.processScript(scripts, payload, total, ix, run);
             } else {
-                var loaded;
-                var js = document.createElement("script");
+                let loaded = false;
+                let js = document.createElement("script");
                 js.type = "text/javascript";
                 js.async = false; // need to preserve execution order
                 js.src = urlEntry.Url;
@@ -122,10 +122,10 @@ namespace YetaWF {
                     this.processScript(scripts, payload, total, ix, run);
                 };
                 if (YVolatile.Basics.JSLocation === JSLocationEnum.Top) {// location doesn't really matter, but done for consistency
-                    var head = document.getElementsByTagName("head")[0];
+                    let head = document.getElementsByTagName("head")[0];
                     head.insertBefore(js, head.lastChild);
                 } else {
-                    var body = document.getElementsByTagName("body")[0];
+                    let body = document.getElementsByTagName("body")[0];
                     body.insertBefore(js, body.lastChild);
                 }
             }
@@ -187,9 +187,9 @@ namespace YetaWF {
                 uri = $YetaWF.parseUrl(inplace.ContentUrl);
             else
                 uri = uriRequested;
-            var path = uri.getPath();
+            let path = uri.getPath();
 
-            var divs: HTMLElement[];
+            let divs: HTMLElement[];
             if (inplace)
                 divs = $YetaWF.getElementsBySelector(`.${inplace.FromPane}.yUnified[data-pane]`); // only requested pane
             else
@@ -198,7 +198,7 @@ namespace YetaWF {
                 return SetContentResult.NotContent; // edit mode
 
             // build data context (like scripts, css files we have)
-            var data: ContentData = {
+            let data: ContentData = {
                 CacheVersion: YVolatile.Basics.CacheVersion,
                 CacheFailUrl: inplace ? inplace.PageUrl : null,
                 Path: path,
@@ -210,20 +210,20 @@ namespace YetaWF {
                 KnownCss: [],
                 KnownScripts: []
             };
-            for (var div of divs) {
+            for (let div of divs) {
                 data.Panes.push(div.getAttribute("data-pane") as string);
             }
-            var css = $YetaWF.getElementsBySelector("link[rel=\"stylesheet\"][data-name]");
-            for (var c of css) {
+            let css = $YetaWF.getElementsBySelector("link[rel=\"stylesheet\"][data-name]");
+            for (let c of css) {
                 data.KnownCss.push(c.getAttribute("data-name") as string);
             }
             css = $YetaWF.getElementsBySelector("style[type=\"text/css\"][data-name]");
-            for (var c of css) {
+            for (let c of css) {
                 data.KnownCss.push(c.getAttribute("data-name") as string);
             }
             data.KnownCss = data.KnownCss.concat(YVolatile.Basics.UnifiedCssBundleFiles || []);// add known css files that were added via bundles
-            var scripts = $YetaWF.getElementsBySelector("script[src][data-name]");
-            for (var s of scripts) {
+            let scripts = $YetaWF.getElementsBySelector("script[src][data-name]");
+            for (let s of scripts) {
                 data.KnownScripts.push(s.getAttribute("data-name") as string);
             }
             data.KnownScripts = data.KnownScripts.concat(YVolatile.Basics.KnownScriptsDynamic || []);// known javascript files that were added by content pages
@@ -231,7 +231,7 @@ namespace YetaWF {
 
             $YetaWF.setLoading();
 
-            var request: XMLHttpRequest = new XMLHttpRequest();
+            let request: XMLHttpRequest = new XMLHttpRequest();
             request.open("POST", "/YetaWF_Core/PageContent/Show" + uri.getQuery(true), true);
             request.setRequestHeader("Content-Type", "application/json");
             request.setRequestHeader("X-HTTP-Method-Override", "GET");// server has to think this is a GET request so all actions that are invoked actually work
@@ -240,7 +240,7 @@ namespace YetaWF {
                 if (request.readyState === 4 /*DONE*/) {
                     $YetaWF.setLoading(false);
                     if (request.status === 200) {
-                        var result: ContentResult = JSON.parse(request.responseText);
+                        let result: ContentResult = JSON.parse(request.responseText);
                         this.processReceivedContent(result, uri, divs, setState, popupCB, inplace, contentCB);
                     } else if (request.status === 0) {
                         $YetaWF.error(YLocs.Forms.AjaxError.format(request.status, YLocs.Forms.AjaxConnLost), YLocs.Forms.AjaxErrorTitle);
@@ -290,16 +290,16 @@ namespace YetaWF {
             $YetaWF.runGlobalScript(result.Scripts);
             // add all new css files
             for (let urlEntry of result.CssFiles) {
-                var found = result.CssFilesPayload.filter((elem: Payload): boolean => { return elem.Name === urlEntry.Name; });
+                let found = result.CssFilesPayload.filter((elem: Payload): boolean => { return elem.Name === urlEntry.Name; });
                 if (found.length > 0) {
-                    var elem = <style type="text/css" data-name={found[0].Name}>{found[0].Text}</style>;
+                    let elem = <style type="text/css" data-name={found[0].Name}>{found[0].Text}</style>;
                     if (YVolatile.Basics.CssLocation === CssLocationEnum.Top) {
                         document.head!.appendChild(elem);
                     } else {
                         document.body.appendChild(elem);
                     }
                 } else {
-                    var elem = <link rel="stylesheet" type="text/css" data-name={urlEntry.Name} href={urlEntry.Url} />;
+                    let elem = <link rel="stylesheet" type="text/css" data-name={urlEntry.Name} href={urlEntry.Url} />;
                     if (YVolatile.Basics.CssLocation === CssLocationEnum.Top) {
                         document.head!.appendChild(elem);
                     } else {
@@ -314,7 +314,7 @@ namespace YetaWF {
             this.loadScripts(result.ScriptFiles, result.ScriptFilesPayload, (): void => {
                 YVolatile.Basics.UnifiedScriptBundleFiles = YVolatile.Basics.UnifiedScriptBundleFiles || [];
                 YVolatile.Basics.UnifiedScriptBundleFiles.concat(result.ScriptBundleFiles || []);
-                var tags: HTMLElement[] = []; // collect all panes
+                let tags: HTMLElement[] = []; // collect all panes
                 if (!popupCB) {
                     // Update the browser page title
                     document.title = result.PageTitle;
@@ -331,7 +331,7 @@ namespace YetaWF {
                         $YetaWF.processClearDiv(target);
                         target.innerHTML = "";
                     } else {
-                        for (var div of divs) {
+                        for (let div of divs) {
                             $YetaWF.processClearDiv(div);
                             div.innerHTML = "";
                         }
@@ -393,7 +393,7 @@ namespace YetaWF {
                 $YetaWF.sendCustomEvent(document.body, Content.EVENTNAVPAGELOADED, { containers: tags});
                 if (!popupCB) {
                     // scroll
-                    var scrolled = $YetaWF.setScrollPosition();
+                    let scrolled = $YetaWF.setScrollPosition();
                     if (!scrolled) {
                         window.scroll(0, 0);
                         if (inplace) {
@@ -439,23 +439,23 @@ namespace YetaWF {
         public loadAddons(addons: AddonDescription[], run: () => void): void {
 
             // build data context (like scripts, css files we have)
-            var data: AddonsContentData = {
+            let data: AddonsContentData = {
                 Addons: addons,
                 KnownCss: [],
                 KnownScripts: []
             };
 
-            var css = $YetaWF.getElementsBySelector("link[rel=\"stylesheet\"][data-name]");
-            for (var c of css) {
+            let css = $YetaWF.getElementsBySelector("link[rel=\"stylesheet\"][data-name]");
+            for (let c of css) {
                 data.KnownCss.push(c.getAttribute("data-name") as string);
             }
             css = $YetaWF.getElementsBySelector("style[type=\"text/css\"][data-name]");
-            for (var c of css) {
+            for (let c of css) {
                 data.KnownCss.push(c.getAttribute("data-name") as string);
             }
             data.KnownCss = data.KnownCss.concat(YVolatile.Basics.UnifiedCssBundleFiles || []);// add known css files that were added via bundles
-            var scripts = $YetaWF.getElementsBySelector("script[src][data-name]");
-            for (var s of scripts) {
+            let scripts = $YetaWF.getElementsBySelector("script[src][data-name]");
+            for (let s of scripts) {
                 data.KnownScripts.push(s.getAttribute("data-name") as string);
             }
             data.KnownScripts = data.KnownScripts.concat(YVolatile.Basics.KnownScriptsDynamic || []);// known javascript files that were added by content pages
@@ -471,7 +471,7 @@ namespace YetaWF {
         }
 
         private getAddonsData(url: string, data: AddonsContentData): Promise<ContentResult> {
-            var p = new Promise<ContentResult>((resolve:(result:ContentResult)=>void, reject:(reason:Error)=>void): void => {
+            let p = new Promise<ContentResult>((resolve:(result:ContentResult)=>void, reject:(reason:Error)=>void): void => {
 
                 const request: XMLHttpRequest = new XMLHttpRequest();
 
@@ -506,12 +506,12 @@ namespace YetaWF {
             $YetaWF.runGlobalScript(result.Scripts);
             // add all new css files
             for (let urlEntry of result.CssFiles) {
-                var found = result.CssFilesPayload.filter((elem: Payload): boolean => { return elem.Name === urlEntry.Name; });
+                let found = result.CssFilesPayload.filter((elem: Payload): boolean => { return elem.Name === urlEntry.Name; });
                 if (found.length > 0) {
-                    var elem = <style type="text/css" data-name={found[0].Name}>{found[0].Text}</style>;
+                    let elem = <style type="text/css" data-name={found[0].Name}>{found[0].Text}</style>;
                     document.body.appendChild(elem);
                 } else {
-                    var elem = <link rel="stylesheet" type="text/css" data-name={urlEntry.Name} href={urlEntry.Url} />;
+                    let elem = <link rel="stylesheet" type="text/css" data-name={urlEntry.Name} href={urlEntry.Url} />;
                     document.body.appendChild(elem);
                 }
             }

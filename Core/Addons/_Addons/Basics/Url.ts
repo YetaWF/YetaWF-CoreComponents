@@ -116,7 +116,7 @@ namespace YetaWF {
         }
         public removeSearch(key: string): void {
             key = key.toLowerCase();
-            for (var i = this.QSEntries.length - 1; i >= 0; --i) {
+            for (let i = this.QSEntries.length - 1; i >= 0; --i) {
                 let entry = this.QSEntries[i];
                 if (entry.keyLower === key)
                     this.QSEntries.splice(i, 1);

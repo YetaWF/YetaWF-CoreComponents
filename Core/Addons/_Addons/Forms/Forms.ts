@@ -345,7 +345,7 @@ namespace YetaWF {
         public serializeForm(form: HTMLFormElement): string {
             let pairs = this.serializeFormArray(form);
             let formData: string = "";
-            for (var entry of pairs) {
+            for (let entry of pairs) {
                 if (formData !== "")
                     formData += "&";
                 formData += encodeURIComponent(entry.name) + "=" + encodeURIComponent(entry.value);

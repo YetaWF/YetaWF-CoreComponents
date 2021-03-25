@@ -149,10 +149,10 @@ namespace YetaWF {
             let template = $YetaWF.elementClosestCond(elem, controlSelector);
             if (!template)
                 return null;
-            var control = $YetaWF.getElement1BySelectorCond(controlSelector, [template]) as HTMLElement;
+            let control = $YetaWF.getElement1BySelectorCond(controlSelector, [template]) as HTMLElement;
             if (control == null)
                 return null;
-            var obj = $YetaWF.getObjectData(control) as CLSS;
+            let obj = $YetaWF.getObjectData(control) as CLSS;
             if (obj.Control !== control)
                 throw `object data doesn't match control type - ${controlSelector} - ${control.outerHTML}`;
             return obj;
@@ -163,7 +163,7 @@ namespace YetaWF {
          * @param controlSelector The component-specific selector used to find the containing component object.
          */
         public static getControlFromTag<CLSS extends ComponentBaseDataImpl>(elem: HTMLElement, controlSelector: string): CLSS {
-            var obj = ComponentBaseDataImpl.getControlFromTagCond<CLSS>(elem, controlSelector);
+            let obj = ComponentBaseDataImpl.getControlFromTagCond<CLSS>(elem, controlSelector);
             if (obj == null)
                 throw `Object matching ${controlSelector} not found`;
             return obj;
@@ -176,7 +176,7 @@ namespace YetaWF {
          * Returns null if not found.
          */
         public static getControlFromSelectorCond<CLSS extends ComponentBaseDataImpl>(selector: string, controlSelector: string, tags: HTMLElement[]): CLSS | null {
-            var tag = $YetaWF.getElement1BySelectorCond(selector, tags);
+            let tag = $YetaWF.getElement1BySelectorCond(selector, tags);
             if (tag == null)
                 return null;
             return ComponentBaseDataImpl.getControlFromTagCond(tag, controlSelector);
@@ -188,7 +188,7 @@ namespace YetaWF {
          * @param tags The elements to search for the specified selector.
          */
         public static getControlFromSelector<CLSS extends ComponentBaseDataImpl>(selector: string, controlSelector: string, tags: HTMLElement[]): CLSS {
-            var tag = $YetaWF.getElement1BySelector(selector, tags);
+            let tag = $YetaWF.getElement1BySelector(selector, tags);
             return ComponentBaseDataImpl.getControlFromTag(tag, controlSelector);
         }
         /**
@@ -198,7 +198,7 @@ namespace YetaWF {
          * Returns null if not found.
          */
         public static getControlByIdCond<CLSS extends ComponentBaseDataImpl>(id: string, controlSelector: string): CLSS | null {
-            var tag = $YetaWF.getElementByIdCond(id);
+            let tag = $YetaWF.getElementByIdCond(id);
             if (tag == null)
                 return null;
             return ComponentBaseDataImpl.getControlFromTagCond(tag, controlSelector);
@@ -209,7 +209,7 @@ namespace YetaWF {
          * @param controlSelector The component-specific selector used to find the containing component object.
          */
         public static getControlById<CLSS extends ComponentBaseDataImpl>(id: string, controlSelector: string): CLSS {
-            var tag = $YetaWF.getElementById(id);
+            let tag = $YetaWF.getElementById(id);
             return ComponentBaseDataImpl.getControlFromTag(tag, controlSelector);
         }
 
@@ -247,11 +247,11 @@ namespace YetaWF {
     $YetaWF.registerClearDiv(false, (tag: HTMLElement): boolean => {
         for (let templateDef of ComponentBaseDataImpl.RegisteredTemplates) {
             if (templateDef.HasData) {
-                var list = $YetaWF.getElementsBySelector(templateDef.Selector, [tag]);
+                let list = $YetaWF.getElementsBySelector(templateDef.Selector, [tag]);
                 for (let control of list) {
                     //if ($YetaWF.elementHasClass(control, "yt_propertylist"))
                     //    debugger;
-                    var obj = $YetaWF.getObjectData(control) as ComponentBaseDataImpl;
+                    let obj = $YetaWF.getObjectData(control) as ComponentBaseDataImpl;
                     if (obj.Control !== control)
                         throw `object data doesn't match control type - ${templateDef.Selector} - ${control.outerHTML}`;
                     if (templateDef.DestroyControl)

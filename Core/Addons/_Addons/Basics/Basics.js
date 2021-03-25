@@ -29,9 +29,6 @@ var YetaWF;
             this.ClearDivHandlers = [];
             this.DataObjectCache = [];
             this._pageChanged = false;
-            $YetaWF = this; // set global so we can initialize anchor/content
-            this.AnchorHandling = new YetaWF.Anchors();
-            this.ContentHandling = new YetaWF.Content();
         }
         // Implemented by renderer
         // Implemented by renderer
@@ -316,9 +313,9 @@ var YetaWF;
                 var left = (document.documentElement && document.documentElement.scrollLeft) || document.body.scrollLeft;
                 if (left)
                     uri.addSearch(YConfigs.Basics.Link_ScrollLeft, left.toString());
-                var top = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop;
-                if (top)
-                    uri.addSearch(YConfigs.Basics.Link_ScrollTop, top.toString());
+                var top_1 = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop;
+                if (top_1)
+                    uri.addSearch(YConfigs.Basics.Link_ScrollTop, top_1.toString());
             }
             uri.removeSearch("!rand");
             uri.addSearch("!rand", ((new Date()).getTime()).toString()); // cache buster
@@ -525,32 +522,32 @@ var YetaWF;
                                 return;
                             }
                             else if (result.startsWith(YConfigs.Basics.AjaxJavascriptErrorReturn)) {
-                                var script_1 = result.substring(YConfigs.Basics.AjaxJavascriptErrorReturn.length);
+                                var script = result.substring(YConfigs.Basics.AjaxJavascriptErrorReturn.length);
                                 // eslint-disable-next-line no-eval
-                                eval(script_1);
+                                eval(script);
                                 callback(false, null);
                                 return;
                             }
                             else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadPage)) {
-                                var script_2 = result.substring(YConfigs.Basics.AjaxJavascriptReloadPage.length);
+                                var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadPage.length);
                                 // eslint-disable-next-line no-eval
-                                eval(script_2); // if this uses $YetaWF.message or other "modal" calls, the page will reload immediately (use AjaxJavascriptReturn instead and explicitly reload page in your javascript)
+                                eval(script); // if this uses $YetaWF.message or other "modal" calls, the page will reload immediately (use AjaxJavascriptReturn instead and explicitly reload page in your javascript)
                                 _this.reloadPage(true);
                                 callback(true, null);
                                 return;
                             }
                             else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModule)) {
-                                var script_3 = result.substring(YConfigs.Basics.AjaxJavascriptReloadModule.length);
+                                var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModule.length);
                                 // eslint-disable-next-line no-eval
-                                eval(script_3); // if this uses $YetaWF.message or other "modal" calls, the module will reload immediately (use AjaxJavascriptReturn instead and explicitly reload module in your javascript)
+                                eval(script); // if this uses $YetaWF.message or other "modal" calls, the module will reload immediately (use AjaxJavascriptReturn instead and explicitly reload module in your javascript)
                                 _this.reloadModule();
                                 callback(true, null);
                                 return;
                             }
                             else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModuleParts)) {
-                                var script_4 = result.substring(YConfigs.Basics.AjaxJavascriptReloadModuleParts.length);
+                                var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModuleParts.length);
                                 // eslint-disable-next-line no-eval
-                                eval(script_4);
+                                eval(script);
                                 if (tagInModule)
                                     _this.refreshModuleByAnyTag(tagInModule);
                                 return true;
@@ -795,7 +792,7 @@ var YetaWF;
             return div;
         };
         /**
-         * Get elements from an array of tags by selector. (similar to jquery var x = $(selector, elems); with standard css selectors)
+         * Get elements from an array of tags by selector. (similar to jquery let x = $(selector, elems); with standard css selectors)
          */
         BasicsServices.prototype.getElementsBySelector = function (selector, elems) {
             var all = [];
@@ -817,7 +814,7 @@ var YetaWF;
             return all;
         };
         /**
-         * Get the first element from an array of tags by selector. (similar to jquery var x = $(selector, elems); with standard css selectors)
+         * Get the first element from an array of tags by selector. (similar to jquery let x = $(selector, elems); with standard css selectors)
          */
         BasicsServices.prototype.getElement1BySelectorCond = function (selector, elems) {
             if (!elems)
@@ -833,7 +830,7 @@ var YetaWF;
             return null;
         };
         /**
-         * Get the first element from an array of tags by selector. (similar to jquery var x = $(selector, elems); with standard css selectors)
+         * Get the first element from an array of tags by selector. (similar to jquery let x = $(selector, elems); with standard css selectors)
          */
         BasicsServices.prototype.getElement1BySelector = function (selector, elems) {
             var elem = this.getElement1BySelectorCond(selector, elems);
@@ -842,7 +839,7 @@ var YetaWF;
             return elem;
         };
         /**
-         * Removes all input[type='hidden'] fields. (similar to jquery var x = elems.not("input[type='hidden']"); )
+         * Removes all input[type='hidden'] fields. (similar to jquery let x = elems.not("input[type='hidden']"); )
          */
         BasicsServices.prototype.limitToNotTypeHidden = function (elems) {
             var all = [];
@@ -854,7 +851,7 @@ var YetaWF;
             return all;
         };
         /**
-         * Returns items that are visible. (similar to jquery var x = elems.filter(':visible'); )
+         * Returns items that are visible. (similar to jquery let x = elems.filter(':visible'); )
          */
         BasicsServices.prototype.limitToVisibleOnly = function (elems) {
             var all = [];
@@ -1591,6 +1588,8 @@ var YetaWF;
  * Basic services available throughout YetaWF.
  */
 var $YetaWF = new YetaWF.BasicsServices();
+$YetaWF.AnchorHandling = new YetaWF.Anchors();
+$YetaWF.ContentHandling = new YetaWF.Content();
 /* Print support */
 if (window.matchMedia) {
     var mediaQueryList = window.matchMedia("print");
