@@ -189,19 +189,8 @@ var YetaWF;
             }
         };
         Anchors.prototype.postLink = function (url, anchorOwner, cookieToReturn) {
-            $YetaWF.setLoading();
             this.waitForCookie(cookieToReturn);
-            var request = new XMLHttpRequest();
-            request.open("POST", url, true);
-            request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-            request.onreadystatechange = function (ev) {
-                var req = request;
-                if (req.readyState === 4 /*DONE*/) {
-                    $YetaWF.setLoading(false);
-                    $YetaWF.processAjaxReturn(req.responseText, req.statusText, req, anchorOwner || undefined);
-                }
-            };
-            request.send("");
+            $YetaWF.post(url, "", function (success, data) { }, anchorOwner || undefined);
         };
         return Anchors;
     }());

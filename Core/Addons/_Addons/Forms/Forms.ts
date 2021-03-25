@@ -238,15 +238,14 @@ namespace YetaWF {
 
         public DATACLASS: string = "yetawf_forms_data"; // add divs with this class to form for any data that needs to be submitted (will be removed before calling (pre)submit handlers.
 
-        public submit(form: HTMLFormElement, useValidation: boolean, extraData?: string, successFunc?: (hasErrors: boolean) => void, failFunc?: () => void): void {
+        public submit(form: HTMLFormElement, useValidation: boolean, extraData?: string): void {
             let method = form.getAttribute("method");
             if (!method) return; // no method, don't submit
             let saveReturn = form.getAttribute(YConfigs.Basics.CssSaveReturnUrl) !== null;// form says we need to save the return address on submit
-            this.submitExplicit(form, method, form.action, saveReturn, useValidation, extraData, successFunc, failFunc);
+            this.submitExplicit(form, method, form.action, saveReturn, useValidation, extraData);
         }
 
-        public submitExplicit(form: HTMLFormElement, method: string, action: string, saveReturn: boolean, useValidation: boolean, extraData?: string,
-            successFunc?: (hasErrors: boolean) => void, failFunc?: () => void, rawJSONFunc?: (json:string) => void): void  {
+        public submitExplicit(form: HTMLFormElement, method: string, action: string, saveReturn: boolean, useValidation: boolean, extraData?: string): void  {
 
             $YetaWF.pageChanged = false;// suppress navigate error
 
@@ -261,7 +260,6 @@ namespace YetaWF {
                 formValid = this.validate(form);
 
             $YetaWF.closeOverlays();
-            $YetaWF.setLoading(true);
 
             if (!useValidation || formValid) {
 
@@ -297,47 +295,28 @@ namespace YetaWF {
                 if (method.toLowerCase() === "get")
                     action = `${action}?${formData}`;
 
-                let request: XMLHttpRequest = new XMLHttpRequest();
-                request.open(method, action, true);
-                if (method.toLowerCase() === "post")
-                    request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-                request.onreadystatechange = (ev: Event) : any => {
-                    let req = request;
-                    if (req.readyState === 4 /*DONE*/) {
-                        $YetaWF.setLoading(false);
-                        if (rawJSONFunc && req.responseText && req.responseText[0] === "{") {
-                            rawJSONFunc(req.responseText);
-                            return;
-                        }
-                        if ($YetaWF.processAjaxReturn(req.responseText, req.statusText, req, form, undefined, (result: string): void => {
+                $YetaWF.send(method, action, formData, (success:boolean, responseText: any): void => {
+                    if (success) {
+                        if (responseText) {
                             let partForm = $YetaWF.getElement1BySelectorCond("." + YConfigs.Forms.CssFormPartial, [form]);
                             if (partForm) {
                                 // clean up everything that's about to be removed
                                 $YetaWF.processClearDiv(partForm);
                                 // preserve the original css classes on the partial form (PartialFormCss)
                                 let cls = partForm.className;
-                                $YetaWF.setMixedOuterHTML(partForm, req.responseText);
+                                $YetaWF.setMixedOuterHTML(partForm, responseText);
                                 partForm = $YetaWF.getElement1BySelectorCond("." + YConfigs.Forms.CssFormPartial, [form]);
                                 if (partForm)
                                     partForm.className = cls;
                             }
-                            $YetaWF.sendCustomEvent(form, Forms.EVENTPOSTSUBMIT, { success: true, form : form });
-                            $YetaWF.setFocus([form]);
-                        })) {
-                            if (successFunc)
-                                successFunc(this.hasErrors(form));
-                            $YetaWF.sendCustomEvent(form, Forms.EVENTPOSTSUBMIT, { success: true, form : form });
-                        } else {
-                            if (failFunc)
-                                failFunc();
-                            $YetaWF.sendCustomEvent(form, Forms.EVENTPOSTSUBMIT, { success: false, form : form });
                         }
+                        $YetaWF.sendCustomEvent(form, Forms.EVENTPOSTSUBMIT, { success: !this.hasErrors(form), form : form });
+                        $YetaWF.setFocus([form]);
+                    } else {
+                        $YetaWF.sendCustomEvent(form, Forms.EVENTPOSTSUBMIT, { success: false, form : form });
                     }
-                };
-                request.send(formData);
-
+                });
             } else {
-                $YetaWF.setLoading(false);
                 // find the first field in each tab control that has an input validation error and activate that tab
                 // This will not work for nested tabs. Only the lowermost tab will be activated.
                 YetaWF_FormsImpl.setErrorInNestedControls(form);
@@ -345,8 +324,7 @@ namespace YetaWF {
                 if (hasErrors)
                     this.showErrors(form);
                 // call callback (if any)
-                if (successFunc)
-                    successFunc(this.hasErrors(form));
+                $YetaWF.sendCustomEvent(form, Forms.EVENTPOSTSUBMIT, { success: false, form : form });
             }
             divs = $YetaWF.getElementsBySelector("div." + this.DATACLASS);
             for (let div of divs)

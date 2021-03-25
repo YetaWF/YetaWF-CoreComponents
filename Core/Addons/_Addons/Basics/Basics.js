@@ -455,92 +455,22 @@ var YetaWF;
             return str1 === str2;
         };
         // Ajax result handling
-        /** OBSOLETE: handle Ajax response - use $YetaWF.post() instead */
-        BasicsServices.prototype.processAjaxReturn = function (result, textStatus, xhr, tagInModule, onSuccessNoData, onRawDataResult, onJSONResult) {
-            //if (xhr.responseType != "json") throw `processAjaxReturn: unexpected responseType ${xhr.responseType}`;
-            try {
-                // eslint-disable-next-line no-eval
-                result = eval(result);
-            }
-            catch (e) { }
-            result = result || "(??)";
-            if (xhr.status === 200) {
-                this.reloadingModuleTagInModule = tagInModule || null;
-                if (result.startsWith(YConfigs.Basics.AjaxJavascriptReturn)) {
-                    var script = result.substring(YConfigs.Basics.AjaxJavascriptReturn.length);
-                    if (script.length === 0) { // all is well, but no script to execute
-                        if (onSuccessNoData !== undefined) {
-                            onSuccessNoData();
-                        }
-                    }
-                    else {
-                        // eslint-disable-next-line no-eval
-                        eval(script);
-                    }
-                    return true;
-                }
-                else if (result.startsWith(YConfigs.Basics.AjaxJSONReturn)) {
-                    var json = result.substring(YConfigs.Basics.AjaxJSONReturn.length);
-                    if (onJSONResult) {
-                        onJSONResult(JSON.parse(json));
-                        return true;
-                    }
-                    return false;
-                }
-                else if (result.startsWith(YConfigs.Basics.AjaxJavascriptErrorReturn)) {
-                    var script = result.substring(YConfigs.Basics.AjaxJavascriptErrorReturn.length);
-                    // eslint-disable-next-line no-eval
-                    eval(script);
-                    return false;
-                }
-                else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadPage)) {
-                    var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadPage.length);
-                    // eslint-disable-next-line no-eval
-                    eval(script); // if this uses $YetaWF.message or other "modal" calls, the page will reload immediately (use AjaxJavascriptReturn instead and explicitly reload page in your javascript)
-                    this.reloadPage(true);
-                    return true;
-                }
-                else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModule)) {
-                    var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModule.length);
-                    // eslint-disable-next-line no-eval
-                    eval(script); // if this uses $YetaWF.message or other "modal" calls, the module will reload immediately (use AjaxJavascriptReturn instead and explicitly reload module in your javascript)
-                    this.reloadModule();
-                    return true;
-                }
-                else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModuleParts)) {
-                    //if (!this.isInPopup()) throw "Not supported - only available within a popup";/*DEBUG*/
-                    var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModuleParts.length);
-                    // eslint-disable-next-line no-eval
-                    eval(script);
-                    if (tagInModule)
-                        this.refreshModuleByAnyTag(tagInModule);
-                    return true;
-                }
-                else {
-                    if (onRawDataResult !== undefined) {
-                        onRawDataResult(result);
-                        return true;
-                    }
-                    else {
-                        this.error(YLocs.Basics.IncorrectServerResp);
-                    }
-                    return false;
-                }
-            }
-            else if (xhr.status >= 400 && xhr.status <= 499) {
-                $YetaWF.error(YLocs.Forms.AjaxError.format(xhr.status, YLocs.Forms.AjaxNotAuth), YLocs.Forms.AjaxErrorTitle);
-                return false;
-            }
-            else if (xhr.status === 0) {
-                $YetaWF.error(YLocs.Forms.AjaxError.format(xhr.status, YLocs.Forms.AjaxConnLost), YLocs.Forms.AjaxErrorTitle);
-                return false;
-            }
-            else {
-                $YetaWF.error(YLocs.Forms.AjaxError.format(xhr.status, result), YLocs.Forms.AjaxErrorTitle);
-                return false;
-            }
+        /** Send a GET/POST/... request to the specified URL, expecting a JSON response. Errors are automatically handled. The callback is called once the POST response is available.
+         * @param url The URL used for the POST request.
+         * @param data The data to send as form data with the POST request.
+         * @param callback The callback to call when the POST response is available. Errors are automatically handled.
+         * @param tagInModule The optional tag in a module to refresh when AjaxJavascriptReloadModuleParts is returned.
+         */
+        BasicsServices.prototype.send = function (method, url, data, callback, tagInModule) {
+            this.setLoading(true);
+            var request = new XMLHttpRequest();
+            request.open(method, url, true);
+            if (method.toLowerCase() === "post")
+                request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+            $YetaWF.handleReadyStateChange(request, callback, tagInModule);
+            request.send(data);
         };
-        /** POST data to the specified URL, expecting a JSON response. Errors are automatically handled. The callback is called once the POST response is available.
+        /** POST form data to the specified URL, expecting a JSON response. Errors are automatically handled. The callback is called once the POST response is available.
          * @param url The URL used for the POST request.
          * @param data The data to send as form data with the POST request.
          * @param callback The callback to call when the POST response is available. Errors are automatically handled.
@@ -549,10 +479,23 @@ var YetaWF;
         BasicsServices.prototype.post = function (url, data, callback, tagInModule) {
             this.setLoading(true);
             var request = new XMLHttpRequest();
-            request.open("POST", url);
+            request.open("POST", url, true);
             request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
             $YetaWF.handleReadyStateChange(request, callback, tagInModule);
             request.send(data);
+        };
+        /** POST JSON data to the specified URL, expecting a JSON response. Errors are automatically handled. The callback is called once the POST response is available.
+         * @param url The URL used for the POST request.
+         * @param data The data to send as form data with the POST request.
+         * @param callback The callback to call when the POST response is available. Errors are automatically handled.
+         */
+        BasicsServices.prototype.postJSON = function (url, data, callback) {
+            this.setLoading(true);
+            var request = new XMLHttpRequest();
+            request.open("POST", url, true);
+            request.setRequestHeader("Content-Type", "application/json");
+            $YetaWF.handleReadyStateChange(request, callback);
+            request.send(JSON.stringify(data));
         };
         BasicsServices.prototype.handleReadyStateChange = function (request, callback, tagInModule) {
             var _this = this;
@@ -561,7 +504,11 @@ var YetaWF;
                 if (request.readyState === 4 /*DONE*/) {
                     _this.setLoading(false);
                     if (request.status === 200) {
-                        var result = JSON.parse(request.responseText);
+                        var result = null;
+                        if (request.responseText && !request.responseText.startsWith("<"))
+                            result = JSON.parse(request.responseText);
+                        else
+                            result = request.responseText;
                         if (typeof result === "string") {
                             if (result.startsWith(YConfigs.Basics.AjaxJavascriptReturn)) {
                                 var script = result.substring(YConfigs.Basics.AjaxJavascriptReturn.length);

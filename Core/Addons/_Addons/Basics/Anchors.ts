@@ -202,21 +202,8 @@ namespace YetaWF {
             }
         }
         private postLink(url: string, anchorOwner: HTMLElement | null, cookieToReturn: number | null) : void {
-            $YetaWF.setLoading();
             this.waitForCookie(cookieToReturn);
-
-            let request: XMLHttpRequest = new XMLHttpRequest();
-            request.open("POST", url, true);
-            request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-            request.onreadystatechange = (ev: Event) : any => {
-                let req = request;
-                if (req.readyState === 4 /*DONE*/) {
-                    $YetaWF.setLoading(false);
-                    $YetaWF.processAjaxReturn(req.responseText, req.statusText, req, anchorOwner || undefined);
-                }
-
-            };
-            request.send("");
+            $YetaWF.post(url, "", (success: boolean, data: any) : void => { }, anchorOwner || undefined);
         }
     }
 
