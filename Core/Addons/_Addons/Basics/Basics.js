@@ -452,6 +452,91 @@ var YetaWF;
             return str1 === str2;
         };
         // Ajax result handling
+        /** OBSOLETE: DO NOT USE */
+        BasicsServices.prototype.processAjaxReturn = function (result, textStatus, xhr, tagInModule, onSuccessNoData, onRawDataResult, onJSONResult) {
+            //if (xhr.responseType != "json") throw `processAjaxReturn: unexpected responseType ${xhr.responseType}`;
+            try {
+                // eslint-disable-next-line no-eval
+                result = eval(result);
+            }
+            catch (e) { }
+            result = result || "(??)";
+            if (xhr.status === 200) {
+                this.reloadingModuleTagInModule = tagInModule || null;
+                if (result.startsWith(YConfigs.Basics.AjaxJavascriptReturn)) {
+                    var script = result.substring(YConfigs.Basics.AjaxJavascriptReturn.length);
+                    if (script.length === 0) { // all is well, but no script to execute
+                        if (onSuccessNoData !== undefined) {
+                            onSuccessNoData();
+                        }
+                    }
+                    else {
+                        // eslint-disable-next-line no-eval
+                        eval(script);
+                    }
+                    return true;
+                }
+                else if (result.startsWith(YConfigs.Basics.AjaxJSONReturn)) {
+                    var json = result.substring(YConfigs.Basics.AjaxJSONReturn.length);
+                    if (onJSONResult) {
+                        onJSONResult(JSON.parse(json));
+                        return true;
+                    }
+                    return false;
+                }
+                else if (result.startsWith(YConfigs.Basics.AjaxJavascriptErrorReturn)) {
+                    var script = result.substring(YConfigs.Basics.AjaxJavascriptErrorReturn.length);
+                    // eslint-disable-next-line no-eval
+                    eval(script);
+                    return false;
+                }
+                else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadPage)) {
+                    var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadPage.length);
+                    // eslint-disable-next-line no-eval
+                    eval(script); // if this uses $YetaWF.alert or other "modal" calls, the page will reload immediately (use AjaxJavascriptReturn instead and explicitly reload page in your javascript)
+                    this.reloadPage(true);
+                    return true;
+                }
+                else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModule)) {
+                    var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModule.length);
+                    // eslint-disable-next-line no-eval
+                    eval(script); // if this uses $YetaWF.alert or other "modal" calls, the module will reload immediately (use AjaxJavascriptReturn instead and explicitly reload module in your javascript)
+                    this.reloadModule();
+                    return true;
+                }
+                else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModuleParts)) {
+                    //if (!this.isInPopup()) throw "Not supported - only available within a popup";/*DEBUG*/
+                    var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModuleParts.length);
+                    // eslint-disable-next-line no-eval
+                    eval(script);
+                    if (tagInModule)
+                        this.refreshModuleByAnyTag(tagInModule);
+                    return true;
+                }
+                else {
+                    if (onRawDataResult !== undefined) {
+                        onRawDataResult(result);
+                        return true;
+                    }
+                    else {
+                        this.error(YLocs.Basics.IncorrectServerResp);
+                    }
+                    return false;
+                }
+            }
+            else if (xhr.status >= 400 && xhr.status <= 499) {
+                $YetaWF.error(YLocs.Forms.AjaxError.format(xhr.status, YLocs.Forms.AjaxNotAuth), YLocs.Forms.AjaxErrorTitle);
+                return false;
+            }
+            else if (xhr.status === 0) {
+                $YetaWF.error(YLocs.Forms.AjaxError.format(xhr.status, YLocs.Forms.AjaxConnLost), YLocs.Forms.AjaxErrorTitle);
+                return false;
+            }
+            else {
+                $YetaWF.error(YLocs.Forms.AjaxError.format(xhr.status, result), YLocs.Forms.AjaxErrorTitle);
+                return false;
+            }
+        };
         /** Send a GET/POST/... request to the specified URL, expecting a JSON response. Errors are automatically handled. The callback is called once the POST response is available.
          * @param url The URL used for the POST request.
          * @param data The data to send as form data with the POST request.

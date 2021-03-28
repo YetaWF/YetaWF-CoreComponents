@@ -238,14 +238,18 @@ namespace YetaWF {
 
         public DATACLASS: string = "yetawf_forms_data"; // add divs with this class to form for any data that needs to be submitted (will be removed before calling (pre)submit handlers.
 
-        public submit(form: HTMLFormElement, useValidation: boolean, extraData?: string): void {
+        public submit(form: HTMLFormElement, useValidation: boolean, extraData?: string
+            , successFunc?: (hasErrors: boolean) => void, failFunc?: () => void  //$$$$$$$$$$PARAMETERS TO BE REMOVED
+        ): void {
             let method = form.getAttribute("method");
             if (!method) return; // no method, don't submit
             let saveReturn = form.getAttribute(YConfigs.Basics.CssSaveReturnUrl) !== null;// form says we need to save the return address on submit
             this.submitExplicit(form, method, form.action, saveReturn, useValidation, extraData);
         }
 
-        public submitExplicit(form: HTMLFormElement, method: string, action: string, saveReturn: boolean, useValidation: boolean, extraData?: string): void  {
+        public submitExplicit(form: HTMLFormElement, method: string, action: string, saveReturn: boolean, useValidation: boolean, extraData?: string,
+            successFunc?: (hasErrors: boolean) => void, failFunc?: () => void, rawJSONFunc?: (json:string) => void //$$$$$$$$$$PARAMETERS TO BE REMOVED
+        ): void  {
 
             $YetaWF.pageChanged = false;// suppress navigate error
 

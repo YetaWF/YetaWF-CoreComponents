@@ -102,14 +102,16 @@ var YetaWF;
         Forms.prototype.resequenceFields = function (rows, prefix) {
             return YetaWF_FormsImpl.resequenceFields(rows, prefix);
         };
-        Forms.prototype.submit = function (form, useValidation, extraData) {
+        Forms.prototype.submit = function (form, useValidation, extraData, successFunc, failFunc //$$$$$$$$$$PARAMETERS TO BE REMOVED
+        ) {
             var method = form.getAttribute("method");
             if (!method)
                 return; // no method, don't submit
             var saveReturn = form.getAttribute(YConfigs.Basics.CssSaveReturnUrl) !== null; // form says we need to save the return address on submit
             this.submitExplicit(form, method, form.action, saveReturn, useValidation, extraData);
         };
-        Forms.prototype.submitExplicit = function (form, method, action, saveReturn, useValidation, extraData) {
+        Forms.prototype.submitExplicit = function (form, method, action, saveReturn, useValidation, extraData, successFunc, failFunc, rawJSONFunc //$$$$$$$$$$PARAMETERS TO BE REMOVED
+        ) {
             var _this = this;
             $YetaWF.pageChanged = false; // suppress navigate error
             var divs = $YetaWF.getElementsBySelector("div." + this.DATACLASS);
