@@ -380,7 +380,7 @@ namespace YetaWF.Core.Pages {
 
         [StringLength(MaxFav_SVG)]
         [Data_NewValue]
-        public string Fav_SVG { get; set; }
+        public string? Fav_SVG { get; set; }
 
         [Data_Binary]
         [RequiresPageReload]
