@@ -270,24 +270,85 @@ namespace YetaWF.Core.Models.Attributes {
                 return false;
             }
         }
-        public static bool IsRequired(List<ExprAttribute> exprAttributes, object model) {
+        public static bool IsRequired(List<ExprAttribute> exprAttributes, object container) {
             foreach (ExprAttribute e in exprAttributes) {
-                if (e.IsRequiredAttribute && e.IsValid(model))
+                if (e.IsRequiredAttribute && e.IsValid(container))
                     return true;
             }
             return false;
         }
-        public static bool IsSelectionRequired(List<ExprAttribute> exprAttributes, object model) {
+        public static bool IsSelectionRequired(List<ExprAttribute> exprAttributes, object container) {
             foreach (ExprAttribute e in exprAttributes) {
-                if (e.IsSelectionRequiredAttribute && e.IsValid(model))
+                if (e.IsSelectionRequiredAttribute && e.IsValid(container))
                     return true;
             }
             return false;
         }
-        public static bool IsSuppressed(List<ExprAttribute> exprAttributes, object model) {
+        public static bool IsSuppressed(List<ExprAttribute> exprAttributes, object container) {
             foreach (ExprAttribute e in exprAttributes) {
-                if (e.IsSuppressAttribute && e.IsValid(model))
+                if (e.IsSuppressAttribute && e.IsValid(container))
                     return true;// suppress this as requested
+            }
+            return false;
+        }
+        public static bool IsProcessed(List<ExprAttribute> exprAttributes, object container) {
+            bool hasAttribute = false;
+            foreach (ExprAttribute e in exprAttributes) {
+                if (e.IsProcessAttribute) {
+                    hasAttribute = true;
+                    if (e.IsProcessValid(container))
+                        return true;
+                }
+            }
+            return !hasAttribute;
+        }
+        public static bool IsHide(List<ExprAttribute> exprAttributes, object container) {
+            foreach (ExprAttribute e in exprAttributes) {
+                if (e.IsHideAttribute) {
+                    if (e.IsHideValid(container))
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        protected bool IsProcessValid(object? container) {
+            if (container == null) return false;
+            foreach (Expr expr in ExprList) {
+                switch (Op) {
+                    case OpEnum.ProcessIf:
+                    case OpEnum.ProcessIfSupplied:
+                        if (IsExprValid(expr, container))
+                            return true;
+                        break;
+                    case OpEnum.ProcessIfNot:
+                    case OpEnum.ProcessIfNotSupplied:
+                        if (!IsExprValid(expr, container))
+                            return true;
+                        break;
+                    default:
+                        throw new InternalError($"Unexpected Op value {Op}");
+                }
+            }
+            return false;
+        }
+        protected bool IsHideValid(object? container) {
+            if (container == null) return false;
+            foreach (Expr expr in ExprList) {
+                switch (Op) {
+                    case OpEnum.HideIf:
+                    case OpEnum.HideIfSupplied:
+                        if (IsExprValid(expr, container))
+                            return true;
+                        break;
+                    case OpEnum.HideIfNot:
+                    case OpEnum.HideIfNotSupplied:
+                        if (!IsExprValid(expr, container))
+                            return true;
+                        break;
+                    default:
+                        throw new InternalError($"Unexpected Op value {Op}");
+                }
             }
             return false;
         }
@@ -374,11 +435,11 @@ namespace YetaWF.Core.Models.Attributes {
             return ValidationResult.Success;
         }
 
-        public bool IsExprValid(Expr expr, object model) {
-            object? leftVal = GetPropertyValue(model, expr.LeftProperty);
+        public bool IsExprValid(Expr expr, object container) {
+            object? leftVal = GetPropertyValue(container, expr.LeftProperty);
             object? rightVal;
             if (expr.IsRightProperty)
-                rightVal = GetPropertyValue(model, expr.RightProperty);
+                rightVal = GetPropertyValue(container, expr.RightProperty);
             else
                 rightVal = expr.Value;
 
@@ -391,16 +452,16 @@ namespace YetaWF.Core.Models.Attributes {
                     throw new InternalError($"Unexpected condition {expr.Cond}");
             }
         }
-        public bool IsExprSupplied(Expr expr, object model) {
-            object? leftVal = GetPropertyValue(model, expr.LeftProperty);
+        public bool IsExprSupplied(Expr expr, object container) {
+            object? leftVal = GetPropertyValue(container, expr.LeftProperty);
             if (IsEmpty(leftVal))
                 return false;
             return true;
         }
-        protected object? GetPropertyValue(object model, string propName) {
-            Type type = model.GetType();
+        protected object? GetPropertyValue(object container, string propName) {
+            Type type = container.GetType();
             PropertyInfo pi = ObjectSupport.GetProperty(type, propName);
-            return pi.GetValue(model, null);
+            return pi.GetValue(container, null);
         }
         private bool IsEmpty(object? value) {
             if (value is MultiString) {

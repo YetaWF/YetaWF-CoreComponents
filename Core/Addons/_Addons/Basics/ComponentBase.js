@@ -152,7 +152,9 @@ var YetaWF;
             var control = $YetaWF.getElement1BySelectorCond(controlSelector, [template]);
             if (control == null)
                 return null;
-            var obj = $YetaWF.getObjectData(control);
+            var obj = $YetaWF.getObjectDataCond(control);
+            if (!obj)
+                return null;
             if (obj.Control !== control)
                 throw "object data doesn't match control type - " + controlSelector + " - " + control.outerHTML;
             return obj;

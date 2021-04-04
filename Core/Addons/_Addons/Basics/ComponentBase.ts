@@ -152,7 +152,9 @@ namespace YetaWF {
             let control = $YetaWF.getElement1BySelectorCond(controlSelector, [template]) as HTMLElement;
             if (control == null)
                 return null;
-            let obj = $YetaWF.getObjectData(control) as CLSS;
+            let obj = $YetaWF.getObjectDataCond(control) as CLSS | null;
+            if (!obj)
+                return null;
             if (obj.Control !== control)
                 throw `object data doesn't match control type - ${controlSelector} - ${control.outerHTML}`;
             return obj;

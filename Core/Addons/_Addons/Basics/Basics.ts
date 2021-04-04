@@ -988,7 +988,6 @@ namespace YetaWF {
          * @param tagId - The element id (DOM) where the object is attached
          */
         public getObjectDataByIdCond(tagId: string): any {
-            this.getElementById(tagId); // used to validate the existence of the element
             let doe = this.DataObjectCache.filter((entry: DataObjectEntry): boolean => entry.DivId === tagId);
             if (doe.length === 0)
                 return null;

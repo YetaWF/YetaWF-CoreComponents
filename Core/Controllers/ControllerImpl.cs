@@ -246,17 +246,6 @@ namespace YetaWF.Core.Controllers {
                     }
                 }
 
-                // origin list (we already do this in global.asax.cs for GET, maybe move it there)
-                //string originList = (string) HttpContext.Request.Form[Globals.Link_OriginList];
-                //if (!string.IsNullOrWhiteSpace(originList))
-                //    Manager.OriginList = Utility.JsonDeserialize<List<Origin>>(originList);
-                //else
-                //    Manager.OriginList = new List<Origin>();
-
-                //string inPopup = HttpContext.Request.Form[Globals.Link_InPopup];
-                //if (!string.IsNullOrWhiteSpace(inPopup))
-                //    Manager.IsInPopup = true;
-
                 ViewData.Add(Globals.RVD_ModuleDefinition, CurrentModule);
             }
 
@@ -274,24 +263,29 @@ namespace YetaWF.Core.Controllers {
             await base.OnActionExecutionAsync(filterContext, next);
         }
 
-        internal static void CorrectModelState(object? model, ModelStateDictionary ModelState, string prefix = "") {
+        internal static void CorrectModelState(object? model, ModelStateDictionary modelState, string prefix = "") {
+            // This is ugly, fighting .net model binding/validation all the way. I gave up. This works.
             if (model == null) return;
             Type modelType = model.GetType();
-            if (ModelState.Keys.Count() == 0) return;
+            if (modelState.Keys.Count() == 0) return;
             List<PropertyData> props = ObjectSupport.GetPropertyData(modelType);
             foreach (var prop in props) {
-                if (!ModelState.Keys.Contains(prefix + prop.Name)) {
-                    // check if the property name is for a class
+
+                if (!modelState.Keys.Contains(prefix + prop.Name)) {
+                    // check if the property name is for a class object
                     string subPrefix = prefix + prop.Name + ".";
-                    if ((from k in ModelState.Keys where k.StartsWith(subPrefix) select k).FirstOrDefault() != null) {
-                        object? subObject = prop.PropInfo.GetValue(model);
-                        CorrectModelState(subObject, ModelState, subPrefix);
+                    if ((from k in modelState.Keys where k.StartsWith(subPrefix) select k).FirstOrDefault() != null) {
+                        if (ExprAttribute.IsProcessed(prop.ExprValidationAttributes, model) && !ExprAttribute.IsHide(prop.ExprValidationAttributes, model)) {
+                            object? subObject = prop.PropInfo.GetValue(model);
+                            CorrectModelState(subObject, modelState, subPrefix);
+                        } else {
+                            RemoveModelState(modelState, prefix + prop.Name);
+                        }
                     }
                     continue;
                 }
 
                 bool process = true;// overall whether we need to process this property
-                bool hasAttribute = false;// has at least one attribute
                 bool found = false;// found an enabling attribute
                 if (!found) {
                     if (ExprAttribute.IsRequired(prop.ExprValidationAttributes, model)) {
@@ -311,18 +305,22 @@ namespace YetaWF.Core.Controllers {
                         process = false;
                     }
                 }
-                if (process) {
-                    if (hasAttribute && !found) {
-                        // there was no attribute that made this required
-                        // we don't process this property
-                        ModelState.Remove(prefix + prop.Name);
-                        continue;
-                    } else {
-                        // we process this property
-                    }
-                } else {
+                if (!process) {
                     // we don't process this property
-                    ModelState.Remove(prefix + prop.Name);
+                    RemoveModelState(modelState, prefix + prop.Name);
+                }
+            }
+        }
+
+        private static void RemoveModelState(ModelStateDictionary modelState, string name, bool RemoveChildren = true) {
+
+            modelState.Remove(name);
+            if (RemoveChildren) {
+                string prefix = $"{name}.";
+                List<string> keys = modelState.Keys.ToList();
+                foreach (string key in keys) {
+                    if (key.StartsWith(prefix))
+                        modelState.Remove(key);
                 }
             }
         }

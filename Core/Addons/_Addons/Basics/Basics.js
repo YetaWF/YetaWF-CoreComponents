@@ -809,7 +809,6 @@ var YetaWF;
          * @param tagId - The element id (DOM) where the object is attached
          */
         BasicsServices.prototype.getObjectDataByIdCond = function (tagId) {
-            this.getElementById(tagId); // used to validate the existence of the element
             var doe = this.DataObjectCache.filter(function (entry) { return entry.DivId === tagId; });
             if (doe.length === 0)
                 return null;
