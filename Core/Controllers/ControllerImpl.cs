@@ -267,7 +267,7 @@ namespace YetaWF.Core.Controllers {
             // This is ugly, fighting .net model binding/validation all the way. I gave up. This works.
             if (model == null) return;
             Type modelType = model.GetType();
-            if (modelState.Keys.Count() == 0) return;
+            if (!modelState.Keys.Any()) return;
             List<PropertyData> props = ObjectSupport.GetPropertyData(modelType);
             foreach (var prop in props) {
 
