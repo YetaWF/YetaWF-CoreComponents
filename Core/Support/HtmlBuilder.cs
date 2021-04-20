@@ -108,6 +108,15 @@ namespace YetaWF.Core.Support {
             return hb.ToString();
         }
 
+        public static void AddClass(IDictionary<string, object?> htmlAttributes, string cls) {
+            if (htmlAttributes.TryGetValue("class", out object? classes)) {
+                classes = CssManager.CombineCss((string?)classes, cls);
+                htmlAttributes["class"] = classes;
+            } else {
+                htmlAttributes.Add("class", cls);
+            }
+        }
+
         /// <summary>
         /// Returns the id defined in <paramref name="attributes"/>, or a new id.
         /// </summary>
