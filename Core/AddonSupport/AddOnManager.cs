@@ -14,6 +14,10 @@ using YetaWF.Core.Support;
 namespace YetaWF.Core.Addons {
 
     public interface IAddOnSupport {
+        /// <summary>
+        /// Add template specific localization, variables, etc.
+        /// </summary>
+        /// <param name="manager">A YetaWFManager instance.</param>
         Task AddSupportAsync(YetaWFManager manager);
     }
 
