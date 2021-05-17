@@ -142,14 +142,6 @@ namespace YetaWF.Core.Components {
         public static bool operator !=(TimeOfDay? thisTime, TimeOfDay? thatTime) {
             return thisTime?.TOD != thatTime?.TOD;
         }
-        /// <inheritdoc/>
-        public override bool Equals(object? obj) {
-            return base.Equals(obj);
-        }
-        /// <inheritdoc/>
-        public override int GetHashCode() {
-            return base.GetHashCode();
-        }
 
         /// <summary>
         /// Returns the defined time of day with today's date.
@@ -193,7 +185,7 @@ namespace YetaWF.Core.Components {
         }
         /// <inheritdoc/>
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) {
-            if (value != null && value.GetType() == typeof(string)) {
+            if (value != null && (value is string)) {
                 if (!DateTime.TryParse((string)value, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AllowWhiteSpaces, out DateTime dt))
                     throw new FormatException($"'{(string)value}' is an invalid time of day value");
                 return new TimeOfDay(dt);

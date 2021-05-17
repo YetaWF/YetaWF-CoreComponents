@@ -128,6 +128,17 @@ namespace YetaWF.Core.Localize {
             string fmt = GetFormatDateFormat(dateFormat);
             return dt.ToString(fmt);
         }
+        /// <summary>
+        /// Format date. The date does not have a time component (always UTC 00:00:00). If a time component is present, it is ignored.
+        /// </summary>
+        public static string FormatDateOnly(DateTime? dateTime, DateFormatEnum? dateFormat = null) {
+            if (dateTime == null) return string.Empty;
+            DateTime dt = (DateTime)dateTime;
+            if (dt == DateTime.MinValue) return string.Empty;
+            dt = dt.Date;
+            string fmt = GetFormatDateFormat(dateFormat);
+            return dt.ToString(fmt);
+        }
 
         public static string FormatTimeOfDay(TimeOfDay? timeOfDay, TimeFormatEnum? timeFormat = null) {
             if (timeOfDay == null) return string.Empty;
@@ -257,6 +268,9 @@ namespace YetaWF.Core.Localize {
             if (dow == DayOfWeek.Saturday) return __ResStr("Saturday", "Saturday");
             return "???";
         }
+        public static string GetDayNamesArr() {
+            return __ResStr("DayNames", "Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday");
+        }
         public static string GetDayName2Chars(DayOfWeek dow) {
             if (dow == DayOfWeek.Sunday) return __ResStr("Sunday2", "Su");
             if (dow == DayOfWeek.Monday) return __ResStr("Monday2", "Mo");
@@ -266,6 +280,9 @@ namespace YetaWF.Core.Localize {
             if (dow == DayOfWeek.Friday) return __ResStr("Friday2", "Fr");
             if (dow == DayOfWeek.Saturday) return __ResStr("Saturday2", "Sa");
             return "???";
+        }
+        public static string GetDayName2CharsArr() {
+            return __ResStr("DayNames2", "Su,Mo,Tu,We,Th,Fr,Sa");
         }
         public static string GetMonthName(int month) {
             if (month == 1) return __ResStr("January", "January");
@@ -281,6 +298,9 @@ namespace YetaWF.Core.Localize {
             if (month == 11) return __ResStr("November", "November");
             if (month == 12) return __ResStr("December", "December");
             return "???";
+        }
+        public static string GetMonthNamesArr() {
+            return __ResStr("MonthNames", "January,February,March,April,May,June,July,August,September,October,November,December");
         }
 
         public static string FormatTimeSpan(TimeSpan? timeSpan) {

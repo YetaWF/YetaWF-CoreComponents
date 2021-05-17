@@ -11,10 +11,9 @@ namespace YetaWF.Core.Components {
     /// </summary>
     public class DayTimeRange {
 
-        /// <summary>
-        /// Defines the date.
-        /// </summary>
-        public DateTime Date { get; set; }
+        private readonly int BaseYear = 2000;
+        private readonly int BaseMonth = 1;
+        private readonly int BaseDay = 1;
 
         /// <summary>
         /// Defines the starting time of the first time start/end range.
@@ -59,26 +58,16 @@ namespace YetaWF.Core.Components {
         public string? AdditionalFieldDescription { get; set; }
 
         /// <summary>
-        /// Constructor, initializes the Date property.
+        /// Constructor.
         /// </summary>
-        /// <param name="date"></param>
-        public DayTimeRange(DateTime date) {
-            Date = date;
-        }
-        /// <summary>
-        /// Constructor, initializes the Date property with the current user's local time.
-        /// </summary>
-        /// <remarks>If no date/time is specified, the current date is used.</remarks>
-        public DayTimeRange() {
-            Date = DateTime.UtcNow;
-        }
+        public DayTimeRange() { }
 
         /// <summary>
         /// Returns whether there are no start/end time ranges.
         /// </summary>
         /// <returns>true if there are no start/end time ranges, false otherwise.</returns>
         public bool IsClosedAllDay() {
-            return (Start == null && End == null && Start2 == null && End2 == null);
+            return Start == null && End == null && Start2 == null && End2 == null;
         }
         /// <summary>
         /// Given a date/time, returns whether the current time is outside one of the start/end time ranges.
@@ -112,19 +101,19 @@ namespace YetaWF.Core.Components {
         }
 
         public TimeOfDay GetTimeStart() {
-            DateTime dt = new DateTime(Date.Year, Date.Month, Date.Day, Start?.Hours ?? 0, Start?.Minutes ?? 0, Start?.Seconds ?? 0, DateTimeKind.Utc);
+            DateTime dt = new DateTime(BaseYear, BaseMonth, BaseDay, Start?.Hours ?? 0, Start?.Minutes ?? 0, Start?.Seconds ?? 0, DateTimeKind.Utc);
             return new TimeOfDay(dt.Add(- YetaWFManager.Manager.GetTimeZoneInfo().BaseUtcOffset));
         }
         public TimeOfDay GetTimeEnd() {
-            DateTime dt = new DateTime(Date.Year, Date.Month, Date.Day, End?.Hours ?? 0, End?.Minutes ?? 0, End?.Seconds ?? 0, DateTimeKind.Utc);
+            DateTime dt = new DateTime(BaseYear, BaseMonth, BaseDay, End?.Hours ?? 0, End?.Minutes ?? 0, End?.Seconds ?? 0, DateTimeKind.Utc);
             return new TimeOfDay(dt.Add(- YetaWFManager.Manager.GetTimeZoneInfo().BaseUtcOffset));
         }
         public TimeOfDay GetTimeStart2() {
-            DateTime dt = new DateTime(Date.Year, Date.Month, Date.Day, Start2?.Hours ?? 0, Start2?.Minutes ?? 0, Start2?.Seconds ?? 0, DateTimeKind.Utc);
+            DateTime dt = new DateTime(BaseYear, BaseMonth, BaseDay, Start2?.Hours ?? 0, Start2?.Minutes ?? 0, Start2?.Seconds ?? 0, DateTimeKind.Utc);
             return new TimeOfDay(dt.Add(- YetaWFManager.Manager.GetTimeZoneInfo().BaseUtcOffset));
         }
         public TimeOfDay GetTimeEnd2() {
-            DateTime dt = new DateTime(Date.Year, Date.Month, Date.Day, End2?.Hours ?? 0, End2?.Minutes ?? 0, End2?.Seconds ?? 0, DateTimeKind.Utc);
+            DateTime dt = new DateTime(BaseYear, BaseMonth, BaseDay, End2?.Hours ?? 0, End2?.Minutes ?? 0, End2?.Seconds ?? 0, DateTimeKind.Utc);
             return new TimeOfDay(dt.Add(- YetaWFManager.Manager.GetTimeZoneInfo().BaseUtcOffset));
         }
     }
