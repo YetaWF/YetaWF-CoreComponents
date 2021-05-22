@@ -302,7 +302,7 @@ namespace YetaWF.Core.Models {
         /// <param name="parentObject">The parent model containing this property.</param>
         /// <returns>The property value.</returns>
         public TYPE GetPropertyValue<TYPE>(object parentObject) {
-            TYPE val = (TYPE) PropInfo.GetValue(parentObject, null);
+            TYPE val = (TYPE) PropInfo.GetValue(parentObject, null)!;
             return val !;
         }
         /// <summary>
@@ -312,7 +312,7 @@ namespace YetaWF.Core.Models {
         /// <returns>The attribute or null if not found.</returns>
         public TYPE? TryGetAttribute<TYPE>() {
             string name = typeof(TYPE).Name;
-            TYPE attr = (TYPE) TryGetAttributeValue(name);
+            TYPE attr = (TYPE) TryGetAttributeValue(name)!;
             return attr;
         }
         /// <summary>
@@ -322,7 +322,7 @@ namespace YetaWF.Core.Models {
         /// <returns>The attribute or null if not found.</returns>
         public List<TYPE> TryGetAttributes<TYPE>() {
             string name = typeof(TYPE).Name;
-            List<TYPE> attrs = TryGetAttributeValues<TYPE>(name);
+            List<TYPE> attrs = TryGetAttributeValues<TYPE>(name)!;
             return attrs;
         }
         /// <summary>
@@ -362,7 +362,7 @@ namespace YetaWF.Core.Models {
             value = default(TYPE);
             AdditionalMetadataAttribute? attr = (AdditionalMetadataAttribute?) (from a in AdditionalAttributes where a.Key == name select a.Value).FirstOrDefault();
             if (attr == null) return false;
-            value = (TYPE) attr.Value;
+            value = (TYPE?) attr.Value;
             return true;
         }
         /// <summary>
@@ -372,8 +372,8 @@ namespace YetaWF.Core.Models {
         /// <param name="name">The name specified on the AdditionalMetadataAttribute.</param>
         /// <param name="dflt">The default value returned if the AdditionalMetadataAttribute is not found.</param>
         /// <returns>The value found on the AdditionalMetadataAttribute, or the value defined using the dflt parameter.</returns>
-        public TYPE? GetAdditionalAttributeValue<TYPE>(string name, TYPE dflt = default(TYPE)) {
-            if (!TryGetAdditionalAttributeValue(name, out TYPE val))
+        public TYPE? GetAdditionalAttributeValue<TYPE>(string name, TYPE? dflt = default(TYPE)) {
+            if (!TryGetAdditionalAttributeValue(name, out TYPE? val))
                 return dflt;
             return val;
         }
@@ -846,11 +846,11 @@ namespace YetaWF.Core.Models {
         /// <param name="name">The name of the property.</param>
         /// <param name="dflt">The default value returned if the property does not exist.</param>
         /// <returns>The property value. The default value is returned if the property does not exist.</returns>
-        public static bool TryGetPropertyValue<TYPE>(object parentObject, string name, out TYPE? val, TYPE dflt = default(TYPE)) {
+        public static bool TryGetPropertyValue<TYPE>(object parentObject, string name, out TYPE? val, TYPE? dflt = default(TYPE)) {
             val = dflt;
             PropertyInfo? prop = TryGetProperty(parentObject.GetType(), name);
             if (prop == null) return false;
-            val = (TYPE) prop.GetValue(parentObject, null);
+            val = (TYPE?) prop.GetValue(parentObject, null);
             return true;
         }
 

@@ -740,7 +740,7 @@ namespace YetaWF.Core.Support {
         /// <param name="dflt">An optional value, which is returned if the argument is not available.</param>
         /// <returns>true if the argument was found, false otherwise.</returns>
         /// <remarks>This would not be used in a controller as these have access to all arguments via their parameter list. This is typically only used in a module action that is dynamically added by a module.</remarks>
-        public bool TryGetUrlArg<TYPE>(string arg, [NotNullWhen(true)] out TYPE? val, TYPE dflt = default) {
+        public bool TryGetUrlArg<TYPE>(string arg, [NotNullWhen(true)] out TYPE? val, TYPE? dflt = default) {
             val = dflt;
             string? v;
             try {

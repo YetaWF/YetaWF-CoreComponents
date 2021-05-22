@@ -122,25 +122,13 @@ namespace YetaWF.Core.Components {
         public static bool operator <=(TimeOfDay? thisTime, TimeOfDay? thatTime) {
             return thisTime?.TOD <= thatTime?.TOD;
         }
-        /// <summary>
-        /// Compares two YetaWF.Core.Components.TimeOfDay instances for equality.
-        /// </summary>
-        /// <param name="thisTime">The first YetaWF.Core.Components.TimeOfDay instance to compare. May be null.</param>
-        /// <param name="thatTime">The second YetaWF.Core.Components.TimeOfDay instance to compare. May be null.</param>
-        /// <returns>Returns true if the two instances are equal, false otherwise.</returns>
-        /// <remarks>TimeOfDay values are compared so earlier times are considered smaller. A null YetaWF.Core.Components.TimeOfDay instance is considered smaller (earlier) than a non-null value.</remarks>
-        public static bool operator ==(TimeOfDay? thisTime, TimeOfDay? thatTime) {
-            return thisTime?.TOD == thatTime?.TOD;
+        /// <inheritdoc/>
+        public override bool Equals(object? obj) {
+            return this.TOD == ((TimeOfDay?)obj)?.TOD;
         }
-        /// <summary>
-        /// Compares two YetaWF.Core.Components.TimeOfDay instances for inequality.
-        /// </summary>
-        /// <param name="thisTime">The first YetaWF.Core.Components.TimeOfDay instance to compare. May be null.</param>
-        /// <param name="thatTime">The second YetaWF.Core.Components.TimeOfDay instance to compare. May be null.</param>
-        /// <returns>Returns true if the two instances are unequal, false otherwise.</returns>
-        /// <remarks>TimeOfDay values are compared so earlier times are considered smaller. A null YetaWF.Core.Components.TimeOfDay instance is considered smaller (earlier) than a non-null value.</remarks>
-        public static bool operator !=(TimeOfDay? thisTime, TimeOfDay? thatTime) {
-            return thisTime?.TOD != thatTime?.TOD;
+        /// <inheritdoc/>
+        public override int GetHashCode() {
+            return TOD.GetHashCode();
         }
 
         /// <summary>
@@ -185,9 +173,9 @@ namespace YetaWF.Core.Components {
         }
         /// <inheritdoc/>
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) {
-            if (value != null && (value is string)) {
-                if (!DateTime.TryParse((string)value, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AllowWhiteSpaces, out DateTime dt))
-                    throw new FormatException($"'{(string)value}' is an invalid time of day value");
+            if (value is string tod) {
+                if (!DateTime.TryParse(tod, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AllowWhiteSpaces, out DateTime dt))
+                    throw new FormatException($"'{tod}' is an invalid time of day value");
                 return new TimeOfDay(dt);
             }
             return base.ConvertFrom(context, culture, value);
