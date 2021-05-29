@@ -236,7 +236,7 @@ namespace YetaWF.Core.Packages {
             Logging.AddLog("Removing unnecessary website Addons folders");
 
             List<Package> packages = GetAvailablePackages();
-            List<string> usedFolders = (from p in packages select p.AddonsFolder).ToList();
+            List<string> usedFolders = (from p in packages select p.AddonsSourceFolder).ToList();
             List<string> domains = await FileSystem.FileSystemProvider.GetDirectoriesAsync(Path.Combine(YetaWFManager.RootFolder, Globals.AddOnsFolder));
             foreach (string domain in domains) {
                 List<string> definedFolders = await FileSystem.FileSystemProvider.GetDirectoriesAsync(domain);

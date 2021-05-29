@@ -1,5 +1,11 @@
-﻿//stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css,CDN
+﻿﻿//stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css,CDN
 
 /node_modules/bootstrap/dist/css/bootstrap.min.css,noCDN
 
 bootstrap.css,bundle
+
+# eventual goal
+# /node_modules/bootstrap/dist/css/bootstrap-reboot.min.css,deployed
+# /node_modules/bootstrap/dist/css/bootstrap-reboot.css,notdeployed
+# /node_modules/bootstrap/dist/css/bootstrap-grid.min.css,deployed
+# /node_modules/bootstrap/dist/css/bootstrap-grid.css,notdeployed

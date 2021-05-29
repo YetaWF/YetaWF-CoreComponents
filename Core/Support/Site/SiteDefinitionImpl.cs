@@ -1,10 +1,12 @@
 ﻿/* Copyright © 2021 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using YetaWF.Core.Components;
 using YetaWF.Core.DataProvider;
+using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Image;
 using YetaWF.Core.Packages;
@@ -286,13 +288,6 @@ namespace YetaWF.Core.Site {
             return uri.ToString();
         }
 
-        // Helpers
-        public string CurrentYear {
-            get {
-                return Localize.Formatting.FormatDateTimeYear(DateTime.UtcNow);
-            }
-        }
-
         // FAVICON
         // FAVICON
         // FAVICON
@@ -361,7 +356,7 @@ namespace YetaWF.Core.Site {
         public static Func<string?, Task<SiteDefinition>> LoadSiteDefinitionAsync { get; set; } = null!;
         public static Func<SiteDefinition, Task> SaveSiteDefinitionAsync { get; set; } = null!;
         public static Func<Task> RemoveSiteDefinitionAsync { get; set; } = null!;
-        public static Func<int, int, List<DataProviderSortInfo>, List<DataProviderFilterInfo>, Task<DataProviderGetRecords<SiteDefinition>>> GetSitesAsync { get; set; } = null!;
+        public static Func<int, int, List<DataProviderSortInfo>?, List<DataProviderFilterInfo>?, Task<DataProviderGetRecords<SiteDefinition>>> GetSitesAsync { get; set; } = null!;
         public static Func<string, Task<SiteDefinition>> LoadStaticSiteDefinitionAsync { get; set; } = null!;
         public static Func<string, Task<SiteDefinition>> LoadTestSiteDefinitionAsync { get; set; } = null!;
 
@@ -382,6 +377,39 @@ namespace YetaWF.Core.Site {
         public async Task RemoveAsync() {
             await SiteDefinition.RemoveSiteDefinitionAsync();
         }
+
+        // CURRENCY
+        // CURRENCY
+        // CURRENCY
+
+        [Data_DontSave]
+        public string CurrencyFormat {
+            get {
+                return CurrencyInfo.Format;
+            }
+            set {
+                // supported for deserialization of legacy data.
+            }
+        }
+
+        [Data_DontSave]
+        public int CurrencyDecimals {
+            get {
+                return CurrencyInfo.MinorUnit;
+            }
+            set {
+                // supported for deserialization of legacy data.
+            }
+        }
+
+        public CurrencyISO4217.Currency CurrencyInfo {
+            get {
+                if (_currencyInfo == null)
+                    _currencyInfo = CurrencyISO4217.GetCurrencyInfo(Currency);
+                return _currencyInfo;
+            }
+        }
+        private CurrencyISO4217.Currency? _currencyInfo;
 
         // INITIAL INSTALL
         // INITIAL INSTALL

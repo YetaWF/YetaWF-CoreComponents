@@ -1,0 +1,44 @@
+﻿
+Description: Standard YetaWF skin (also used as fallback skin)
+MinWidthForPopups: 0
+
+PageSkins:
+    - Name: Main (Default)
+      ViewName: Default
+      Description: Standard page with a header, footer and a main pane
+      CSS: pageSkinDefault
+    - Name: Plain Page
+      ViewName: Plain
+      Description: "** not used **"
+      CSS: pageSkinPlain
+
+PopupSkins:
+    - Name: Popup (Default)
+      ViewName: Popup
+      Description: Standard popup window
+      CSS: popup
+      Width: 1000
+      Height: 700
+      MaximizeButton: false
+    - Name: Medium Popup
+      ViewName: PopupMedium
+      Description: "** not used **"
+      CSS: popup
+      Width: 1000
+      Height: 700
+      MaximizeButton: false
+    - Name: Small Popup
+      ViewName: PopupSmall
+      Description: "** not used **"
+      CSS: popup
+      Width: 1000
+      Height: 700
+      MaximizeButton: false
+
+ModuleSkins:
+    - Name: Standard (Default)
+      Description: Standard module
+      CSS: modStandard
+    - Name: Panel
+      Description: "** not used **"
+      CSS: modPanel

@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
-using YetaWF.Core.Localize;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Components {
@@ -14,30 +13,61 @@ namespace YetaWF.Core.Components {
     /// </summary>
     [TypeConverter(typeof(TimeOfDayConv))]
     public class TimeOfDay {
+
+        public static readonly DateTime BaseDate = new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
         /// <summary>
         /// Constructor.
         /// </summary>
-        public TimeOfDay() { TOD = new TimeSpan(0, 0, 0); }
+        public TimeOfDay() {
+            DateTime dt = new DateTime(BaseDate.Year, BaseDate.Month, BaseDate.Day, 0, 0, 0, DateTimeKind.Utc);
+            TODwDateValue = dt;
+            TODwDateLocal = true;
+        }
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="hours">Defines the number of hours in the time of day.</param>
         /// <param name="minutes">Defines the number of minutes in the time of day.</param>
         /// <param name="seconds">Defines the number of seconds in the time of day.</param>
-        public TimeOfDay(int hours, int minutes, int seconds) { TOD = new TimeSpan(hours, minutes, seconds); }
+        public TimeOfDay(int hours, int minutes, int seconds) {
+            DateTime dt = new DateTime(BaseDate.Year, BaseDate.Month, BaseDate.Day, hours, minutes, seconds, DateTimeKind.Utc);
+            TODwDateValue = dt;
+            TODwDateLocal = true;
+        }
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="dt">A date and time. The time portion is used as time of day. The date portion is not used.</param>
         public TimeOfDay(DateTime dt) {
-            if (dt.Kind != DateTimeKind.Utc) throw new InternalError($"DateTime has incorrect Kind {dt.Kind}");
-            dt = Formatting.GetUserDateTime(dt);
-            TOD = dt.TimeOfDay;
+            if (dt.Kind != DateTimeKind.Utc) throw new InternalError($"DateTime has incorrect Kind {dt.Kind}, must be Utc");
+            TODwDateValue = dt;
+            TODwDateLocal = false;
         }
+
         /// <summary>
-        /// The defined time of day.
+        /// The defined time of day (User Local). 
         /// </summary>
-        public TimeSpan TOD { get; private set; }
+        public TimeSpan TOD { 
+            get {
+                DateTime dt = TODwDateValue;
+                if (!TODwDateLocal) {
+                    dt = dt.Add(YetaWFManager.Manager.GetTimeZoneInfo().BaseUtcOffset);
+                    TODwDateValue = dt;
+                    TODwDateLocal = true;
+                }
+                return dt.TimeOfDay;
+            }
+            set {
+                // Used for serialization, not referenced by code
+                DateTime dt = BaseDate.Date.Add(value);
+                TODwDateValue = dt;
+                TODwDateLocal = true;
+            }
+        }
+
+        private DateTime TODwDateValue { get; set; }
+        private bool TODwDateLocal { get; set; }
 
         /// <summary>
         /// The number of hours in the defined time of day.
@@ -92,51 +122,29 @@ namespace YetaWF.Core.Components {
         public static bool operator <=(TimeOfDay? thisTime, TimeOfDay? thatTime) {
             return thisTime?.TOD <= thatTime?.TOD;
         }
-        /// <summary>
-        /// Compares two YetaWF.Core.Components.TimeOfDay instances for equality.
-        /// </summary>
-        /// <param name="thisTime">The first YetaWF.Core.Components.TimeOfDay instance to compare. May be null.</param>
-        /// <param name="thatTime">The second YetaWF.Core.Components.TimeOfDay instance to compare. May be null.</param>
-        /// <returns>Returns true if the two instances are equal, false otherwise.</returns>
-        /// <remarks>TimeOfDay values are compared so earlier times are considered smaller. A null YetaWF.Core.Components.TimeOfDay instance is considered smaller (earlier) than a non-null value.</remarks>
-        public static bool operator ==(TimeOfDay? thisTime, TimeOfDay? thatTime) {
-            return thisTime?.TOD == thatTime?.TOD;
-        }
-        /// <summary>
-        /// Compares two YetaWF.Core.Components.TimeOfDay instances for inequality.
-        /// </summary>
-        /// <param name="thisTime">The first YetaWF.Core.Components.TimeOfDay instance to compare. May be null.</param>
-        /// <param name="thatTime">The second YetaWF.Core.Components.TimeOfDay instance to compare. May be null.</param>
-        /// <returns>Returns true if the two instances are unequal, false otherwise.</returns>
-        /// <remarks>TimeOfDay values are compared so earlier times are considered smaller. A null YetaWF.Core.Components.TimeOfDay instance is considered smaller (earlier) than a non-null value.</remarks>
-        public static bool operator !=(TimeOfDay? thisTime, TimeOfDay? thatTime) {
-            return thisTime?.TOD != thatTime?.TOD;
-        }
         /// <inheritdoc/>
         public override bool Equals(object? obj) {
-            return base.Equals(obj);
+            return this.TOD == ((TimeOfDay?)obj)?.TOD;
         }
         /// <inheritdoc/>
         public override int GetHashCode() {
-            return base.GetHashCode();
+            return TOD.GetHashCode();
         }
-        /// <summary>
-        /// Adds the specified number of hours to the time of day.
-        /// </summary>
-        /// <param name="hours">The number of hours to add to the time of day. A negative number can be used to subtract hours.</param>
-        /// <remarks>No overflow checking is performed and adding/subtracting hours may result in an invalid time of day.</remarks>
-        public void AddHours(int hours) { TOD = TOD.Add(new TimeSpan(hours, 0, 0)); }
 
         /// <summary>
         /// Returns the defined time of day with today's date.
         /// </summary>
         /// <returns>Returns the defined time of day (TOD property) with today's date.</returns>
         public DateTime AsDateTime() {
-            DateTime today = DateTime.UtcNow.Date;
-            DateTime dt = new DateTime(today.Year, today.Month, today.Day, 0, 0, 0, DateTimeKind.Local);
-            dt = dt.Add(TOD);
-            dt = Formatting.GetUtcDateTime(dt);
+            DateTime dt = TODwDateValue;
+            if (TODwDateLocal)
+                dt = dt.Add(-YetaWFManager.Manager.GetTimeZoneInfo().BaseUtcOffset);
             return dt;
+        }
+        public bool HasTimeOfDay { 
+            get {
+                return !TODwDateLocal || TODwDateValue.Hour > 0 || TODwDateValue.Minute > 0 || TODwDateValue.Second > 0;
+            }
         }
     }
     /// <summary>
@@ -165,10 +173,9 @@ namespace YetaWF.Core.Components {
         }
         /// <inheritdoc/>
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) {
-            if (value != null && value.GetType() == typeof(string)) {
-                DateTime dt;
-                if (!DateTime.TryParse((string)value, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AllowWhiteSpaces, out dt))
-                    return DateTime.MinValue;
+            if (value is string tod) {
+                if (!DateTime.TryParse(tod, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AllowWhiteSpaces, out DateTime dt))
+                    throw new FormatException($"'{tod}' is an invalid time of day value");
                 return new TimeOfDay(dt);
             }
             return base.ConvertFrom(context, culture, value);

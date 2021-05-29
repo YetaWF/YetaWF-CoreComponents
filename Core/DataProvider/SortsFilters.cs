@@ -50,7 +50,8 @@ namespace YetaWF.Core.DataProvider {
                 ParsingConfig config = new ParsingConfig {
                     CustomTypeProvider = new DynCustomTypeProvider()
                 };
-                list = list.AsQueryable().Where(config, string.Join(" && ", select), parms).ToList<OBJTYPE>();
+                string logic = filters[0].Logic ?? "&&";
+                list = list.AsQueryable().Where(config, string.Join($" {logic} ", select), parms).ToList<OBJTYPE>();
             }
             return list;
         }

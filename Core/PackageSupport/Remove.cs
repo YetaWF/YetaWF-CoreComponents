@@ -33,7 +33,7 @@ namespace YetaWF.Core.Packages {
             // now remove all files associated with this package
 
             // Addons for this product
-            bool status = await RemoveEmptyFoldersUpAsync(AddonsFolder, errorList);
+            bool status = await RemoveEmptyFoldersUpAsync(AddonsSourceFolder, errorList);
 
             // Assembly
             Uri file = new Uri(package.PackageAssembly.Location);

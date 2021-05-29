@@ -8,6 +8,8 @@ var __extends = (this && this.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -66,8 +68,12 @@ var YetaWF;
                 if (!elem)
                     return null;
                 // we found an element (a composite field). This may be a template within another template (usually a propertylist)
-                // so we use its parent element instead
-                elem = elem.parentElement;
+                // get its template
+                var childTemplate = ComponentBase.elementClosestTemplateCond(elem);
+                if (!childTemplate)
+                    return null;
+                // then take its parent element (so we get the main template later)
+                elem = childTemplate.parentElement;
                 if (!elem)
                     return null;
             }
@@ -146,7 +152,9 @@ var YetaWF;
             var control = $YetaWF.getElement1BySelectorCond(controlSelector, [template]);
             if (control == null)
                 return null;
-            var obj = $YetaWF.getObjectData(control);
+            var obj = $YetaWF.getObjectDataCond(control);
+            if (!obj)
+                return null;
             if (obj.Control !== control)
                 throw "object data doesn't match control type - " + controlSelector + " - " + control.outerHTML;
             return obj;
@@ -206,15 +214,24 @@ var YetaWF;
             var tag = $YetaWF.getElementById(id);
             return ComponentBaseDataImpl.getControlFromTag(tag, controlSelector);
         };
+        /**
+         * Returns all component instances that match the specified selector with the specified tags.
+         * While components are initializing, their HTML elements may already exist, but the component instance has not yet been created.
+         * Such components are simply ignored and not returned.
+         * @param controlSelector The selector to find matching coomponents.
+         * @param tags The tags within which components are located.
+         */
         ComponentBaseDataImpl.getControls = function (controlSelector, tags) {
             var objs = [];
             var ctrls = $YetaWF.getElementsBySelector(controlSelector, tags);
             for (var _i = 0, ctrls_1 = ctrls; _i < ctrls_1.length; _i++) {
                 var ctrl = ctrls_1[_i];
-                var obj = $YetaWF.getObjectData(ctrl);
-                if (obj.Control !== ctrl)
-                    throw "object data doesn't match control type - " + controlSelector + " - " + ctrl.outerHTML;
-                objs.push(obj);
+                var obj = $YetaWF.getObjectDataCond(ctrl);
+                if (obj) {
+                    if (obj.Control !== ctrl)
+                        throw "object data doesn't match control type - " + controlSelector + " - " + ctrl.outerHTML;
+                    objs.push(obj);
+                }
             }
             return objs;
         };

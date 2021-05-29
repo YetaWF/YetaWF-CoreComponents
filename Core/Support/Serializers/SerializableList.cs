@@ -18,16 +18,16 @@ namespace YetaWF.Core.Serializers {
             Justification = "The deserialization (e.g., TextFormatter, SimpleFormatter) uses generic Add() instead of typed as it simplifies deserialization")]
         public void Add(object? o) // for Serializers, DataProviders
         {
-             Type val;
+             Type? val;
              try {
                  if (typeof(Type) == typeof(int))
                      val = (Type)(object)Convert.ToInt32(o);
                  else if (typeof(Type) == typeof(Guid))
                     val = (Type)(object)new Guid(o!.ToString()!);
                 else
-                    val = (Type)o;
+                    val = (Type?)o;
              } catch (Exception) {
-                 val = (Type)Activator.CreateInstance(typeof(Type), new object?[] { o });
+                 val = (Type?)Activator.CreateInstance(typeof(Type), new object?[] { o });
              }
              base.Add(val!);
         }

@@ -1,2 +1,2 @@
-﻿https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.1/signalr.min.js,cdn
+﻿https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.5/signalr.min.js,cdn
 /node_modules/@microsoft/signalr/dist/browser/signalr.min.js,nobundle,nocdn

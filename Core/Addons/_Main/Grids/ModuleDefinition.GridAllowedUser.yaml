@@ -1,0 +1,53 @@
+# Generated from flat grid definition file on 1/30/2021 4:39:05 PM
+
+SizeStyle: SizeToFit
+Panel: {}
+Columns:
+- Name: Delete
+  Icons: 1
+  FilterOptions: []
+  Align: Center
+- Name: DisplayUserId
+  FilterOptions: []
+  Width: 40
+  Align: Unspecified
+- Name: View
+  FilterOptions: []
+  Width: 7
+  Align: Center
+- Name: Edit
+  FilterOptions: []
+  Width: 7
+  Align: Center
+- Name: Remove
+  FilterOptions: []
+  Width: 7
+  Align: Center
+- Name: Extra1
+  FilterOptions: []
+  Width: 7
+  Align: Center
+- Name: Extra2
+  FilterOptions: []
+  Width: 7
+  Align: Center
+- Name: Extra3
+  FilterOptions: []
+  Width: 7
+  Align: Center
+- Name: Extra4
+  FilterOptions: []
+  Width: 7
+  Align: Center
+- Name: Extra5
+  FilterOptions: []
+  Width: 7
+  Align: Center
+- Name: UserId
+  FilterOptions: []
+  Align: Unspecified
+  Hidden: true
+- Name: DisplayUserName
+  FilterOptions: []
+  Align: Unspecified
+  Hidden: true

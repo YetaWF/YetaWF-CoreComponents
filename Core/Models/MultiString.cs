@@ -158,8 +158,8 @@ namespace YetaWF.Core.Models {
         /// <param name="ms">The MultiString instance to convert to a string.</param>
         /// <returns>Returns a string.</returns>
         /// <remarks>The active language is used to determine the string returned.</remarks>
-        static public implicit operator string?(MultiString? ms) {
-            return ms?.ToString();
+        static public implicit operator string(MultiString? ms) {
+            return ms?.ToString() ?? string.Empty;
         }
         /// <summary>
         /// Returns a string for the currently active language.

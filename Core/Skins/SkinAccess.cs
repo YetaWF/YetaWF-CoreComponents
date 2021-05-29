@@ -1,13 +1,17 @@
 ﻿/* Copyright © 2021 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Components;
 using YetaWF.Core.Identity;
+using YetaWF.Core.IO;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Modules;
+using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 
@@ -16,86 +20,88 @@ namespace YetaWF.Core.Skins {
     public partial class SkinAccess {
 
         public const string FallbackSkinCollectionName = "YetaWF/Core/Standard";
-        public const string FallbackPageFileName = "Default";
-        public const string FallbackPagePlainFileName = "Plain";
-        public const string FallbackPopupSkinCollectionName = "YetaWF/Core/Standard";
-        public const string FallbackPopupFileName = "Popup";
-        public const string FallbackPopupMediumFileName = "PopupMedium";
-        public const string FallbackPopupSmallFileName = "PopupSmall";
-
-        public SkinAccess() {  }
+        public const string FallbackPageFileName = SkinAccess.PAGE_VIEW_DEFAULT;
+        public const string FallbackPagePlainFileName = SkinAccess.PAGE_VIEW_PLAIN;
+        public const string FallbackPopupFileName = SkinAccess.POPUP_VIEW_DEFAULT;
+        public const string FallbackPopupMediumFileName = SkinAccess.POPUP_VIEW_MEDIUM;
+        public const string FallbackPopupSmallFileName = SkinAccess.POPUP_VIEW_SMALL;
 
         protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
-        public string GetPageViewName(SkinDefinition skin, bool popup) {
-            skin = SkinDefinition.EvaluatedSkin(skin, popup);
-            SkinCollectionInfo? info = TryFindSkinCollection(skin.Collection!);
-            if (info == null)
-                info = FindSkinCollection(Manager.IsInPopup ? SkinAccess.FallbackPopupSkinCollectionName : SkinAccess.FallbackSkinCollectionName);
-            return $"{info.AreaName}_{skin.FileName}";
+        public SkinAccess() {  }
+
+        public static SkinCollectionInfo FallbackSkinCollectionInfo {
+            get {
+                if (_fallbackSkinCollectionInfo == null) {
+                    SkinAccess skinAccess = new SkinAccess();
+                    _fallbackSkinCollectionInfo = skinAccess.FindSkinCollection(SkinAccess.FallbackSkinCollectionName);
+                }
+                return _fallbackSkinCollectionInfo;
+            }
+        }
+        private static SkinCollectionInfo? _fallbackSkinCollectionInfo = null;
+
+        public string GetViewName(string? popupPage) {
+            SkinDefinition skin = Manager.CurrentSite.Skin;
+            SkinCollectionInfo info = TryFindSkinCollection(skin.Collection) ?? FallbackSkinCollectionInfo;
+            return $"{info.AreaName}_{(Manager.IsInPopup ? popupPage ?? skin.PopupFileName : skin.PageFileName)}";
         }
 
         // Returns the panes defined by the page skin
-        public List<string> GetPanes(SkinDefinition pageSkin, bool popup) {
-            string pageView = GetPageViewName(pageSkin, popup);
-            return YetaWFPageExtender.GetPanes(pageView);
+        public List<string> GetPanes(string? popupPage) {
+            return YetaWFPageExtender.GetPanes(GetViewName(popupPage));
         }
 
         public SkinCollectionInfo GetSkinCollectionInfo() {
-            SkinDefinition pageSkin = SkinDefinition.EvaluatedSkin(Manager.CurrentPage, Manager.IsInPopup);
-            SkinCollectionInfo? info = TryFindSkinCollection(pageSkin.Collection!);
-            if (info == null)
-                info = FindSkinCollection(Manager.IsInPopup ? SkinAccess.FallbackPopupSkinCollectionName : SkinAccess.FallbackSkinCollectionName);
+            SkinDefinition skin = Manager.CurrentSite.Skin;
+            SkinCollectionInfo info = TryFindSkinCollection(skin.Collection) ?? FallbackSkinCollectionInfo;
             return info;
         }
+
         public PageSkinEntry GetPageSkinEntry() {
-            SkinDefinition pageSkin = SkinDefinition.EvaluatedSkin(Manager.CurrentPage, Manager.IsInPopup);
-            SkinCollectionInfo? info = TryFindSkinCollection(pageSkin.Collection!);
+            SkinDefinition skin = Manager.CurrentSite.Skin;
+            SkinCollectionInfo? info = TryFindSkinCollection(skin.Collection);
             PageSkinEntry? pageSkinEntry;
             if (info == null) {
-                info = FindSkinCollection(Manager.IsInPopup ? SkinAccess.FallbackPopupSkinCollectionName : SkinAccess.FallbackSkinCollectionName);
+                info = FindSkinCollection(SkinAccess.FallbackSkinCollectionName);
                 pageSkinEntry = Manager.IsInPopup ? info.PopupSkins.First() : info.PageSkins.First();
             } else {
-                string fileName = pageSkin.FileName!;
-                if (string.IsNullOrWhiteSpace(fileName)) {
-                    if (Manager.IsInPopup)
-                        fileName = FallbackPopupFileName;
-                    else
-                        fileName = FallbackPageFileName;
-                }
+                string? fileName;
                 if (Manager.IsInPopup) {
-                    pageSkinEntry = (from s in info.PopupSkins where s.PageViewName == fileName select s).FirstOrDefault();
+                    fileName = Manager.CurrentPage.PopupPage;
+                    if (string.IsNullOrWhiteSpace(fileName))
+                        fileName = skin.PopupFileName;
+                    if (string.IsNullOrWhiteSpace(fileName))
+                        fileName = FallbackPopupFileName;
+                    pageSkinEntry = (from s in info.PopupSkins where s.ViewName == fileName select s).FirstOrDefault();
                 } else {
-                    pageSkinEntry = (from s in info.PageSkins where s.PageViewName == fileName select s).FirstOrDefault();
+                    fileName = skin.PageFileName;
+                    if (string.IsNullOrWhiteSpace(fileName))
+                        fileName = FallbackPageFileName;
+                    pageSkinEntry = (from s in info.PageSkins where s.ViewName == fileName select s).FirstOrDefault();
                 }
             }
             if (pageSkinEntry == null)
-                throw new InternalError("No page skin {0} found", pageSkin);
+                throw new InternalError("No page skin found");
             return pageSkinEntry;
         }
         private ModuleSkinEntry GetModuleSkinEntry(ModuleDefinition mod) {
+
             // Get the skin info for the page's skin collection and get the default module skin
-            SkinDefinition pageSkin = SkinDefinition.EvaluatedSkin(Manager.CurrentPage, Manager.IsInPopup);
-            SkinCollectionInfo? info = TryFindSkinCollection(pageSkin.Collection!);
-            ModuleSkinEntry? modSkinEntry;
-            if (info == null) {
-                info = FindSkinCollection(Manager.IsInPopup ? SkinAccess.FallbackPopupSkinCollectionName : SkinAccess.FallbackSkinCollectionName);
-                modSkinEntry = info.ModuleSkins.First();
-            } else {
-                // Find the module skin name to use for the page's skin collection
-                string? modSkin = (from s in mod.SkinDefinitions where s.Collection == pageSkin.Collection select s.FileName).FirstOrDefault();
-                if (string.IsNullOrWhiteSpace(modSkin))
-                    modSkinEntry = info.ModuleSkins.First();
-                else
-                    modSkinEntry = (from s in info.ModuleSkins where s.CssClass == modSkin select s).FirstOrDefault();
-                if (modSkinEntry == null) throw new InternalError("No module skin {0} found", modSkin);
-            }
+            SkinDefinition skin = Manager.CurrentSite.Skin;
+            SkinCollectionInfo? info = TryFindSkinCollection(skin.Collection);
+            if (info == null)
+                info = FindSkinCollection(SkinAccess.FallbackSkinCollectionName);
+
+            // Find the module skin name to use for the page's skin collection
+            string find = mod.ModuleSkin ?? SkinAccess.MODULE_SKIN_DEFAULT;
+            ModuleSkinEntry? modSkinEntry = (from s in info.ModuleSkins where s.CSS == find select s).FirstOrDefault();
+            if (modSkinEntry == null) throw new InternalError("No module skin found");
+
             return modSkinEntry;
         }
 
-        internal async Task<string> MakeModuleContainerAsync(ModuleDefinition mod, string htmlContents, bool ShowMenu = true, bool ShowTitle = true, bool ShowAction = true) {
-            ModuleSkinEntry modSkinEntry = GetModuleSkinEntry(mod);
-            string modSkinCss = modSkinEntry.CssClass;
+        internal async Task<string> MakeModuleContainerAsync(ModuleDefinition mod, string htmlContents, bool ShowTitle = true) {
 
             HtmlBuilder hb = new HtmlBuilder();
 
@@ -104,7 +110,16 @@ namespace YetaWF.Core.Skins {
                 hb.Append($@"<div class='yAnchor' id='{mod.AnchorId}'></div>");
             }
 
-            string css = string.Empty;
+            ModuleSkinEntry modSkinEntry = GetModuleSkinEntry(mod);
+
+            string name = modSkinEntry.CSS;
+            if (Manager.IsInPopup) // force standard for popups
+                name = SkinAccess.MODULE_SKIN_DEFAULT;
+
+            string css = name;
+            css = CssManager.CombineCss(css, Globals.CssModule);
+            css = CssManager.CombineCss(css, mod.AreaName + "_" + mod.ModuleName);
+            css = CssManager.CombineCss(css, mod.AreaName);
             if (!string.IsNullOrWhiteSpace(mod.CssClass) && !Manager.EditMode)
                 css = CssManager.CombineCss(css, Manager.AddOnManager.CheckInvokedCssModule(mod.CssClass));
             if (!mod.Print)
@@ -124,44 +139,111 @@ namespace YetaWF.Core.Skins {
                 }
             }
 
-            hb.Append($@"
-<div id='{mod.ModuleHtmlId}' data-moduleguid='{mod.ModuleGuid.ToString()}' class='{Manager.AddOnManager.CheckInvokedCssModule(Globals.CssModule)} {Manager.AddOnManager.CheckInvokedCssModule(mod.AreaName)} {Manager.AddOnManager.CheckInvokedCssModule(mod.AreaName + "_" + mod.ModuleName)} {Manager.AddOnManager.CheckInvokedCssModule(modSkinCss)} {css}'>");
+            switch (name) {
+                default:
+                case SkinAccess.MODULE_SKIN_DEFAULT:
+                    await RenderStandardModuleAsync(mod, hb, htmlContents, css, ShowTitle);
+                    break;
+                case SkinAccess.MODULE_SKIN_PANEL:
+                    await RenderPanelModuleAsync(mod, hb, htmlContents, css, ShowTitle);
+                    break;
+            }
+            return hb.ToString();
+        }
 
-            if (ShowMenu && mod.ShowModuleMenu) {
+        private async Task RenderStandardModuleAsync(ModuleDefinition mod, HtmlBuilder hb, string htmlContents, string css, bool showTitle = true) {
+
+            hb.Append($@"
+<div id='{mod.ModuleHtmlId}' data-moduleguid='{mod.ModuleGuid.ToString()}' class='{css}'>");
+
+            if (!Manager.IsInPopup && mod.ShowModuleMenu) {
                 hb.Append(await YetaWFCoreRendering.Render.RenderModuleMenuAsync(mod));
             }
-            if (ShowTitle) {
+            if (showTitle) {
+
+                hb.Append($@"
+    <div class='yModuleTitle'>
+         <h1>{Utility.HE(mod.Title)}</h1>");
+
                 if (mod.ShowTitleActions) {
                     string? actions = null;
-                    if (ShowTitle && mod.ShowTitleActions)
+                    if (showTitle && mod.ShowTitleActions)
                         actions = await YetaWFCoreRendering.Render.RenderModuleLinksAsync(mod, ModuleAction.RenderModeEnum.IconsOnly, Globals.CssModuleLinksContainer);
                     if (!string.IsNullOrWhiteSpace(actions)) {
                         hb.Append($@"
-    <div class='yModuleTitle'>
-         <h1>{Utility.HE(mod.Title)}</h1>
-        {actions}
+        {actions}");
+                    }
+                }
+
+                hb.Append($@"
     </div>
     <div class='y_cleardiv'></div>");
-                    } else {
-                        hb.Append($@"<h1>{Utility.HE(mod.Title)}</h1>");
-                    }
-                } else {
-                    hb.Append($@"<h1>{Utility.HE(mod.Title)}</h1>");
+            }
+
+            hb.Append($@"
+    <div class='yModuleContents'>
+{htmlContents}
+    </div>");
+
+            if (!string.IsNullOrWhiteSpace(Manager.PaneRendered)) { // only show action menus in a pane
+                if (mod.ShowActionMenu) {
+                    hb.Append($@"
+{await YetaWFCoreRendering.Render.RenderModuleLinksAsync(mod, ModuleAction.RenderModeEnum.NormalLinks, Globals.CssModuleLinksContainer)}");
                 }
             }
 
             hb.Append($@"
-{htmlContents}");
+</div>");
 
-            if (ShowAction && !string.IsNullOrWhiteSpace(Manager.PaneRendered)) { // only show action menus in a pane
-                if (mod.ShowActionMenu)
-                    hb.Append($@"
-{await YetaWFCoreRendering.Render.RenderModuleLinksAsync(mod, ModuleAction.RenderModeEnum.NormalLinks, Globals.CssModuleLinksContainer)}");
+        }
+
+        private async Task RenderPanelModuleAsync(ModuleDefinition mod, HtmlBuilder hb, string htmlContents, string css, bool showTitle = true) {
+
+            await Manager.AddOnManager.AddAddOnNamedAsync(AreaRegistration.CurrentPackage.AreaName, "PanelModule");
+
+            string expCss = " t_expanded";
+            if (mod.CanMinimize) {
+                bool expanded = Manager.SessionSettings.GetModuleSettings(mod.ModuleGuid).GetValue<bool>("PanelExpanded", !mod.Minimized);
+                if (!expanded)
+                    expCss = " t_collapsed";
             }
 
             hb.Append($@"
+<div id='{mod.ModuleHtmlId}' data-moduleguid='{mod.ModuleGuid.ToString()}' class='{css}{expCss}'>");
+
+            if (!Manager.IsInPopup && mod.ShowModuleMenu) {
+                hb.Append(await YetaWFCoreRendering.Render.RenderModuleMenuAsync(mod));
+            }
+
+            string actions = await YetaWFCoreRendering.Render.RenderModuleLinksAsync(mod, ModuleAction.RenderModeEnum.Button, Globals.CssModuleLinksContainer);
+            if (string.IsNullOrWhiteSpace(actions))
+                actions = $"<div class='{Globals.CssModuleLinksContainer}'></div>"; // empty div for flex
+
+            hb.Append($@"
+    <div class='yModuleTitle'>
+         <h1>{Utility.HE(mod.Title)}</h1>
+         {actions}");
+
+            if (mod.CanMinimize) {
+                
+                hb.Append($@"
+    <div class='yModuleExpColl'>
+        <button class='y_buttonlite t_exp' {Basics.CssTooltip}='{Utility.HAE(this.__ResStr("exp", "Click to expand this panel"))}'>
+            {SkinSVGs.Get(AreaRegistration.CurrentPackage, "fas-window-maximize")}
+        </button>
+        <button class='y_buttonlite t_coll' {Basics.CssTooltip}='{Utility.HAE(this.__ResStr("coll", "Click to collapse this panel"))}'>
+            {SkinSVGs.Get(AreaRegistration.CurrentPackage, "fas-window-minimize")}
+        </button>
+    </div>");
+            }
+
+            hb.Append($@"
+    </div>
+    <div class='y_cleardiv'></div> 
+    <div class='yModuleContents'>
+{htmlContents}
+    </div>
 </div>");
-                return hb.ToString();
         }
 
         /// <summary>
@@ -170,9 +252,9 @@ namespace YetaWF.Core.Skins {
         /// <returns></returns>
         public SkinCollectionInfoList GetAllSkinCollections() {
             if (_skinCollections == null) {
-                List<VersionManager.AddOnProduct> addonSkinColls = VersionManager.GetAvailableSkinCollections();
+                List<Package.AddOnProduct> addonSkinColls = Package.GetAvailableSkinCollections();
                 SkinCollectionInfoList newList = new SkinCollectionInfoList();
-                foreach (VersionManager.AddOnProduct addon in addonSkinColls) {
+                foreach (Package.AddOnProduct addon in addonSkinColls) {
                     newList.Add(addon.SkinInfo);
                 }
                 _skinCollections = newList;
@@ -186,7 +268,7 @@ namespace YetaWF.Core.Skins {
         /// </summary>
         /// <returns></returns>
         protected SkinCollectionInfo? TryFindSkinCollection(string collection) {
-            return (from c in VersionManager.GetAvailableSkinCollections() where c.SkinInfo.CollectionName == collection select c.SkinInfo).FirstOrDefault();
+            return (from c in Package.GetAvailableSkinCollections() where c.SkinInfo.Name == collection select c.SkinInfo).FirstOrDefault();
         }
         /// <summary>
         /// Find a skin collection.
@@ -204,18 +286,18 @@ namespace YetaWF.Core.Skins {
         /// </summary>
         /// <param name="skinCollection"></param>
         /// <returns></returns>
-        public PageSkinList GetAllPageSkins(string skinCollection) {
+        public PageSkinList GetAllPageSkins(string? skinCollection) {
             if (string.IsNullOrWhiteSpace(skinCollection)) {
                 PageSkinList skinList = new PageSkinList {
                     new PageSkinEntry {
                         Name = this.__ResStr("page", "Default Page"),
                         Description = this.__ResStr("pageTT", "Default Page"),
-                        PageViewName = FallbackPageFileName,
+                        ViewName = FallbackPageFileName,
                     },
                     new PageSkinEntry {
                         Name = this.__ResStr("pagePlain", "Plain Page"),
                         Description = this.__ResStr("pagePlainTT", "Plain Page"),
-                        PageViewName = FallbackPagePlainFileName,
+                        ViewName = FallbackPagePlainFileName,
                     },
                 };
                 return skinList;
@@ -228,23 +310,23 @@ namespace YetaWF.Core.Skins {
         /// </summary>
         /// <param name="skinCollection"></param>
         /// <returns></returns>
-        public PageSkinList GetAllPopupSkins(string skinCollection) {
+        public PageSkinList GetAllPopupSkins(string? skinCollection) {
             if (string.IsNullOrWhiteSpace(skinCollection)) {
                 PageSkinList skinList = new PageSkinList {
                     new PageSkinEntry {
                         Name = this.__ResStr("pop", "Popup (Default)"),
                         Description = this.__ResStr("popTT", "Large popup"),
-                        PageViewName = FallbackPopupFileName,
+                        ViewName = FallbackPopupFileName,
                     },
                     new PageSkinEntry {
                         Name = this.__ResStr("popMed", "Medium Popup"),
                         Description = this.__ResStr("popMedTT", "Medium popup"),
-                        PageViewName = FallbackPopupMediumFileName,
+                        ViewName = FallbackPopupMediumFileName,
                     },
                     new PageSkinEntry {
                         Name = this.__ResStr("popSmall", "Small Popup"),
                         Description = this.__ResStr("popSmallTT", "Small popup"),
-                        PageViewName = FallbackPopupSmallFileName,
+                        ViewName = FallbackPopupSmallFileName,
                     }
                 };
                 return skinList;
@@ -253,7 +335,7 @@ namespace YetaWF.Core.Skins {
         }
 
         private PageSkinList GetAllSkins(string skinCollection, bool Popup = false) {
-            VersionManager.AddOnProduct addon = VersionManager.FindSkinVersion(skinCollection);
+            Package.AddOnProduct addon = Package.FindSkin(skinCollection);
             return Popup ? addon.SkinInfo.PopupSkins : addon.SkinInfo.PageSkins;
         }
 
@@ -261,10 +343,26 @@ namespace YetaWF.Core.Skins {
         /// Get all module skins for a collection
         /// </summary>
         /// <param name="skinCollection"></param>
-        /// <returns></returns>
+        /// <returns>A list of module skins.</returns>
         public ModuleSkinList GetAllModuleSkins(string skinCollection) {
-            VersionManager.AddOnProduct addon = VersionManager.FindSkinVersion(skinCollection);
+            Package.AddOnProduct addon = Package.FindSkin(skinCollection);
             return addon.SkinInfo.ModuleSkins;
+        }
+
+        /// <summary>
+        /// Get all available themes for the current skin.
+        /// </summary>
+        /// <returns>A list of themes.</returns>
+        public async Task<List<string>> GetThemesAsync() {
+            List<string> list = new List<string>();
+            SkinCollectionInfo skinInfo = FindSkinCollection(Manager.CurrentSite.Skin.Collection);
+            foreach (string themePath in await FileSystem.FileSystemProvider.GetFilesAsync(Path.Combine(skinInfo.Folder, "Themes"), "*.css")) {
+                string fileName = Path.GetFileNameWithoutExtension(themePath);
+                if (fileName.EndsWith(".min", StringComparison.Ordinal))
+                    continue;
+                list.Add(fileName);
+            }
+            return list;
         }
     }
 }

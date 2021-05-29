@@ -114,7 +114,7 @@ namespace YetaWF.Core.Modules {
                     if (serModule.ModDef.IsModuleUnique)
                         throw new Error(__ResStr("unique", "Module {0} is a unique module and can't be imported as a new module", serModule.ModDef.Name));
 
-                    PageDefinition page = await PageDefinition.LoadAsync(pageGuid);
+                    PageDefinition? page = await PageDefinition.LoadAsync(pageGuid);
                     if (page == null)
                         throw new Error(__ResStr("pageNotFound", "Page with id {0} doesn't exist", pageGuid));
 

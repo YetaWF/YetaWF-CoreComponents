@@ -9,6 +9,7 @@ using YetaWF.Core.Components;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Pages;
 using YetaWF.Core.ResponseFilter;
+using YetaWF.Core.Site;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 
@@ -25,62 +26,19 @@ namespace YetaWF.Core.Controllers {
                 throw new ArgumentNullException(nameof(context));
 
             PageDefinition requestedPage = Manager.CurrentPage;
-            PageDefinition masterPage = Manager.CurrentPage;
             Manager.PageTitle = requestedPage.Title;
 
-            // Unified pages
-            Manager.UnifiedMode = PageDefinition.UnifiedModeEnum.None;
-            if (!Manager.IsInPopup && !Manager.EditMode && PageDefinition.GetUnifiedPageInfoAsync != null && !requestedPage.Temporary) {
-                // Load all unified pages that this page is part of
-                PageDefinition.UnifiedInfo? info = await PageDefinition.GetUnifiedPageInfoAsync(requestedPage.UnifiedSetGuid, requestedPage.SelectedSkin.Collection, requestedPage.SelectedSkin.FileName);
-                if (info != null && !info.Disabled && info.Mode != PageDefinition.UnifiedModeEnum.None) {
-                    // Load the master page for this set
-                    masterPage = await PageDefinition.LoadAsync(info.MasterPageGuid);
-                    if (masterPage != null) {
-                        // get pages that are part of unified set
-                        Manager.UnifiedPages = new List<PageDefinition>();
-                        if (info.Mode == PageDefinition.UnifiedModeEnum.DynamicContent || info.Mode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
-                            Manager.UnifiedPages.Add(requestedPage);
-                        } else {
-                            if (info.PageGuids != null && info.PageGuids.Count > 0) {
-                                foreach (Guid guid in info.PageGuids) {
-                                    PageDefinition page = await PageDefinition.LoadAsync(guid);
-                                    if (page != null) {
-                                        Manager.UnifiedPages.Add(page);
-                                        Manager.AddOnManager.AddExplicitlyInvokedModules(page.ReferencedModules);
-                                    }
-                                };
-                            }
-                        }
-                        Manager.UnifiedMode = info.Mode;
-                        Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedAnimation", info.Animation);
-                        Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedSetGuid", info.UnifiedSetGuid.ToString());
-                        if (info.Mode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
-                            Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedPopups", info.Popups);
-                            Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedSkinCollection", info.PageSkinCollectionName);
-                            Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedSkinName", info.PageSkinFileName);
-                        } else if (info.Mode == PageDefinition.UnifiedModeEnum.DynamicContent) {
-                            Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedPopups", info.Popups);
-                        } else
-                            Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedPopups", false);
-                    } else {
-                        // master page was not found, probably deleted, just ignore
-                        masterPage = Manager.CurrentPage;
-                    }
-                }
-            }
-            Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedMode", (int)Manager.UnifiedMode);
             Manager.ScriptManager.AddVolatileOption("Basics", "PageGuid", requestedPage.PageGuid);
             Manager.ScriptManager.AddVolatileOption("Basics", "TemporaryPage", requestedPage.Temporary);
 
             bool staticPage = false;
             if (YetaWFManager.Deployed)
-                staticPage = requestedPage.StaticPage != PageDefinition.StaticPageEnum.No && Manager.CurrentSite.StaticPages && !Manager.HaveUser && Manager.HostUsed.ToLower() == Manager.CurrentSite.SiteDomain.ToLower();
+                staticPage = requestedPage.StaticPage != PageDefinition.StaticPageEnum.No && Manager.CurrentSite.StaticPages && !Manager.HaveUser && string.Compare(Manager.HostUsed, Manager.CurrentSite.SiteDomain, true) == 0;
             Manager.RenderStaticPage = staticPage;
 
             SkinAccess skinAccess = new SkinAccess();
-            SkinDefinition skin = SkinDefinition.EvaluatedSkin(masterPage, Manager.IsInPopup);
-            string pageViewName = skinAccess.GetPageViewName(skin, Manager.IsInPopup);
+            string pageViewName = skinAccess.GetViewName(requestedPage.PopupPage);
+            SkinDefinition skin = Manager.CurrentSite.Skin;
             string skinCollection = skin.Collection!;
 
             Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentSite.ReferencedModules);
@@ -96,10 +54,15 @@ namespace YetaWF.Core.Controllers {
             }
             Manager.LastUpdated = requestedPage.Updated;
 
+            // Skins first. Skins can/should really only add CSS files.
+            await Manager.AddOnManager.AddSkinAsync(skinCollection, Manager.CurrentSite.Theme ?? SiteDefinition.DefaultTheme); 
             await YetaWFCoreRendering.Render.AddStandardAddOnsAsync();
-            await Manager.SetSkinOptions();
+
+            Manager.ScriptManager.AddVolatileOption("Skin", "MinWidthForPopups", Manager.SkinInfo.MinWidthForPopups);
+            Manager.ScriptManager.AddVolatileOption("Skin", "MinWidthForCondense", Manager.SkinInfo.MinWidthForCondense);
+
             await YetaWFCoreRendering.Render.AddSkinAddOnsAsync();
-            await Manager.AddOnManager.AddSkinAsync(skinCollection);
+            await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF_Core", "SkinBasics");
 
             YHtmlHelper htmlHelper = new YHtmlHelper(context, null);
             string pageHtml = await htmlHelper.ForPageAsync(pageViewName);
@@ -111,10 +74,8 @@ namespace YetaWF.Core.Controllers {
 
             if (Manager.UniqueIdCounters.IsTracked)
                 Manager.ScriptManager.AddVolatileOption("Basics", "UniqueIdCounters", Manager.UniqueIdCounters);
-            if (Manager.UnifiedMode == PageDefinition.UnifiedModeEnum.DynamicContent || Manager.UnifiedMode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
-                Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedCssBundleFiles", Manager.CssManager.GetBundleFiles());
-                Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedScriptBundleFiles", Manager.ScriptManager.GetBundleFiles());
-            }
+            Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedCssBundleFiles", Manager.CssManager.GetBundleFiles());
+            Manager.ScriptManager.AddVolatileOption("Basics", "UnifiedScriptBundleFiles", Manager.ScriptManager.GetBundleFiles());
             ModuleDefinitionExtensions.AddVolatileOptionsUniqueModuleAddOns(MarkPrevious: true);
 
             PageProcessing pageProc = new PageProcessing(Manager);

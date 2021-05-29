@@ -9,13 +9,9 @@ namespace YetaWF {
         CacheFailUrl: string | null;
         Path: string;
         QueryString: string;
-        UnifiedSetGuid: string;
-        UnifiedMode: number;
         UnifiedAddonMods: string[];
         UniqueIdCounters: UniqueIdInfo;
         IsMobile: boolean;
-        UnifiedSkinCollection: string | null;
-        UnifiedSkinFileName: string | null;
         Panes: string[];
         KnownCss: string[];
         KnownScripts: string[];
@@ -91,7 +87,7 @@ namespace YetaWF {
         private loadScripts(scripts: UrlEntry[], payload: Payload[], run: () => void): void {
 
             YVolatile.Basics.KnownScriptsDynamic = YVolatile.Basics.KnownScriptsDynamic || [];
-            var total = scripts.length;
+            let total = scripts.length;
             if (total === 0) {
                 run();
                 return;
@@ -101,17 +97,17 @@ namespace YetaWF {
 
         private loadNextScript(scripts: UrlEntry[], payload: Payload[], total: number, ix: number, run: () => void) : void {
 
-            var urlEntry = scripts[ix];
-            var name = urlEntry.Name;
+            let urlEntry = scripts[ix];
+            let name = urlEntry.Name;
 
-            var found = payload.filter((elem: Payload): boolean => { return elem.Name === name; });
+            let found = payload.filter((elem: Payload): boolean => { return elem.Name === name; });
             if (found.length > 0) {
                 $YetaWF.runGlobalScript(found[0].Text);
                 YVolatile.Basics.KnownScriptsDynamic.push(name);// save as dynamically loaded script
                 this.processScript(scripts, payload, total, ix, run);
             } else {
-                var loaded;
-                var js = document.createElement("script");
+                let loaded = false;
+                let js = document.createElement("script");
                 js.type = "text/javascript";
                 js.async = false; // need to preserve execution order
                 js.src = urlEntry.Url;
@@ -126,10 +122,10 @@ namespace YetaWF {
                     this.processScript(scripts, payload, total, ix, run);
                 };
                 if (YVolatile.Basics.JSLocation === JSLocationEnum.Top) {// location doesn't really matter, but done for consistency
-                    var head = document.getElementsByTagName("head")[0];
+                    let head = document.getElementsByTagName("head")[0];
                     head.insertBefore(js, head.lastChild);
                 } else {
-                    var body = document.getElementsByTagName("body")[0];
+                    let body = document.getElementsByTagName("body")[0];
                     body.insertBefore(js, body.lastChild);
                 }
             }
@@ -184,13 +180,6 @@ namespace YetaWF {
         public setContentForce(uriRequested: YetaWF.Url, setState: boolean, popupCB?: (result: ContentResult, done: (dialog: HTMLElement) => void) => void, inplace?: InplaceContents, contentCB?: (result: ContentResult|null) => void): SetContentResult {
 
             if (YVolatile.Basics.EditModeActive) return SetContentResult.NotContent; // edit mode
-            if (YVolatile.Basics.UnifiedMode === UnifiedModeEnum.None) return SetContentResult.NotContent; // not unified mode
-            if (popupCB) {
-                if (YVolatile.Basics.UnifiedMode !== UnifiedModeEnum.DynamicContent && YVolatile.Basics.UnifiedMode !== UnifiedModeEnum.SkinDynamicContent)
-                    return SetContentResult.NotContent; // popups can only be used with some unified modes
-                if (!YVolatile.Basics.UnifiedPopups)
-                    return SetContentResult.NotContent; // popups not wanted for this UPS
-            }
 
             // check if we're clicking a link which is part of this unified page
             let uri: YetaWF.Url;
@@ -198,143 +187,74 @@ namespace YetaWF {
                 uri = $YetaWF.parseUrl(inplace.ContentUrl);
             else
                 uri = uriRequested;
-            var path = uri.getPath();
-            if (YVolatile.Basics.UnifiedMode === UnifiedModeEnum.DynamicContent || YVolatile.Basics.UnifiedMode === UnifiedModeEnum.SkinDynamicContent) {
-                var divs: HTMLElement[];
-                if (inplace)
-                    divs = $YetaWF.getElementsBySelector(`.${inplace.FromPane}.yUnified[data-pane]`); // only requested pane
-                else
-                    divs = $YetaWF.getElementsBySelector(".yUnified[data-pane]"); // all panes
-                if (divs.length === 0)
-                    throw "No panes support dynamic content";
+            let path = uri.getPath();
 
-                // build data context (like scripts, css files we have)
-                var data: ContentData = {
-                    CacheVersion: YVolatile.Basics.CacheVersion,
-                    CacheFailUrl: inplace ? inplace.PageUrl : null,
-                    Path: path,
-                    QueryString: uri.getQuery(),
-                    UnifiedSetGuid: YVolatile.Basics.UnifiedSetGuid,
-                    UnifiedMode: YVolatile.Basics.UnifiedMode,
-                    UnifiedAddonMods: $YetaWF.UnifiedAddonModsLoaded,
-                    UniqueIdCounters: YVolatile.Basics.UniqueIdCounters,
-                    IsMobile: $YetaWF.isMobile(),
-                    UnifiedSkinCollection: null,
-                    UnifiedSkinFileName: null,
-                    Panes: [],
-                    KnownCss: [],
-                    KnownScripts: []
-                };
-                if (YVolatile.Basics.UnifiedMode === UnifiedModeEnum.SkinDynamicContent) {
-                    data.UnifiedSkinCollection = YVolatile.Basics.UnifiedSkinCollection;
-                    data.UnifiedSkinFileName = YVolatile.Basics.UnifiedSkinName;
-                }
-                for (var div of divs) {
-                    data.Panes.push(div.getAttribute("data-pane") as string);
-                }
-                var css = $YetaWF.getElementsBySelector("link[rel=\"stylesheet\"][data-name]");
-                for (var c of css) {
-                    data.KnownCss.push(c.getAttribute("data-name") as string);
-                }
-                css = $YetaWF.getElementsBySelector("style[type=\"text/css\"][data-name]");
-                for (var c of css) {
-                    data.KnownCss.push(c.getAttribute("data-name") as string);
-                }
-                data.KnownCss = data.KnownCss.concat(YVolatile.Basics.UnifiedCssBundleFiles || []);// add known css files that were added via bundles
-                var scripts = $YetaWF.getElementsBySelector("script[src][data-name]");
-                for (var s of scripts) {
-                    data.KnownScripts.push(s.getAttribute("data-name") as string);
-                }
-                data.KnownScripts = data.KnownScripts.concat(YVolatile.Basics.KnownScriptsDynamic || []);// known javascript files that were added by content pages
-                data.KnownScripts = data.KnownScripts.concat(YVolatile.Basics.UnifiedScriptBundleFiles || []);// add known javascript files that were added via bundles
+            let divs: HTMLElement[];
+            if (inplace)
+                divs = $YetaWF.getElementsBySelector(`.${inplace.FromPane}.yUnified[data-pane]`); // only requested pane
+            else
+                divs = $YetaWF.getElementsBySelector(".yUnified[data-pane]"); // all panes
+            if (divs.length === 0) // can occur in popups while in edit mode
+                return SetContentResult.NotContent; // edit mode
 
-                $YetaWF.setLoading();
-
-                var request: XMLHttpRequest = new XMLHttpRequest();
-                request.open("POST", "/YetaWF_Core/PageContent/Show" + uri.getQuery(true), true);
-                request.setRequestHeader("Content-Type", "application/json");
-                request.setRequestHeader("X-HTTP-Method-Override", "GET");// server has to think this is a GET request so all actions that are invoked actually work
-                request.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-                request.onreadystatechange = (ev: Event) : any => {
-                    if (request.readyState === 4 /*DONE*/) {
-                        $YetaWF.setLoading(false);
-                        if (request.status === 200) {
-                            var result: ContentResult = JSON.parse(request.responseText);
-                            this.processReceivedContent(result, uri, divs, setState, popupCB, inplace, contentCB);
-                        } else if (request.status === 0) {
-                            $YetaWF.error(YLocs.Forms.AjaxError.format(request.status, YLocs.Forms.AjaxConnLost), YLocs.Forms.AjaxErrorTitle);
-                            return SetContentResult.NotContent;
-                        } else {
-                            $YetaWF.setLoading(false);
-                            $YetaWF.error(YLocs.Forms.AjaxError.format(request.status, request.statusText), YLocs.Forms.AjaxErrorTitle);
-                            // eslint-disable-next-line no-debugger
-                            debugger;
-                        }
-                    }
-                };
-                request.send(JSON.stringify(data));
-                return SetContentResult.ContentReplaced;
-            } else {
-                // check if we have anything with that path as a unified pane and activate the panes
-                var divs = $YetaWF.getElementsBySelector(`.yUnified[data-url="${path}"]`);
-                if (divs.length > 0) {
-
-                    $YetaWF.closeOverlays();
-                    $YetaWF.pageChanged = false;
-
-                    // Update the browser address bar with the new path
-                    if (setState)
-                        $YetaWF.setUrl(uri.toUrl());
-                    if (YVolatile.Basics.UnifiedMode === UnifiedModeEnum.HideDivs) {
-                        // hide all unified sections
-                        var uni = $YetaWF.getElementsBySelector(".yUnified");
-                        for (var u of uni) {
-                            u.style.display = "none";
-                        }
-                        // show all unified sections that are on the current page
-                        for (var d of divs) {
-                            d.style.display = "block";
-                        }
-                        // send event that a new sections became active/visible
-                        $YetaWF.sendActivateDivEvent(divs);
-                        // scroll
-                        var scrolled = $YetaWF.setScrollPosition();
-                        if (!scrolled)
-                            window.scroll(0, 0);
-                        $YetaWF.setFocus();
-                    } else if (YVolatile.Basics.UnifiedMode === UnifiedModeEnum.ShowDivs) {
-
-                        divs[0].scrollIntoView({ behavior: "smooth", block: "start" });
-
-                        //// calculate an approximate animation time so the shorter the distance, the shorter the animation
-                        //var h = document.body.scrollHeight;
-                        //var newTop = divs[0].offsetTop;
-                        //var scrollDuration = YVolatile.Basics.UnifiedAnimation * (Math.abs(newTop - window.scrollY) / h);
-
-                        //var scrollStep = (newTop - window.scrollY) / (scrollDuration / 15);
-                        //if (!isNaN(scrollStep)) {
-
-                        //    console.log(`scrolling ${scrollDuration} ${scrollStep}`);
-                        //    var scrollInterval = setInterval(function () {
-                        //        if (scrollStep > 0 ? window.scrollY + scrollStep > newTop : window.scrollY + scrollStep < newTop) {
-                        //            console.log(`scrolling done`);
-                        //            window.scrollTo(0, newTop);
-                        //            clearInterval(scrollInterval);
-                        //        } else {
-                        //            console.log(`scrolling step`);
-                        //            window.scrollBy(0, scrollStep);
-                        //        }
-                        //    }, scrollDuration / 15);
-                        //}
-                    } else
-                        throw `Invalid UnifiedMode ${YVolatile.Basics.UnifiedMode}`;
-                    $YetaWF.setLoading(false);
-                    if (contentCB) contentCB(null);
-                    return SetContentResult.ContentReplaced;
-                }
-                //$YetaWF.setLoading(false); // don't hide, let new page take over
-                return SetContentResult.NotContent;
+            // build data context (like scripts, css files we have)
+            let data: ContentData = {
+                CacheVersion: YVolatile.Basics.CacheVersion,
+                CacheFailUrl: inplace ? inplace.PageUrl : null,
+                Path: path,
+                QueryString: uri.getQuery(),
+                UnifiedAddonMods: $YetaWF.UnifiedAddonModsLoaded,
+                UniqueIdCounters: YVolatile.Basics.UniqueIdCounters,
+                IsMobile: $YetaWF.isMobile(),
+                Panes: [],
+                KnownCss: [],
+                KnownScripts: []
+            };
+            for (let div of divs) {
+                data.Panes.push(div.getAttribute("data-pane") as string);
             }
+            let css = $YetaWF.getElementsBySelector("link[rel=\"stylesheet\"][data-name]");
+            for (let c of css) {
+                data.KnownCss.push(c.getAttribute("data-name") as string);
+            }
+            css = $YetaWF.getElementsBySelector("style[type=\"text/css\"][data-name]");
+            for (let c of css) {
+                data.KnownCss.push(c.getAttribute("data-name") as string);
+            }
+            data.KnownCss = data.KnownCss.concat(YVolatile.Basics.UnifiedCssBundleFiles || []);// add known css files that were added via bundles
+            let scripts = $YetaWF.getElementsBySelector("script[src][data-name]");
+            for (let s of scripts) {
+                data.KnownScripts.push(s.getAttribute("data-name") as string);
+            }
+            data.KnownScripts = data.KnownScripts.concat(YVolatile.Basics.KnownScriptsDynamic || []);// known javascript files that were added by content pages
+            data.KnownScripts = data.KnownScripts.concat(YVolatile.Basics.UnifiedScriptBundleFiles || []);// add known javascript files that were added via bundles
+
+            $YetaWF.setLoading();
+
+            let request: XMLHttpRequest = new XMLHttpRequest();
+            request.open("POST", "/YetaWF_Core/PageContent/Show" + uri.getQuery(true), true);
+            request.setRequestHeader("Content-Type", "application/json");
+            request.setRequestHeader("X-HTTP-Method-Override", "GET");// server has to think this is a GET request so all actions that are invoked actually work
+            request.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+            request.onreadystatechange = (ev: Event) : any => {
+                if (request.readyState === 4 /*DONE*/) {
+                    $YetaWF.setLoading(false);
+                    if (request.status === 200) {
+                        let result: ContentResult = JSON.parse(request.responseText);
+                        this.processReceivedContent(result, uri, divs, setState, popupCB, inplace, contentCB);
+                    } else if (request.status === 0) {
+                        $YetaWF.error(YLocs.Forms.AjaxError.format(request.status, YLocs.Forms.AjaxConnLost), YLocs.Forms.AjaxErrorTitle);
+                        return SetContentResult.NotContent;
+                    } else {
+                        $YetaWF.setLoading(false);
+                        $YetaWF.error(YLocs.Forms.AjaxError.format(request.status, request.statusText), YLocs.Forms.AjaxErrorTitle);
+                        // eslint-disable-next-line no-debugger
+                        debugger;
+                    }
+                }
+            };
+            request.send(JSON.stringify(data));
+            return SetContentResult.ContentReplaced;
         }
 
         private allowNavigateAway(): boolean {
@@ -370,16 +290,16 @@ namespace YetaWF {
             $YetaWF.runGlobalScript(result.Scripts);
             // add all new css files
             for (let urlEntry of result.CssFiles) {
-                var found = result.CssFilesPayload.filter((elem: Payload): boolean => { return elem.Name === urlEntry.Name; });
+                let found = result.CssFilesPayload.filter((elem: Payload): boolean => { return elem.Name === urlEntry.Name; });
                 if (found.length > 0) {
-                    var elem = <style type="text/css" data-name={found[0].Name}>{found[0].Text}</style>;
+                    let elem = <style type="text/css" data-name={found[0].Name}>{found[0].Text}</style>;
                     if (YVolatile.Basics.CssLocation === CssLocationEnum.Top) {
                         document.head!.appendChild(elem);
                     } else {
                         document.body.appendChild(elem);
                     }
                 } else {
-                    var elem = <link rel="stylesheet" type="text/css" data-name={urlEntry.Name} href={urlEntry.Url} />;
+                    let elem = <link rel="stylesheet" type="text/css" data-name={urlEntry.Name} href={urlEntry.Url} />;
                     if (YVolatile.Basics.CssLocation === CssLocationEnum.Top) {
                         document.head!.appendChild(elem);
                     } else {
@@ -394,7 +314,7 @@ namespace YetaWF {
             this.loadScripts(result.ScriptFiles, result.ScriptFilesPayload, (): void => {
                 YVolatile.Basics.UnifiedScriptBundleFiles = YVolatile.Basics.UnifiedScriptBundleFiles || [];
                 YVolatile.Basics.UnifiedScriptBundleFiles.concat(result.ScriptBundleFiles || []);
-                var tags: HTMLElement[] = []; // collect all panes
+                let tags: HTMLElement[] = []; // collect all panes
                 if (!popupCB) {
                     // Update the browser page title
                     document.title = result.PageTitle;
@@ -411,12 +331,9 @@ namespace YetaWF {
                         $YetaWF.processClearDiv(target);
                         target.innerHTML = "";
                     } else {
-                        for (var div of divs) {
+                        for (let div of divs) {
                             $YetaWF.processClearDiv(div);
                             div.innerHTML = "";
-                            if (div.getAttribute("data-conditional")) {
-                                div.style.display = "none";// hide, it's a conditional pane
-                            }
                         }
                     }
                     // remove prior page css classes
@@ -476,7 +393,7 @@ namespace YetaWF {
                 $YetaWF.sendCustomEvent(document.body, Content.EVENTNAVPAGELOADED, { containers: tags});
                 if (!popupCB) {
                     // scroll
-                    var scrolled = $YetaWF.setScrollPosition();
+                    let scrolled = $YetaWF.setScrollPosition();
                     if (!scrolled) {
                         window.scroll(0, 0);
                         if (inplace) {
@@ -522,23 +439,23 @@ namespace YetaWF {
         public loadAddons(addons: AddonDescription[], run: () => void): void {
 
             // build data context (like scripts, css files we have)
-            var data: AddonsContentData = {
+            let data: AddonsContentData = {
                 Addons: addons,
                 KnownCss: [],
                 KnownScripts: []
             };
 
-            var css = $YetaWF.getElementsBySelector("link[rel=\"stylesheet\"][data-name]");
-            for (var c of css) {
+            let css = $YetaWF.getElementsBySelector("link[rel=\"stylesheet\"][data-name]");
+            for (let c of css) {
                 data.KnownCss.push(c.getAttribute("data-name") as string);
             }
             css = $YetaWF.getElementsBySelector("style[type=\"text/css\"][data-name]");
-            for (var c of css) {
+            for (let c of css) {
                 data.KnownCss.push(c.getAttribute("data-name") as string);
             }
             data.KnownCss = data.KnownCss.concat(YVolatile.Basics.UnifiedCssBundleFiles || []);// add known css files that were added via bundles
-            var scripts = $YetaWF.getElementsBySelector("script[src][data-name]");
-            for (var s of scripts) {
+            let scripts = $YetaWF.getElementsBySelector("script[src][data-name]");
+            for (let s of scripts) {
                 data.KnownScripts.push(s.getAttribute("data-name") as string);
             }
             data.KnownScripts = data.KnownScripts.concat(YVolatile.Basics.KnownScriptsDynamic || []);// known javascript files that were added by content pages
@@ -554,7 +471,7 @@ namespace YetaWF {
         }
 
         private getAddonsData(url: string, data: AddonsContentData): Promise<ContentResult> {
-            var p = new Promise<ContentResult>((resolve:(result:ContentResult)=>void, reject:(reason:Error)=>void): void => {
+            let p = new Promise<ContentResult>((resolve:(result:ContentResult)=>void, reject:(reason:Error)=>void): void => {
 
                 const request: XMLHttpRequest = new XMLHttpRequest();
 
@@ -589,12 +506,12 @@ namespace YetaWF {
             $YetaWF.runGlobalScript(result.Scripts);
             // add all new css files
             for (let urlEntry of result.CssFiles) {
-                var found = result.CssFilesPayload.filter((elem: Payload): boolean => { return elem.Name === urlEntry.Name; });
+                let found = result.CssFilesPayload.filter((elem: Payload): boolean => { return elem.Name === urlEntry.Name; });
                 if (found.length > 0) {
-                    var elem = <style type="text/css" data-name={found[0].Name}>{found[0].Text}</style>;
+                    let elem = <style type="text/css" data-name={found[0].Name}>{found[0].Text}</style>;
                     document.body.appendChild(elem);
                 } else {
-                    var elem = <link rel="stylesheet" type="text/css" data-name={urlEntry.Name} href={urlEntry.Url} />;
+                    let elem = <link rel="stylesheet" type="text/css" data-name={urlEntry.Name} href={urlEntry.Url} />;
                     document.body.appendChild(elem);
                 }
             }

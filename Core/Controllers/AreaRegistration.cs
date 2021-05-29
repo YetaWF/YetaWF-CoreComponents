@@ -12,12 +12,23 @@ namespace YetaWF.Core.Controllers {
     /// <summary>
     /// Base class for area registration.
     /// </summary>
-    /// <remarks>Each package implements an area registration class deriving from AreaRegistrationBase.</remarks>
+    /// <remarks>
+    /// An instance of this class is instantiated and initialized during application startup in order to define the MVC area used by a package.
+    /// Each package defines its own MVC area. The name is derived from the YetaWF.PackageAttributes.PackageAttribute (for the domain portion) 
+    /// and the <see cref="System.Reflection.AssemblyProductAttribute"/> (for the product name),
+    /// defined in the package's AssemblyInfo.cs source file.
+    ///
+    /// The area name is the concatenation of the domain, followed by an underscore and the product name (e.g., YetaWF_Text).
+    ///
+    /// Applications can reference the current package using the static CurrentPackage property.
+    ///
+    /// Applications do not instantiate this class.
+    /// </remarks>    
     public abstract class AreaRegistrationBase {
         /// <summary>
         /// Constructor.
         /// </summary>
-        public AreaRegistrationBase() { }
+        protected AreaRegistrationBase() { }
 
         /// <summary>
         /// Used internally to register area routes. Don't mess with this.

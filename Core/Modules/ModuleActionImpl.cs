@@ -23,10 +23,9 @@ namespace YetaWF.Core.Modules {
             Button = 4,
             ButtonIcon = 5,
             ButtonOnly = 6,
-        }
-        public enum RenderEngineEnum {
-            KendoMenu = 0,
-            BootstrapSmartMenu = 1,
+            ButtonBar = 7,
+            ButtonDropDown = 8,
+            ButtonMiniDropDown = 9,
         }
 
         // Render an action as button
@@ -74,10 +73,9 @@ namespace YetaWF.Core.Modules {
         /// <summary>
         /// Render an action.
         /// </summary>
-        /// <remarks>HasSubmenu doesn't render the submenu, it merely adds the attributes reflecting that there is a submenu</remarks>
-        public async Task<string> RenderAsync(RenderModeEnum mode, string? Id = null) {
+        public async Task<string> RenderAsync(RenderModeEnum mode, string? Id = null, string? Css = null) {
 
-            return await YetaWFCoreRendering.Render.RenderModuleActionAsync(this, mode, Id);
+            return await YetaWFCoreRendering.Render.RenderModuleActionAsync(this, mode, Id, Css);
 
         }
 

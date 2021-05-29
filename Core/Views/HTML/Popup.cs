@@ -85,7 +85,7 @@ namespace YetaWF.Core.Skins.Pages {
         /// Returns the name of the page.
         /// </summary>
         /// <returns>Returns the name of the page.</returns>
-        public override string GetPageName() { return "Popup"; }
+        public override string GetPageName() { return SkinAccess.POPUP_VIEW_DEFAULT; }
     }
     /// <summary>
     /// Implements the PopupSmall page.
@@ -95,7 +95,7 @@ namespace YetaWF.Core.Skins.Pages {
         /// Returns the name of the page.
         /// </summary>
         /// <returns>Returns the name of the page.</returns>
-        public override string GetPageName() { return "PopupSmall"; }
+        public override string GetPageName() { return SkinAccess.POPUP_VIEW_SMALL; }
     }
     /// <summary>
     /// Implements the PopupMedium page.
@@ -105,6 +105,6 @@ namespace YetaWF.Core.Skins.Pages {
         /// Returns the name of the page.
         /// </summary>
         /// <returns>Returns the name of the page.</returns>
-        public override string GetPageName() { return "PopupMedium"; }
+        public override string GetPageName() { return SkinAccess.POPUP_VIEW_MEDIUM; }
     }
 }

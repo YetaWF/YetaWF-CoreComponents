@@ -70,10 +70,6 @@ Core/Addons/_JS/google.com.swfobject/swfobject/**/*.min.js
 # jquery/jquery - provides min files
 # jquery/jquery-color - provides min files
 
-Core/Addons/_JS/jqueryui.com/jqueryui/**/*.min.js
-Core/Addons/_JS/jqueryui.com/jqueryui/**/*.min.css
-Core/Addons/_JS/jqueryui.com/jqueryui/**/*.min.scss
-
 Core/Addons/_JS/necolas.github.io/normalize/**/*.min.js
 Core/Addons/_JS/necolas.github.io/normalize/**/*.min.css
 Core/Addons/_JS/necolas.github.io/normalize/**/*.min.scss

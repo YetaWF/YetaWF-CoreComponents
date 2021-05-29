@@ -26,24 +26,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.6" />
     <PackageReference Include="Microsoft.Extensions.Caching.Redis" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="5.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="**\*.cshtml_MVC5" />
-    <None Remove="**\*.cshtml_MVC6" />
-    <!-- TODO: Review for final release - this is a workaround for slow solution load -->
-    <Compile Remove="node_modules\**" />
-    <Content Remove="node_modules\**" />
-    <None Remove="node_modules\**" />
-    <EmbeddedResource Remove="node_modules\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="Controllers\YetaWFApplicationModelProvider.cs" />
   </ItemGroup>
 
   <ItemGroup>

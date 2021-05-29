@@ -3,8 +3,16 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Text;
+using YamlDotNet.Core;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NodeDeserializers;
+using YetaWF.Core.Models;
 using YetaWF.Core.Packages;
 
 namespace YetaWF.Core.Support {
@@ -71,8 +79,6 @@ namespace YetaWF.Core.Support {
             string path;
             if (url.StartsWith(Globals.NodeModulesUrl, StringComparison.OrdinalIgnoreCase)) {
                 path = YetaWFManager.RootFolderWebProject + Utility.UrlToPhysicalRaw(url);
-            } else if (url.StartsWith(Globals.BowerComponentsUrl, StringComparison.OrdinalIgnoreCase)) {
-                path = YetaWFManager.RootFolderWebProject + Utility.UrlToPhysicalRaw(url);
             } else if (url.StartsWith(Globals.VaultPrivateUrl, StringComparison.OrdinalIgnoreCase)) {
                 path = YetaWFManager.RootFolderWebProject + Utility.UrlToPhysicalRaw(url);
             } else {
@@ -137,7 +143,7 @@ namespace YetaWF.Core.Support {
         /// <param name="value">The object to serialize.</param>
         /// <param name="Indented">Defines whether indentation is used in the generated JSON string.</param>
         /// <returns>Returns the serialized object as a JSON string.</returns>
-        public static string JsonSerialize(object value, bool Indented = false) {
+        public static string JsonSerialize(object? value, bool Indented = false) {
             return JsonConvert.SerializeObject(value, Indented ? _JsonSettingsIndented : _JsonSettings);
         }
         /// <summary>
@@ -178,6 +184,76 @@ namespace YetaWF.Core.Support {
 
             Formatting = Newtonsoft.Json.Formatting.Indented,
         };
+
+        /// <summary>
+        /// A JSON contract resolver so only properties with Get and Set accessors and UIHint are serialized.
+        /// </summary>
+        public class PropertyGetSetUIHintContractResolver : DefaultContractResolver {
+
+            /// <summary>
+            /// Constructor.
+            /// </summary>
+            public PropertyGetSetUIHintContractResolver() { }
+
+            /// <inheritdoc/>
+            protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization) {
+                IList<JsonProperty> properties = base.CreateProperties(type, memberSerialization);
+                if (type != typeof(object)) {
+                    List<string> propList = new List<string>();
+                    List<PropertyData> props = ObjectSupport.GetPropertyData(type);
+                    foreach (PropertyData prop in props) {
+                        if (prop.Name.StartsWith("__") || (prop.PropInfo.CanRead && prop.PropInfo.CanWrite && !string.IsNullOrWhiteSpace(prop.UIHint))) {
+                            propList.Add(prop.Name);
+                        }
+                    }
+                    properties = (from p in properties where propList.Contains(p.PropertyName) select p).ToList();
+                }
+                return properties;
+            }
+        }
+        /// <summary>
+        /// JSON settings used to de/serialize only properties with Get and Set accessors and UIHint.
+        /// </summary>
+        public static JsonSerializerSettings JsonSettingsGetSetUIHint { get; } = 
+            new JsonSerializerSettings {
+                ContractResolver = new Utility.PropertyGetSetContractResolver(),
+                Formatting = Formatting.None,
+            };
+
+        /// <summary>
+        /// A JSON contract resolver so only properties with Get and Set accessors are serialized.
+        /// </summary>
+        public class PropertyGetSetContractResolver : DefaultContractResolver {
+
+            /// <summary>
+            /// Constructor.
+            /// </summary>
+            public PropertyGetSetContractResolver() { }
+
+            /// <inheritdoc/>
+            protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization) {
+                IList<JsonProperty> properties = base.CreateProperties(type, memberSerialization);
+                if (type != typeof(object)) {
+                    List<string> propList = new List<string>();
+                    List<PropertyData> props = ObjectSupport.GetPropertyData(type);
+                    foreach (PropertyData prop in props) {
+                        if (prop.Name.StartsWith("__") || (prop.PropInfo.CanRead && prop.PropInfo.CanWrite)) {
+                            propList.Add(prop.Name);
+                        }
+                    }
+                    properties = (from p in properties where propList.Contains(p.PropertyName) select p).ToList();
+                }
+                return properties;
+            }
+        }
+        /// <summary>
+        /// JSON settings used to de/serialize only properties with Get and Set accessors.
+        /// </summary>
+        public static JsonSerializerSettings JsonSettingsGetSet { get; } = 
+            new JsonSerializerSettings {
+                ContractResolver = new Utility.PropertyGetSetContractResolver(),
+                Formatting = Formatting.None,
+            };
 
         /// <summary>
         /// Encodes a string for use with JavaScript. The returned string must be surrounded by quotes.
@@ -346,6 +422,61 @@ namespace YetaWF.Core.Support {
             string url = "/" + area + "/" + controller + "/" + actionName;
             QueryHelper query = QueryHelper.FromAnonymousObject(args);
             return query.ToUrl(url);
+        }
+
+        // YAML
+        // YAML
+        // YAML
+
+        /// <summary>
+        /// Serializes an object to Yaml.
+        /// </summary>
+        /// <param name="value">The object to serialize.</param>
+        /// <returns>Returns a string containing yaml.</returns>
+        public static string YamlSerialize(object obj) {
+            YamlDotNet.Serialization.ISerializer serializer = GetYamlSerializer();
+            return serializer.Serialize(obj);
+        }
+        private static ISerializer GetYamlSerializer() {
+            if (_YamlSerializer == null)
+                _YamlSerializer = new SerializerBuilder().ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults).Build();
+            return _YamlSerializer;
+        }
+        private static ISerializer? _YamlSerializer;
+
+        /// <summary>
+        /// Deserializes a Yaml string to an object.
+        /// </summary>
+        /// <typeparam name="TYPE">The type of the deserialized object.</typeparam>
+        /// <param name="value">The Yaml string.</param>
+        /// <returns>Returns the object.</returns>
+        public static TYPE YamlDeserialize<TYPE>(string value) {
+            YamlDotNet.Serialization.IDeserializer deserializer = GetYamlDeserializer();
+            return deserializer.Deserialize<TYPE>(value);
+        }
+
+        private static IDeserializer GetYamlDeserializer() {
+            if (_YamlDeserializer == null)
+                _YamlDeserializer = new DeserializerBuilder().WithNodeDeserializer(inner => new ValidatingNodeDeserializer(inner), s => s.InsteadOf<ObjectNodeDeserializer>()).Build();
+            return _YamlDeserializer;
+        }
+        private static IDeserializer? _YamlDeserializer;
+
+        public class ValidatingNodeDeserializer : INodeDeserializer {
+            private readonly INodeDeserializer _nodeDeserializer;
+
+            public ValidatingNodeDeserializer(INodeDeserializer nodeDeserializer) {
+                _nodeDeserializer = nodeDeserializer;
+            }
+
+            public bool Deserialize(IParser reader, Type expectedType, Func<IParser, Type, object?> nestedObjectDeserializer, out object? value) {
+                if (_nodeDeserializer.Deserialize(reader, expectedType, nestedObjectDeserializer, out value)) {
+                    System.ComponentModel.DataAnnotations.ValidationContext context = new ValidationContext(value!, null, null);
+                    Validator.ValidateObject(value!, context, true);
+                    return true;
+                }
+                return false;
+            }
         }
 
         // HTTP Sync I/O Handling

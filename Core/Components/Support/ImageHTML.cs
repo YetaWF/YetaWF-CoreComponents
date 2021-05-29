@@ -49,7 +49,7 @@ namespace YetaWF.Core.Components {
         /// </summary>
         /// <remarks>
         /// The key is the name of a predefined sprite. The value are the CSS classes used with an &lt;i&gt; tag to render the image.</remarks>
-        public static Dictionary<string, string> PredefSpriteIcons = new Dictionary<string, string> {
+        public static readonly Dictionary<string, string> PredefSpriteIcons = new Dictionary<string, string> {
            { "#Add", "yic yic_add" },
            { "#Browse", "yic yic_browse" },
            { "#Collapse", "yic yic_collapse" },

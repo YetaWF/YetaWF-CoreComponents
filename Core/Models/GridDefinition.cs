@@ -7,6 +7,7 @@ using YetaWF.Core.Components;
 using YetaWF.Core.DataProvider;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models.Attributes;
+using YetaWF.Core.Modules;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
 
@@ -33,10 +34,12 @@ namespace YetaWF.Core.Models {
             public SortBy Sort { get; set; }
             public int Width { get; set; }
             public string? FilterOperator { get; set; }
-            public string? FilterValue { get; set; }
+            public string FilterValue { get; set; } = null!;
+            public bool Visible { get; set; }
 
             public ColumnInfo() {
                 Width = -1;
+                Visible = true;
             }
         }
         public class ColumnDictionary : SerializableDictionary<string, ColumnInfo> { }
@@ -52,23 +55,33 @@ namespace YetaWF.Core.Models {
         public Guid ModuleGuid { get; set; } // the module owning the grid
         public Guid? SettingsModuleGuid { get; set; } // the module guid used to save/restore grid settings and is optional
 
-        public bool SupportReload { get; set; } // whether the data can be reloaded by the user (reload button, ajax only)
         public bool ShowHeader { get; set; }
         public bool? ShowFilter { get; set; } // if null use user settings, otherwise use ShowFilter true/false overriding any other defaults
         public bool ShowPager { get; set; }
-        public bool Reorderable { get; set; }
+        public bool SupportReload { get; set; } // whether the data can be reloaded by the user (reload button, ajax only)
+
         public SizeStyleEnum SizeStyle { get; set; }
-        public bool HighlightOnClick { get; set; }
-
-        public ColumnDictionary InitialFilters { get; set; }
-
-        public string NoRecordsText { get; set; }// text shown when there are no records
 
         public int InitialPageSize { get; set; }
         public List<int> PageSizes { get; set; }
-        public const int MaxPages = 999999999;// indicator for All pages in PageSizes
+        public const int AllPages = 999999999;// indicator for All pages in PageSizes
 
-        public bool UseSkinFormatting { get; set; } // use skin theme (jquery-ui)
+        public bool Reorderable { get; set; }
+        public bool HighlightOnClick { get; set; }
+        public bool UseSkinFormatting { get; set; } // use skin theme
+
+        public bool PanelHeader { get; set; }
+        public bool PanelCanMinimize { get; set; }
+        public bool PanelHeaderSearch { get; set; }
+        public int PanelHeaderAutoSearch { get; set; }
+        public bool PanelHeaderColumnSelection { get; set; }
+        public string? PanelHeaderTitle { get; set; }
+        public List<ModuleAction>? PanelHeaderActions { get; set; }
+        public List<string>? PanelHeaderSearchColumns { get; set; }
+        public string? PanelHeaderSearchTT { get; set; }
+
+        public ColumnDictionary InitialFilters { get; set; }
+        public string NoRecordsText { get; set; }// text shown when there are no records
         public int? DropdownActionWidth { get; set; } // width in characters of action dropdown
 
         // other settings
@@ -103,7 +116,7 @@ namespace YetaWF.Core.Models {
             SettingsModuleGuid = null;
             ExtraData = null;
         }
-        public static DataSourceResult DontSortFilter(List<object> data, int skip, int take, List<DataProviderSortInfo> sorts, List<DataProviderFilterInfo> filters) {
+        public static DataSourceResult DontSortFilter(List<object> data, int skip, int take, List<DataProviderSortInfo>? sorts, List<DataProviderFilterInfo>? filters) {
             return new DataSourceResult {
                 Data = data,
                 Total = data.Count,
@@ -135,6 +148,11 @@ namespace YetaWF.Core.Models {
             /// </summary>
             [EnumDescription("Mini Dropdown Menu", "Displayed as a dropdown menu, accessible through a small button without text")]
             Mini = 2,
+            /// <summary>
+            /// Actions are displayed as a button bar.
+            /// </summary>
+            [EnumDescription("Button Bar", "Actions are displayed as a button bar")]
+            ButtonBar = 3,
         }
 
         /// <summary>
@@ -151,6 +169,12 @@ namespace YetaWF.Core.Models {
             /// </summary>
             [EnumDescription("Dropdown Menu", "If more than one action is available they are displayed as a dropdown menu, accessible through a button, otherwise a single icon is displayed")]
             DropdownMenu = 1,
+            // /// <summary>
+            // /// Actions are displayed as a button bar.
+            // /// </summary>
+            // [EnumDescription("Button Bar", "Actions are displayed as a button bar")]
+            // Not user selectable
+            // ButtonBar = 3,
         }
     }
 
@@ -194,6 +218,10 @@ namespace YetaWF.Core.Models {
         /// The filter options for the grid.
         /// </summary>
         public List<DataProviderFilterInfo>? Filters { get; set; }
+        /// <summary>
+        /// Filters define a multi-coluimn search (used to prevent filter save)
+        /// </summary>
+        public bool Search { get; set; }
     }
     /// <summary>
     /// Describes one grid record.

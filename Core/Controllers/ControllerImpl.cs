@@ -38,7 +38,6 @@ namespace YetaWF.Core.Controllers {
         /// <summary>
         /// Returns the module definitions YetaWF.Core.Modules.ModuleDefinition for the current module implementing the controller.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         protected TMod Module { get { return (TMod)CurrentModule; } }
     }
 
@@ -247,41 +246,46 @@ namespace YetaWF.Core.Controllers {
                     }
                 }
 
-                // origin list (we already do this in global.asax.cs for GET, maybe move it there)
-                //string originList = (string) HttpContext.Request.Form[Globals.Link_OriginList];
-                //if (!string.IsNullOrWhiteSpace(originList))
-                //    Manager.OriginList = Utility.JsonDeserialize<List<Origin>>(originList);
-                //else
-                //    Manager.OriginList = new List<Origin>();
-
-                //string inPopup = HttpContext.Request.Form[Globals.Link_InPopup];
-                //if (!string.IsNullOrWhiteSpace(inPopup))
-                //    Manager.IsInPopup = true;
-
                 ViewData.Add(Globals.RVD_ModuleDefinition, CurrentModule);
+            }
+
+            // Handle model binding errors
+            if (Manager.HasModelBindingErrorManager) {
+                IDictionary<string, object> parms = filterContext.ActionArguments;
+                if (parms != null) {
+                    Controller controller = (Controller)filterContext.Controller;
+                    ViewDataDictionary viewData = controller.ViewData;
+                    ModelStateDictionary modelState = viewData.ModelState;
+                    Manager.ModelBindingErrorManager.Update(modelState, filterContext.ActionArguments);
+                }
             }
 
             await base.OnActionExecutionAsync(filterContext, next);
         }
 
-        internal static void CorrectModelState(object? model, ModelStateDictionary ModelState, string prefix = "") {
+        internal static void CorrectModelState(object? model, ModelStateDictionary modelState, string prefix = "") {
+            // This is ugly, fighting .net model binding/validation all the way. I gave up. This works.
             if (model == null) return;
             Type modelType = model.GetType();
-            if (ModelState.Keys.Count() == 0) return;
+            if (!modelState.Keys.Any()) return;
             List<PropertyData> props = ObjectSupport.GetPropertyData(modelType);
             foreach (var prop in props) {
-                if (!ModelState.Keys.Contains(prefix + prop.Name)) {
-                    // check if the property name is for a class
+
+                if (!modelState.Keys.Contains(prefix + prop.Name)) {
+                    // check if the property name is for a class object
                     string subPrefix = prefix + prop.Name + ".";
-                    if ((from k in ModelState.Keys where k.StartsWith(subPrefix) select k).FirstOrDefault() != null) {
-                        object? subObject = prop.PropInfo.GetValue(model);
-                        CorrectModelState(subObject, ModelState, subPrefix);
+                    if ((from k in modelState.Keys where k.StartsWith(subPrefix) select k).FirstOrDefault() != null) {
+                        if (ExprAttribute.IsProcessed(prop.ExprValidationAttributes, model) && !ExprAttribute.IsHide(prop.ExprValidationAttributes, model)) {
+                            object? subObject = prop.PropInfo.GetValue(model);
+                            CorrectModelState(subObject, modelState, subPrefix);
+                        } else {
+                            RemoveModelState(modelState, prefix + prop.Name);
+                        }
                     }
                     continue;
                 }
 
                 bool process = true;// overall whether we need to process this property
-                bool hasAttribute = false;// has at least one attribute
                 bool found = false;// found an enabling attribute
                 if (!found) {
                     if (ExprAttribute.IsRequired(prop.ExprValidationAttributes, model)) {
@@ -301,18 +305,22 @@ namespace YetaWF.Core.Controllers {
                         process = false;
                     }
                 }
-                if (process) {
-                    if (hasAttribute && !found) {
-                        // there was no attribute that made this required
-                        // we don't process this property
-                        ModelState.Remove(prefix + prop.Name);
-                        continue;
-                    } else {
-                        // we process this property
-                    }
-                } else {
+                if (!process) {
                     // we don't process this property
-                    ModelState.Remove(prefix + prop.Name);
+                    RemoveModelState(modelState, prefix + prop.Name);
+                }
+            }
+        }
+
+        private static void RemoveModelState(ModelStateDictionary modelState, string name, bool RemoveChildren = true) {
+
+            modelState.Remove(name);
+            if (RemoveChildren) {
+                string prefix = $"{name}.";
+                List<string> keys = modelState.Keys.ToList();
+                foreach (string key in keys) {
+                    if (key.StartsWith(prefix))
+                        modelState.Remove(key);
                 }
             }
         }
@@ -392,8 +400,7 @@ namespace YetaWF.Core.Controllers {
                         } catch (Exception) { }
                     } else if (indexParmsLen == 1 && indexParms[0].ParameterType == typeof(int)) {
                         // enumerable types
-                        IEnumerable<object>? ienum = parm as IEnumerable<object>;
-                        if (ienum != null) {
+                        if (parm is IEnumerable<object> ienum) {
                             IEnumerator<object> ienumerator = ienum.GetEnumerator();
                             for (int i = 0; ienumerator.MoveNext(); i++) {
                                 await FixDataAsync(ienumerator.Current);
@@ -471,15 +478,10 @@ namespace YetaWF.Core.Controllers {
                         if (pi.CanWrite) {
                             string? val = (string?)pi.GetValue(parm, null); ;
                             if (!string.IsNullOrEmpty(val)) {
-                                switch (style) {
-                                    default:
-                                    case CaseAttribute.EnumStyle.Upper:
-                                        val = val.ToUpper();
-                                        break;
-                                    case CaseAttribute.EnumStyle.Lower:
-                                        val = val.ToLower();
-                                        break;
-                                }
+                                val = style switch {
+                                    CaseAttribute.EnumStyle.Lower => val.ToLower(),
+                                    _ => val.ToUpper(),
+                                };
                                 pi.SetValue(parm, val, null);
                             }
                         }
@@ -507,8 +509,7 @@ namespace YetaWF.Core.Controllers {
                         if (actionAttr != null) {
                             if (actionAttr.Value == templateName) {
                                 object? objVal = prop.GetPropertyValue<object?>(parm);
-                                ITemplateAction? act = objVal as ITemplateAction;
-                                if (act == null)
+                                if (objVal is not ITemplateAction act)
                                     throw new InternalError("ITemplateAction not implemented for {0}", prop.Name);
                                 int actionVal = 0;
                                 if (!string.IsNullOrWhiteSpace(actionValStr))
@@ -586,7 +587,6 @@ namespace YetaWF.Core.Controllers {
         /// </summary>
         /// <param name="model">The model.</param>
         /// <returns>A YetaWFViewResult.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1061:DoNotHideBaseClassMethods", Justification = "This is deliberate so the base class implementation isn't used accidentally")]
         protected new YetaWFViewResult View(object? model) {
             return View(null, model, UseAreaViewName: true);
         }
@@ -699,15 +699,11 @@ namespace YetaWF.Core.Controllers {
         /// <returns></returns>
         protected ActionResult Reload(object? model = null, int dummy = 0, string? PopupText = null, string? PopupTitle = null, ReloadEnum Reload = ReloadEnum.Page) {
             if (Manager.IsPostRequest) {
-                switch (Reload) {
-                    default:
-                    case ReloadEnum.Page:
-                        return Reload_Page(PopupText, PopupTitle);
-                    case ReloadEnum.Module:
-                        return Reload_Module(model, PopupText, PopupTitle);
-                    case ReloadEnum.ModuleParts:
-                        return Reload_ModuleParts(model, PopupText, PopupTitle);
-                }
+                return Reload switch {
+                    ReloadEnum.Module => Reload_Module(model, PopupText, PopupTitle),
+                    ReloadEnum.ModuleParts => Reload_ModuleParts(model, PopupText, PopupTitle),
+                    _ => Reload_Page(PopupText, PopupTitle),
+                };
             } else {
                 if (string.IsNullOrEmpty(PopupText))
                     throw new InternalError("We don't have a message to display - programmer error");
@@ -859,7 +855,7 @@ namespace YetaWF.Core.Controllers {
         /// <param name="ExtraData">Additional data added to URL as _extraData argument. Length should be minimal, otherwise URL and Referer header may grow too large.</param>
         /// <param name="ForcePopup">The message is shown as a popup even if toasts are enabled.</param>
         /// <returns>An ActionResult to be returned by the controller.</returns>
-        protected ActionResult FormProcessed(object model, string? popupText = null, string? popupTitle = null,
+        protected ActionResult FormProcessed(object? model, string? popupText = null, string? popupTitle = null,
                 OnCloseEnum OnClose = OnCloseEnum.Return, OnPopupCloseEnum OnPopupClose = OnPopupCloseEnum.ReloadParentPage, OnApplyEnum OnApply = OnApplyEnum.ReloadModule,
                 string? NextPage = null, bool PreserveOriginList = false, string? ExtraData = null,
                 string? PreSaveJavaScript = null, string? PostSaveJavaScript = null, bool ForceRedirect = false, string? PopupOptions = null, bool ForceApply = false,
@@ -873,13 +869,12 @@ namespace YetaWF.Core.Controllers {
 
             popupText = string.IsNullOrWhiteSpace(popupText) ? null : Utility.JsonSerialize(popupText);
             popupTitle = Utility.JsonSerialize(popupTitle ?? __ResStr("completeTitle", "Success"));
-            PopupOptions = PopupOptions ?? "null";
+            PopupOptions ??= "null";
 
             if (PreserveOriginList && !string.IsNullOrWhiteSpace(NextPage)) {
                 string url = NextPage;
                 if (Manager.OriginList != null) {
-                    string urlOnly;
-                    QueryHelper qh = QueryHelper.FromUrl(url, out urlOnly);
+                    QueryHelper qh = QueryHelper.FromUrl(url, out string urlOnly);
                     qh.Add(Globals.Link_OriginList, Utility.JsonSerialize(Manager.OriginList), Replace: true);
                     NextPage = qh.ToUrl(urlOnly);
                 }
@@ -916,7 +911,7 @@ namespace YetaWF.Core.Controllers {
                 string? url = NextPage;
                 if (string.IsNullOrWhiteSpace(url))
                     url = Manager.CurrentSite.HomePageUrl;
-                url = AddUrlPayload(url, false, false, ExtraData);
+                url = AddUrlPayload(url, false, ExtraData);
                 if (ForceRedirect)
                     url = QueryHelper.AddRando(url);
                 url = Utility.JsonSerialize(url);
@@ -1164,14 +1159,13 @@ $YetaWF.message({popupText}, {popupTitle}, function() {{
         /// <param name="ForcePopup">true if the redirect should occur in a popup window, false otherwise for a redirect within the browser window.</param>
         /// <param name="SetCurrentEditMode">true if the new page should be shown using the current Site Edit/Display Mode, false otherwise.</param>
         /// <param name="ExtraJavascript">Optional Javascript code executed when redirecting to another URL within a Unified Page Set.</param>
-        /// <param name="SetCurrentControlPanelMode">Sets the current control panel mode (visibility).</param>
         /// <param name="ForceRedirect">true to force a page load (even in a Unified Page Set), false otherwise to use the default page or page content loading.</param>
         /// <returns>An ActionResult to be returned by the controller.</returns>
         /// <remarks>
         /// The Redirect method can be used for GET, PUT, Ajax requests and also within popups.
         /// This works in cooperation with client-side code to redirect popups, etc., which is normally not supported in MVC.
         /// </remarks>
-        protected ActionResult Redirect(string? url, bool ForcePopup = false, bool SetCurrentEditMode = false, bool SetCurrentControlPanelMode = false, bool ForceRedirect = false, string? ExtraJavascript = null) {
+        protected ActionResult Redirect(string? url, bool ForcePopup = false, bool SetCurrentEditMode = false, bool ForceRedirect = false, string? ExtraJavascript = null) {
 
             if (ForceRedirect && ForcePopup) throw new InternalError("Can't use ForceRedirect and ForcePopup at the same time");
             if (!string.IsNullOrWhiteSpace(ExtraJavascript) && !Manager.IsPostRequest) throw new InternalError("ExtraJavascript is only supported with POST requests");
@@ -1179,7 +1173,7 @@ $YetaWF.message({popupText}, {popupTitle}, function() {{
             if (string.IsNullOrWhiteSpace(url))
                 url = Manager.CurrentSite.HomePageUrl;
 
-            url = AddUrlPayload(url, SetCurrentEditMode, SetCurrentControlPanelMode, null);
+            url = AddUrlPayload(url, SetCurrentEditMode, null);
             if (ForceRedirect)
                 url = QueryHelper.AddRando(url);
 
@@ -1240,17 +1234,15 @@ $YetaWF.message({popupText}, {popupTitle}, function() {{
             }
         }
 
-        private static string AddUrlPayload(string url, bool SetCurrentEditMode, bool SetCurrentControlPanelMode, string? ExtraData) {
+        private static string AddUrlPayload(string url, bool SetCurrentEditMode, string? ExtraData) {
 
-            string urlOnly;
-            QueryHelper qhUrl = QueryHelper.FromUrl(url, out urlOnly);
+            QueryHelper qhUrl = QueryHelper.FromUrl(url, out string urlOnly);
             // If we're coming from a referring page with edit/noedit, we need to propagate that to the redirect
             if (SetCurrentEditMode) { // forced set edit mode
                 qhUrl.Remove(Globals.Link_EditMode);
-                qhUrl.Remove(Globals.Link_NoEditMode);
                 if (Manager.EditMode)
                     qhUrl.Add(Globals.Link_EditMode, "y");
-            } else if (!qhUrl.HasEntry(Globals.Link_EditMode) && !qhUrl.HasEntry(Globals.Link_NoEditMode)) {
+            } else if (!qhUrl.HasEntry(Globals.Link_EditMode)) {
                 // current url has no edit/noedit preference
                 if (Manager.EditMode) {
                     // in edit mode, force edit again
@@ -1259,28 +1251,16 @@ $YetaWF.message({popupText}, {popupTitle}, function() {{
                     // not in edit mode, use referrer mode
                     string referrer = Manager.ReferrerUrl;
                     if (!string.IsNullOrWhiteSpace(referrer)) {
-                        string refUrlOnly;
-                        QueryHelper qhRef = QueryHelper.FromUrl(referrer, out refUrlOnly);
+                        QueryHelper qhRef = QueryHelper.FromUrl(referrer, out string refUrlOnly);
                         if (qhRef.HasEntry(Globals.Link_EditMode)) { // referrer is edit
                             qhUrl.Add(Globals.Link_EditMode, "y", Replace: true);
                         }
                     }
                 }
             }
-            if (SetCurrentControlPanelMode) {
-                qhUrl.Remove(Globals.Link_PageControl);
-                qhUrl.Remove(Globals.Link_NoPageControl);
-                if (Manager.PageControlShown)
-                    qhUrl.Add(Globals.Link_PageControl, "y");
-                else
-                    qhUrl.Add(Globals.Link_NoPageControl, "y");
-            } else {
-                // check whether control panel should be open
-                if (!qhUrl.HasEntry(Globals.Link_PageControl) && !qhUrl.HasEntry(Globals.Link_NoPageControl)) {
-                    if (Manager.PageControlShown)
-                        qhUrl.Add(Globals.Link_PageControl, "y");
-                }
-            }
+            qhUrl.Remove(Globals.Link_PageControl);
+            if (Manager.PageControlShown)
+                qhUrl.Add(Globals.Link_PageControl, "y");
             if (!string.IsNullOrWhiteSpace(ExtraData))
                 qhUrl.Add("_ExtraData", ExtraData, Replace: true);
 

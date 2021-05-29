@@ -28,10 +28,8 @@ namespace YetaWF.Core.Pages {
         public const int MaxDescription = 200;
         public const int MaxKeywords = 100;
         public const int MaxCopyright = 100;
-        public const int MaxBootstrapSkin = 100;
-        public const int MaxjQueryUISkin = 100;
-        public const int MaxKendoUISkin = 100;
         public const int MaxCssClass = 40;
+        public const int MaxFav_SVG = 1500;
 
         public enum PageSecurityType {
             [EnumDescription("Always Show")]
@@ -135,33 +133,9 @@ namespace YetaWF.Core.Pages {
             [EnumDescription("Highest")]
             Top = 100,
         }
-        public enum UnifiedModeEnum {
-            [EnumDescription("None", "The Unified Page Set does not combine page content - Each page is shown individually (full page load)")]
-            None = 0,
-            [EnumDescription("Hide Others", "Only content for the current Url is shown - Content for other pages is embedded but not visible - Use with small page sets")]
-            HideDivs = 1, // divs for other urls are hidden
-            [EnumDescription("Show All Content", "All content is shown in the order the pages appear in the Unified Page Set - Use with small page sets")]
-            ShowDivs = 2, // all divs are shown
-            [EnumDescription("Dynamic Content", "Content is dynamically replaced when navigating between pages (Ajax server request for pane content) - Can be used with large page sets")]
-            DynamicContent = 3,
-            [EnumDescription("Same Skin Dynamic Content", "All pages with the same skin as the Master Page are combined and page content is dynamically replaced when navigating between pages (Ajax server request for pane content) - Can be used to combine all site pages (using the same skin) into one single page - Pages that are explicitly part of another Unified Page Set are excluded")]
-            SkinDynamicContent = 4,
-        }
-
         public PageDefinition() {
             Temporary = true;
             PageGuid = Guid.NewGuid();
-            SelectedSkin = new SkinDefinition {
-                Collection = null,
-                FileName = SkinAccess.FallbackPageFileName,
-            };
-            SelectedPopupSkin = new SkinDefinition {
-                Collection = null,
-                FileName = SkinAccess.FallbackPopupFileName,
-            };
-            BootstrapSkin = null;
-            jQueryUISkin = null;
-            KendoUISkin = null;
             Title = new MultiString();
             Description = new MultiString();
             Keywords = new MultiString();
@@ -177,6 +151,7 @@ namespace YetaWF.Core.Pages {
             ChangeFrequency = ChangeFrequencyEnum.Default;
             SiteMapPriority = SiteMapPriorityEnum.Medium;
             ReferencedModules = new SerializableList<ModuleDefinition.ReferencedModule>();
+            PopupPage = SkinAccess.POPUP_VIEW_DEFAULT;
         }
 
         public enum AllowedEnum {
@@ -224,21 +199,18 @@ namespace YetaWF.Core.Pages {
         [Data_PrimaryKey]
         public Guid PageGuid { get; set; }
 
-        [RequiresPageReload]
-        public SkinDefinition SelectedSkin { get; set; }
-        public SkinDefinition SelectedPopupSkin { get; set; }
+        /// <summary>
+        /// Defines the popup page used for the popup window when this page is shown in a popup.
+        /// </summary>
+        [Data_NewValue]
+        [StringLength(SiteDefinition.MaxPopupPage)]
+        public string? PopupPage { get; set; }
 
         /// <summary>
         /// The page used as template for the current page.
         /// </summary>
         [RequiresPageReload]
         public Guid? TemplateGuid { get; set; }
-        /// <summary>
-        /// Defines the unified set of pages this page belongs to (if any).
-        /// </summary>
-        [Data_Index]
-        [RequiresPageReload]
-        public Guid? UnifiedSetGuid { get; set; }
 
         [StringLength(MaxCssClass)]
         [RequiresPageReload]
@@ -269,16 +241,6 @@ namespace YetaWF.Core.Pages {
             }
             return s;
         }
-
-        [StringLength(MaxBootstrapSkin)]
-        [RequiresPageReload]
-        public string? BootstrapSkin { get; set; }
-        [StringLength(MaxjQueryUISkin)]
-        [RequiresPageReload]
-        public string? jQueryUISkin { get; set; }
-        [StringLength(MaxKendoUISkin)]
-        [RequiresPageReload]
-        public string? KendoUISkin { get; set; }
 
         [StringLength(Globals.MaxUrl)]
         [RequiresPageReload]
@@ -415,6 +377,10 @@ namespace YetaWF.Core.Pages {
 
         [Data_Binary, CopyAttribute]
         public byte[] FavIcon_Data { get; set; }
+
+        [StringLength(MaxFav_SVG)]
+        [Data_NewValue]
+        public string? Fav_SVG { get; set; }
 
         [Data_Binary]
         [RequiresPageReload]

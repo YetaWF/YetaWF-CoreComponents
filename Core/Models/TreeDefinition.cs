@@ -24,7 +24,6 @@ namespace YetaWF.Core.Models {
         public bool DragDrop { get; set; }
         public bool ContextMenu { get; set; } // Supports context menu
         public string NoRecordsText { get; set; }// text shown when there are no records
-        public bool UseSkinFormatting { get; set; } // use skin theme (jquery-ui)
 
         public string? ContentTargetId { get; set; } //$$$ should be removed
         public string? ContentTargetPane { get; set; } //$$$ should be removed
@@ -39,7 +38,6 @@ namespace YetaWF.Core.Models {
             DragDrop = false;
             ContextMenu = false;
             NoRecordsText = this.__ResStr("noRecs", "(None)");
-            UseSkinFormatting = true;
             JSONData = false;
 
             Id = YetaWFManager.Manager.UniqueId("tree");

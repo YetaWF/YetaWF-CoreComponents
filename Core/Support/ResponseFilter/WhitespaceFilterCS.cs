@@ -72,7 +72,7 @@ namespace YetaWF.Core.ResponseFilter {
         /// <summary>Find areas marked &lt;!--LazyWSF--&gt; or &lt;!--LazyWSFEnd--&lt; and set aggressive optimization.</summary>
         private StringBuilder ProcessAllInputCheckLazy(string inputBuffer) {
             // We're in html
-            // find all areas mark for lazy optimization. We don't want to optimize these aggressively.
+            // find all areas marked for lazy optimization. We don't want to optimize these aggressively.
             string contentInBuffer = inputBuffer;
             StringBuilder output = new StringBuilder();
             for (;;) {

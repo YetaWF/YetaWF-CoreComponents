@@ -268,8 +268,8 @@ namespace YetaWF.Core.Components {
 
             } else {
                 Package package = YetaWF.Core.AreaRegistration.CurrentPackage;// Core package
-                string url = VersionManager.GetAddOnTemplateUrl(package.AreaName, "CountryISO3166");
-                string customUrl = VersionManager.GetCustomUrlFromUrl(url);
+                string url = Package.GetAddOnTemplateUrl(package.AreaName, "CountryISO3166");
+                string customUrl = Package.GetCustomUrlFromUrl(url);
 
                 string path = Utility.UrlToPhysical(url);
                 string customPath = Utility.UrlToPhysical(customUrl);

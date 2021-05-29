@@ -132,6 +132,10 @@ namespace YetaWF {
          */
         elementEnableToggle(elem: HTMLElement, enable: boolean): void;
         /**
+         * Returns whether the element is enabled.
+         */
+        isEnabled(elem: HTMLElement): boolean;
+        /**
          * Returns whether a message popup dialog is currently active.
          */
         messagePopupActive(): boolean;
@@ -216,11 +220,11 @@ namespace YetaWF {
 
         // Content handling (Unified Page Sets)
 
-        public ContentHandling: YetaWF.Content;
+        public ContentHandling!: YetaWF.Content;
 
         // Anchor handling
 
-        public AnchorHandling: YetaWF.Anchors;
+        public AnchorHandling!: YetaWF.Anchors;
 
         // Form handling
         private forms: YetaWF.Forms | null = null;
@@ -253,7 +257,7 @@ namespace YetaWF {
         // Url parsing
 
         public parseUrl(url: string): YetaWF.Url {
-            var uri = new YetaWF.Url();
+            let uri = new YetaWF.Url();
             uri.parse(url);
             return uri;
         }
@@ -276,12 +280,12 @@ namespace YetaWF {
             // if the page as a yFocusOnMe css class, ignore element focus requests
             if ($YetaWF.elementHasClass(document.body, "yFocusOnMe"))
                 return;
-            var f: HTMLElement | null = null;
-            var items = this.getElementsBySelector(".yFocusOnMe", tags);
+            let f: HTMLElement | null = null;
+            let items = this.getElementsBySelector(".yFocusOnMe", tags);
             items = this.limitToVisibleOnly(items); //:visible
             for (let item of items) {
                 if (item.tagName === "DIV") { // if we found a div, find the edit element instead
-                    var i = this.getElementsBySelector("input,select,textarea,.yt_dropdownlist_base", [item]);
+                    let i = this.getElementsBySelector("input,select,textarea,.yt_dropdownlist_base", [item]);
                     i = this.limitToNotTypeHidden(i); // .not("input[type='hidden']")
                     i = this.limitToVisibleOnly(i); // :visible
                     if (i.length > 0) {
@@ -290,18 +294,6 @@ namespace YetaWF {
                     }
                 }
             }
-            // We probably don't want to set the focus to any control - made OPT-IN for now
-            //if ($f == null) {
-            //    $items = $('input:visible,select:visible', $obj).not("input[type='hidden']");// just find something usable
-            //    // filter out anything in a grid (filters, pager, etc)
-            //    $items.each(function (index) {
-            //        var $i = $(this)
-            //        if ($i.parents('.ui-jqgrid').length == 0) {
-            //            $f = $i;
-            //            return false; // not in a grid, so it's ok
-            //        }
-            //    });
-            //}
             if (f != null) {
                 try {
                     f.focus();
@@ -349,9 +341,9 @@ namespace YetaWF {
 
         public setScrollPosition(): boolean {
             // positioning isn't exact. For example, TextArea (i.e. CKEditor) will expand the window size which may happen later.
-            var uri = this.parseUrl(window.location.href);
-            var left = uri.getSearch(YConfigs.Basics.Link_ScrollLeft);
-            var top = uri.getSearch(YConfigs.Basics.Link_ScrollTop);
+            let uri = this.parseUrl(window.location.href);
+            let left = uri.getSearch(YConfigs.Basics.Link_ScrollLeft);
+            let top = uri.getSearch(YConfigs.Basics.Link_ScrollTop);
             if (left || top) {
                 window.scroll(left ? parseInt(left, 10) : 0, top ? parseInt(top, 10) : 0);
                 return true;
@@ -376,17 +368,7 @@ namespace YetaWF {
 
             // page position
 
-            var scrolled = this.setScrollPosition();
-            if (!scrolled) {
-                if (YVolatile.Basics.UnifiedMode === UnifiedModeEnum.ShowDivs) {
-                    var uri = this.parseUrl(window.location.href);
-                    var divs = this.getElementsBySelector(`.yUnified[data-url="${uri.getPath()}"]`);
-                    if (divs.length > 0) {
-                        window.scroll(0, divs[0].offsetTop);
-                        scrolled = true;
-                    }
-                }
-            }
+            let scrolled = this.setScrollPosition();
 
             // FOCUS
             // FOCUS
@@ -418,14 +400,14 @@ namespace YetaWF {
 
         public showPaneSet(id: string, editMode: boolean, equalHeights: boolean): void {
 
-            var div = this.getElementById(id);
-            var shown = false;
+            let div = this.getElementById(id);
+            let shown = false;
             if (editMode) {
                 div.style.display = "block";
                 shown = true;
             } else {
                 // show the pane if it has modules
-                var mod = this.getElement1BySelectorCond("div.yModule", [div]);
+                let mod = this.getElement1BySelectorCond("div.yModule", [div]);
                 if (mod) {
                     div.style.display = "block";
                     shown = true;
@@ -436,20 +418,20 @@ namespace YetaWF {
                 // this should happen late in case the content is changed dynamically (use with caution)
                 // if it does, the pane will still expand because we're only setting the minimum height
                 this.registerDocumentReady((): void => { // TODO: This only works for full page loads
-                    var panes = this.getElementsBySelector(`#${id} > div`);// get all immediate child divs (i.e., the panes)
+                    let panes = this.getElementsBySelector(`#${id} > div`);// get all immediate child divs (i.e., the panes)
                     panes = this.limitToVisibleOnly(panes); //:visible
                     // exclude panes that have .y_cleardiv
-                    var newPanes: HTMLElement[] = [];
+                    let newPanes: HTMLElement[] = [];
                     for (let pane of panes) {
                         if (!this.elementHasClass(pane, "y_cleardiv"))
                             newPanes.push(pane);
                     }
                     panes = newPanes;
 
-                    var height = 0;
+                    let height = 0;
                     // calc height
                     for (let pane of panes) {
-                        var h = pane.clientHeight;
+                        let h = pane.clientHeight;
                         if (h > height)
                             height = h;
                     }
@@ -467,7 +449,7 @@ namespace YetaWF {
 
         public setUrl(url: string): void {
             try {
-                var stateObj = {};
+                let stateObj = {};
                 history.pushState(stateObj, "", url);
             } catch (err) { }
         }
@@ -491,29 +473,28 @@ namespace YetaWF {
             if (!keepPosition)
                 keepPosition = false;
 
-            var uri = this.parseUrl(w.location.href);
+            let uri = this.parseUrl(w.location.href);
             uri.removeSearch(YConfigs.Basics.Link_ScrollLeft);
             uri.removeSearch(YConfigs.Basics.Link_ScrollTop);
             if (keepPosition) {
-                var left = (document.documentElement && document.documentElement.scrollLeft) || document.body.scrollLeft;
+                let left = (document.documentElement && document.documentElement.scrollLeft) || document.body.scrollLeft;
                 if (left)
                     uri.addSearch(YConfigs.Basics.Link_ScrollLeft, left.toString());
-                var top = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop;
+                let top = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop;
                 if (top)
                     uri.addSearch(YConfigs.Basics.Link_ScrollTop, top.toString());
             }
             uri.removeSearch("!rand");
             uri.addSearch("!rand", ((new Date()).getTime()).toString());// cache buster
 
-            if (YVolatile.Basics.UnifiedMode !== UnifiedModeEnum.None) {
-                if (this.ContentHandling.setContent(uri, true) !== SetContentResult.NotContent)
-                    return;
-            }
+            if (this.ContentHandling.setContent(uri, true) !== SetContentResult.NotContent)
+                return;
+
             if (keepPosition) {
                 w.location.assign(uri.toUrl());
                 return;
             }
-            w.location.reload(true);
+            w.location.reload();
         }
 
         /**
@@ -524,8 +505,8 @@ namespace YetaWF {
                 if (!this.reloadingModuleTagInModule) throw "No module found";/*DEBUG*/
                 tag = this.reloadingModuleTagInModule;
             }
-            var mod = ModuleBase.getModuleDivFromTag(tag);
-            var form = this.getElement1BySelector("form", [mod]) as HTMLFormElement;
+            let mod = ModuleBase.getModuleDivFromTag(tag);
+            let form = this.getElement1BySelector("form", [mod]) as HTMLFormElement;
             this.Forms.submit(form, false, YConfigs.Basics.Link_SubmitIsApply + "=y");// the form must support a simple Apply
         }
 
@@ -536,12 +517,12 @@ namespace YetaWF {
             this.processReloadInfo(mod.id);
         }
         public refreshModuleByAnyTag(elem: HTMLElement): void {
-            var mod = ModuleBase.getModuleDivFromTag(elem);
+            let mod = ModuleBase.getModuleDivFromTag(elem);
             this.processReloadInfo(mod.id);
         }
         private processReloadInfo(moduleId: string): void {
-            var len = this.reloadInfo.length;
-            for (var i = 0; i < len; ++i) {
+            let len = this.reloadInfo.length;
+            for (let i = 0; i < len; ++i) {
                 let entry = this.reloadInfo[i];
                 if (entry.module.id === moduleId) {
                     if (this.getElementByIdCond(entry.tagId)) {
@@ -558,8 +539,8 @@ namespace YetaWF {
         }
 
         public refreshPage(): void {
-            var len = this.reloadInfo.length;
-            for (var i = 0; i < len; ++i) {
+            let len = this.reloadInfo.length;
+            for (let i = 0; i < len; ++i) {
                 let entry = this.reloadInfo[i];
                 if (this.getElementByIdCond(entry.module.id)) { // the module exists
                     if (this.getElementByIdCond(entry.tagId)) {
@@ -590,7 +571,7 @@ namespace YetaWF {
          * The element defined by tag may no longer exist when a module is refreshed in which case the callback is not called (and removed).
          */
         public registerModuleRefresh(tag: HTMLElement, callback: (module: HTMLElement) => void): void {
-            var module = ModuleBase.getModuleDivFromTag(tag); // get the containing module
+            let module = ModuleBase.getModuleDivFromTag(tag); // get the containing module
             if (!tag.id || tag.id.length === 0)
                 throw `No id defined for ${tag.outerHTML}`;
             // reuse existing entry if this id is already registered
@@ -607,8 +588,8 @@ namespace YetaWF {
         // Module locator
 
         public getModuleGuidFromTag(tag: HTMLElement): string {
-            var mod = YetaWF.ModuleBase.getModuleDivFromTag(tag);
-            var guid = mod.getAttribute("data-moduleguid");
+            let mod = YetaWF.ModuleBase.getModuleDivFromTag(tag);
+            let guid = mod.getAttribute("data-moduleguid");
             if (!guid) throw "Can't find module guid";/*DEBUG*/
             return guid;
         }
@@ -648,6 +629,7 @@ namespace YetaWF {
 
         // Ajax result handling
 
+        /** OBSOLETE: DO NOT USE */
         public processAjaxReturn(result: string, textStatus: string, xhr: XMLHttpRequest, tagInModule?: HTMLElement,
             onSuccessNoData?: () => void,
             onRawDataResult?: (result: string) => void,
@@ -687,13 +669,13 @@ namespace YetaWF {
                 } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadPage)) {
                     var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadPage.length);
                     // eslint-disable-next-line no-eval
-                    eval(script);// if this uses $YetaWF.message or other "modal" calls, the page will reload immediately (use AjaxJavascriptReturn instead and explicitly reload page in your javascript)
+                    eval(script);// if this uses $YetaWF.alert or other "modal" calls, the page will reload immediately (use AjaxJavascriptReturn instead and explicitly reload page in your javascript)
                     this.reloadPage(true);
                     return true;
                 } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModule)) {
                     var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModule.length);
                     // eslint-disable-next-line no-eval
-                    eval(script);// if this uses $YetaWF.message or other "modal" calls, the module will reload immediately (use AjaxJavascriptReturn instead and explicitly reload module in your javascript)
+                    eval(script);// if this uses $YetaWF.alert or other "modal" calls, the module will reload immediately (use AjaxJavascriptReturn instead and explicitly reload module in your javascript)
                     this.reloadModule();
                     return true;
                 } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModuleParts)) {
@@ -725,16 +707,132 @@ namespace YetaWF {
             }
         }
 
+        /** Send a GET/POST/... request to the specified URL, expecting a JSON response. Errors are automatically handled. The callback is called once the POST response is available.
+         * @param url The URL used for the POST request.
+         * @param data The data to send as form data with the POST request.
+         * @param callback The callback to call when the POST response is available. Errors are automatically handled.
+         * @param tagInModule The optional tag in a module to refresh when AjaxJavascriptReloadModuleParts is returned.
+         */
+        public send(method: string, url: string, data: any, callback: (success: boolean, data: any) => void, tagInModule?: HTMLElement): void {
+            this.setLoading(true);
+            let request: XMLHttpRequest = new XMLHttpRequest();
+            request.open(method, url, true);
+            if (method.toLowerCase() === "post")
+                request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+            $YetaWF.handleReadyStateChange(request, callback, tagInModule);
+            request.send(data);
+        }
+
+        /** POST form data to the specified URL, expecting a JSON response. Errors are automatically handled. The callback is called once the POST response is available.
+         * @param url The URL used for the POST request.
+         * @param data The data to send as form data with the POST request.
+         * @param callback The callback to call when the POST response is available. Errors are automatically handled.
+         * @param tagInModule The optional tag in a module to refresh when AjaxJavascriptReloadModuleParts is returned.
+         */
+        public post(url: string, data: any, callback: (success: boolean, data: any) => void, tagInModule?: HTMLElement): void {
+            this.setLoading(true);
+            let request: XMLHttpRequest = new XMLHttpRequest();
+            request.open("POST", url, true);
+            request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+            $YetaWF.handleReadyStateChange(request, callback, tagInModule);
+            request.send(data);
+        }
+
+        /** POST JSON data to the specified URL, expecting a JSON response. Errors are automatically handled. The callback is called once the POST response is available.
+         * @param url The URL used for the POST request.
+         * @param data The data to send as form data with the POST request.
+         * @param callback The callback to call when the POST response is available. Errors are automatically handled.
+         */
+        public postJSON(url: string, data: any, callback: (success: boolean, data: any) => void): void {
+            this.setLoading(true);
+            let request: XMLHttpRequest = new XMLHttpRequest();
+            request.open("POST", url, true);
+            request.setRequestHeader("Content-Type", "application/json");
+            $YetaWF.handleReadyStateChange(request, callback);
+            request.send(JSON.stringify(data));
+        }
+
+        private handleReadyStateChange(request: XMLHttpRequest, callback: (success: boolean, data: any) => void, tagInModule?: HTMLElement): void {
+            request.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+            request.onreadystatechange = (ev: Event): any => {
+                if (request.readyState === 4 /*DONE*/) {
+                    this.setLoading(false);
+                    if (request.status === 200) {
+                        let result: any = null;
+                        if (request.responseText && !request.responseText.startsWith("<"))
+                            result = JSON.parse(request.responseText);
+                        else
+                            result = request.responseText;
+                        if (typeof result === "string") {
+                            if (result.startsWith(YConfigs.Basics.AjaxJavascriptReturn)) {
+                                let script = result.substring(YConfigs.Basics.AjaxJavascriptReturn.length);
+                                if (script.length > 0) {
+                                    // eslint-disable-next-line no-eval
+                                    eval(script);
+                                }
+                                callback(true, null);
+                                return;
+                            } else if (result.startsWith(YConfigs.Basics.AjaxJSONReturn)) {
+                                let json = result.substring(YConfigs.Basics.AjaxJSONReturn.length);
+                                callback(true, JSON.parse(json));
+                                return;
+                            } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptErrorReturn)) {
+                                let script = result.substring(YConfigs.Basics.AjaxJavascriptErrorReturn.length);
+                                // eslint-disable-next-line no-eval
+                                eval(script);
+                                callback(false, null);
+                                return;
+                            } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadPage)) {
+                                let script = result.substring(YConfigs.Basics.AjaxJavascriptReloadPage.length);
+                                // eslint-disable-next-line no-eval
+                                eval(script);// if this uses $YetaWF.message or other "modal" calls, the page will reload immediately (use AjaxJavascriptReturn instead and explicitly reload page in your javascript)
+                                this.reloadPage(true);
+                                callback(true, null);
+                                return;
+                            } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModule)) {
+                                let script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModule.length);
+                                // eslint-disable-next-line no-eval
+                                eval(script);// if this uses $YetaWF.message or other "modal" calls, the module will reload immediately (use AjaxJavascriptReturn instead and explicitly reload module in your javascript)
+                                this.reloadModule();
+                                callback(true, null);
+                                return;
+                            } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModuleParts)) {
+                                let script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModuleParts.length);
+                                // eslint-disable-next-line no-eval
+                                eval(script);
+                                if (tagInModule)
+                                    this.refreshModuleByAnyTag(tagInModule);
+                                return true;
+                            } else {
+                                callback(true, result);
+                                return;
+                            }
+                        }
+                        callback(true, result);
+                    } else if (request.status >= 400 && request.status <= 499) {
+                        $YetaWF.error(YLocs.Forms.AjaxError.format(request.status, YLocs.Forms.AjaxNotAuth), YLocs.Forms.AjaxErrorTitle);
+                        callback(false, null);
+                    } else if (request.status === 0) {
+                        $YetaWF.error(YLocs.Forms.AjaxError.format(request.status, YLocs.Forms.AjaxConnLost), YLocs.Forms.AjaxErrorTitle);
+                        callback(false, null);
+                    } else {
+                        $YetaWF.error(YLocs.Forms.AjaxError.format(request.status, request.responseText), YLocs.Forms.AjaxErrorTitle);
+                        callback(false, null);
+                    }
+                }
+            };
+        }
+
         // JSX
 
         /**
          * React-like createElement function so we can use JSX in our TypeScript/JavaScript code.
          */
         public createElement(tag: string, attrs: any, children: any): HTMLElement {
-            var element: HTMLElement = document.createElement(tag);
+            let element: HTMLElement = document.createElement(tag);
             for (const name in attrs) {
                 if (name && attrs.hasOwnProperty(name)) {
-                    var value: string | null | boolean = attrs[name];
+                    let value: string | null | boolean = attrs[name];
                     if (value === true) {
                         element.setAttribute(name, name);
                     } else if (value !== false && value != null) {
@@ -752,10 +850,10 @@ namespace YetaWF {
         // Global script eval
 
         public runGlobalScript(script: string) : void {
-            var elem = document.createElement("script");
+            let elem = document.createElement("script");
             elem.text = script;
 
-            var newElem = document.head!.appendChild(elem);// add to execute script
+            let newElem = document.head!.appendChild(elem);// add to execute script
             (newElem.parentNode as HTMLElement).removeChild(newElem);// and remove - we're done with it
         }
 
@@ -842,8 +940,8 @@ namespace YetaWF {
             this.ClearDivHandlers = newList;
 
             // also release any attached objects
-            for (var i = 0; i < this.DataObjectCache.length; ) {
-                var doe = this.DataObjectCache[i];
+            for (let i = 0; i < this.DataObjectCache.length; ) {
+                let doe = this.DataObjectCache[i];
                 if (this.getElement1BySelectorCond(`#${doe.DivId}`, [tag])) {
                     console.log(`Element #${doe.DivId} is being removed but still has a data object - forced cleanup`);
                     if (YConfigs.Basics.DEBUGBUILD) {
@@ -881,7 +979,7 @@ namespace YetaWF {
         public addObjectDataById(tagId: string, obj: any): void {
             this.validateObjectCache();
             this.getElementById(tagId); // used to validate the existence of the element
-            var doe = this.DataObjectCache.filter((entry:DataObjectEntry): boolean => entry.DivId === tagId);
+            let doe = this.DataObjectCache.filter((entry:DataObjectEntry): boolean => entry.DivId === tagId);
             if (doe.length > 0) throw `addObjectDataById - tag with id ${tagId} already has data`;/*DEBUG*/
             this.DataObjectCache.push({ DivId: tagId, Data: obj });
         }
@@ -889,12 +987,30 @@ namespace YetaWF {
          * Retrieves a data object (a Typescript class) from a tag
          * @param tagId - The element id (DOM) where the object is attached
          */
-        public getObjectDataById(tagId: string): any {
-            this.getElementById(tagId); // used to validate the existence of the element
-            var doe = this.DataObjectCache.filter((entry: DataObjectEntry): boolean => entry.DivId === tagId);
+        public getObjectDataByIdCond(tagId: string): any {
+            let doe = this.DataObjectCache.filter((entry: DataObjectEntry): boolean => entry.DivId === tagId);
             if (doe.length === 0)
-                throw `getObjectDataById - tag with id ${tagId} doesn't have any data`;/*DEBUG*/
+                return null;
             return doe[0].Data;
+        }
+        /**
+         * Retrieves a data object (a Typescript class) from a tag
+         * @param tagId - The element id (DOM) where the object is attached
+         */
+        public getObjectDataById(tagId: string): any {
+            let data = this.getObjectDataByIdCond(tagId);
+            if (!data)
+                throw `getObjectDataById - tag with id ${tagId} doesn't have any data`;/*DEBUG*/
+            return data;
+        }
+        /**
+         * Retrieves a data object (a Typescript class) from a tag. The data object may not be available.
+         * @param tagId - The element id (DOM) where the object is attached
+         */
+        public getObjectDataCond(element: HTMLElement): any {
+            if (!element.id)
+                throw `element without id - ${element.outerHTML}`;
+            return this.getObjectDataByIdCond(element.id);
         }
         /**
          * Retrieves a data object (a Typescript class) from a tag
@@ -912,8 +1028,8 @@ namespace YetaWF {
         public removeObjectDataById(tagId: string): void {
             this.validateObjectCache();
             this.getElementById(tagId); // used to validate the existence of the element
-            for (var i = 0; i < this.DataObjectCache.length; ++i) {
-                var doe = this.DataObjectCache[i];
+            for (let i = 0; i < this.DataObjectCache.length; ++i) {
+                let doe = this.DataObjectCache[i];
                 if (doe.DivId === tagId) {
                     this.DataObjectCache.splice(i, 1);
                     return;
@@ -930,7 +1046,7 @@ namespace YetaWF {
          * Get an element by id.
          */
         public getElementById(elemId: string): HTMLElement {
-            var div: HTMLElement = document.querySelector(`#${elemId}`) as HTMLElement;
+            let div: HTMLElement = document.querySelector(`#${elemId}`) as HTMLElement;
             if (!div)
                 throw `Element with id ${elemId} not found`;/*DEBUG*/
             return div;
@@ -939,14 +1055,14 @@ namespace YetaWF {
          * Get an element by id.
          */
         public getElementByIdCond(elemId: string): HTMLElement | null {
-            var div: HTMLElement = document.querySelector(`#${elemId}`) as HTMLElement;
+            let div: HTMLElement = document.querySelector(`#${elemId}`) as HTMLElement;
             return div;
         }
         /**
-         * Get elements from an array of tags by selector. (similar to jquery var x = $(selector, elems); with standard css selectors)
+         * Get elements from an array of tags by selector. (similar to jquery let x = $(selector, elems); with standard css selectors)
          */
         public getElementsBySelector(selector: string, elems?: HTMLElement[]): HTMLElement[] {
-            var all: HTMLElement[] = [];
+            let all: HTMLElement[] = [];
             if (!elems) {
                 if (!document.body)
                     return all;
@@ -955,16 +1071,16 @@ namespace YetaWF {
             if (!elems)
                 return all;
             for (const elem of elems) {
-                var list: NodeListOf<Element> = elem.querySelectorAll(selector);
-                var len: number = list.length;
-                for (var i: number = 0; i < len; ++i) {
+                let list: NodeListOf<Element> = elem.querySelectorAll(selector);
+                let len: number = list.length;
+                for (let i: number = 0; i < len; ++i) {
                     all.push(list[i] as HTMLElement);
                 }
             }
             return all;
         }
         /**
-         * Get the first element from an array of tags by selector. (similar to jquery var x = $(selector, elems); with standard css selectors)
+         * Get the first element from an array of tags by selector. (similar to jquery let x = $(selector, elems); with standard css selectors)
          */
         public getElement1BySelectorCond(selector: string, elems?: HTMLElement[]): HTMLElement | null {
             if (!elems)
@@ -972,26 +1088,26 @@ namespace YetaWF {
             for (const elem of elems) {
                 if (elem.matches(selector)) // oddly enough querySelectorAll doesn't return anything even though the element matches...
                     return elem;
-                var list: NodeListOf<Element> = elem.querySelectorAll(selector);
+                let list: NodeListOf<Element> = elem.querySelectorAll(selector);
                 if (list.length > 0)
                     return list[0] as HTMLElement;
             }
             return null;
         }
         /**
-         * Get the first element from an array of tags by selector. (similar to jquery var x = $(selector, elems); with standard css selectors)
+         * Get the first element from an array of tags by selector. (similar to jquery let x = $(selector, elems); with standard css selectors)
          */
         public getElement1BySelector(selector: string, elems?: HTMLElement[]): HTMLElement {
-            var elem = this.getElement1BySelectorCond(selector, elems);
+            let elem = this.getElement1BySelectorCond(selector, elems);
             if (elem == null)
                 throw `Element with selector ${selector} not found`;
             return elem;
         }
         /**
-         * Removes all input[type='hidden'] fields. (similar to jquery var x = elems.not("input[type='hidden']"); )
+         * Removes all input[type='hidden'] fields. (similar to jquery let x = elems.not("input[type='hidden']"); )
          */
         public limitToNotTypeHidden(elems: HTMLElement[]): HTMLElement[] {
-            var all: HTMLElement[] = [];
+            let all: HTMLElement[] = [];
             for (const elem of elems) {
                 if (elem.tagName !== "INPUT" || elem.getAttribute("type") !== "hidden")
                     all.push(elem);
@@ -999,10 +1115,10 @@ namespace YetaWF {
             return all;
         }
         /**
-         * Returns items that are visible. (similar to jquery var x = elems.filter(':visible'); )
+         * Returns items that are visible. (similar to jquery let x = elems.filter(':visible'); )
          */
         public limitToVisibleOnly(elems: HTMLElement[]): HTMLElement[] {
-            var all: HTMLElement[] = [];
+            let all: HTMLElement[] = [];
             for (const elem of elems) {
                 if (this.isVisible(elem))
                     all.push(elem);
@@ -1020,7 +1136,7 @@ namespace YetaWF {
          * Returns whether the specified element is a parent of the specified child element.
          */
         public elementHas(elem: HTMLElement, childElement: HTMLElement): boolean {
-            var c : HTMLElement | null = childElement;
+            let c : HTMLElement | null = childElement;
             for (; c ;) {
                 if (elem === c)
                     return true;
@@ -1035,7 +1151,7 @@ namespace YetaWF {
          * @param selector - The selector to match.
          */
         public elementMatches(elem: Element | null, selector: string): boolean {
-            if (elem)
+            if (elem && elem.matches)
                 return elem.matches(selector);
             return false;
         }
@@ -1045,7 +1161,7 @@ namespace YetaWF {
          * @param selector - The selector to match.
          */
         public elementClosestCond(elem: HTMLElement, selector: string): HTMLElement | null {
-            var e: HTMLElement | null = elem;
+            let e: HTMLElement | null = elem;
             while (e) {
                 if (this.elementMatches(e, selector))
                     return e;
@@ -1060,7 +1176,7 @@ namespace YetaWF {
          * @param selector - The selector to match.
          */
         public elementClosest(elem: HTMLElement, selector: string): HTMLElement {
-            var e = this.elementClosestCond(elem, selector);
+            let e = this.elementClosestCond(elem, selector);
             if (!e)
                 throw `Closest parent element with selector ${selector} not found`;
             return e;
@@ -1108,7 +1224,7 @@ namespace YetaWF {
         private calcMixedHTMLRunScripts(content: string, callbackHTML?: (html: string) => void, callbackChildren?: (elems: HTMLCollection) => void, tableBody?: boolean): void {
 
             // convert the string to DOM representation
-            var temp = document.createElement("YetaWFTemp");
+            let temp = document.createElement("YetaWFTemp");
             if (tableBody) {
                 temp.innerHTML = `<table><tbody>${content}</tbody></table>`;
                 temp = $YetaWF.getElement1BySelector("tbody", [temp]);
@@ -1116,8 +1232,8 @@ namespace YetaWF {
                 temp.innerHTML = content;
             }
             // extract all <script> tags
-            var scripts: HTMLScriptElement[] = this.getElementsBySelector("script", [temp]) as HTMLScriptElement[];
-            for (var script of scripts) {
+            let scripts: HTMLScriptElement[] = this.getElementsBySelector("script", [temp]) as HTMLScriptElement[];
+            for (let script of scripts) {
                 this.removeElement(script); // remove the script element
             }
 
@@ -1128,11 +1244,11 @@ namespace YetaWF {
                 callbackChildren(temp.children);
 
             // now run/load all scripts we found in the HTML
-            for (var script of scripts) {
+            for (let script of scripts) {
                 if (script.src) {
                     script.async = false;
                     script.defer = false;
-                    var js = document.createElement("script");
+                    let js = document.createElement("script");
                     js.type = "text/javascript";
                     js.async = false; // need to preserve execution order
                     js.defer = false;
@@ -1156,6 +1272,7 @@ namespace YetaWF {
         public elementHasClass(elem: Element | null, css: string): boolean {
             css = css.trim();
             if (!elem) return false;
+            if (css.startsWith(".")) throw `elementHasClass called with class starting with a . "${css}" - that probably wasn't intended`;
             if (elem.classList)
                 return elem.classList.contains(css);
             else
@@ -1171,13 +1288,14 @@ namespace YetaWF {
             let list: string[] = [];
             cssPrefix = cssPrefix.trim();
             if (!elem) return list;
+            if (cssPrefix.startsWith(".")) throw `elementHasClassPrefix called with cssPrefix starting with a . "${cssPrefix}" - that probably wasn't intended`;
             if (elem.classList) {
                 // eslint-disable-next-line @typescript-eslint/prefer-for-of
                 for (let i = 0; i < elem.classList.length; ++i) {
                     if (elem.classList[i].startsWith(cssPrefix))
                         list.push(elem.classList[i]);
                 }
-            } else {
+            } else if (elem.className && typeof elem.className === "string") {
                 let cs = elem.className.split(" ");
                 for (let c of cs) {
                     if (c.startsWith(cssPrefix))
@@ -1191,7 +1309,7 @@ namespace YetaWF {
          */
         public elementAddClassList(elem: Element, classNames: string | null): void {
             if (!classNames) return;
-            for (var s of classNames.split(" ")) {
+            for (let s of classNames.split(" ")) {
                 if (s.length > 0)
                     this.elementAddClass(elem, s);
             }
@@ -1209,6 +1327,7 @@ namespace YetaWF {
          * Add css class to an element.
          */
         public elementAddClass(elem: Element, className: string): void {
+            if (className.startsWith(".")) throw `elementAddClass called with class starting with a . "${className}" - that probably wasn't intended`;
             if (elem.classList)
                 elem.classList.add(className);
             else
@@ -1219,7 +1338,7 @@ namespace YetaWF {
          */
         public elementRemoveClassList(elem: Element, classNames: string | null): void {
             if (!classNames) return;
-            for (var s of classNames.split(" ")) {
+            for (let s of classNames.split(" ")) {
                 if (s.length > 0)
                     this.elementRemoveClass(elem, s);
             }
@@ -1237,6 +1356,7 @@ namespace YetaWF {
          * Remove a css class from an element.
          */
         public elementRemoveClass(elem: Element, className: string): void {
+            if (className.startsWith(".")) throw `elementRemoveClass called with class starting with a . "${className}" - that probably wasn't intended`;
             if (elem.classList)
                 elem.classList.remove(className);
             else
@@ -1261,7 +1381,7 @@ namespace YetaWF {
          * Returns an attribute value. Throws an error if the attribute doesn't exist.
          */
         public getAttribute(elem: HTMLElement, name: string): string {
-            var val = elem.getAttribute(name);
+            let val = elem.getAttribute(name);
             if (!val)
                 throw `missing ${name} attribute`;
             return val;
@@ -1298,6 +1418,12 @@ namespace YetaWF {
                 this.elementEnable(elem);
             else
                 this.elementDisable(elem);
+        }
+        /**
+         * Returns whether the element is enabled.
+         */
+        public isEnabled(elem: HTMLElement): boolean {
+            return YetaWF_BasicsImpl.isEnabled(elem);
         }
         /**
          * Given an element, returns the owner (typically a module) that owns the element.
@@ -1394,7 +1520,7 @@ namespace YetaWF {
             //console.log(`event ${ev.type} selector ${selector} target ${(ev.target as HTMLElement).outerHTML}`);
             if (ev.cancelBubble || ev.defaultPrevented)
                 return;
-            var elem: HTMLElement | null = ev.target as HTMLElement | null;
+            let elem: HTMLElement | null = ev.target as HTMLElement | null;
             if (ev.eventPhase === ev.CAPTURING_PHASE) {
                 if (selector) return;// if we have a selector we can't possibly have a match because the src element is the main tag where we registered the listener
             } else if (ev.eventPhase === ev.AT_TARGET) {
@@ -1407,14 +1533,14 @@ namespace YetaWF {
                             break;
                         if (listening === elem)
                             return;// checked all elements
-                        elem = elem.parentElement;
+                        elem = elem.parentElement|| (elem.parentNode as HTMLElement);
                     }
                 } else {
                     // check whether the target or one of its parents is the listening element
                     while (elem) {
                         if (listening === elem)
                             break;
-                        elem = elem.parentElement;
+                        elem = elem.parentElement || (elem.parentNode as HTMLElement);
                     }
                 }
                 if (!elem)
@@ -1423,7 +1549,7 @@ namespace YetaWF {
                 return;
             //console.log(`event ${ev.type} selector ${selector} match`);
             ev.__YetaWFElem = (elem || ev.target) as HTMLElement;// pass the matching element to the callback
-            var result: boolean = callback(ev);
+            let result: boolean = callback(ev);
             if (!result) {
                 //console.log(`event ${ev.type} selector ${selector} stop bubble`);
                 ev.stopPropagation();
@@ -1496,12 +1622,12 @@ namespace YetaWF {
          * @param expandedId - The <div> to show/hide.
          */
         public expandCollapseHandling(divId: string, collapsedId: string, expandedId: string): void {
-            var div = this.getElementById(divId);
-            var collapsedDiv = this.getElementById(collapsedId);
-            var expandedDiv = this.getElementById(expandedId);
+            let div = this.getElementById(divId);
+            let collapsedDiv = this.getElementById(collapsedId);
+            let expandedDiv = this.getElementById(expandedId);
 
-            var expLink = this.getElement1BySelector("a[data-name='Expand']", [div]);
-            var collLink = this.getElement1BySelector("a[data-name='Collapse']", [div]);
+            let expLink = this.getElement1BySelector("a[data-name='Expand']", [div]);
+            let collLink = this.getElement1BySelector("a[data-name='Collapse']", [div]);
 
             this.registerEventHandler(expLink, "click", null, (ev: Event): boolean => {
                 collapsedDiv.style.display = "none";
@@ -1532,6 +1658,27 @@ namespace YetaWF {
          * @param sub The element to be position below/above the main element.
          */
         public positionLeftAlignedBelow(main: HTMLElement, sub: HTMLElement): void {
+            this.positionAlignedBelow(main, sub, true);
+        }
+
+        /**
+         * Position an element (sub) below an element (main), or above if there is insufficient space below.
+         * The elements are always aligned at their right edges.
+         * @param main The main element.
+         * @param sub The element to be position below/above the main element.
+         */
+        public positionRightAlignedBelow(main: HTMLElement, sub: HTMLElement): void {
+            this.positionAlignedBelow(main, sub, false);
+        }
+
+        /**
+         * Position an element (sub) below an element (main), or above if there is insufficient space below.
+         * The elements are always aligned at their left or right edges.
+         * @param main The main element.
+         * @param sub The element to be position below/above the main element.
+         * @param left Defines whether the sub element is positioned to the left (true) or right (false).
+         */
+        private positionAlignedBelow(main: HTMLElement, sub: HTMLElement, left: boolean): void {
 
             // position within view to calculate size
             sub.style.top = "0px";
@@ -1563,18 +1710,17 @@ namespace YetaWF {
                     sub.style.bottom = "0px";
                 sub.style.top = `${top + window.pageYOffset}px`;
             }
-            // set left
-            sub.style.left = `${mainRect.left + window.pageXOffset}px`;
-            if (mainRect.left + subRect.right > window.innerWidth)
-                sub.style.right = "0px";
-        }
-
-        constructor() {
-
-            $YetaWF = this;// set global so we can initialize anchor/content
-            this.AnchorHandling = new YetaWF.Anchors();
-            this.ContentHandling = new YetaWF.Content();
-
+            if (left) {
+                // set left
+                sub.style.left = `${mainRect.left + window.pageXOffset}px`;
+                if (mainRect.left + subRect.right > window.innerWidth)
+                    sub.style.right = "0px";
+            } else {
+                // set right
+                let left = mainRect.right - subRect.width + window.pageXOffset;
+                if (left < 0) left = 0;
+                sub.style.left = `${left}px`;
+            }
         }
 
         public init(): void {
@@ -1600,7 +1746,7 @@ namespace YetaWF {
                     --this.suppressPopState;
                     return true;
                 }
-                var uri = this.parseUrl(window.location.href);
+                let uri = this.parseUrl(window.location.href);
                 return this.ContentHandling.setContent(uri, false) !== SetContentResult.NotContent;
             });
 
@@ -1611,7 +1757,7 @@ namespace YetaWF {
 
                 // find the real anchor, ev.target was clicked, but it may not be the anchor itself
                 if (!ev.target) return true;
-                var anchor = $YetaWF.elementClosestCond(ev.target as HTMLElement, "a") as HTMLAnchorElement;
+                let anchor = $YetaWF.elementClosestCond(ev.target as HTMLElement, "a") as HTMLAnchorElement;
                 if (!anchor) return true;
 
                 ++this.suppressPopState;
@@ -1630,14 +1776,14 @@ namespace YetaWF {
 
             // Debounce resizing
 
-            let resizeTimeout;
+            let resizeTimeout: number = 0;
             window.addEventListener("resize", (ev: UIEvent): void => {
                 if (resizeTimeout) {
                     clearTimeout(resizeTimeout);
                 }
                 resizeTimeout = setTimeout((): void => {
                     $YetaWF.sendContainerResizeEvent();
-                    resizeTimeout = null;
+                    resizeTimeout = 0;
                 }, 100);
             });
 
@@ -1691,6 +1837,8 @@ namespace YetaWF {
  * Basic services available throughout YetaWF.
  */
 var $YetaWF = new YetaWF.BasicsServices();
+$YetaWF.AnchorHandling = new YetaWF.Anchors();
+$YetaWF.ContentHandling = new YetaWF.Content();
 
 /* Print support */
 

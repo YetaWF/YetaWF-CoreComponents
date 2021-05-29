@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using YetaWF.Core.Models;
 using YetaWF.Core.Pages;
@@ -93,7 +95,7 @@ namespace YetaWF.Core.Support {
             HtmlBuilder hb = new HtmlBuilder();
             if (attributes != null) {
                 foreach (KeyValuePair<string, object?> entry in attributes) {
-                    string key = entry.Key;
+                    string key = entry.Key.ToLower();
                     if (key == "id" || key == "class") continue;
                     string? value;
                     if (entry.Value is MultiString s)
@@ -137,8 +139,11 @@ namespace YetaWF.Core.Support {
         /// <param name="attributes">The dictionary of HTML attributes.</param>
         /// <returns>Returns the id defined in <paramref name="attributes"/>, or null.</returns>
         public static string? GetIdCond(IDictionary<string, object?>? attributes) {
-            if (attributes != null && attributes.ContainsKey("id"))
-                return (string?)attributes["id"];
+            if (attributes != null) {
+                string? key = (from a in attributes.Keys where a.ToLower() == "id" select a).FirstOrDefault();
+                if (key != null)
+                    return (string?)attributes[key];
+            }
             return null;
         }
 

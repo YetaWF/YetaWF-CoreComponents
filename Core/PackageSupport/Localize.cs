@@ -183,7 +183,6 @@ namespace YetaWF.Core.Packages {
             if (string.Compare(folder, "AddonsCustom", true) == 0) return;
             if (string.Compare(folder, "Properties", true) == 0) return;
             if (string.Compare(folder, "bin", true) == 0) return;
-            if (string.Compare(folder, "bower_components", true) == 0) return;
             if (string.Compare(folder, "Data", true) == 0) return;
             if (string.Compare(folder, "Docs", true) == 0) return;
             if (string.Compare(folder, "node_modules", true) == 0) return;

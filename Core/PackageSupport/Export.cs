@@ -61,7 +61,7 @@ namespace YetaWF.Core.Packages {
             if (!SourceCode) {
                 // Addons
                 if (PackageType == PackageTypeEnum.Module || PackageType == PackageTypeEnum.Skin) {
-                    serPackage.AddOns.AddRange(await ProcessAllFilesAsync(AddonsFolder, ExcludedFilesAddons, ExcludedFoldersNoSource, ExternalRoot: YetaWFManager.RootFolder));
+                    serPackage.AddOns.AddRange(await ProcessAllFilesAsync(AddonsSourceFolder, ExcludedFilesAddons, ExcludedFoldersNoSource, ExternalRoot: YetaWFManager.RootFolder));
                     foreach (var file in serPackage.AddOns) {
                         zipFile.AddFile(file.AbsFileName, file.FileName);
                     }

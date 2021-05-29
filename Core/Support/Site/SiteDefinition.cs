@@ -18,12 +18,6 @@ using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Site {
 
-    public enum TabStyleEnum {
-        [EnumDescription("JQuery", "JQuery-UI Tab Controls")]
-        JQuery = 0,
-        [EnumDescription("Kendo", "Kendo UI Core Tab Controls")]
-        Kendo = 1,
-    }
     public enum PageSecurityType {
         [EnumDescription("As Provided in URL", "As Provided in URL - This can be overridden by pages using an explicit mode")]
         AsProvided = 0,
@@ -87,6 +81,8 @@ namespace YetaWF.Core.Site {
 
         public static readonly int SiteIdentitySeed = 1000; // the id of the first site
 
+        public const string DefaultTheme = "Default";
+
         public const int MaxCopyright = 100;
         public const int MaxSiteName = 40;
         public const int MaxSiteDomain = 80;
@@ -97,6 +93,8 @@ namespace YetaWF.Core.Site {
         public const int MaxHead = 1000;
         public const int MaxBodyTop = 1000;
         public const int MaxBodyBottom = 1000;
+        public const int MaxTheme = 100;
+        public const int MaxPopupPage = 40;
 
         protected YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
@@ -119,8 +117,6 @@ namespace YetaWF.Core.Site {
             FavIconLrg_Data = new byte[0];
             Country = Globals.DefaultCountry;
             Currency = CurrencyISO4217.Currency.DefaultId;
-            CurrencyFormat = Globals.DefaultCurrencyFormat;
-            CurrencyDecimals = CurrencyISO4217.Currency.DefaultMinorUnit;
 
             AllowCacheUse = true;
             Compression = false;
@@ -151,19 +147,14 @@ namespace YetaWF.Core.Site {
             ReferencedModules = new SerializableList<ModuleDefinition.ReferencedModule>();
             ModuleDefinition.ReferencedModule.AddReferencedModule(ReferencedModules, new Guid("{466C0CCA-3E63-43f3-8754-F4267767EED1}")); // Control Panel (Skin)
             ModuleDefinition.ReferencedModule.AddReferencedModule(ReferencedModules, new Guid("{267f00cc-c619-4854-baed-9e4b812d7e95}")); // Page Edit Mode Selector (Skin)
+            ModuleDefinition.ReferencedModule.AddReferencedModule(ReferencedModules, new Guid("{915a366d-facb-4d02-b8f8-bb1acef73c4c}")); // Skin Palette (Skin)
 
-            SelectedSkin = new SkinDefinition {
+            Theme = DefaultTheme;
+            Skin = new SkinDefinition {
                 Collection = SkinAccess.FallbackSkinCollectionName,
-                FileName = SkinAccess.FallbackPageFileName,
+                PageFileName = SkinAccess.FallbackPageFileName,
+                PopupFileName = SkinAccess.FallbackPopupFileName,
             };
-            SelectedPopupSkin = new SkinDefinition {
-                Collection = SkinAccess.FallbackPopupSkinCollectionName,
-                FileName = SkinAccess.FallbackPopupFileName,
-            };
-            BootstrapSkin = null;
-            jQueryUISkin = null;
-            KendoUISkin = null;
-            TabStyle = TabStyleEnum.JQuery;
             MessageType = MessageTypeEnum.ToastLeft;
 
             UseCDN = false;
@@ -181,7 +172,6 @@ namespace YetaWF.Core.Site {
         [Copy]
         public int Identity { get; set; }
 
-        [JsonIgnore]
         public virtual List<string> CategoryOrder { get { return new List<string> { "Site", "Pages", "CDN", "Email", "URLs", "References", "Encryption", "Skin", "Addons", "Meta", "Variables" }; } }
 
         [Data_PrimaryKey]
@@ -426,16 +416,6 @@ namespace YetaWF.Core.Site {
         [RequiresPageReload]
         public string Currency { get; set; }
 
-        [Category("Site"), Caption("Currency Format"), Description("The currency format used on this site - the default is $US if omitted")]
-        [UIHint("Text20"), StringLength(20)]
-        [RequiresPageReload]
-        public string CurrencyFormat { get; set; }
-
-        [Category("Site"), Caption("Currency Rounding"), Description("The number of decimal places for the currency used on this site")]
-        [UIHint("IntValue2"), Range(0, 5), Required]
-        [RequiresPageReload]
-        public int CurrencyDecimals { get; set; }
-
         [Category("Variables"), Caption("Copyright"), Description("The Copyright property with evaluated substitutions")]
         [UIHint("String"), ReadOnly]
         public string CopyrightEvaluated {
@@ -450,7 +430,7 @@ namespace YetaWF.Core.Site {
         public bool StaticPages { get; set; }
 
         [Category("Pages"), Caption("Debug Mode"), Description("Defines whether all data caching and compression is disabled through Appsettings.json - typically used for debugging (can only be set using Appsettings.json)")]
-        [UIHint("Boolean")]
+        [UIHint("Boolean"), ReadOnly]
         public bool DEBUGMODE {
             get {
                 return GetDEBUGMODE();
@@ -488,7 +468,7 @@ namespace YetaWF.Core.Site {
         [RequiresPageReload]
         public bool CompressCSSFiles { get; set; }
 
-        [Category("Pages"), Caption("Bundle CSS Files"), Description("Defines whether stylesheets (CSS files) are bundled into one single file (excluding large non-YetaWF files like jQuery, jQuery UI, etc.)")]
+        [Category("Pages"), Caption("Bundle CSS Files"), Description("Defines whether stylesheets (CSS files) are bundled into one single file (excluding large non-YetaWF files)")]
         [UIHint("Boolean")]
         [RequiresPageReload]
         public bool BundleCSSFiles { get; set; }
@@ -504,7 +484,7 @@ namespace YetaWF.Core.Site {
         [RequiresPageReload]
         public bool CompressJSFiles { get; set; }
 
-        [Category("Pages"), Caption("Bundle JavaScript Files"), Description("Defines whether JavaScript files are bundled into one single file (excluding large non-YetaWF files like jQuery, jQuery UI, etc.)")]
+        [Category("Pages"), Caption("Bundle JavaScript Files"), Description("Defines whether JavaScript files are bundled into one single file (excluding large non-YetaWF files)")]
         [UIHint("Boolean")]
         [RequiresPageReload]
         public bool BundleJSFiles { get; set; }
@@ -545,13 +525,13 @@ namespace YetaWF.Core.Site {
         // CDN
         // CDN
 
-        [Category("CDN"), Caption("Use CDN (Global Addons)"), Description("Defines whether a Content Delivery Network is used for some of the 3rd party packages where a CDN is available (e.g., jQuery, jQuery-UI, KendoUI, etc.) - This is typically only used for production sites - Appsettings.json (Application.P.YetaWF_Core.UseCDNComponents) must be set to true for this setting to be honored, otherwise a CDN is not used for 3rd party packages - The site (and all instances) must be restarted for this setting to take effect")]
+        [Category("CDN"), Caption("Use CDN (Global Addons)"), Description("Defines whether a Content Delivery Network is used for some of the 3rd party packages where a CDN is available - This is typically only used for production sites - Appsettings.json (Application.P.YetaWF_Core.UseCDNComponents) must be set to true for this setting to be honored, otherwise a CDN is not used for 3rd party packages - The site (and all instances) must be restarted for this setting to take effect")]
         [UIHint("Boolean")]
         [Data_NewValue]
         [RequiresRestart(RestartEnum.All)]
         public bool UseCDNComponents { get; set; }
 
-        [Category("CDN"), Caption("Current Status"), Description("Shows whether a Content Delivery Network is currently used for some of the 3rd party packages where a CDN is available (e.g., jQuery, jQuery-UI, KendoUI, etc.) - Appsettings.json (Application.P.YetaWF_Core.UseCDNComponents) must be set to true for the \"Use CDN (Global Addons)\" setting to be honored, otherwise a CDN is not used for 3rd party packages")]
+        [Category("CDN"), Caption("Current Status"), Description("Shows whether a Content Delivery Network is currently used for some of the 3rd party packages where a CDN is available - Appsettings.json (Application.P.YetaWF_Core.UseCDNComponents) must be set to true for the \"Use CDN (Global Addons)\" setting to be honored, otherwise a CDN is not used for 3rd party packages")]
         [UIHint("Boolean"), ReadOnly]
         public bool CanUseCDNComponents { get { return YetaWFManager.CanUseCDNComponents && UseCDNComponents; } }
 
@@ -675,14 +655,11 @@ namespace YetaWF.Core.Site {
         // SKIN
         // SKIN
 
-        [Category("Skin"), Caption("Default Page Skin"), Description("The default skin used to for pages - individual pages can override the default skin")]
-        [UIHint("PageSkin"), AdditionalMetadata("NoDefault", true), Trim]
+        [Category("Skin"), Caption("Skin"), Description("The skin used to for pages and popups")]
+        [UIHint("Skin"), AdditionalMetadata("NoDefault", true), Trim]
         [RequiresPageReload]
-        public SkinDefinition SelectedSkin { get; set; }
-
-        [Category("Skin"), Caption("Default Popup Skin"), Description("The default skin used in a popup window - individual pages can override the default skin")]
-        [UIHint("PopupSkin"), AdditionalMetadata("NoDefault", true), Trim]
-        public SkinDefinition SelectedPopupSkin { get; set; }
+        [Data_NewValue]
+        public SkinDefinition Skin { get; set; }
 
         [Category("Skin"), Caption("Message Style"), Description("Defines the display style of notification messages (informational and error messages)")]
         [UIHint("Enum")]
@@ -696,28 +673,11 @@ namespace YetaWF.Core.Site {
         [RequiresPageReload]
         public bool FormErrorsImmed { get; set; }
 
-        [Category("Skin"), Caption("Default Bootstrap Skin"), Description("The default skin for overall page appearance and Bootstrap elements (only supported for skins that support Bootswatch) - individual pages can override the default skin")]
-        [HelpLink("https://www.bootstrapcdn.com/bootswatch/")]
-        [UIHint("BootstrapSkin"), StringLength(SkinDefinition.MaxName), AdditionalMetadata("NoDefault", true), Trim]
+        [Category("Skin"), Caption("Theme"), Description("The theme used for all pages of the site")]
+        [UIHint("Theme"), StringLength(MaxTheme), SelectionRequired]
         [RequiresPageReload]
-        public string? BootstrapSkin { get; set; }
-
-        [Category("Skin"), Caption("Default jQuery UI Skin"), Description("The default skin for jQuery-UI elements (buttons, modal dialogs, etc.) - individual pages can override the default skin")]
-        [HelpLink("http://jqueryui.com/themeroller/")]
-        [UIHint("jQueryUISkin"), StringLength(SkinDefinition.MaxName), AdditionalMetadata("NoDefault", true), Trim]
-        [RequiresPageReload]
-        public string? jQueryUISkin { get; set; }
-
-        [Category("Skin"), Caption("Default Kendo UI Skin"), Description("The default skin for Kendo UI elements (buttons, modal dialogs, etc.) - individual pages can override the default skin")]
-        [HelpLink("http://demos.telerik.com/kendo-ui/themebuilder/")]
-        [UIHint("KendoUISkin"), StringLength(SkinDefinition.MaxName), AdditionalMetadata("NoDefault", true), Trim]
-        [RequiresPageReload]
-        public string? KendoUISkin { get; set; }
-
-        [Category("Skin"), Caption("Tab Style"), Description("Defines which UI provides the tab control implementation")]
-        [UIHint("Enum"), Required]
-        [RequiresPageReload]
-        public TabStyleEnum TabStyle { get; set; }
+        [Data_NewValue]
+        public string Theme { get; set; }
 
         // ENCRYPTION
         // ENCRYPTION

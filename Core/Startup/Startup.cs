@@ -204,7 +204,7 @@ namespace YetaWF.Core.Support {
 
                 baseTypes = Package.GetClassesInPackages<IInitializeApplicationStartup>(ServiceLevel: ServiceLevelEnum.Core);
                 baseTypes.AddRange(Package.GetClassesInPackages<IInitializeApplicationStartupFirstNodeOnly>(ServiceLevel: ServiceLevelEnum.Core));
-                Type versionManager = typeof(VersionManagerStartup);// put the VersionManagerStartup class first
+                Type versionManager = typeof(PackageStartup);// put the PackageStartup class first
                 baseTypes.Remove(versionManager);
                 baseTypes.Insert(0, versionManager);
                 Logging.AddLog("Processing ServiceLevelEnum.Core");

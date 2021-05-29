@@ -163,14 +163,6 @@ namespace YetaWF.Core.Controllers {
             /// </summary>
             public string QueryString { get; set; } = null!;
             /// <summary>
-            /// The Guid of the unified page set the current page is part of. If the requested URL uses a different unified page set, a full page is returned instead.
-            /// </summary>
-            public string UnifiedSetGuid { get; set; } = null!;
-            /// <summary>
-            /// The mode of the current page's unified page set. If the requested URL uses a different unified page set, a full page is returned instead.
-            /// </summary>
-            public PageDefinition.UnifiedModeEnum UnifiedMode { get; set; }
-            /// <summary>
             /// A list of "Referenced Modules" that have been loaded by the current page.
             /// </summary>
             public List<Guid>? UnifiedAddonMods { get; set; }
@@ -278,36 +270,24 @@ namespace YetaWF.Core.Controllers {
                 string url = dataIn.Path;
                 string? newUrl, newQs;
                 if (url.StartsWith(Globals.ModuleUrl, StringComparison.InvariantCultureIgnoreCase)) {
-                    if (dataIn.UnifiedMode == PageDefinition.UnifiedModeEnum.SkinDynamicContent || dataIn.UnifiedMode == PageDefinition.UnifiedModeEnum.DynamicContent) {
-                        PageDefinition.GetUrlFromUrlWithSegments(url, uri.Segments, 3, uri.Query, out newUrl, out newQs);
-                        if (newUrl != url) {
-                            PageContentResult cr = new PageContentResult();
-                            cr.Result.RedirectContent = QueryHelper.ToUrl(newUrl, newQs);
-                            return cr;
-                        }
-                        ModuleDefinition? module = await ModuleDefinition.FindDesignedModuleAsync(dataIn.Path);
-                        if (module == null)
-                            module = await ModuleDefinition.LoadByUrlAsync(dataIn.Path);
-                        moduleFound = module;
-                    } else {
+                    PageDefinition.GetUrlFromUrlWithSegments(url, uri.Segments, 3, uri.Query, out newUrl, out newQs);
+                    if (newUrl != url) {
                         PageContentResult cr = new PageContentResult();
-                        cr.Result.Redirect = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
+                        cr.Result.RedirectContent = QueryHelper.ToUrl(newUrl, newQs);
                         return cr;
                     }
+                    ModuleDefinition? module = await ModuleDefinition.FindDesignedModuleAsync(dataIn.Path);
+                    if (module == null)
+                        module = await ModuleDefinition.LoadByUrlAsync(dataIn.Path);
+                    moduleFound = module;
                 } else if (url.StartsWith(Globals.PageUrl, StringComparison.InvariantCultureIgnoreCase)) {
-                    if (dataIn.UnifiedMode == PageDefinition.UnifiedModeEnum.SkinDynamicContent || dataIn.UnifiedMode == PageDefinition.UnifiedModeEnum.DynamicContent) {
-                        PageDefinition.GetUrlFromUrlWithSegments(url, uri.Segments, 3, uri.Query, out newUrl, out newQs);
-                        if (newUrl != url) {
-                            PageContentResult cr = new PageContentResult();
-                            cr.Result.RedirectContent = QueryHelper.ToUrl(newUrl, newQs);
-                            return cr;
-                        }
-                        pageFound = await PageDefinition.LoadFromUrlAsync(url);
-                    } else {
+                    PageDefinition.GetUrlFromUrlWithSegments(url, uri.Segments, 3, uri.Query, out newUrl, out newQs);
+                    if (newUrl != url) {
                         PageContentResult cr = new PageContentResult();
-                        cr.Result.Redirect = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
+                        cr.Result.RedirectContent = QueryHelper.ToUrl(newUrl, newQs);
                         return cr;
                     }
+                    pageFound = await PageDefinition.LoadFromUrlAsync(url);
                 } else {
                     PageDefinition.PageUrlInfo pageInfo = await PageDefinition.GetPageUrlFromUrlWithSegmentsAsync(url, dataIn.QueryString);
                     PageDefinition? page = pageInfo.Page;
@@ -401,40 +381,6 @@ namespace YetaWF.Core.Controllers {
         //}
         private async Task<ProcessingStatus> CanProcessAsDesignedPageAsync(PageDefinition page, DataIn dataIn, PageContentResult cr) {
             // request for a designed page
-            if (dataIn.UnifiedMode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
-                if (page.UnifiedSetGuid != null) {
-                    // this page is part of another unified page set
-                    string redirUrl = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
-                    cr.Result.Redirect = redirUrl;
-                    return ProcessingStatus.Complete;
-                }
-                // make sure it's the same skin
-                if (YetaWFController.GoingToPopup()) {
-                    // popups only care about the skin collection, not the file
-                    if (!SameSkinCollection(page.SelectedPopupSkin.Collection, dataIn.UnifiedSkinCollection, true)) {
-                        // this page is part of another skin
-                        string redirUrl = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
-                        cr.Result.Redirect = redirUrl;
-                        return ProcessingStatus.Complete;
-                    }
-                } else {
-                    if (string.IsNullOrWhiteSpace(page.SelectedSkin.FileName))
-                        page.SelectedSkin.FileName = SkinAccess.FallbackPageFileName;
-                    if (!SameSkinCollection(page.SelectedSkin.Collection, dataIn.UnifiedSkinCollection, false) || page.SelectedSkin.FileName != dataIn.UnifiedSkinFileName) {
-                        // this page is part of another skin
-                        string redirUrl = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
-                        cr.Result.Redirect = redirUrl;
-                        return ProcessingStatus.Complete;
-                    }
-                }
-            } else {
-                if (page.UnifiedSetGuid != new Guid(dataIn.UnifiedSetGuid)) {
-                    // this page isn't part of this unified set (not listed)
-                    string redirUrl = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
-                    cr.Result.Redirect = redirUrl;
-                    return ProcessingStatus.Complete;
-                }
-            }
             if (!string.IsNullOrWhiteSpace(page.RedirectToPageUrl)) {
                 if (page.RedirectToPageUrl.StartsWith("/") && page.RedirectToPageUrl.IndexOf('?') < 0) {
                     PageDefinition? redirectPage = await PageDefinition.LoadFromUrlAsync(page.RedirectToPageUrl);
@@ -487,8 +433,7 @@ namespace YetaWF.Core.Controllers {
                 if (!Manager.HaveUser) {
                     Manager.OriginList.Clear();
                     Manager.OriginList.Add(new Origin() { Url = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString) });
-                    string loginUrl;
-                    QueryHelper qh = QueryHelper.FromUrl(Manager.CurrentSite.LoginUrl, out loginUrl);
+                    QueryHelper qh = QueryHelper.FromUrl(Manager.CurrentSite.LoginUrl, out string loginUrl);
                     qh.Add("__f", "true");// add __f=true to login url so we get a 401
                     Manager.OriginList.Add(new Origin() { Url = qh.ToUrl(loginUrl) });
                     string retUrl = Manager.ReturnToUrl;
@@ -513,37 +458,12 @@ namespace YetaWF.Core.Controllers {
                 if (YetaWFController.GoingToPopup()) {
                     // we're going into a popup for this
                     Manager.IsInPopup = true;
-                    page.SelectedPopupSkin = module.SelectedPopupSkin;
-                }
-                // make sure it's the same skin
-                if (YetaWFController.GoingToPopup()) {
-                    // popups only care about the skin collection, not the file
-                    if (!SameSkinCollection(page.SelectedPopupSkin.Collection, dataIn.UnifiedSkinCollection, true)) {
-                        // this page is part of another skin
-                        string redirUrl = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
-                        cr.Result.Redirect = redirUrl;
-                        return ProcessingStatus.Complete;
-                    }
-                } else {
-                    if (string.IsNullOrWhiteSpace(page.SelectedSkin.FileName))
-                        page.SelectedSkin.FileName = SkinAccess.FallbackPageFileName;
-                    if (!SameSkinCollection(page.SelectedSkin.Collection, dataIn.UnifiedSkinCollection, false) || page.SelectedSkin.FileName != dataIn.UnifiedSkinFileName) {
-                        // this page is part of another skin
-                        string redirUrl = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
-                        cr.Result.Redirect = redirUrl;
-                        return ProcessingStatus.Complete;
-                    }
+                    page.PopupPage = module.PopupPage;
                 }
                 Logging.AddTraceLog("Module {0}", module.ModuleGuid);
                 return ProcessingStatus.Page;
             }
             return ProcessingStatus.No;
-        }
-
-        private bool SameSkinCollection(string? collection1, string? collection2, bool popup) {
-            if (string.IsNullOrWhiteSpace(collection1)) collection1 = popup ? Manager.CurrentSite.SelectedPopupSkin.Collection : Manager.CurrentSite.SelectedSkin.Collection;
-            if (string.IsNullOrWhiteSpace(collection2)) collection2 = popup ? Manager.CurrentSite.SelectedPopupSkin.Collection : Manager.CurrentSite.SelectedSkin.Collection;
-            return (collection1 == collection2);
         }
     }
 }

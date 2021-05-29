@@ -1,6 +1,7 @@
 ﻿/* Copyright © 2021 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using YetaWF.Core.Components;
@@ -14,7 +15,7 @@ namespace YetaWF.Core.Modules {
 
         /* private static string __ResStr(string name, string defaultValue, params object?[] parms) { return ResourceAccess.GetResourceString(typeof(ModuleDefinition), name, defaultValue, parms); } */
 
-        public virtual async Task<MenuList> GetModuleMenuListAsync(ModuleAction.RenderModeEnum renderMode, ModuleAction.ActionLocationEnum location) {
+        public virtual async Task<List<ModuleAction>> GetModuleMenuListAsync(ModuleAction.RenderModeEnum renderMode, ModuleAction.ActionLocationEnum location) {
 
             MenuList moduleMenu = new MenuList() { RenderMode = renderMode };
 
@@ -40,9 +41,9 @@ namespace YetaWF.Core.Modules {
 
                     if ((location & ModuleAction.ActionLocationEnum.AnyMenu) != 0) {
                         // move to other panes
-                        MenuList subMenu = await GetMoveToOtherPanesAsync(page, modServices);
+                        List<ModuleAction> subMenu = await GetMoveToOtherPanesAsync(page, modServices);
                         if (subMenu.Count > 0) {
-                            ModuleAction action = new ModuleAction(null) { MenuText = __ResStr("mmMoveTo", "Move To"), SubMenu = subMenu };
+                            ModuleAction action = new ModuleAction(null) { MenuText = __ResStr("mmMoveTo", "Move To"), SubMenu = new Serializers.SerializableList<ModuleAction>(subMenu) };
                             bool allDisabled = (from s in subMenu where s.Enabled == false select s).Count() == subMenu.Count;
                             if (!allDisabled)
                                 moduleMenu.New(action, location);
@@ -51,7 +52,7 @@ namespace YetaWF.Core.Modules {
                         // move within pane
                         subMenu = await GetMoveWithinPaneAsync(page, modServices);
                         if (subMenu.Count > 0) {
-                            ModuleAction action = new ModuleAction(null) { MenuText = __ResStr("mmMove", "Move"), SubMenu = subMenu };
+                            ModuleAction action = new ModuleAction(null) { MenuText = __ResStr("mmMove", "Move"), SubMenu = new Serializers.SerializableList<ModuleAction>(subMenu) };
                             bool allDisabled = (from s in subMenu where s.Enabled == false select s).Count() == subMenu.Count;
                             if (!allDisabled)
                                 moduleMenu.New(action, location);
@@ -72,7 +73,6 @@ namespace YetaWF.Core.Modules {
                     if (action != null) {
                         if (action.QueryArgsDict == null)
                             action.QueryArgsDict = new QueryHelper();
-                        action.QueryArgsDict.Add(Globals.Link_NoEditMode, "y"); // force no edit mode
                         action.QueryArgsDict.Add(Globals.Link_PageControl, "y"); // force no control panel
                         moduleMenu.New(action, location);
                     }
@@ -112,9 +112,9 @@ namespace YetaWF.Core.Modules {
             return moduleMenu;
         }
 
-        private async Task<MenuList> GetMoveToOtherPanesAsync(PageDefinition page, ModuleDefinition modServices) {
+        private async Task<List<ModuleAction>> GetMoveToOtherPanesAsync(PageDefinition page, ModuleDefinition modServices) {
 
-            MenuList menu = new MenuList();
+            List<ModuleAction> menu = new List<ModuleAction>();
             foreach (var pane in page.GetPanes()) {
                 ModuleAction? action = await modServices.GetModuleActionAsync("MoveToPane", page, this, Manager.PaneRendered, pane);
                 if (action != null)
@@ -123,9 +123,9 @@ namespace YetaWF.Core.Modules {
             return menu;
         }
 
-        private async Task<MenuList> GetMoveWithinPaneAsync(PageDefinition page, ModuleDefinition modServices) {
+        private async Task<List<ModuleAction>> GetMoveWithinPaneAsync(PageDefinition page, ModuleDefinition modServices) {
 
-            MenuList menu = new MenuList();
+            List<ModuleAction> menu = new List<ModuleAction>();
 
             ModuleAction? action;
             string? pane = Manager.PaneRendered;

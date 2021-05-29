@@ -25,15 +25,15 @@ namespace YetaWF.Core.Serializers {
             try {
                 key = (TKey)k;
             } catch (Exception) {
-                key = (TKey)Activator.CreateInstance(typeof(TKey), new object?[] { k });
+                key = (TKey)Activator.CreateInstance(typeof(TKey), new object?[] { k }) ! ;
             }
             TValue val;
             try {
-                val = (TValue)v;
+                val = (TValue)v!;
             } catch (Exception) {
                 val = (TValue)Activator.CreateInstance(typeof(TValue), new object?[] { v }) ! ;
             }
-            base.Add(key!, val!);
+            base.Add(key, val);
         }
     }
 }

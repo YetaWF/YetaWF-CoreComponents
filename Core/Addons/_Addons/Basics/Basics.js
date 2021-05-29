@@ -29,9 +29,6 @@ var YetaWF;
             this.ClearDivHandlers = [];
             this.DataObjectCache = [];
             this._pageChanged = false;
-            $YetaWF = this; // set global so we can initialize anchor/content
-            this.AnchorHandling = new YetaWF.Anchors();
-            this.ContentHandling = new YetaWF.Content();
         }
         // Implemented by renderer
         // Implemented by renderer
@@ -154,18 +151,6 @@ var YetaWF;
                     }
                 }
             }
-            // We probably don't want to set the focus to any control - made OPT-IN for now
-            //if ($f == null) {
-            //    $items = $('input:visible,select:visible', $obj).not("input[type='hidden']");// just find something usable
-            //    // filter out anything in a grid (filters, pager, etc)
-            //    $items.each(function (index) {
-            //        var $i = $(this)
-            //        if ($i.parents('.ui-jqgrid').length == 0) {
-            //            $f = $i;
-            //            return false; // not in a grid, so it's ok
-            //        }
-            //    });
-            //}
             if (f != null) {
                 try {
                     f.focus();
@@ -228,16 +213,6 @@ var YetaWF;
             this.init();
             // page position
             var scrolled = this.setScrollPosition();
-            if (!scrolled) {
-                if (YVolatile.Basics.UnifiedMode === YetaWF.UnifiedModeEnum.ShowDivs) {
-                    var uri = this.parseUrl(window.location.href);
-                    var divs = this.getElementsBySelector(".yUnified[data-url=\"" + uri.getPath() + "\"]");
-                    if (divs.length > 0) {
-                        window.scroll(0, divs[0].offsetTop);
-                        scrolled = true;
-                    }
-                }
-            }
             // FOCUS
             // FOCUS
             // FOCUS
@@ -338,21 +313,19 @@ var YetaWF;
                 var left = (document.documentElement && document.documentElement.scrollLeft) || document.body.scrollLeft;
                 if (left)
                     uri.addSearch(YConfigs.Basics.Link_ScrollLeft, left.toString());
-                var top = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop;
-                if (top)
-                    uri.addSearch(YConfigs.Basics.Link_ScrollTop, top.toString());
+                var top_1 = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop;
+                if (top_1)
+                    uri.addSearch(YConfigs.Basics.Link_ScrollTop, top_1.toString());
             }
             uri.removeSearch("!rand");
             uri.addSearch("!rand", ((new Date()).getTime()).toString()); // cache buster
-            if (YVolatile.Basics.UnifiedMode !== YetaWF.UnifiedModeEnum.None) {
-                if (this.ContentHandling.setContent(uri, true) !== YetaWF.SetContentResult.NotContent)
-                    return;
-            }
+            if (this.ContentHandling.setContent(uri, true) !== YetaWF.SetContentResult.NotContent)
+                return;
             if (keepPosition) {
                 w.location.assign(uri.toUrl());
                 return;
             }
-            w.location.reload(true);
+            w.location.reload();
         };
         /**
          * Reloads a module in place, defined by the specified tag (any tag within the module).
@@ -479,6 +452,7 @@ var YetaWF;
             return str1 === str2;
         };
         // Ajax result handling
+        /** OBSOLETE: DO NOT USE */
         BasicsServices.prototype.processAjaxReturn = function (result, textStatus, xhr, tagInModule, onSuccessNoData, onRawDataResult, onJSONResult) {
             //if (xhr.responseType != "json") throw `processAjaxReturn: unexpected responseType ${xhr.responseType}`;
             try {
@@ -519,14 +493,14 @@ var YetaWF;
                 else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadPage)) {
                     var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadPage.length);
                     // eslint-disable-next-line no-eval
-                    eval(script); // if this uses $YetaWF.message or other "modal" calls, the page will reload immediately (use AjaxJavascriptReturn instead and explicitly reload page in your javascript)
+                    eval(script); // if this uses $YetaWF.alert or other "modal" calls, the page will reload immediately (use AjaxJavascriptReturn instead and explicitly reload page in your javascript)
                     this.reloadPage(true);
                     return true;
                 }
                 else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModule)) {
                     var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModule.length);
                     // eslint-disable-next-line no-eval
-                    eval(script); // if this uses $YetaWF.message or other "modal" calls, the module will reload immediately (use AjaxJavascriptReturn instead and explicitly reload module in your javascript)
+                    eval(script); // if this uses $YetaWF.alert or other "modal" calls, the module will reload immediately (use AjaxJavascriptReturn instead and explicitly reload module in your javascript)
                     this.reloadModule();
                     return true;
                 }
@@ -562,6 +536,128 @@ var YetaWF;
                 $YetaWF.error(YLocs.Forms.AjaxError.format(xhr.status, result), YLocs.Forms.AjaxErrorTitle);
                 return false;
             }
+        };
+        /** Send a GET/POST/... request to the specified URL, expecting a JSON response. Errors are automatically handled. The callback is called once the POST response is available.
+         * @param url The URL used for the POST request.
+         * @param data The data to send as form data with the POST request.
+         * @param callback The callback to call when the POST response is available. Errors are automatically handled.
+         * @param tagInModule The optional tag in a module to refresh when AjaxJavascriptReloadModuleParts is returned.
+         */
+        BasicsServices.prototype.send = function (method, url, data, callback, tagInModule) {
+            this.setLoading(true);
+            var request = new XMLHttpRequest();
+            request.open(method, url, true);
+            if (method.toLowerCase() === "post")
+                request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+            $YetaWF.handleReadyStateChange(request, callback, tagInModule);
+            request.send(data);
+        };
+        /** POST form data to the specified URL, expecting a JSON response. Errors are automatically handled. The callback is called once the POST response is available.
+         * @param url The URL used for the POST request.
+         * @param data The data to send as form data with the POST request.
+         * @param callback The callback to call when the POST response is available. Errors are automatically handled.
+         * @param tagInModule The optional tag in a module to refresh when AjaxJavascriptReloadModuleParts is returned.
+         */
+        BasicsServices.prototype.post = function (url, data, callback, tagInModule) {
+            this.setLoading(true);
+            var request = new XMLHttpRequest();
+            request.open("POST", url, true);
+            request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+            $YetaWF.handleReadyStateChange(request, callback, tagInModule);
+            request.send(data);
+        };
+        /** POST JSON data to the specified URL, expecting a JSON response. Errors are automatically handled. The callback is called once the POST response is available.
+         * @param url The URL used for the POST request.
+         * @param data The data to send as form data with the POST request.
+         * @param callback The callback to call when the POST response is available. Errors are automatically handled.
+         */
+        BasicsServices.prototype.postJSON = function (url, data, callback) {
+            this.setLoading(true);
+            var request = new XMLHttpRequest();
+            request.open("POST", url, true);
+            request.setRequestHeader("Content-Type", "application/json");
+            $YetaWF.handleReadyStateChange(request, callback);
+            request.send(JSON.stringify(data));
+        };
+        BasicsServices.prototype.handleReadyStateChange = function (request, callback, tagInModule) {
+            var _this = this;
+            request.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+            request.onreadystatechange = function (ev) {
+                if (request.readyState === 4 /*DONE*/) {
+                    _this.setLoading(false);
+                    if (request.status === 200) {
+                        var result = null;
+                        if (request.responseText && !request.responseText.startsWith("<"))
+                            result = JSON.parse(request.responseText);
+                        else
+                            result = request.responseText;
+                        if (typeof result === "string") {
+                            if (result.startsWith(YConfigs.Basics.AjaxJavascriptReturn)) {
+                                var script = result.substring(YConfigs.Basics.AjaxJavascriptReturn.length);
+                                if (script.length > 0) {
+                                    // eslint-disable-next-line no-eval
+                                    eval(script);
+                                }
+                                callback(true, null);
+                                return;
+                            }
+                            else if (result.startsWith(YConfigs.Basics.AjaxJSONReturn)) {
+                                var json = result.substring(YConfigs.Basics.AjaxJSONReturn.length);
+                                callback(true, JSON.parse(json));
+                                return;
+                            }
+                            else if (result.startsWith(YConfigs.Basics.AjaxJavascriptErrorReturn)) {
+                                var script = result.substring(YConfigs.Basics.AjaxJavascriptErrorReturn.length);
+                                // eslint-disable-next-line no-eval
+                                eval(script);
+                                callback(false, null);
+                                return;
+                            }
+                            else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadPage)) {
+                                var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadPage.length);
+                                // eslint-disable-next-line no-eval
+                                eval(script); // if this uses $YetaWF.message or other "modal" calls, the page will reload immediately (use AjaxJavascriptReturn instead and explicitly reload page in your javascript)
+                                _this.reloadPage(true);
+                                callback(true, null);
+                                return;
+                            }
+                            else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModule)) {
+                                var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModule.length);
+                                // eslint-disable-next-line no-eval
+                                eval(script); // if this uses $YetaWF.message or other "modal" calls, the module will reload immediately (use AjaxJavascriptReturn instead and explicitly reload module in your javascript)
+                                _this.reloadModule();
+                                callback(true, null);
+                                return;
+                            }
+                            else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModuleParts)) {
+                                var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModuleParts.length);
+                                // eslint-disable-next-line no-eval
+                                eval(script);
+                                if (tagInModule)
+                                    _this.refreshModuleByAnyTag(tagInModule);
+                                return true;
+                            }
+                            else {
+                                callback(true, result);
+                                return;
+                            }
+                        }
+                        callback(true, result);
+                    }
+                    else if (request.status >= 400 && request.status <= 499) {
+                        $YetaWF.error(YLocs.Forms.AjaxError.format(request.status, YLocs.Forms.AjaxNotAuth), YLocs.Forms.AjaxErrorTitle);
+                        callback(false, null);
+                    }
+                    else if (request.status === 0) {
+                        $YetaWF.error(YLocs.Forms.AjaxError.format(request.status, YLocs.Forms.AjaxConnLost), YLocs.Forms.AjaxErrorTitle);
+                        callback(false, null);
+                    }
+                    else {
+                        $YetaWF.error(YLocs.Forms.AjaxError.format(request.status, request.responseText), YLocs.Forms.AjaxErrorTitle);
+                        callback(false, null);
+                    }
+                }
+            };
         };
         // JSX
         /**
@@ -712,12 +808,30 @@ var YetaWF;
          * Retrieves a data object (a Typescript class) from a tag
          * @param tagId - The element id (DOM) where the object is attached
          */
-        BasicsServices.prototype.getObjectDataById = function (tagId) {
-            this.getElementById(tagId); // used to validate the existence of the element
+        BasicsServices.prototype.getObjectDataByIdCond = function (tagId) {
             var doe = this.DataObjectCache.filter(function (entry) { return entry.DivId === tagId; });
             if (doe.length === 0)
-                throw "getObjectDataById - tag with id " + tagId + " doesn't have any data"; /*DEBUG*/
+                return null;
             return doe[0].Data;
+        };
+        /**
+         * Retrieves a data object (a Typescript class) from a tag
+         * @param tagId - The element id (DOM) where the object is attached
+         */
+        BasicsServices.prototype.getObjectDataById = function (tagId) {
+            var data = this.getObjectDataByIdCond(tagId);
+            if (!data)
+                throw "getObjectDataById - tag with id " + tagId + " doesn't have any data"; /*DEBUG*/
+            return data;
+        };
+        /**
+         * Retrieves a data object (a Typescript class) from a tag. The data object may not be available.
+         * @param tagId - The element id (DOM) where the object is attached
+         */
+        BasicsServices.prototype.getObjectDataCond = function (element) {
+            if (!element.id)
+                throw "element without id - " + element.outerHTML;
+            return this.getObjectDataByIdCond(element.id);
         };
         /**
          * Retrieves a data object (a Typescript class) from a tag
@@ -762,7 +876,7 @@ var YetaWF;
             return div;
         };
         /**
-         * Get elements from an array of tags by selector. (similar to jquery var x = $(selector, elems); with standard css selectors)
+         * Get elements from an array of tags by selector. (similar to jquery let x = $(selector, elems); with standard css selectors)
          */
         BasicsServices.prototype.getElementsBySelector = function (selector, elems) {
             var all = [];
@@ -784,7 +898,7 @@ var YetaWF;
             return all;
         };
         /**
-         * Get the first element from an array of tags by selector. (similar to jquery var x = $(selector, elems); with standard css selectors)
+         * Get the first element from an array of tags by selector. (similar to jquery let x = $(selector, elems); with standard css selectors)
          */
         BasicsServices.prototype.getElement1BySelectorCond = function (selector, elems) {
             if (!elems)
@@ -800,7 +914,7 @@ var YetaWF;
             return null;
         };
         /**
-         * Get the first element from an array of tags by selector. (similar to jquery var x = $(selector, elems); with standard css selectors)
+         * Get the first element from an array of tags by selector. (similar to jquery let x = $(selector, elems); with standard css selectors)
          */
         BasicsServices.prototype.getElement1BySelector = function (selector, elems) {
             var elem = this.getElement1BySelectorCond(selector, elems);
@@ -809,7 +923,7 @@ var YetaWF;
             return elem;
         };
         /**
-         * Removes all input[type='hidden'] fields. (similar to jquery var x = elems.not("input[type='hidden']"); )
+         * Removes all input[type='hidden'] fields. (similar to jquery let x = elems.not("input[type='hidden']"); )
          */
         BasicsServices.prototype.limitToNotTypeHidden = function (elems) {
             var all = [];
@@ -821,7 +935,7 @@ var YetaWF;
             return all;
         };
         /**
-         * Returns items that are visible. (similar to jquery var x = elems.filter(':visible'); )
+         * Returns items that are visible. (similar to jquery let x = elems.filter(':visible'); )
          */
         BasicsServices.prototype.limitToVisibleOnly = function (elems) {
             var all = [];
@@ -856,7 +970,7 @@ var YetaWF;
          * @param selector - The selector to match.
          */
         BasicsServices.prototype.elementMatches = function (elem, selector) {
-            if (elem)
+            if (elem && elem.matches)
                 return elem.matches(selector);
             return false;
         };
@@ -974,6 +1088,8 @@ var YetaWF;
             css = css.trim();
             if (!elem)
                 return false;
+            if (css.startsWith("."))
+                throw "elementHasClass called with class starting with a . \"" + css + "\" - that probably wasn't intended";
             if (elem.classList)
                 return elem.classList.contains(css);
             else
@@ -990,6 +1106,8 @@ var YetaWF;
             cssPrefix = cssPrefix.trim();
             if (!elem)
                 return list;
+            if (cssPrefix.startsWith("."))
+                throw "elementHasClassPrefix called with cssPrefix starting with a . \"" + cssPrefix + "\" - that probably wasn't intended";
             if (elem.classList) {
                 // eslint-disable-next-line @typescript-eslint/prefer-for-of
                 for (var i = 0; i < elem.classList.length; ++i) {
@@ -997,7 +1115,7 @@ var YetaWF;
                         list.push(elem.classList[i]);
                 }
             }
-            else {
+            else if (elem.className && typeof elem.className === "string") {
                 var cs = elem.className.split(" ");
                 for (var _i = 0, cs_1 = cs; _i < cs_1.length; _i++) {
                     var c = cs_1[_i];
@@ -1033,6 +1151,8 @@ var YetaWF;
          * Add css class to an element.
          */
         BasicsServices.prototype.elementAddClass = function (elem, className) {
+            if (className.startsWith("."))
+                throw "elementAddClass called with class starting with a . \"" + className + "\" - that probably wasn't intended";
             if (elem.classList)
                 elem.classList.add(className);
             else
@@ -1064,6 +1184,8 @@ var YetaWF;
          * Remove a css class from an element.
          */
         BasicsServices.prototype.elementRemoveClass = function (elem, className) {
+            if (className.startsWith("."))
+                throw "elementRemoveClass called with class starting with a . \"" + className + "\" - that probably wasn't intended";
             if (elem.classList)
                 elem.classList.remove(className);
             else
@@ -1124,6 +1246,12 @@ var YetaWF;
                 this.elementEnable(elem);
             else
                 this.elementDisable(elem);
+        };
+        /**
+         * Returns whether the element is enabled.
+         */
+        BasicsServices.prototype.isEnabled = function (elem) {
+            return YetaWF_BasicsImpl.isEnabled(elem);
         };
         /**
          * Given an element, returns the owner (typically a module) that owns the element.
@@ -1203,8 +1331,8 @@ var YetaWF;
             var _this = this;
             var _loop_1 = function (tag) {
                 if (tag) {
-                    for (var _i = 0, eventNames_4 = eventNames; _i < eventNames_4.length; _i++) {
-                        var eventName = eventNames_4[_i];
+                    for (var _a = 0, eventNames_4 = eventNames; _a < eventNames_4.length; _a++) {
+                        var eventName = eventNames_4[_a];
                         tag.addEventListener(eventName, function (ev) { return _this.handleEvent(tag, ev, selector, callback); });
                     }
                 }
@@ -1226,8 +1354,8 @@ var YetaWF;
             var _this = this;
             var _loop_2 = function (tag) {
                 if (tag) {
-                    for (var _i = 0, eventNames_5 = eventNames; _i < eventNames_5.length; _i++) {
-                        var eventName = eventNames_5[_i];
+                    for (var _a = 0, eventNames_5 = eventNames; _a < eventNames_5.length; _a++) {
+                        var eventName = eventNames_5[_a];
                         tag.addEventListener(eventName, function (ev) { return _this.handleEvent(tag, ev, selector, callback); });
                     }
                 }
@@ -1259,7 +1387,7 @@ var YetaWF;
                             break;
                         if (listening === elem)
                             return; // checked all elements
-                        elem = elem.parentElement;
+                        elem = elem.parentElement || elem.parentNode;
                     }
                 }
                 else {
@@ -1267,7 +1395,7 @@ var YetaWF;
                     while (elem) {
                         if (listening === elem)
                             break;
-                        elem = elem.parentElement;
+                        elem = elem.parentElement || elem.parentNode;
                     }
                 }
                 if (!elem)
@@ -1371,6 +1499,25 @@ var YetaWF;
          * @param sub The element to be position below/above the main element.
          */
         BasicsServices.prototype.positionLeftAlignedBelow = function (main, sub) {
+            this.positionAlignedBelow(main, sub, true);
+        };
+        /**
+         * Position an element (sub) below an element (main), or above if there is insufficient space below.
+         * The elements are always aligned at their right edges.
+         * @param main The main element.
+         * @param sub The element to be position below/above the main element.
+         */
+        BasicsServices.prototype.positionRightAlignedBelow = function (main, sub) {
+            this.positionAlignedBelow(main, sub, false);
+        };
+        /**
+         * Position an element (sub) below an element (main), or above if there is insufficient space below.
+         * The elements are always aligned at their left or right edges.
+         * @param main The main element.
+         * @param sub The element to be position below/above the main element.
+         * @param left Defines whether the sub element is positioned to the left (true) or right (false).
+         */
+        BasicsServices.prototype.positionAlignedBelow = function (main, sub, left) {
             // position within view to calculate size
             sub.style.top = "0px";
             sub.style.left = "0px";
@@ -1400,10 +1547,19 @@ var YetaWF;
                     sub.style.bottom = "0px";
                 sub.style.top = top + window.pageYOffset + "px";
             }
-            // set left
-            sub.style.left = mainRect.left + window.pageXOffset + "px";
-            if (mainRect.left + subRect.right > window.innerWidth)
-                sub.style.right = "0px";
+            if (left) {
+                // set left
+                sub.style.left = mainRect.left + window.pageXOffset + "px";
+                if (mainRect.left + subRect.right > window.innerWidth)
+                    sub.style.right = "0px";
+            }
+            else {
+                // set right
+                var left_1 = mainRect.right - subRect.width + window.pageXOffset;
+                if (left_1 < 0)
+                    left_1 = 0;
+                sub.style.left = left_1 + "px";
+            }
         };
         BasicsServices.prototype.init = function () {
             var _this = this;
@@ -1447,14 +1603,14 @@ var YetaWF;
                 $YetaWF.sendContainerScrollEvent();
             });
             // Debounce resizing
-            var resizeTimeout;
+            var resizeTimeout = 0;
             window.addEventListener("resize", function (ev) {
                 if (resizeTimeout) {
                     clearTimeout(resizeTimeout);
                 }
                 resizeTimeout = setTimeout(function () {
                     $YetaWF.sendContainerResizeEvent();
-                    resizeTimeout = null;
+                    resizeTimeout = 0;
                 }, 100);
             });
             // WhenReady
@@ -1516,6 +1672,8 @@ var YetaWF;
  * Basic services available throughout YetaWF.
  */
 var $YetaWF = new YetaWF.BasicsServices();
+$YetaWF.AnchorHandling = new YetaWF.Anchors();
+$YetaWF.ContentHandling = new YetaWF.Content();
 /* Print support */
 if (window.matchMedia) {
     var mediaQueryList = window.matchMedia("print");

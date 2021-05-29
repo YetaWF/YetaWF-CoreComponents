@@ -32,13 +32,6 @@ namespace YetaWF {
         EditMode: boolean;
         InPopup: boolean;
     }
-    export enum UnifiedModeEnum {
-        None = 0,
-        HideDivs = 1, // divs for other urls are hidden
-        ShowDivs = 2, // all divs are shown
-        DynamicContent = 3,
-        SkinDynamicContent = 4,
-    }
     export enum MessageTypeEnum {
         Popups = 0,
         ToastRight = 10,
@@ -69,12 +62,6 @@ namespace YetaWF {
         TemporaryPage: boolean;
 
         // Unified Page Sets
-        UnifiedMode: UnifiedModeEnum;
-        UnifiedAnimation: number;
-        UnifiedSetGuid: string;
-        UnifiedPopups: boolean;
-        UnifiedSkinCollection: string | null;
-        UnifiedSkinName: string;
         UniqueIdCounters: UniqueIdInfo;
         UnifiedCssBundleFiles: string[];
         UnifiedScriptBundleFiles: string[];
@@ -100,10 +87,6 @@ namespace YetaWF {
         PopupCss: string;
         MinWidthForPopups: number;
         MinWidthForCondense: number;
-
-        // Bootstrap info
-        Bootstrap: boolean;
-        BootstrapButtons: boolean;
     }
 
     // CONFIGS
@@ -125,7 +108,6 @@ namespace YetaWF {
         Link_SubmitIsApply: string; // a submit button was clicked and should be handled as Apply
         Link_SubmitIsReload: string; // a submit button was clicked and should be handled as a form reload
         Link_EditMode: string;      // site edit mode
-        Link_NoEditMode: string;    // site display mode
         Link_ScrollLeft: string;
         Link_ScrollTop: string;
 

@@ -606,10 +606,7 @@ namespace YetaWF.Core.Modules {
                 return string.Empty; // if the module contents are empty, we bail
 
             bool showTitle = ShowTitle;
-            bool showMenu = true;
-            bool showAction = true;
             if (Manager.IsInPopup) {
-                showMenu = false; // no menus in popups
                 if (Manager.CurrentPage.Temporary) {
                     // a temporary page only has one module so we'll use the module title as the page title.
                     showTitle = false;
@@ -633,7 +630,7 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
             }
 
             SkinAccess skinAccess = new SkinAccess();
-            string containerHtml = await skinAccess.MakeModuleContainerAsync(this, info.HTML, ShowTitle: showTitle, ShowMenu: showMenu, ShowAction: showAction);
+            string containerHtml = await skinAccess.MakeModuleContainerAsync(this, info.HTML, ShowTitle: showTitle);
 
             if (!Manager.RenderingUniqueModuleAddons) {
                 string? title = Manager.PageTitle;

@@ -57,9 +57,6 @@ namespace YetaWF.Core.Addons {
             CssWarningIconUrl = await skinImages.FindIcon_PackageAsync("WarningIcon.png", package);
             scripts.AddConfigOption("Forms", "CssWarningIconUrl", CssWarningIconUrl);
 
-            // UI settings - global to YetaWF
-
-            scripts.AddVolatileOption("Forms", "TabStyle", (int)manager.CurrentSite.TabStyle);
         }
     }
 }

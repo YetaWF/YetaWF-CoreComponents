@@ -740,7 +740,7 @@ namespace YetaWF.Core.Support {
         /// <param name="dflt">An optional value, which is returned if the argument is not available.</param>
         /// <returns>true if the argument was found, false otherwise.</returns>
         /// <remarks>This would not be used in a controller as these have access to all arguments via their parameter list. This is typically only used in a module action that is dynamically added by a module.</remarks>
-        public bool TryGetUrlArg<TYPE>(string arg, [NotNullWhen(true)] out TYPE? val, TYPE dflt = default) {
+        public bool TryGetUrlArg<TYPE>(string arg, [NotNullWhen(true)] out TYPE? val, TYPE? dflt = default) {
             val = dflt;
             string? v;
             try {
@@ -899,6 +899,20 @@ namespace YetaWF.Core.Support {
             }
         }
         private StaticPageManager? _staticPageManager = null;
+
+        /// <summary>
+        /// Returns the instance of ModelBindingErrorManager associated with the current HTTP request.
+        /// </summary>
+        public ModelBindingErrorManager ModelBindingErrorManager {
+            get {
+                if (_modelBindingErrorManager == null)
+                    _modelBindingErrorManager = new ModelBindingErrorManager();
+                return _modelBindingErrorManager;
+            }
+        }
+        private ModelBindingErrorManager? _modelBindingErrorManager = null;
+
+        public bool HasModelBindingErrorManager { get { return _modelBindingErrorManager != null;  } }
 
         // CONTROLLER/VIEW SUPPORT
         // CONTROLLER/VIEW SUPPORT
@@ -1171,14 +1185,6 @@ namespace YetaWF.Core.Support {
         /// The current page.
         /// </summary>
         public PageDefinition CurrentPage { get; set; } = null!;
-        /// <summary>
-        /// The set of pages the current page belongs to, if the current page is part of a set of unified pages.
-        /// </summary>
-        public List<PageDefinition>? UnifiedPages { get; set; }
-        /// <summary>
-        /// The page mode used for unified pages.
-        /// </summary>
-        public PageDefinition.UnifiedModeEnum UnifiedMode { get; set; }
 
         /// <summary>
         /// The current page title. Modules can override the page title (we don't use the title in the page definition, except to set the default title).
@@ -1297,55 +1303,18 @@ namespace YetaWF.Core.Support {
         // SKIN
 
         /// <summary>
-        /// Define options for the current page or popup skin.
+        /// Returns skin information for the skin used by the current page.
         /// </summary>
-        internal async Task SetSkinOptions() {
-            SkinAccess skinAccess = new SkinAccess();
-            SkinCollectionInfo info = skinAccess.GetSkinCollectionInfo();
-            SkinInfo = info;
-
-            if (SkinInfo.UsingBootstrap) {
-                ScriptManager.AddVolatileOption("Skin", "Bootstrap", true);
-                ScriptManager.AddVolatileOption("Skin", "BootstrapButtons", SkinInfo.UsingBootstrapButtons);
-                if (SkinInfo.UseDefaultBootstrap) {
-                    // Find the bootstrap theme
-                    string? skin = Manager.CurrentPage.BootstrapSkin;
-                    if (string.IsNullOrWhiteSpace(skin))
-                        skin = Manager.CurrentSite.BootstrapSkin;
-                    string? themeFolder = await skinAccess.FindBootstrapSkinAsync(skin);
-                    if (string.IsNullOrWhiteSpace(themeFolder))
-                        await Manager.AddOnManager.AddAddOnNamedAsync(AreaRegistration.CurrentPackage.AreaName, "getbootstrap.com.bootstrap-less");
-                    else
-                        await Manager.AddOnManager.AddAddOnNamedAsync(AreaRegistration.CurrentPackage.AreaName, "getbootstrap.com.bootswatch", themeFolder);
+        public SkinCollectionInfo SkinInfo { 
+            get {
+                if (_skinInfo == null) {
+                    SkinAccess skinAccess = new SkinAccess();
+                    _skinInfo = skinAccess.GetSkinCollectionInfo();
                 }
+                return _skinInfo;
             }
-            ScriptManager.AddVolatileOption("Skin", "MinWidthForPopups", SkinInfo.MinWidthForPopups);
-            ScriptManager.AddVolatileOption("Skin", "MinWidthForCondense", SkinInfo.MinWidthForCondense);
-
-            if (!string.IsNullOrWhiteSpace(SkinInfo.JQuerySkin) && string.IsNullOrWhiteSpace(CurrentPage.jQueryUISkin))
-                CurrentPage.jQueryUISkin = SkinInfo.JQuerySkin;
-            if (!string.IsNullOrWhiteSpace(SkinInfo.KendoSkin) && string.IsNullOrWhiteSpace(CurrentPage.KendoUISkin))
-                CurrentPage.KendoUISkin = SkinInfo.KendoSkin;
         }
-
-        /// <summary>
-        /// Define options for the current page or popup skin (UPS).
-        /// </summary>
-        internal void SetSkinOptionsContent() {
-            SkinAccess skinAccess = new SkinAccess();
-            SkinCollectionInfo info = skinAccess.GetSkinCollectionInfo();
-            SkinInfo = info;
-
-            if (!string.IsNullOrWhiteSpace(SkinInfo.JQuerySkin) && string.IsNullOrWhiteSpace(CurrentPage.jQueryUISkin))
-                CurrentPage.jQueryUISkin = SkinInfo.JQuerySkin;
-            if (!string.IsNullOrWhiteSpace(SkinInfo.KendoSkin) && string.IsNullOrWhiteSpace(CurrentPage.KendoUISkin))
-                CurrentPage.KendoUISkin = SkinInfo.KendoSkin;
-        }
-
-        /// <summary>
-        /// Contains skin information for the skin used by the current page.
-        /// </summary>
-        public SkinCollectionInfo SkinInfo { get; private set; } = null!;
+        private SkinCollectionInfo? _skinInfo = null;
 
         /// <summary>
         /// Adds the page's or popup's css classes (the current edit mode, the current page's defined css and other page css).
@@ -1355,42 +1324,19 @@ namespace YetaWF.Core.Support {
         public string PageCss() {
             SkinAccess skinAccess = new SkinAccess();
             PageSkinEntry pageSkin = skinAccess.GetPageSkinEntry();
-            string s = pageSkin.Css;
+            string s = pageSkin.CSS;
             s = CssManager.CombineCss(s, ModeCss);// edit/display mode (doesn't change in same Unified page set)
             s = CssManager.CombineCss(s, HaveUser ? "yUser" : "yAnonymous");// add whether we have an authenticated user (doesn't change in same Unified page set)
             s = CssManager.CombineCss(s, IsInPopup ? "yPopup" : "yPage"); // popup or full page (doesn't change in same Unified page set)
-            switch (UnifiedMode) { // unified page set mode (if any) (doesn't change in same Unified page set)
-                case PageDefinition.UnifiedModeEnum.None:
-                    break;
-                case PageDefinition.UnifiedModeEnum.HideDivs:
-                    s = CssManager.CombineCss(s, "yUnifiedHideDivs");
-                    break;
-                case PageDefinition.UnifiedModeEnum.ShowDivs:
-                    s = CssManager.CombineCss(s, "yUnifiedShowDivs");
-                    break;
-                case PageDefinition.UnifiedModeEnum.DynamicContent:
-                    s = CssManager.CombineCss(s, "yUnifiedDynamicContent");
-                    break;
-                case PageDefinition.UnifiedModeEnum.SkinDynamicContent:
-                    s = CssManager.CombineCss(s, "yUnifiedSkinDynamicContent");
-                    break;
-            }
-            if (Manager.SkinInfo.UsingBootstrap && Manager.SkinInfo.UseDefaultBootstrap) {
-                string? skin = Manager.CurrentPage.BootstrapSkin;
-                if (string.IsNullOrWhiteSpace(skin))
-                    skin = Manager.CurrentSite.BootstrapSkin;
-                if (!string.IsNullOrWhiteSpace(skin)) {
-                    skin = skin.ToLower().Replace(' ', '-');
-                    s = CssManager.CombineCss(s, $"ySkin-bs-{skin}");
-                }
-            }
+            s = CssManager.CombineCss(s, $"pageTheme{Manager.CurrentSite.Theme}");
+
             string cssClasses = CurrentPage.GetCssClass(); // get page specific Css (once only, used 2x)
-            if (UnifiedMode == PageDefinition.UnifiedModeEnum.DynamicContent || UnifiedMode == PageDefinition.UnifiedModeEnum.SkinDynamicContent) {
-                // add the extra page css class and generated page specific Css via javascript to body tag (used for dynamic content)
-                ScriptBuilder sb = new Support.ScriptBuilder();
-                sb.Append("document.body.setAttribute('data-pagecss', '{0}');", Utility.JserEncode(cssClasses));
-                Manager.ScriptManager.AddLast(sb.ToString());
-            }
+
+            // add the extra page css class and generated page specific Css via javascript to body tag (used for dynamic content)
+            ScriptBuilder sb = new Support.ScriptBuilder();
+            sb.Append("document.body.setAttribute('data-pagecss', '{0}');", Utility.JserEncode(cssClasses));
+            Manager.ScriptManager.AddLast(sb.ToString());
+
             return CssManager.CombineCss(s, cssClasses);
         }
 
@@ -1561,8 +1507,11 @@ namespace YetaWF.Core.Support {
                         timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(tz);
                     } catch (Exception) { }
                 }
-                if (timeZoneInfo == null)
+                if (timeZoneInfo == null) {
+                    if (!Manager.LocalizationSupportEnabled) // if false, ResolveUserAsync has not been called, so we can't determine the timezone
+                        throw new InternalError("Retrieving time zone information without user settings");
                     timeZoneInfo = TimeZoneInfo.Local;
+                }
             }
             return timeZoneInfo;
         }
@@ -1593,7 +1542,6 @@ namespace YetaWF.Core.Support {
                 bool useAlt = Manager.CurrentSite.CanUseStaticDomain;
                 if (useCDN || useAlt) {
                     if (url.StartsWith(Globals.NodeModulesUrl) ||
-                            url.StartsWith(Globals.BowerComponentsUrl) ||
                             url.StartsWith(Globals.SiteFilesUrl) ||
                             url.StartsWith(Globals.VaultUrl) ||
                             url.StartsWith(Globals.VaultPrivateUrl) ||

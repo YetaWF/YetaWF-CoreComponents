@@ -1,6 +1,7 @@
 ﻿/* Copyright © 2021 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
+using YetaWF.Core.Components;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Support;
 
@@ -127,6 +128,43 @@ namespace YetaWF.Core.Localize {
             string fmt = GetFormatDateFormat(dateFormat);
             return dt.ToString(fmt);
         }
+        /// <summary>
+        /// Format date. The date does not have a time component (always UTC 00:00:00). If a time component is present, it is ignored.
+        /// </summary>
+        public static string FormatDateOnly(DateTime? dateTime, DateFormatEnum? dateFormat = null) {
+            if (dateTime == null) return string.Empty;
+            DateTime dt = (DateTime)dateTime;
+            if (dt == DateTime.MinValue) return string.Empty;
+            dt = dt.Date;
+            string fmt = GetFormatDateFormat(dateFormat);
+            return dt.ToString(fmt);
+        }
+
+        public static string FormatTimeOfDay(TimeOfDay? timeOfDay, TimeFormatEnum? timeFormat = null) {
+            if (timeOfDay == null) return string.Empty;
+            TimeFormatEnum tf = UserSettings.GetProperty<TimeFormatEnum>("TimeFormat");
+            switch (tf) {
+                default:
+                case TimeFormatEnum.HHMMAM:
+                case TimeFormatEnum.HHMMSSAM: {
+                        int hours = timeOfDay.Hours % 12;
+                        if (hours == 0) hours += 12;
+                        return $"{hours:D2}:{timeOfDay.Minutes:D2} {(timeOfDay.Hours < 12 ? "AM" : "PM")}";
+                    }
+                case TimeFormatEnum.HHMMAMdot:
+                case TimeFormatEnum.HHMMSSAMdot: {
+                        int hours = timeOfDay.Hours % 12;
+                        if (hours == 0) hours += 12;
+                        return $"{hours:D2}.{timeOfDay.Minutes:D2} {(timeOfDay.Hours < 12 ? "AM" : "PM")}";
+                    }
+                case TimeFormatEnum.HHMM:
+                case TimeFormatEnum.HHMMSS:
+                    return $"{timeOfDay.Hours:D2}:{timeOfDay.Minutes:D2}";
+                case TimeFormatEnum.HHMMdot:
+                case TimeFormatEnum.HHMMSSdot:
+                    return $"{timeOfDay.Hours:D2}:{timeOfDay.Minutes:D2}";
+            }
+        }
 
         public static string GetFormatTimeFormat(TimeFormatEnum? timeFormat = null) {
             TimeFormatEnum tf = UserSettings.GetProperty<TimeFormatEnum>("TimeFormat");
@@ -230,6 +268,22 @@ namespace YetaWF.Core.Localize {
             if (dow == DayOfWeek.Saturday) return __ResStr("Saturday", "Saturday");
             return "???";
         }
+        public static string GetDayNamesArr() {
+            return __ResStr("DayNames", "Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday");
+        }
+        public static string GetDayName2Chars(DayOfWeek dow) {
+            if (dow == DayOfWeek.Sunday) return __ResStr("Sunday2", "Su");
+            if (dow == DayOfWeek.Monday) return __ResStr("Monday2", "Mo");
+            if (dow == DayOfWeek.Tuesday) return __ResStr("Tuesday2", "Tu");
+            if (dow == DayOfWeek.Wednesday) return __ResStr("Wednesday2", "We");
+            if (dow == DayOfWeek.Thursday) return __ResStr("Thursday2", "Th");
+            if (dow == DayOfWeek.Friday) return __ResStr("Friday2", "Fr");
+            if (dow == DayOfWeek.Saturday) return __ResStr("Saturday2", "Sa");
+            return "???";
+        }
+        public static string GetDayName2CharsArr() {
+            return __ResStr("DayNames2", "Su,Mo,Tu,We,Th,Fr,Sa");
+        }
         public static string GetMonthName(int month) {
             if (month == 1) return __ResStr("January", "January");
             if (month == 2) return __ResStr("February", "February");
@@ -244,6 +298,9 @@ namespace YetaWF.Core.Localize {
             if (month == 11) return __ResStr("November", "November");
             if (month == 12) return __ResStr("December", "December");
             return "???";
+        }
+        public static string GetMonthNamesArr() {
+            return __ResStr("MonthNames", "January,February,March,April,May,June,July,August,September,October,November,December");
         }
 
         public static string FormatTimeSpan(TimeSpan? timeSpan) {
@@ -300,10 +357,7 @@ namespace YetaWF.Core.Localize {
         }
 
         public static string GetFormatCurrencyFormat() {
-            string cf = Manager.CurrentSite.CurrencyFormat;
-            if (string.IsNullOrWhiteSpace(cf))
-                return Globals.DefaultCurrencyFormat;
-            return cf;
+            return Manager.CurrentSite.CurrencyFormat;
         }
         public static string FormatAmount(decimal amount) {
             return amount.ToString(GetFormatCurrencyFormat());

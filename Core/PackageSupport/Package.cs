@@ -12,6 +12,7 @@ using YetaWF.Core.DataProvider;
 using YetaWF.Core.Identity;
 using YetaWF.Core.IO;
 using YetaWF.Core.Localize;
+using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 using YetaWF.PackageAttributes;
 using YetaWF2.Support;
@@ -437,7 +438,7 @@ namespace YetaWF.Core.Packages {
                         throw new InternalError($"Package {Name} has no source file location");
                     _sourceFile = attr.SourceFile;
                 }
-                return _sourceFile;
+                return _sourceFile ?? "(n/a)";
             }
         }
         private string? _sourceFile;
@@ -704,8 +705,9 @@ namespace YetaWF.Core.Packages {
 
         /// <summary>
         /// The path to the Addons (JavaScript/CSS) folder for this package.
+        /// Describes the source code folder.
         /// </summary>
-        public string AddonsFolder {
+        public string AddonsSourceFolder {
             get {
                 return Path.Combine(YetaWFManager.RootFolder, Globals.AddOnsFolder, LanguageDomain, Product);
             }
@@ -858,6 +860,19 @@ namespace YetaWF.Core.Packages {
         private ServiceLevelEnum _serviceLevel = ServiceLevelEnum.Unknown;
 
         /// <summary>
+        /// The .Net version for which this package was built.
+        /// </summary>
+        public Utility.AspNetMvcVersion AspNetMvc {
+            get {
+                return Utility.AspNetMvcVersion.MVC6;
+            }
+        }
+
+        // Caching
+        // Caching
+        // Caching
+
+        /// <summary>
         /// Used to cache a package's localized data. This is available to localization data providers (e.g., YetaWF.DataProvider.Localization.LocalizationDataProvider) and is not used by YetaWF.
         /// </summary>
         public object? CachedLocalization { get; set; }
@@ -867,13 +882,172 @@ namespace YetaWF.Core.Packages {
         /// </summary>
         public dynamic? CachedLicenseData { get; set; }
 
+        // Skins, templates, addons
+        // Skins, templates, addons
+        // Skins, templates, addons
+
+        public static List<AddOnProduct> GetAvailableSkinCollections() {
+            if (_skinCollections == null)
+                _skinCollections = (from p in Products where p.Value.AddonKey.StartsWith(SkinPrefix) select p.Value).ToList();
+            return _skinCollections;
+        }
+        static List<AddOnProduct>? _skinCollections = null;
+
         /// <summary>
-        /// The .Net MVC version for which this package was built
+        /// Returns information about all known addons.
         /// </summary>
-        public Utility.AspNetMvcVersion AspNetMvc {
-            get {
-                return Utility.AspNetMvcVersion.MVC6;
+        /// <returns>List of addons.</returns>
+        /// <remarks>This is used by YetaWF Core and Dashboard modules and is not intended for general use.</remarks>
+        public static List<AddOnProduct> GetAvailableAddOns() {
+            List<AddOnProduct> list = Products.Values.ToList();// return a copy
+            return list;
+        }
+
+        /// <summary>
+        /// Returns a specific named addon.
+        /// </summary>
+        public static AddOnProduct? TryFindAddOnNamed(string areaName, string name) {
+            if (!Products.TryGetValue(AddOnProduct.MakeAddOnKey(AddOnType.AddonNamed, areaName, name), out AddOnProduct? product))
+                return null;
+            return product;
+        }
+        /// <summary>
+        /// Returns a specific named addon.
+        /// </summary>
+        public static AddOnProduct FindAddOnNamed(string areaName, string name) {
+            AddOnProduct? addon = TryFindAddOnNamed(areaName, name);
+            if (addon == null)
+                throw new InternalError($"Addon {areaName} {name} not registered.");
+            return addon;
+        }
+
+        /// <summary>
+        /// Returns a specific template.
+        /// </summary>
+        public static AddOnProduct? TryFindTemplate(string areaName, string templateName) {
+            if (!Products.TryGetValue(AddOnProduct.MakeAddOnKey(AddOnType.Template, areaName, templateName), out AddOnProduct? product))
+                return null;
+            return product;
+        }
+        /// <summary>
+        /// Returns a specific template.
+        /// </summary>
+        public static AddOnProduct FindTemplate(string areaName, string templateName) {
+            AddOnProduct? addon = TryFindTemplate(areaName, templateName);
+            if (addon == null)
+                throw new InternalError($"Template {templateName} not registered in {areaName}");
+            return addon;
+        }
+
+        /// <summary>
+        /// Returns a specific package.
+        /// </summary>
+        public static AddOnProduct? TryFindPackage(string areaName) {
+            if (!Products.TryGetValue(AddOnProduct.MakeAddOnKey(AddOnType.Package, areaName, "_Main"), out AddOnProduct? product))
+                return null;
+            return product;
+        }
+        /// <summary>
+        /// Returns a specific package.
+        /// </summary>
+        public static AddOnProduct FindPackage(string areaName) {
+            AddOnProduct? addon = TryFindPackage(areaName);
+            if (addon == null)
+                throw new InternalError($"Module not registered for {areaName}");
+            return addon;
+        }
+        /// <summary>
+        /// Returns a specific skin.
+        /// </summary>
+        public static AddOnProduct? TryFindSkin(string skinCollection) {
+            string domainName, productName, skinName;
+            AddOnProduct.GetSkinComponents(skinCollection, out domainName, out productName, out skinName);
+            if (!Products.TryGetValue(AddOnProduct.MakeAddOnKey(AddOnType.Skin, $"{domainName}_{productName}", skinName), out AddOnProduct? product))
+                return null;
+            return product;
+        }
+        /// <summary>
+        /// Returns a specific skin.
+        /// </summary>
+        public static AddOnProduct FindSkin(string skinCollection) {
+            AddOnProduct? addon = TryFindSkin(skinCollection);
+            // if the skin doesn't exist return the fallback skin
+            if (addon == null) {
+                // if the skin doesn't exist, use the default skin (it better be there)
+                addon = FindSkin(SkinAccess.FallbackSkinCollectionName);
             }
+            return addon;
+        }
+
+        // URLS
+        // URLS
+        // URLS
+
+        /// <summary>
+        /// Returns the Url to the specific template's addon folder
+        /// </summary>
+        public static string GetAddOnTemplateUrl(string areaName, string templateName) {
+            AddOnProduct addon = FindTemplate(areaName, templateName);
+            return addon.GetAddOnUrl();
+        }
+        /// <summary>
+        /// Returns the Url to the specific template's addon folder
+        /// </summary>
+        public static string TryGetAddOnTemplateUrl(string areaName, string templateName) {
+            AddOnProduct? addon = TryFindTemplate(areaName, templateName);
+            if (addon == null) return string.Empty;
+            return addon.GetAddOnUrl();
+        }
+        /// <summary>
+        /// Returns the Url to the specific package's addon folder
+        /// </summary>
+        public static string GetAddOnPackageUrl(string areaName) {
+            AddOnProduct addon = FindPackage(areaName);
+            return addon.GetAddOnUrl();
+        }
+        /// <summary>
+        /// Returns the Url to the specific package's addon folder
+        /// </summary>
+        public static string TryGetAddOnPackageUrl(string areaName) {
+            AddOnProduct? addon = TryFindPackage(areaName);
+            if (addon == null) return string.Empty;
+            return addon.GetAddOnUrl();
+        }
+        /// <summary>
+        /// Returns the Url to the specific skin's addon folder
+        /// </summary>
+        public static string GetAddOnSkinUrl(string skinCollection) {
+            AddOnProduct addon = FindSkin(skinCollection);
+            return addon.GetAddOnUrl();
+        }
+        /// <summary>
+        /// Returns the Url to the specific module's addon folder
+        /// </summary>
+        public static string GetAddOnNamedUrl(string areaName, string name) {
+            AddOnProduct addon = FindAddOnNamed(areaName, name);
+            return addon.GetAddOnUrl();
+        }
+        /// <summary>
+        /// Returns the Url to the specific product's addon folder
+        /// </summary>
+        public static string TryGetAddOnNamedUrl(string areaName, string name) {
+            AddOnProduct? addon = TryFindAddOnNamed(areaName, name);
+            if (addon == null) return string.Empty;
+            return addon.GetAddOnUrl();
+        }
+
+        /// <summary>
+        ///  Convert an addon url to a custom addon url (which has a site specific override)
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        public static string GetCustomUrlFromUrl(string url) {
+            if (url.StartsWith(Globals.AddOnsUrl)) {
+                return AddOnsCustomUrl + YetaWFManager.Manager.CurrentSite.SiteDomain + url.Substring(Globals.AddOnsUrl.Length);
+            } else if (url.StartsWith(Globals.NodeModulesUrl)) {
+                return AddOnsCustomUrl + YetaWFManager.Manager.CurrentSite.SiteDomain + url;
+            }
+            throw new InternalError($"URL {url} doesn't start with {Globals.AddOnsUrl} or {Globals.NodeModulesUrl}");
         }
     }
 }

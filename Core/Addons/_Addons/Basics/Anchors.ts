@@ -20,7 +20,7 @@ namespace YetaWF {
                 if (!ev.target) return true;
                 let anchor = $YetaWF.elementClosestCond(ev.target as HTMLElement, "a,area") as HTMLAnchorElement;
                 if (!anchor) return true;
-                if ($YetaWF.getAttributeCond(anchor, "data-nohref")) return false;
+                if ($YetaWF.getAttributeCond(anchor, "data-nohref") === "") return false;
 
                 let url = anchor.href;
 
@@ -50,12 +50,6 @@ namespace YetaWF {
                 let uri = $YetaWF.parseUrl(url);
                 if (uri.getPath().length === 0 || (!uri.getSchema().startsWith("http:") && !uri.getSchema().startsWith("https:"))) return true;
 
-                // if we're on an edit page, propagate edit to new link unless the new uri explicitly has !Noedit
-                if (!uri.hasSearch(YConfigs.Basics.Link_EditMode) && !uri.hasSearch(YConfigs.Basics.Link_NoEditMode)) {
-                    let currUri = $YetaWF.parseUrl(window.location.href);
-                    if (currUri.hasSearch(YConfigs.Basics.Link_EditMode))
-                        uri.addSearch(YConfigs.Basics.Link_EditMode, "y");
-                }
                 // add status/visibility of page control module
                 uri.removeSearch(YConfigs.Basics.Link_PageControl);
                 if (YVolatile.Basics.PageControlVisible)
@@ -69,13 +63,23 @@ namespace YetaWF {
                     }
                 }
 
+                // first try to handle this as a link to the outer window (only used in a popup)
+                if ($YetaWF.PopupsAvailable()) {
+                    if ($YetaWF.Popups.handleOuterWindow(anchor))
+                        return false;
+                    // try to handle this as a popup link
+                    if ($YetaWF.Popups.handlePopupLink(anchor))
+                        return false;
+                }
+
                 // fix the url to include where we came from
                 let target = anchor.getAttribute("target");
                 if (!target || target === "" || target === "_self") {
 
-                    let originList = YVolatile.Basics.OriginList.slice(0);// copy saved originlist
-
                     if (anchor.getAttribute(YConfigs.Basics.CssSaveReturnUrl) != null) {
+
+                        let originList = YVolatile.Basics.OriginList.slice(0);// copy saved originlist
+
                         // add where we currently are so we can save it in case we need to return to this page
                         let currUri = $YetaWF.parseUrl(window.location.href);
                         currUri.removeSearch(YConfigs.Basics.Link_OriginList);// remove originlist from current URL
@@ -87,26 +91,15 @@ namespace YetaWF {
                             if (originList.length > 5)// only keep the last 5 urls
                                 originList = originList.slice(originList.length - 5);
                         }
+                        // now update url (where we're going with originlist)
+                        uri.removeSearch(YConfigs.Basics.Link_OriginList);
+                        if (originList.length > 0)
+                            uri.addSearch(YConfigs.Basics.Link_OriginList, JSON.stringify(originList));
                     }
-                    // now update url (where we're going with originlist)
-                    uri.removeSearch(YConfigs.Basics.Link_OriginList);
-                    if (originList.length > 0)
-                        uri.addSearch(YConfigs.Basics.Link_OriginList, JSON.stringify(originList));
                     target = "_self";
                 }
 
                 anchor.href = uri.toUrl(); // update original href in case default handling takes place
-
-                // first try to handle this as a link to the outer window (only used in a popup)
-                if ($YetaWF.PopupsAvailable()) {
-                    if ($YetaWF.Popups.handleOuterWindow(anchor))
-                        return false;
-                }
-                // try to handle this as a popup link
-                if ($YetaWF.PopupsAvailable()) {
-                    if ($YetaWF.Popups.handlePopupLink(anchor))
-                        return false;
-                }
 
                 let cookieToReturn: number | null = null;
                 let post: boolean = false;
@@ -164,7 +157,6 @@ namespace YetaWF {
                 }
                 this.waitForCookie(cookieToReturn); // if any
 
-                // Handle unified page clicks by activating the desired pane(s) or swapping out pane contents
                 if (cookieToReturn) return true; // expecting cookie return
                 if (uri.getHostName() !== "" && uri.getHostName() !== window.document.domain) return true; // wrong domain
                 // if we're switching from https->http or from http->https don't use a unified page set
@@ -210,21 +202,8 @@ namespace YetaWF {
             }
         }
         private postLink(url: string, anchorOwner: HTMLElement | null, cookieToReturn: number | null) : void {
-            $YetaWF.setLoading();
             this.waitForCookie(cookieToReturn);
-
-            let request: XMLHttpRequest = new XMLHttpRequest();
-            request.open("POST", url, true);
-            request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-            request.onreadystatechange = (ev: Event) : any => {
-                let req = request;
-                if (req.readyState === 4 /*DONE*/) {
-                    $YetaWF.setLoading(false);
-                    $YetaWF.processAjaxReturn(req.responseText, req.statusText, req, anchorOwner || undefined);
-                }
-
-            };
-            request.send("");
+            $YetaWF.post(url, "", (success: boolean, data: any) : void => { }, anchorOwner || undefined);
         }
     }
 

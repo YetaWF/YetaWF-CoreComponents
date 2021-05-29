@@ -17,7 +17,7 @@ namespace YetaWF.Core.Extensions {
         }
         public static string TruncateStart(this string text, string trim) {
             if (string.IsNullOrEmpty(text)) return text;
-            if (text.StartsWith(trim, StringComparison.Ordinal)) return text.Substring(trim.Length);
+            if (text.StartsWith(trim, StringComparison.OrdinalIgnoreCase)) return text.Substring(trim.Length);
             return text;
         }
         public static string TrimEnd(this string text, string trim) {
@@ -26,7 +26,7 @@ namespace YetaWF.Core.Extensions {
             return text;
         }
         public static string ReplaceStart(this string text, string startText, string newText) {
-            if (text.StartsWith(startText, StringComparison.Ordinal))
+            if (text.StartsWith(startText, StringComparison.OrdinalIgnoreCase))
                 return text.ReplaceFirst(startText, newText);
             return text;
         }
@@ -94,18 +94,18 @@ namespace YetaWF.Core.Extensions {
             return text;
         }
         public static bool IsHttp(this string text) {
-            return text.StartsWith("http://", StringComparison.Ordinal);
+            return text.StartsWith("http://", StringComparison.OrdinalIgnoreCase);
         }
         public static bool IsHttps(this string text) {
-            return text.StartsWith("https://", StringComparison.Ordinal);
+            return text.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
         }
         public static bool IsAbsoluteUrl(this string text) {
-            return text.StartsWith("http://", StringComparison.Ordinal) || text.StartsWith("https://", StringComparison.Ordinal) || text.StartsWith("//", StringComparison.Ordinal);
+            return text.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || text.StartsWith("https://", StringComparison.OrdinalIgnoreCase) || text.StartsWith("//", StringComparison.OrdinalIgnoreCase);
         }
         public static string AddQSSeparator(this string text) {
             if (string.IsNullOrWhiteSpace(text))
                 return "?";
-            if (text.Contains("?", StringComparison.Ordinal))
+            if (text.Contains("?", StringComparison.OrdinalIgnoreCase))
                 return "&";
             else
                 return "?";
@@ -129,8 +129,8 @@ namespace YetaWF.Core.Extensions {
         public static string AddUrlCacheBuster(this string text, string? cacheBuster) {
             if (string.IsNullOrWhiteSpace(cacheBuster)) return "";
             if (text == null) return "";
-            if (text.Contains("__yVrs=", StringComparison.Ordinal) || text.Contains("/__yVrs/", StringComparison.Ordinal)) return "";
-            if (text.Contains("?", StringComparison.Ordinal))
+            if (text.Contains("__yVrs=", StringComparison.OrdinalIgnoreCase) || text.Contains("/__yVrs/", StringComparison.OrdinalIgnoreCase)) return "";
+            if (text.Contains("?", StringComparison.OrdinalIgnoreCase))
                 return string.Format("&__yVrs={0}", cacheBuster);
             else
                 return string.Format("?__yVrs={0}", cacheBuster);
@@ -138,7 +138,7 @@ namespace YetaWF.Core.Extensions {
         public static string AddUrlCacheBusterSegment(this string text, string? cacheBuster) {
             if (string.IsNullOrWhiteSpace(cacheBuster)) return "";
             if (text == null) return "";
-            if (text.Contains("/__yVrs/", StringComparison.Ordinal)) return "";
+            if (text.Contains("/__yVrs/", StringComparison.OrdinalIgnoreCase)) return "";
             return string.Format("/__yVrs/{0}", cacheBuster);
         }
     }

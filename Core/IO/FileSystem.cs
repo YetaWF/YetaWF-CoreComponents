@@ -39,8 +39,8 @@ namespace YetaWF.Core.IO {
         Task CreateDirectoryAsync(string targetFolder);
         Task<bool> DirectoryExistsAsync(string targetFolder);
 
-        Task<List<string>> GetDirectoriesAsync(string targetFolder, string pattern = null);
-        Task<List<string>> GetFilesAsync(string targetFolder, string pattern = null);
+        Task<List<string>> GetDirectoriesAsync(string targetFolder, string? pattern = null);
+        Task<List<string>> GetFilesAsync(string targetFolder, string? pattern = null);
 
         Task<DateTime> GetDirectoryCreationTimeUtcAsync(string filePath);
 

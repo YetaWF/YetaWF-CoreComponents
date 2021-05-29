@@ -39,7 +39,7 @@ namespace YetaWF.Core.SendEmail {
 
         [Caption("Server"), Description("The SMTP mail server used for all emails originating from this site")]
         [UIHint("Text40"), StringLength(MaxServer), Trim]
-        public string Server { get; set; } = null!;
+        public string? Server { get; set; }
 
         [Caption("Port"), Description("The SMTP mail server port used (25 is usually the default)")]
         [UIHint("IntValue6"), Range(0, 999999), ProcessIfSupplied(nameof(Server)), RequiredIfSuppliedAttribute(nameof(Server)), Trim]

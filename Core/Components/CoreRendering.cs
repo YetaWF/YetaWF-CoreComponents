@@ -13,7 +13,7 @@ namespace YetaWF.Core.Components {
     /// <remarks>
     /// Components and views are always rendered as HTML with JavaScript and CSS. The actual implementation of the components and views
     /// is determined by the package implementing the component.
-    /// The default package YetaWF.ComponentsHTML implements all default components and views and renders them using Kendo UI, jQuery and jQuery-UI.
+    /// The default package YetaWF.ComponentsHTML implements all default components and views.
     ///
     /// Other application packages can also implement their own components and views in their own package folder .\Components and .\Views respectively.
     /// Any components and views an application implements (referencing the YetaWF.ComponentsHTML package) must be located in the
@@ -71,23 +71,13 @@ namespace YetaWF.Core.Components {
         Task<string> RenderModuleMenuAsync(ModuleDefinition mod);
 
         /// <summary>
-        /// Renders a complete menu.
-        /// </summary>
-        /// <param name="menu">The menu to render.</param>
-        /// <param name="id">The menu ID to generate.</param>
-        /// <param name="cssClass">The optional CSS classes to use for the menu.</param>
-        /// <param name="HtmlHelper">The HtmlHelper instance.</param>
-        /// <returns>Returns the complete menu as HTML.</returns>
-        Task<string> RenderMenuListAsync(MenuList menu, string? id = null, string? cssClass = null, YHtmlHelper? HtmlHelper = null);
-
-        /// <summary>
         /// Renders a module action.
         /// </summary>
         /// <param name="action">The module action to render.</param>
         /// <param name="mode">The module action's rendering mode.</param>
         /// <param name="id">The ID to generate.</param>
         /// <returns>Returns the module action as HTML.</returns>
-        Task<string> RenderModuleActionAsync(ModuleAction action, ModuleAction.RenderModeEnum mode, string? id);
+        Task<string> RenderModuleActionAsync(ModuleAction action, ModuleAction.RenderModeEnum mode, string? id, string? cssClass);
 
         /// <summary>
         /// Renders a form button.
@@ -107,7 +97,6 @@ namespace YetaWF.Core.Components {
         /// </summary>
         /// <remarks>The package implementing rendering components and views sets this accessor during application startup.
         /// All application rendering is performed using this interface.</remarks>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public static IYetaWFCoreRendering Render {
             get {
                 if (_render == null) throw new InternalError($"No {nameof(IYetaWFCoreRendering)} handler installed");

@@ -54,7 +54,6 @@ namespace YetaWF.Core.Controllers {
                 return new NotFoundObjectResult(null);
 
             // Process the requested addons
-            PageContentController.PageContentResult cr = new PageContentController.PageContentResult();
             return new AddonContentViewResult(dataIn);
         }
     }

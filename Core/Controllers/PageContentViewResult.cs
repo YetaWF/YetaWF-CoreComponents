@@ -7,7 +7,6 @@ using System.Text;
 using System.Threading.Tasks;
 using YetaWF.Core.Log;
 using YetaWF.Core.Modules;
-using YetaWF.Core.Pages;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.UrlHistory;
@@ -35,19 +34,18 @@ namespace YetaWF.Core.Controllers {
 
                 Manager.PageTitle = Manager.CurrentPage.Title;
 
-                PageDefinition currPage = Manager.CurrentPage;
                 SkinAccess skinAccess = new SkinAccess();
 
                 Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentSite.ReferencedModules);
                 Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentPage.ReferencedModules);
 
-                // set new character dimensions and popup info
+                // set popup info
                 PageSkinEntry pageSkin = skinAccess.GetPageSkinEntry();
                 if (Manager.IsInPopup) {
                     Manager.ScriptManager.AddVolatileOption("Skin", "PopupWidth", pageSkin.Width);// Skin size in a popup window
                     Manager.ScriptManager.AddVolatileOption("Skin", "PopupHeight", pageSkin.Height);
                     Manager.ScriptManager.AddVolatileOption("Skin", "PopupMaximize", pageSkin.MaximizeButton);
-                    Manager.ScriptManager.AddVolatileOption("Skin", "PopupCss", pageSkin.Css);
+                    Manager.ScriptManager.AddVolatileOption("Skin", "PopupCss", pageSkin.CSS);
                 }
 
                 YHtmlHelper htmlHelper = new YHtmlHelper(context, null);

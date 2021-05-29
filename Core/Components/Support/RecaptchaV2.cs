@@ -50,18 +50,16 @@ namespace YetaWF.Core.Components {
         // LOAD/SAVE
 
         public string GetTheme() {
-            switch (Theme) {
-                default:
-                case ThemeEnum.Light: return "light";
-                case ThemeEnum.Dark: return "dark";
-            }
+            return Theme switch {
+                ThemeEnum.Dark => "dark",
+                _ => "light",
+            };
         }
         public string GetSize() {
-            switch (Size) {
-                default:
-                case SizeEnum.Normal: return "normal";
-                case SizeEnum.Compact: return "compact";
-            }
+            return Size switch {
+                SizeEnum.Compact => "compact",
+                _ => "normal",
+            };
         }
 
         // These must be provided during app startup

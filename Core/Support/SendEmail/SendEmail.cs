@@ -94,14 +94,14 @@ namespace YetaWF.Core.SendEmail {
             emailHTML = "<!DOCTYPE html><html><head>" +
                 "<title>" + subject + "</title>" +
                 "</head><body style='margin:0'>" + emailHTML + "</body></html>";
-            await PrepareEmailMessageAsync(smtpEmail.Server, smtpEmail.Port, smtpEmail.SSL, smtpEmail.Authentication, smtpEmail.UserName, smtpEmail.Password, null, toEmail, subject, emailText, emailHTML, null, Parameters, Headers);
+            await PrepareEmailMessageAsync(smtpEmail.Server!, smtpEmail.Port, smtpEmail.SSL, smtpEmail.Authentication, smtpEmail.UserName, smtpEmail.Password, null, toEmail, subject, emailText, emailHTML, null, Parameters, Headers);
         }
         public async Task<string> GetEmailFileAsync(Package package, string filename) {
             if (SendEmailProvider != null) {
                 return await SendEmailProvider.GetEmailFileAsync(package, filename);
             } else {
-                string moduleAddOnUrl = VersionManager.GetAddOnPackageUrl(package.AreaName);
-                string customModuleAddOnUrl = VersionManager.GetCustomUrlFromUrl(moduleAddOnUrl);
+                string moduleAddOnUrl = Package.GetAddOnPackageUrl(package.AreaName);
+                string customModuleAddOnUrl = Package.GetCustomUrlFromUrl(moduleAddOnUrl);
 
                 // locate site specific custom email
                 string file = Utility.UrlToPhysical(string.Format("{0}/{1}/{2}", customModuleAddOnUrl, EmailsFolder, filename));
@@ -120,7 +120,7 @@ namespace YetaWF.Core.SendEmail {
             } else {
                 Manager.CurrentSite.SMTP.Validate();
                 SMTPServer smtpEmail = Manager.CurrentSite.SMTP;
-                await PrepareEmailMessageAsync(smtpEmail.Server, smtpEmail.Port, smtpEmail.SSL, smtpEmail.Authentication, smtpEmail.UserName, smtpEmail.Password, fromEmail, toEmail, subject, emailFile, Parameters, Headers);
+                await PrepareEmailMessageAsync(smtpEmail.Server!, smtpEmail.Port, smtpEmail.SSL, smtpEmail.Authentication, smtpEmail.UserName, smtpEmail.Password, fromEmail, toEmail, subject, emailFile, Parameters, Headers);
             }
         }
         public async Task PrepareEmailMessageAsync(string server, int port, bool ssl, SMTPServer.AuthEnum auth, string? username, string? password, string? fromEmail, string? toEmail, string subject, string emailFile, object? Parameters = null, NameValueCollection? Headers = null) {

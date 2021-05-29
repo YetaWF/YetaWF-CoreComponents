@@ -18,7 +18,7 @@ namespace YetaWF.Core.Skins.Pages {
         /// Returns the name of the page.
         /// </summary>
         /// <returns>Returns the name of the page.</returns>
-        public override string GetPageName() { return "Default"; }
+        public override string GetPageName() { return SkinAccess.PAGE_VIEW_DEFAULT; }
 
         /// <summary>
         /// Returns the package implementing the page.

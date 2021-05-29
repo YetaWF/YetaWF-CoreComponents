@@ -80,14 +80,6 @@ namespace YetaWF.Core.Components {
                     Add(action);
             }
         }
-        public void NewIf(ModuleAction? action, ModuleAction.ActionLocationEnum desiredLocation, ModuleAction.ActionLocationEnum location = ModuleAction.ActionLocationEnum.Explicit) {
-            if (action != null) {
-                if ((location & ModuleAction.ActionLocationEnum.Explicit) != 0) // grid links are always explicit calls
-                    Add(action);
-                else if ((desiredLocation & location) != 0)
-                    Add(action);
-            }
-        }
 
         public ModuleAction.RenderModeEnum RenderMode { get; set; }
 
@@ -95,8 +87,9 @@ namespace YetaWF.Core.Components {
         /// Evaluates the menu and returns an updated (copied) list based on the user's actual permissions.
         /// </summary>
         public async Task<MenuList> GetUserMenuAsync() {
-            MenuList menu = new MenuList();
-            menu.RenderMode = this.RenderMode;
+            MenuList menu = new MenuList {
+                RenderMode = RenderMode
+            };
             foreach (ModuleAction m in this) {
                 ModuleAction? newAction = await EvaluateActionAsync(m);
                 if (newAction != null)
@@ -106,13 +99,13 @@ namespace YetaWF.Core.Components {
             return menu;
         }
         private SerializableList<ModuleAction> DropEmptySubmenus(SerializableList<ModuleAction>? menu) {
-            if (menu == null) return new MenuList();
+            if (menu == null) return new SerializableList<ModuleAction>();
             foreach (ModuleAction m in menu) {
                 m.SubMenu = DropEmptySubmenus(m.SubMenu);
             }
             return new SerializableList<ModuleAction>(
                 (from m in menu
-                 where m.EntryType != ModuleAction.MenuEntryType.Parent || (m.SubMenu != null && m.SubMenu.Count() > 0) select m).ToList()
+                 where m.EntryType != ModuleAction.MenuEntryType.Parent || (m.SubMenu != null && m.SubMenu.Count > 0) select m).ToList()
             );
         }
         private  async Task<ModuleAction?> EvaluateActionAsync(ModuleAction origAction) {

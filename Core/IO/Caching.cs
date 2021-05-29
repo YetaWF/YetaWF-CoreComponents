@@ -19,25 +19,25 @@ namespace YetaWF.Core.IO {
         // Data providers set by available low-level data providers during application startup
 
         /// <summary>
-        /// A caching data provider for locally cached data (one instance of the site).
+        /// A caching data provider for locally cached data (one instance of the site). Uses ASP.NET's IMemoryCache service.
         /// </summary>
         /// <remarks>
         /// This caching data provider can be used for data that needs to be cached in one single instance of a site.
-        /// If multiple instances of the site are active, the cached data is not shared between instances.
+        /// If multiple instances of the site are active, the cached data is NOT SHARED BETWEEN INSTANCES.
         /// </remarks>
         public static Func<ICacheDataProvider> GetLocalCacheProvider { get; set; } = null!;
         /// <summary>
         /// A caching data provider for shared cached data (between multiple instances of the site).
         /// </summary>
         /// <remarks>
-        /// This caching data provider can be used for data that needs to be cached and shared among all instances of a site.
+        /// This caching data provider can be used for data that needs to be CACHED AND SHARED AMONG ALL INSTANCES OF A SITE.
         /// </remarks>
         public static Func<ICacheDataProvider> GetSharedCacheProvider { get; set; } = null!;
         /// <summary>
         /// A caching data provider for static shared cached data (between multiple instances of the site).
         /// </summary>
         /// <remarks>
-        /// This caching data provider can be used for data that needs to be cached and shared among all instances of a site.
+        /// This caching data provider can be used for data that needs to be CACHED AND SHARED AMONG ALL INSTANCES OF A SITE.
         ///
         /// While similar to GetSharedCacheProvider, GetStaticCacheProvider is intended to be used in cases where data is more likely to be used repeatedly
         /// and where a single-instance site would simply use a static variable.
@@ -49,7 +49,7 @@ namespace YetaWF.Core.IO {
         /// </summary>
         /// <remarks>
         /// This caching data provider can be used for SMALL data that needs to be cached individually in each instance of a site.
-        /// If multiple instances of the site are active, the cached data is not shared between instances.
+        /// If multiple instances of the site are active, the cached data is NOT SHARED BETWEEN INSTANCES.
         /// </remarks>
         public static Func<ICacheDataProvider> GetStaticSmallObjectCacheProvider { get; set; } = null!;
 

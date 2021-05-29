@@ -50,7 +50,7 @@ namespace YetaWF.Core.Support {
         public void SetInt(string key, int value) {
             _session.SetInt32(key, value);
         }
-        public TYPE? GetObject<TYPE>(string key, TYPE dflt = default(TYPE)) {
+        public TYPE? GetObject<TYPE>(string key, TYPE? dflt = default(TYPE)) {
             string value = GetString(key);
             if (value == null) return dflt;
             return JsonConvert.DeserializeObject<TYPE>(value);

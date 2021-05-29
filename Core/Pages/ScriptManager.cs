@@ -11,17 +11,18 @@ using YetaWF.Core.Addons;
 using YetaWF.Core.Controllers;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.IO;
+using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
 
 // https://developer.yahoo.com/performance/rules.HTML
 // YetaWF satisfies most of these suggestions (except *)
 // Minimize HTTP Requests
-//    YetaWF bundles js and CSS files (except for large packages like jquery, kendo, etc.)
+//    YetaWF bundles js and CSS files (except for large packages)
 //    (*) No use of inline images
 //    Unified Page Sets use 1 Ajax request to render a new page within the unified page set
 // Use a Content Delivery Network
 //   Built-in CDN support (off by default until you have a CDN provider)
-//   Optional CDN support for all major JavaScript addons (jQuery, KendoUI, CKEditor, etc.)
+//   Optional CDN support for all major JavaScript addons
 // Add an Expires or a Cache-Control Header
 //   YetaWF uses Expires and a Cache-Control Header
 // Gzip Components
@@ -160,14 +161,14 @@ namespace YetaWF.Core.Pages {
         // ADDON
         // ADDON
 
-        internal async Task AddAddOnAsync(VersionManager.AddOnProduct version, params object?[] args) {
+        internal async Task AddAddOnAsync(Package.AddOnProduct version, params object?[] args) {
             await AddFromSupportTypesAsync(version);
             string productUrl = version.GetAddOnUrl();
             await AddFromFileListAsync(version, productUrl, args);
         }
 
         // Add localizations and configurations
-        private async Task AddFromSupportTypesAsync(VersionManager.AddOnProduct version) {
+        private async Task AddFromSupportTypesAsync(Package.AddOnProduct version) {
             foreach (var type in version.SupportTypes) {
                 object? o = Activator.CreateInstance(type);
                 if (o == null)
@@ -180,8 +181,8 @@ namespace YetaWF.Core.Pages {
         }
 
         // Add all JavaScript files listed in filelistJS.txt
-        private async Task AddFromFileListAsync(VersionManager.AddOnProduct version, string productUrl, params object?[] args) {
-            foreach (VersionManager.AddOnProduct.UsesInfo uses in version.JsUses) {
+        private async Task AddFromFileListAsync(Package.AddOnProduct version, string productUrl, params object?[] args) {
+            foreach (Package.AddOnProduct.UsesInfo uses in version.JsUses) {
                 await Manager.AddOnManager.AddAddOnNamedJavaScriptAsync(uses.PackageName, uses.AddonName);
             }
             List<string> list = version.JsFiles.ToList();// make a copy in case we remove an empty file
@@ -254,8 +255,6 @@ namespace YetaWF.Core.Pages {
                             string f;
                             if (file.StartsWith("/" + Globals.NodeModulesFolder + "/"))
                                 f = Path.Combine(YetaWFManager.RootFolderWebProject, file.Substring(1));
-                            else if (file.StartsWith("/" + Globals.BowerComponentsFolder + "/"))
-                                f = Path.Combine(YetaWFManager.RootFolderWebProject, file.Substring(1));
                             else
                                 f = Path.Combine(YetaWFManager.RootFolder, file.Substring(1));
                             if (YetaWFManager.DiagnosticsMode) {
@@ -272,7 +271,7 @@ namespace YetaWF.Core.Pages {
                         }
                     }
                     if (allowCustom) {
-                        string customUrl = VersionManager.GetCustomUrlFromUrl(filePathURL);
+                        string customUrl = Package.GetCustomUrlFromUrl(filePathURL);
                         string f = Utility.UrlToPhysical(customUrl);
                         if (await FileSystem.FileSystemProvider.FileExistsAsync(f))
                             filePathURL = customUrl;
@@ -282,7 +281,7 @@ namespace YetaWF.Core.Pages {
                             throw new InternalError("Can't use async/defer with bundle/last for {0} in {1}/{2}", filePathURL, version.Domain, version.Product);
                     }
                     if (bundle == null) {
-                        if (filePathURL.ContainsIgnoreCase(Globals.NodeModulesUrl) || filePathURL.ContainsIgnoreCase(Globals.BowerComponentsUrl)) {
+                        if (filePathURL.ContainsIgnoreCase(Globals.NodeModulesUrl)) {
                             /* While possible to add these to a bundle, it's inefficient and can cause errors with scripts that load their own scripts */
                             bundle = false;
                         } else {
@@ -299,7 +298,7 @@ namespace YetaWF.Core.Pages {
         /// Adds a JavaScript file explicitly. This is rarely used because JavaScript files are automatically added for modules, templates, etc.
         /// </summary>
         public async Task AddScriptAsync(string areaName, string relativePath, int dummy = 0, bool Minify = true, bool Bundle = true, bool Async = false, bool Defer = false, object? HtmlAttributes = null) {
-            VersionManager.AddOnProduct addon = VersionManager.FindPackageVersion(areaName);
+            Package.AddOnProduct addon = Package.FindPackage(areaName);
             await AddAsync(addon.GetAddOnJsUrl() + relativePath, Minify, Bundle, false, false, false, HtmlAttributes);
         }
         /// <summary>
@@ -319,9 +318,8 @@ namespace YetaWF.Core.Pages {
                 // nothing to do
                 bundle = false;
             } else if (fullUrl.StartsWith(Globals.NodeModulesUrl, StringComparison.InvariantCultureIgnoreCase) ||
-                fullUrl.StartsWith(Globals.BowerComponentsUrl, StringComparison.InvariantCultureIgnoreCase) ||
-                fullUrl.StartsWith(VersionManager.AddOnsUrl, StringComparison.InvariantCultureIgnoreCase) ||
-                fullUrl.StartsWith(VersionManager.AddOnsCustomUrl, StringComparison.InvariantCultureIgnoreCase)) {
+                fullUrl.StartsWith(Package.AddOnsUrl, StringComparison.InvariantCultureIgnoreCase) ||
+                fullUrl.StartsWith(Package.AddOnsCustomUrl, StringComparison.InvariantCultureIgnoreCase)) {
 
                 if (key.EndsWith(".js")) key = key.Substring(0, key.Length - 3);
                 if (key.EndsWith(".min")) key = key.Substring(0, key.Length - 4);

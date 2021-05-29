@@ -2,11 +2,6 @@
 /* Copyright © 2021 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 var YetaWF;
 (function (YetaWF) {
-    var TabStyleEnum;
-    (function (TabStyleEnum) {
-        TabStyleEnum[TabStyleEnum["JQuery"] = 0] = "JQuery";
-        TabStyleEnum[TabStyleEnum["Kendo"] = 1] = "Kendo";
-    })(TabStyleEnum = YetaWF.TabStyleEnum || (YetaWF.TabStyleEnum = {}));
     var PanelAction;
     (function (PanelAction) {
         PanelAction[PanelAction["Apply"] = 0] = "Apply";
@@ -107,14 +102,16 @@ var YetaWF;
         Forms.prototype.resequenceFields = function (rows, prefix) {
             return YetaWF_FormsImpl.resequenceFields(rows, prefix);
         };
-        Forms.prototype.submit = function (form, useValidation, extraData, successFunc, failFunc) {
+        Forms.prototype.submit = function (form, useValidation, extraData, successFunc, failFunc //$$$$$$$$$$PARAMETERS TO BE REMOVED
+        ) {
             var method = form.getAttribute("method");
             if (!method)
                 return; // no method, don't submit
             var saveReturn = form.getAttribute(YConfigs.Basics.CssSaveReturnUrl) !== null; // form says we need to save the return address on submit
-            this.submitExplicit(form, method, form.action, saveReturn, useValidation, extraData, successFunc, failFunc);
+            this.submitExplicit(form, method, form.action, saveReturn, useValidation, extraData);
         };
-        Forms.prototype.submitExplicit = function (form, method, action, saveReturn, useValidation, extraData, successFunc, failFunc, rawJSONFunc) {
+        Forms.prototype.submitExplicit = function (form, method, action, saveReturn, useValidation, extraData, successFunc, failFunc, rawJSONFunc //$$$$$$$$$$PARAMETERS TO BE REMOVED
+        ) {
             var _this = this;
             $YetaWF.pageChanged = false; // suppress navigate error
             var divs = $YetaWF.getElementsBySelector("div." + this.DATACLASS);
@@ -127,7 +124,6 @@ var YetaWF;
             if (useValidation)
                 formValid = this.validate(form);
             $YetaWF.closeOverlays();
-            $YetaWF.setLoading(true);
             if (!useValidation || formValid) {
                 // serialize the form
                 var formData = this.serializeForm(form);
@@ -159,46 +155,30 @@ var YetaWF;
                     formData = formData + "&" + YConfigs.Basics.Link_InPopup + "=y";
                 if (method.toLowerCase() === "get")
                     action = action + "?" + formData;
-                var request_1 = new XMLHttpRequest();
-                request_1.open(method, action, true);
-                if (method.toLowerCase() === "post")
-                    request_1.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-                request_1.onreadystatechange = function (ev) {
-                    var req = request_1;
-                    if (req.readyState === 4 /*DONE*/) {
-                        $YetaWF.setLoading(false);
-                        if (rawJSONFunc && req.responseText && req.responseText[0] === "{") {
-                            rawJSONFunc(req.responseText);
-                            return;
-                        }
-                        if ($YetaWF.processAjaxReturn(req.responseText, req.statusText, req, form, undefined, function (result) {
+                $YetaWF.send(method, action, formData, function (success, responseText) {
+                    if (success) {
+                        if (responseText) {
                             var partForm = $YetaWF.getElement1BySelectorCond("." + YConfigs.Forms.CssFormPartial, [form]);
                             if (partForm) {
                                 // clean up everything that's about to be removed
                                 $YetaWF.processClearDiv(partForm);
                                 // preserve the original css classes on the partial form (PartialFormCss)
                                 var cls = partForm.className;
-                                $YetaWF.setMixedOuterHTML(partForm, req.responseText);
+                                $YetaWF.setMixedOuterHTML(partForm, responseText);
                                 partForm = $YetaWF.getElement1BySelectorCond("." + YConfigs.Forms.CssFormPartial, [form]);
                                 if (partForm)
                                     partForm.className = cls;
                             }
-                            $YetaWF.sendCustomEvent(document.body, Forms.EVENTPOSTSUBMIT, { form: form });
-                            $YetaWF.setFocus([form]);
-                        })) {
-                            if (successFunc)
-                                successFunc(_this.hasErrors(form));
                         }
-                        else {
-                            if (failFunc)
-                                failFunc();
-                        }
+                        $YetaWF.sendCustomEvent(form, Forms.EVENTPOSTSUBMIT, { success: !_this.hasErrors(form), form: form });
+                        $YetaWF.setFocus([form]);
                     }
-                };
-                request_1.send(formData);
+                    else {
+                        $YetaWF.sendCustomEvent(form, Forms.EVENTPOSTSUBMIT, { success: false, form: form });
+                    }
+                });
             }
             else {
-                $YetaWF.setLoading(false);
                 // find the first field in each tab control that has an input validation error and activate that tab
                 // This will not work for nested tabs. Only the lowermost tab will be activated.
                 YetaWF_FormsImpl.setErrorInNestedControls(form);
@@ -206,8 +186,7 @@ var YetaWF;
                 if (hasErrors)
                     this.showErrors(form);
                 // call callback (if any)
-                if (successFunc)
-                    successFunc(this.hasErrors(form));
+                $YetaWF.sendCustomEvent(form, Forms.EVENTPOSTSUBMIT, { success: false, form: form });
             }
             divs = $YetaWF.getElementsBySelector("div." + this.DATACLASS);
             for (var _a = 0, divs_2 = divs; _a < divs_2.length; _a++) {
