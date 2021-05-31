@@ -310,10 +310,16 @@ namespace YetaWF.Core.Packages {
             foreach (var folder in templateFolders) {
                 // there are some stray folders (when templates are renamed) that may have *.min.css/js without filelistJS/CSS.txt files
                 // ignore these
-                if ((await FileSystem.FileSystemProvider.GetFilesAsync(folder, "*.txt")).Count == 0)
+                if ((await FileSystem.FileSystemProvider.GetFilesAsync(folder, "*.txt")).Count == 0) {
+#if UPGRADE // enable when upgrading and there are a lot of dead folders.
+                    await FileSystem.FileSystemProvider.DeleteDirectoryAsync(folder);
+#else
                     throw new InternalError($"Remove _Template folder with unused files: {folder}");
-                string directoryName = Path.GetFileName(folder);
-                await RegisterTemplateAddonAsync(package, folder, directoryName);
+#endif
+                } else {
+                    string directoryName = Path.GetFileName(folder);
+                    await RegisterTemplateAddonAsync(package, folder, directoryName);
+                }
             }
         }
 
