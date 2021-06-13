@@ -19,7 +19,7 @@ var YetaWF;
                 var anchor = $YetaWF.elementClosestCond(ev.target, "a,area");
                 if (!anchor)
                     return true;
-                if ($YetaWF.getAttributeCond(anchor, "data-nohref") === "")
+                if ($YetaWF.getAttributeCond(anchor, "data-nohref") != null)
                     return false;
                 var url = anchor.href;
                 // send tracking info
