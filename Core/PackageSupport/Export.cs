@@ -24,12 +24,11 @@ namespace YetaWF.Core.Packages {
         public const string PackageIDDataFile = "PackageData.txt";
         public const string PackageContentsFile = "Contents.json";
         public static string[] ExcludedFilesAddons = Array.Empty<string>();
-        public static string[] ExcludedFoldersNoSource = Array.Empty<string>();
-        public static string[] ExcludedFilesSource = new string[] { ".csproj.user", ".pdb", ".xproj.user", ".lock.json" };
-        public static string[] ExcludedFoldersSource = new string[] { "obj", "bin", Globals.NodeModulesFolder };
-        public static string[] ExcludedBinFiles = new string[] { ".config", ".pdb", ".lastcodeanalysissucceeded", ".CodeAnalysisLog.xml" };
-        public static string[] ExcludedBinFolders = new string[] { "Debug" };
-        public static string[] ExcludedFilesViewsNoSource = new string[] { ".cs" };// not necessary any longer (since 2.0.0) as all code was moved to ViewsCode
+        private static string[] ExcludedFoldersNoSource = Array.Empty<string>();
+        private static string[] ExcludedFilesSource = new string[] { ".csproj.user", ".pdb", ".xproj.user", ".lock.json" };
+        private static string[] ExcludedFoldersSource = new string[] { "obj", "bin", Globals.NodeModulesFolder };
+        private static string[] ExcludedBinFiles = new string[] { ".config", ".pdb", ".lastcodeanalysissucceeded", ".CodeAnalysisLog.xml" };
+        private static string[] ExcludedBinFolders = new string[] { "Debug" };
 
         public const GeneralFormatter.Style ExportFormat = GeneralFormatter.Style.JSON;
         public const GeneralFormatter.Style ExportFormatModules = GeneralFormatter.Style.JSONTyped;
