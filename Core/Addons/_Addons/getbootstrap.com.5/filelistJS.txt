@@ -1,0 +1,23 @@
+﻿//cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js,CDN
+
+/node_modules/bootstrap5/dist/js/bootstrap.bundle.min.js,noCDN
+
+# To support sites that want full bootstrap or a specific version, a skin has to be created which uses Bootstrap. 
+#
+# The skin's filelistJS.txt would include bootstrap using 
+# Uses YetaWF_Core,getbootstrap.com.4
+# or
+# Uses YetaWF_Core,getbootstrap.com.5
+#
+# The project.json file must include the desired bootstrap version:
+#     "bootstrap": "^4.6.0",
+# or
+#     "bootstrap": "^5.0.2",
+#
+# Otherwise, Bootstrap is used (by skins) just for the grid/layout support. Bootstrap Components/JavaScript is NOT supported in a standard YetaWF install.
+# In this case the compiled skin (scss) includes the relevant Bootstrap files and no other Bootstrap files (CSS,JS) are used (no other <link>s).
+# Example of skin including bootstrap:
+#
+# // We're using bootstrap's reboot and grid only
+# @import "node_modules/bootstrap5/scss/bootstrap-reboot";
+# @import "node_modules/bootstrap5/scss/bootstrap-grid";

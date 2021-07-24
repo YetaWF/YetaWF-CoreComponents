@@ -3,7 +3,8 @@
 body {
   font: var(--body-font);
   background: var(--body-bg);
-  color: var(--body-clr); }
+  color: var(--body-clr);
+}
 
 a {
   outline: none;
@@ -11,93 +12,112 @@ a {
   -webkit-text-decoration: var(--a-dec);
           text-decoration: var(--a-dec);
   /* a link should not break into two lines */
-  white-space: nowrap; }
-  h1 a,
-  h2 a,
-  h3 a,
-  h4 a,
-  h5 a {
-    white-space: normal; }
-  a:hover:not(.t_disabled) {
-    outline: none;
-    color: var(--a-clr-hover);
-    -webkit-text-decoration: var(--a-dec-hover);
-            text-decoration: var(--a-dec-hover); }
-  a:focus {
-    outline: none;
-    color: var(--a-clr-focus);
-    -webkit-text-decoration: var(--a-dec-focus);
-            text-decoration: var(--a-dec-focus); }
-  a.t_disabled {
-    opacity: var(--body-dis-opacity); }
-  a[data-nohref] {
-    cursor: default; }
+  white-space: nowrap;
+}
+h1 a, h2 a, h3 a, h4 a, h5 a {
+  white-space: normal;
+}
+a:hover:not(.t_disabled) {
+  outline: none;
+  color: var(--a-clr-hover);
+  -webkit-text-decoration: var(--a-dec-hover);
+          text-decoration: var(--a-dec-hover);
+}
+a:focus {
+  outline: none;
+  color: var(--a-clr-focus);
+  -webkit-text-decoration: var(--a-dec-focus);
+          text-decoration: var(--a-dec-focus);
+}
+a.t_disabled {
+  opacity: var(--body-dis-opacity);
+}
+a[data-nohref] {
+  cursor: default;
+}
 
 form {
-  width: 100%; }
+  width: 100%;
+}
 
 body fieldset {
-  padding: .5ch .5em .5ch .5em;
+  padding: 0.5ch 0.5em 0.5ch 0.5em;
   margin: 0;
-  border: var(--prop-border); }
-  body fieldset legend {
-    font: var(--body-font);
-    margin-bottom: .5em;
-    width: auto;
-    border: 0; }
+  border: var(--prop-border);
+}
+body fieldset legend {
+  font: var(--body-font);
+  margin-bottom: 0.5em;
+  width: auto;
+  border: 0;
+}
 
 label {
   font-weight: normal;
   margin: 0;
-  padding: 0; }
+  padding: 0;
+}
 
 .yCondense label {
-  font-weight: bold; }
+  font-weight: bold;
+}
 
 select.t_native {
   outline: none;
   background: var(--dd-bg);
   color: var(--dd-clr);
   border: var(--dd-border);
-  border-radius: var(--dd-border-radius); }
-  select.t_native option {
-    outline: none; }
-    select.t_native option:hover {
-      background: var(--dd-bg-hover);
-      color: var(--dd-clr-hover); }
-    select.t_native option:active, select.t_native option:checked {
-      background: var(--dd-bg-active);
-      color: var(--dd-clr-active); }
-    select.t_native option:focus {
-      background: var(--dd-bg-focus);
-      color: var(--dd-clr-focus); }
+  border-radius: var(--dd-border-radius);
+}
+select.t_native option {
+  outline: none;
+}
+select.t_native option:hover {
+  background: var(--dd-bg-hover);
+  color: var(--dd-clr-hover);
+}
+select.t_native option:active, select.t_native option:checked {
+  background: var(--dd-bg-active);
+  color: var(--dd-clr-active);
+}
+select.t_native option:focus {
+  background: var(--dd-bg-focus);
+  color: var(--dd-clr-focus);
+}
 
 .card {
   padding: 1.25rem;
   background: var(--panel-bg);
   border: var(--panel-border);
   border-radius: var(--panel-border-radius);
-  box-shadow: var(--panel-shadow); }
+  box-shadow: var(--panel-shadow);
+}
 
 .y_cleardiv {
-  clear: both; }
+  clear: both;
+}
 
 .yHidden {
-  display: none; }
+  display: none;
+}
 
 .yPane {
-  position: relative; }
+  position: relative;
+}
 
 .yModule {
-  position: relative; }
+  position: relative;
+}
 
 .yPage .yPane.yModule {
-  padding-bottom: 1rem; }
+  padding-bottom: 1rem;
+}
 
 /* templates are inline unless they're large, like grids, propertylists etc. */
 /* Not all templates follow this rule (yet) */
 .y_inline {
-  display: inline; }
+  display: inline;
+}
 
 /* Warnings */
 .yDivAlert {
@@ -106,11 +126,13 @@ select.t_native {
   margin: 1em 0;
   padding: 1em;
   border: var(--tst-border);
-  border-radius: var(--tst-border-radius); }
+  border-radius: var(--tst-border-radius);
+}
 
 .yDivSmallAlert {
   background: var(--tst-error-bg);
-  color: var(--tst-error-clr); }
+  color: var(--tst-error-clr);
+}
 
 .yDivWarning {
   background: var(--tst-warn-bg);
@@ -118,11 +140,13 @@ select.t_native {
   margin: 1em 0;
   padding: 1em;
   border: var(--tst-border);
-  border-radius: var(--tst-border-radius); }
+  border-radius: var(--tst-border-radius);
+}
 
 .yDivSmallWarning {
   background: var(--tst-warn-bg);
-  color: var(--tst-warn-clr); }
+  color: var(--tst-warn-clr);
+}
 
 .yDivAdmin {
   background: var(--tst-warn-bg);
@@ -130,149 +154,176 @@ select.t_native {
   margin: 1em 0;
   padding: 1em;
   border: var(--tst-border);
-  border-radius: var(--tst-border-radius); }
+  border-radius: var(--tst-border-radius);
+}
 
 .yDivSmallAdmin {
   background: var(--tst-warn-bg);
-  color: var(--tst-warn-clr); }
+  color: var(--tst-warn-clr);
+}
 
 /* Print */
 @media print {
   .yNoPrint {
-    display: none; } }
-
+    display: none;
+  }
+}
 @media screen {
   .yDisplayMode .yPrintOnly {
-    display: none; } }
-
+    display: none;
+  }
+}
 /* Wide Content */
 .widecontent .maincontainer {
   width: 100%;
   max-width: 100%;
   margin-left: 0;
   margin-right: 0;
-  padding-right: 20px; }
+  padding-right: 20px;
+}
 
 .widecontentfill body {
-  overflow: hidden; }
-
+  overflow: hidden;
+}
 .widecontentfill .yPane .yModule {
-  margin: 0; }
-
+  margin: 0;
+}
 .widecontentfill .MainPane {
-  padding: 0; }
-
+  padding: 0;
+}
 .widecontentfill .maincontainer {
   width: 100%;
   max-width: 100%;
   margin-left: 0;
-  margin-right: 0; }
-
+  margin-right: 0;
+}
 .widecontentfill footer {
-  display: none; }
+  display: none;
+}
 
 /* PANE IN EDIT MODE */
 .yPage.yEditMode .yPane {
   padding: 1em;
   background: var(--body-bg);
   border: var(--prop-border);
-  border-radius: var(--prop-border-radius); }
+  border-radius: var(--prop-border-radius);
+}
 
 /* MODULE SKINS */
 .yModule {
-  clear: both; }
-  .yModule .yModuleTitle h1 {
-    float: left;
-    margin: 0;
-    padding: 1rem 0 1rem 0;
-    font: var(--mstd-title-font); }
-  .yModule .yModuleTitle .yModuleLinksContainer {
-    clear: none;
-    float: right;
-    margin-top: 0; }
-  .yModule > .yModuleLinksContainer {
-    clear: both;
-    margin-top: .5em; }
+  clear: both;
+}
+.yModule .yModuleTitle h1 {
+  float: left;
+  margin: 0;
+  padding: 1rem 0 1rem 0;
+  font: var(--mstd-title-font);
+}
+.yModule .yModuleTitle .yModuleLinksContainer {
+  clear: none;
+  float: right;
+  margin-top: 0;
+}
+.yModule > .yModuleLinksContainer {
+  clear: both;
+  margin-top: 0.5em;
+}
 
 .modPanel {
   margin-top: 1rem;
   background: var(--mpnl-bg);
   color: var(--mpnl-clr);
   border: var(--mpnl-border);
-  border-radius: var(--mpnl-border-radius); }
-  .modPanel .yModuleTitle {
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: flex;
-    -webkit-box-orient: horizontal;
-    -webkit-box-direction: normal;
-    -webkit-flex-direction: row;
-            flex-direction: row;
-    -webkit-box-pack: left;
-    -webkit-justify-content: left;
-            justify-content: left;
-    -webkit-box-align: center;
-    -webkit-align-items: center;
-            align-items: center;
-    border-bottom: var(--mpnl-border);
-    padding: .2em; }
-    .modPanel .yModuleTitle h1 {
-      font: var(--mpnl-title-font);
-      padding: 0;
-      margin: 0 .5em;
-      vertical-align: middle; }
-    .modPanel .yModuleTitle .yModuleLinksContainer {
-      -webkit-box-flex: 1;
-      -webkit-flex: 1 1;
-              flex: 1 1;
-      display: inline-block;
-      padding-right: .5em;
-      padding-left: .5em;
-      padding-top: .1em; }
-      @media print {
-        .modPanel .yModuleTitle .yModuleLinksContainer {
-          display: none; } }
-      .modPanel .yModuleTitle .yModuleLinksContainer .y_button {
-        font: var(--mpnl-link-font);
-        padding: .3em;
-        margin-bottom: .1em; }
-    .modPanel .yModuleTitle .yModuleExpColl {
-      -webkit-box-flex: 0;
-      -webkit-flex: 0 0;
-              flex: 0 0;
-      margin: .2em; }
-  .modPanel .yModuleContents {
-    background: var(--body-bg);
-    color: var(--body-clr);
-    padding: 1em; }
+  border-radius: var(--mpnl-border-radius);
+}
+.modPanel .yModuleTitle {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: row;
+          flex-direction: row;
+  -webkit-box-pack: left;
+  -webkit-justify-content: left;
+          justify-content: left;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+  border-bottom: var(--mpnl-border);
+  padding: 0.2em;
+}
+.modPanel .yModuleTitle h1 {
+  font: var(--mpnl-title-font);
+  padding: 0;
+  margin: 0 0.5em;
+  vertical-align: middle;
+}
+.modPanel .yModuleTitle .yModuleLinksContainer {
+  -webkit-box-flex: 1;
+  -webkit-flex: 1 1;
+          flex: 1 1;
+  display: inline-block;
+  padding-right: 0.5em;
+  padding-left: 0.5em;
+  padding-top: 0.1em;
+}
+@media print {
+  .modPanel .yModuleTitle .yModuleLinksContainer {
+    display: none;
+  }
+}
+.modPanel .yModuleTitle .yModuleLinksContainer .y_button {
+  font: var(--mpnl-link-font);
+  padding: 0.3em;
+  margin-bottom: 0.1em;
+}
+.modPanel .yModuleTitle .yModuleExpColl {
+  -webkit-box-flex: 0;
+  -webkit-flex: 0 0;
+          flex: 0 0;
+  margin: 0.2em;
+}
+.modPanel .yModuleContents {
+  background: var(--body-bg);
+  color: var(--body-clr);
+  padding: 1em;
+}
 
 .modPanel.t_expanded .yModuleExpColl .t_exp {
-  display: none; }
-
+  display: none;
+}
 .modPanel.t_collapsed .yModuleExpColl .t_coll {
-  display: none; }
-
+  display: none;
+}
 .modPanel.t_collapsed .yModuleContents {
-  display: none; }
+  display: none;
+}
 
 /* OWNERSHIP */
 .ypagerole_noUserAnon {
-  background: var(--own-page-noUserAnon); }
+  background: var(--own-page-noUserAnon);
+}
 
 .ypagerole_noAnon {
-  background: var(--own-page-noAnon); }
+  background: var(--own-page-noAnon);
+}
 
 .ypagerole_noUser {
-  background: var(--own-page-noUser); }
+  background: var(--own-page-noUser);
+}
 
 .ymodrole_noUserAnon {
   background: var(--own-mod-noUserAnon);
-  padding: .7em; }
+  padding: 0.7em;
+}
 
 .ymodrole_noAnon {
   background: var(--own-mod-noAnon);
-  padding: .7em; }
+  padding: 0.7em;
+}
 
 .ymodrole_noUser {
   background: var(--own-mod-noUser);
-  padding: .7em; }
+  padding: 0.7em;
+}

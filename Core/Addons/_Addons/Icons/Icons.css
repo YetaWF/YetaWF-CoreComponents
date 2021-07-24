@@ -5,33 +5,46 @@ i.yic {
   height: 16px;
   display: inline-block;
   vertical-align: middle;
-  background: url(IconCollection.png) 0px 0px no-repeat; }
-  i.yic.yic_browse {
-    background-position-x: -80px; }
-  i.yic.yic_collapse {
-    background-position-x: -16px;
-    background-position-y: -16px; }
-  i.yic.yic_config {
-    background-position-x: -96px; }
-  i.yic.yic_display {
-    background-position-x: -16px; }
-  i.yic.yic_edit {
-    background-position-x: -32px; }
-  i.yic.yic_expand {
-    background-position-y: -16px; }
-  i.yic.yic_generic {
-    background-position-x: -64px;
-    background-position-y: -16px; }
-  i.yic.yic_help {
-    background-position-x: -32px;
-    background-position-y: -16px; }
-  i.yic.yic_preview {
-    background-position-x: -80px;
-    background-position-y: -16px; }
-  i.yic.yic_remove {
-    background-position-x: -48px; }
-  i.yic.yic_removelight {
-    background-position-x: -64px; }
-  i.yic.yic_warning {
-    background-position-x: -48px;
-    background-position-y: -16px; }
+  background: url(IconCollection.png) 0px 0px no-repeat;
+}
+i.yic.yic_browse {
+  background-position-x: -80px;
+}
+i.yic.yic_collapse {
+  background-position-x: -16px;
+  background-position-y: -16px;
+}
+i.yic.yic_config {
+  background-position-x: -96px;
+}
+i.yic.yic_display {
+  background-position-x: -16px;
+}
+i.yic.yic_edit {
+  background-position-x: -32px;
+}
+i.yic.yic_expand {
+  background-position-y: -16px;
+}
+i.yic.yic_generic {
+  background-position-x: -64px;
+  background-position-y: -16px;
+}
+i.yic.yic_help {
+  background-position-x: -32px;
+  background-position-y: -16px;
+}
+i.yic.yic_preview {
+  background-position-x: -80px;
+  background-position-y: -16px;
+}
+i.yic.yic_remove {
+  background-position-x: -48px;
+}
+i.yic.yic_removelight {
+  background-position-x: -64px;
+}
+i.yic.yic_warning {
+  background-position-x: -48px;
+  background-position-y: -16px;
+}
