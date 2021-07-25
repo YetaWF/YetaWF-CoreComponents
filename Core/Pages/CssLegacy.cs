@@ -19,7 +19,13 @@ namespace YetaWF.Core.Pages {
     /// <summary>
     /// Creates CSS files for legacy browsers that don't support CSS custom properties (<see href="https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties" />).
     /// </summary>
-    /// <remarks>For more information see <see href="https://YetaWF.com/Documentation/YetaWF/Topic/g_dev_cssvariables">CSS Custom Properties.</see></remarks>
+    /// <remarks>For more information see <see href="https://YetaWF.com/Documentation/YetaWF/Topic/g_dev_cssvariables">CSS Custom Properties.</see>
+    /// This is mainly used to support IE11 and older. By default this is not used in YetaWF.
+    /// 
+    /// When using Bootstrap 4 in a skin, AppSettings.json, Application:P:YetaWF_Core:SupportLegacyBrowser can be set to true to support IE11. 
+    /// Otherwise, any request by IE 11 (and lower) will be redirected to a customizable "Unsupported Browser" page (/Maintenance/Unsupported Browser.html).
+    /// The default skins in YetaWF use Bootstrap 5. Bootstrap 4 is only available in custom skins.
+    /// </remarks>
     public class CssLegacy : IInitializeApplicationStartup {
 
         internal const string LEGACYPATH = "/_L";
@@ -62,7 +68,7 @@ namespace YetaWF.Core.Pages {
 
         internal static bool SupportLegacyBrowser() {
             if (_supportLegacyBrowser == null)
-                _supportLegacyBrowser = WebConfigHelper.GetValue<bool>(AreaRegistration.CurrentPackage.AreaName, "SupportLegacyBrowser", true);
+                _supportLegacyBrowser = WebConfigHelper.GetValue<bool>(AreaRegistration.CurrentPackage.AreaName, "SupportLegacyBrowser", false);
             return (bool)_supportLegacyBrowser;
         }
         private static bool? _supportLegacyBrowser = null;
@@ -200,6 +206,8 @@ namespace YetaWF.Core.Pages {
 #if DEBUG
                 // make sure there are no stray var() directives. This will miss files where ALL var() are wrong. This is intentional
                 // for now as skins that have not yet been converted will complain about SkinBasics.scss.
+                // This error means you either missed some var() definitions in the theme or are using Bootstrap 5 with SupportLegacyBrowser == true.
+                // Bootstrap 5 does not support IE11, so that is an invalid combination.
                 int varIx = text.IndexOf("var(", StringComparison.Ordinal);
                 if (varIx >= 0)
                     throw new InternalError($"{fromPath} still contains var() directives: {text.Substring(varIx).Truncate(100)}");
