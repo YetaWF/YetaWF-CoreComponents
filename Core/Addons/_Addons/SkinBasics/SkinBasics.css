@@ -238,17 +238,13 @@ select.t_native option:focus {
 }
 .modPanel .yModuleTitle {
   display: -webkit-box;
-  display: -webkit-flex;
   display: flex;
   -webkit-box-orient: horizontal;
   -webkit-box-direction: normal;
-  -webkit-flex-direction: row;
           flex-direction: row;
   -webkit-box-pack: left;
-  -webkit-justify-content: left;
           justify-content: left;
   -webkit-box-align: center;
-  -webkit-align-items: center;
           align-items: center;
   border-bottom: var(--mpnl-border);
   padding: 0.2em;
@@ -261,7 +257,6 @@ select.t_native option:focus {
 }
 .modPanel .yModuleTitle .yModuleLinksContainer {
   -webkit-box-flex: 1;
-  -webkit-flex: 1 1;
           flex: 1 1;
   display: inline-block;
   padding-right: 0.5em;
@@ -280,7 +275,6 @@ select.t_native option:focus {
 }
 .modPanel .yModuleTitle .yModuleExpColl {
   -webkit-box-flex: 0;
-  -webkit-flex: 0 0;
           flex: 0 0;
   margin: 0.2em;
 }
