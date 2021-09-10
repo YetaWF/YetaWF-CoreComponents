@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Reflection;
+using YetaWF.Core.Extensions;
 using YetaWF.Core.Localize;
 
 namespace YetaWF.Core.Models {
@@ -29,6 +31,7 @@ namespace YetaWF.Core.Models {
         }
 
         private readonly List<ErrorInstance> Errors = new List<ErrorInstance>();
+        private readonly List<ModelStateEntry> Handled = new List<ModelStateEntry>();
 
         public void AddError(string netCoreErrorName, string? propertyName, string? hardcodedMessage, string attemptedValue) {
             Errors.Add(new ErrorInstance {
@@ -42,46 +45,43 @@ namespace YetaWF.Core.Models {
         /// <summary>
         /// Replace any standard .NET Core messages with their localized equivalent.
         /// </summary>
-        /// <param name="modelState"></param>
         internal void Update(ModelStateDictionary modelState, IDictionary<string, object> actionArguments) {
             // TODO: Once we have a use case, support for actionArguments needs to be fixed
             foreach (var argEntry in actionArguments) {
-                EvalArg(argEntry.Key, argEntry.Value, modelState);
+                UpdateModelState(modelState, argEntry.Value);
             }
         }
 
-        private void EvalArg(string key, object container, ModelStateDictionary modelState) {
+        internal void UpdateModelState(ModelStateDictionary modelState, object container) {
             foreach (ErrorInstance error in Errors) {
                 if (error.PropertyName == null && error.HardcodedMessage != null) {
                     foreach (string modelStateKey in modelState.Keys) {
-                        ModelStateEntry modelEntry = modelState[modelStateKey]!;
-                        if (modelEntry.Errors.FirstOrDefault()?.ErrorMessage == error.HardcodedMessage) {
-                            error.PropertyName = modelStateKey;// save property name that matches this error
-                            string? caption = modelStateKey;
-                            if (container != null) {
-                                PropertyData propData = ObjectSupport.GetPropertyData(container.GetType(), modelStateKey);
-                                caption = propData.GetCaption(container);
-                            }
-                            switch (error.NetCoreErrorName) {
-                                case "ValueMustNotBeNullAccessor":
-                                    modelEntry.Errors.Clear();
-                                    modelEntry.Errors.Add(this.__ResStr("nullVal", "The value '{0}' is not valid for field '{1}'", error.AttemptedValue, caption));
-                                    break;
+                        string? key = FindModelStateKey(modelState, modelStateKey);
+                        if (key != null) {
+                            ModelStateEntry modelEntry = modelState[key];
+                            if (modelEntry.Errors.FirstOrDefault()?.ErrorMessage == error.HardcodedMessage) {
+                                error.PropertyName = modelStateKey;// save property name that matches this error
+                                switch (error.NetCoreErrorName) {
+                                    case "ValueMustNotBeNullAccessor":
+                                        string? caption = GetCaption(container, modelStateKey);
+                                        modelEntry.Errors.Clear();
+                                        modelEntry.Errors.Add(this.__ResStr("nullVal", "The value '{0}' is not valid for field '{1}'", error.AttemptedValue, caption));
+                                        Handled.Add(modelEntry);
+                                        break;
+                                }
                             }
                         }
                     }
                 } else if (error.PropertyName != null) {
-                    ModelStateEntry? modelEntry = modelState[error.PropertyName];
-                    if (modelEntry != null) {
+                    string? key = FindModelStateKey(modelState, error.PropertyName);
+                    if (key != null) {
+                        ModelStateEntry modelEntry = modelState[key];
                         switch (error.NetCoreErrorName) {
                             case "AttemptedValueIsInvalidAccessor":
-                                string? caption = error.PropertyName;
-                                if (container != null) {
-                                    PropertyData propData = ObjectSupport.GetPropertyData(container.GetType(), error.PropertyName);
-                                    caption = propData.GetCaption(container);
-                                }
+                                string? caption = GetCaption(container, key);
                                 modelEntry.Errors.Clear();
                                 modelEntry.Errors.Add(this.__ResStr("invVal", "The value '{0}' is not valid for field '{1}'", error.AttemptedValue, caption));
+                                Handled.Add(modelEntry);
                                 break;
                         }
                     }
@@ -89,9 +89,51 @@ namespace YetaWF.Core.Models {
             }
         }
 
+        private string? FindModelStateKey(ModelStateDictionary modelState, string propertyName) {
+            string? key = modelState.Keys.FirstOrDefault((x) => x == propertyName && !Handled.Contains(modelState[x]));
+            if (key == null)
+                key = modelState.Keys.FirstOrDefault((x) => x.EndsWith($".{propertyName}") && !Handled.Contains(modelState[x]));
+            if (key == null)
+                return null;
+            return key;
+        }
+        private string? GetCaption(object? container, string propertyName) {
+            if (container == null) return null;
+            string[] keys = propertyName.Split(new char[] { '.' }, 2);
+            if (keys.Length == 1) {
+                PropertyData? propData = ObjectSupport.TryGetPropertyData(container.GetType(), keys[0]);
+                if (propData != null)
+                    return propData.GetCaption(container);
+            } else {// 2 keys
+                string key = keys[0];
+                string subProp = keys[1];
+                if (key.IndexOf('[') >= 0 && subProp.Length > 0) {
+                    // enumerable property (List, SerializableList, etc.)
+                    string prop = key.RemoveStartingAt('[');
+                    PropertyInfo? pi = ObjectSupport.TryGetProperty(container.GetType(), prop);
+                    if (pi != null) {
+                        if (ObjectSupport.TryGetPropertyValue<object?>(container, prop, out object? parm)) { 
+                            if (parm != null && parm is IEnumerable<object?> ienum) {
+                                IEnumerator<object?> ienumerator = ienum.GetEnumerator();
+                                if (ienumerator.MoveNext()) {
+                                    object? val = ienumerator.Current;
+                                    return GetCaption(val, subProp);
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    if (ObjectSupport.TryGetPropertyValue<object?>(container, key, out object? value))
+                        return GetCaption(value, key);
+                }
+            }
+            return null;
+        }
+
+
         public bool TryGetAttemptedValue(string propertyName, [MaybeNullWhen(false)] out string attemptedValue) {
             attemptedValue = null;
-            ErrorInstance? error = Errors.Where((x) => x.PropertyName == propertyName).FirstOrDefault();
+            ErrorInstance? error = Errors.FirstOrDefault((x) => x.PropertyName == propertyName);
             if (error == null) return false;
             attemptedValue = error.AttemptedValue;
             return true;

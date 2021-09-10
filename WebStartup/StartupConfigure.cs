@@ -210,19 +210,6 @@ namespace YetaWF.Core.WebStartup {
 
                 // AreaConvention to simplify Area discovery (using IControllerModelConvention)
                 options.Conventions.Add(new AreaConventionAttribute());
-
-                // Model binding error message overrides
-                // TODO: as use cases come in, add additional support
-                options.ModelBindingMessageProvider.SetAttemptedValueIsInvalidAccessor(// sample use case, DateTime with invalid string value
-                    (attemptedValue, propertyName) => {
-                        YetaWFManager.Manager.ModelBindingErrorManager.AddError("AttemptedValueIsInvalidAccessor", propertyName, null, attemptedValue);
-                        return $"The value is not valid for property {propertyName}";// default message, changed later when fixing the model state 
-                    });
-                options.ModelBindingMessageProvider.SetValueMustNotBeNullAccessor(// sample use case, null decimal when model is non-nullable
-                    (attemptedValue) => {//Why do we get the value, which is known to be null, but not the property name???
-                        YetaWFManager.Manager.ModelBindingErrorManager.AddError("ValueMustNotBeNullAccessor", null, ModelBindingErrorManager.AttemptedValueIsInvalidMessage, string.Empty);
-                        return ModelBindingErrorManager.AttemptedValueIsInvalidMessage;
-                    });
             })
             .AddNewtonsoftJson()
             .ConfigureApplicationPartManager((partManager) => { YetaWFApplicationPartManager.AddAssemblies(partManager); })
