@@ -102,6 +102,14 @@ var YetaWF;
         Forms.prototype.resequenceFields = function (rows, prefix) {
             return YetaWF_FormsImpl.resequenceFields(rows, prefix);
         };
+        /**
+         * Submit a form.
+         * @param form The form being submitted.
+         * @param useValidation Defines whether validation is performed before submission.
+         * @param extraData Optional additional form data submitted.
+         * @param customEventData
+         * @returns Optional event information sent with EVENTPRESUBMIT/EVENTPOSTSUBMIT events as event.detail.customEventData.
+         */
         Forms.prototype.submit = function (form, useValidation, extraData, customEventData) {
             var method = form.getAttribute("method");
             if (!method)
@@ -109,6 +117,17 @@ var YetaWF;
             var saveReturn = form.getAttribute(YConfigs.Basics.CssSaveReturnUrl) !== null; // form says we need to save the return address on submit
             this.submitExplicit(form, method, form.action, saveReturn, useValidation, extraData, customEventData);
         };
+        /**
+         * Submit a form.
+         * @param form The form being submitted.
+         * @param method The method used to submit the form (typically post)
+         * @param action The action URL used to submit the form.
+         * @param saveReturn Defines whether the return URL is saved on submit.
+         * @param useValidation Defines whether validation is performed before submission.
+         * @param extraData Optional additional form data submitted.
+         * @param customEventData
+         * @returns Optional event information sent with EVENTPRESUBMIT/EVENTPOSTSUBMIT events as event.detail.customEventData.
+         */
         Forms.prototype.submitExplicit = function (form, method, action, saveReturn, useValidation, extraData, customEventData) {
             var _this = this;
             $YetaWF.pageChanged = false; // suppress navigate error
@@ -215,6 +234,9 @@ var YetaWF;
             return formData;
         };
         // Cancel
+        /**
+         * Cancels the current form (Cancel button handling).
+         */
         Forms.prototype.cancel = function () {
             if ($YetaWF.isInPopup()) {
                 // we're in a popup, just close it
@@ -246,10 +268,20 @@ var YetaWF;
                 }
             }
         };
-        // Forms retrieval
+        /**
+         * Retrieve the form element containing the specified element tag.
+         * An error occurs if no form can be found.
+         * @param tag The element contained within a form.
+         * @returns The form containing element tag.
+         */
         Forms.prototype.getForm = function (tag) {
             return $YetaWF.elementClosest(tag, "form");
         };
+        /**
+         * Retrieve the form element containing the specified element tag.
+         * @param tag The element contained within a form.
+         * @returns The form containing element tag or null.
+         */
         Forms.prototype.getFormCond = function (tag) {
             var form = $YetaWF.elementClosestCond(tag, "form");
             if (!form)
