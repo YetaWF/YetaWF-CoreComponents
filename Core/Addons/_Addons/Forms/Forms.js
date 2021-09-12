@@ -102,16 +102,14 @@ var YetaWF;
         Forms.prototype.resequenceFields = function (rows, prefix) {
             return YetaWF_FormsImpl.resequenceFields(rows, prefix);
         };
-        Forms.prototype.submit = function (form, useValidation, extraData, successFunc, failFunc //$$$$$$$$$$PARAMETERS TO BE REMOVED
-        ) {
+        Forms.prototype.submit = function (form, useValidation, extraData, customEventData) {
             var method = form.getAttribute("method");
             if (!method)
                 return; // no method, don't submit
             var saveReturn = form.getAttribute(YConfigs.Basics.CssSaveReturnUrl) !== null; // form says we need to save the return address on submit
-            this.submitExplicit(form, method, form.action, saveReturn, useValidation, extraData);
+            this.submitExplicit(form, method, form.action, saveReturn, useValidation, extraData, customEventData);
         };
-        Forms.prototype.submitExplicit = function (form, method, action, saveReturn, useValidation, extraData, successFunc, failFunc, rawJSONFunc //$$$$$$$$$$PARAMETERS TO BE REMOVED
-        ) {
+        Forms.prototype.submitExplicit = function (form, method, action, saveReturn, useValidation, extraData, customEventData) {
             var _this = this;
             $YetaWF.pageChanged = false; // suppress navigate error
             var divs = $YetaWF.getElementsBySelector("div." + this.DATACLASS);
@@ -119,7 +117,7 @@ var YetaWF;
                 var div = divs_1[_i];
                 $YetaWF.removeElement(div);
             }
-            $YetaWF.sendCustomEvent(document.body, Forms.EVENTPRESUBMIT, { form: form });
+            $YetaWF.sendCustomEvent(document.body, Forms.EVENTPRESUBMIT, { form: form, customEventData: customEventData, });
             var formValid = true;
             if (useValidation)
                 formValid = this.validate(form);
@@ -170,11 +168,11 @@ var YetaWF;
                                     partForm.className = cls;
                             }
                         }
-                        $YetaWF.sendCustomEvent(form, Forms.EVENTPOSTSUBMIT, { success: !_this.hasErrors(form), form: form });
+                        $YetaWF.sendCustomEvent(form, Forms.EVENTPOSTSUBMIT, { success: !_this.hasErrors(form), form: form, customEventData: customEventData, response: responseText });
                         $YetaWF.setFocus([form]);
                     }
                     else {
-                        $YetaWF.sendCustomEvent(form, Forms.EVENTPOSTSUBMIT, { success: false, form: form });
+                        $YetaWF.sendCustomEvent(form, Forms.EVENTPOSTSUBMIT, { success: false, form: form, customEventData: customEventData, });
                     }
                 });
             }
@@ -186,7 +184,7 @@ var YetaWF;
                 if (hasErrors)
                     this.showErrors(form);
                 // call callback (if any)
-                $YetaWF.sendCustomEvent(form, Forms.EVENTPOSTSUBMIT, { success: false, form: form });
+                $YetaWF.sendCustomEvent(form, Forms.EVENTPOSTSUBMIT, { success: false, form: form, customEventData: customEventData, });
             }
             divs = $YetaWF.getElementsBySelector("div." + this.DATACLASS);
             for (var _a = 0, divs_2 = divs; _a < divs_2.length; _a++) {

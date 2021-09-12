@@ -132,10 +132,13 @@ namespace YetaWF {
 
     export interface DetailsPreSubmit {
         form: HTMLFormElement;
+        customEventData?: any;
     }
     export interface DetailsPostSubmit {
         success: boolean;
         form: HTMLFormElement;
+        customEventData?: any;
+        response?: any;
     }
 
     export class Forms {
@@ -238,18 +241,33 @@ namespace YetaWF {
 
         public DATACLASS: string = "yetawf_forms_data"; // add divs with this class to form for any data that needs to be submitted (will be removed before calling (pre)submit handlers.
 
-        public submit(form: HTMLFormElement, useValidation: boolean, extraData?: string
-            , successFunc?: (hasErrors: boolean) => void, failFunc?: () => void  //$$$$$$$$$$PARAMETERS TO BE REMOVED
-        ): void {
+        /**
+         * Submit a form.
+         * @param form The form being submitted.
+         * @param useValidation Defines whether validation is performed before submission.
+         * @param extraData Optional additional form data submitted.
+         * @param customEventData
+         * @returns Optional event information sent with EVENTPRESUBMIT/EVENTPOSTSUBMIT events as event.detail.customEventData.
+         */
+        public submit(form: HTMLFormElement, useValidation: boolean, extraData?: string, customEventData?: any): void {
             let method = form.getAttribute("method");
             if (!method) return; // no method, don't submit
             let saveReturn = form.getAttribute(YConfigs.Basics.CssSaveReturnUrl) !== null;// form says we need to save the return address on submit
-            this.submitExplicit(form, method, form.action, saveReturn, useValidation, extraData);
+            this.submitExplicit(form, method, form.action, saveReturn, useValidation, extraData, customEventData);
         }
 
-        public submitExplicit(form: HTMLFormElement, method: string, action: string, saveReturn: boolean, useValidation: boolean, extraData?: string,
-            successFunc?: (hasErrors: boolean) => void, failFunc?: () => void, rawJSONFunc?: (json:string) => void //$$$$$$$$$$PARAMETERS TO BE REMOVED
-        ): void  {
+        /**
+         * Submit a form.
+         * @param form The form being submitted.
+         * @param method The method used to submit the form (typically post)
+         * @param action The action URL used to submit the form.
+         * @param saveReturn Defines whether the return URL is saved on submit.
+         * @param useValidation Defines whether validation is performed before submission.
+         * @param extraData Optional additional form data submitted.
+         * @param customEventData
+         * @returns Optional event information sent with EVENTPRESUBMIT/EVENTPOSTSUBMIT events as event.detail.customEventData.
+         */
+        public submitExplicit(form: HTMLFormElement, method: string, action: string, saveReturn: boolean, useValidation: boolean, extraData?: string, customEventData?: any): void  {
 
             $YetaWF.pageChanged = false;// suppress navigate error
 
@@ -257,7 +275,7 @@ namespace YetaWF {
             for (let div of divs)
                 $YetaWF.removeElement(div);
 
-            $YetaWF.sendCustomEvent(document.body, Forms.EVENTPRESUBMIT, { form : form });
+            $YetaWF.sendCustomEvent(document.body, Forms.EVENTPRESUBMIT, { form : form, customEventData: customEventData, });
 
             let formValid = true;
             if (useValidation)
@@ -314,10 +332,10 @@ namespace YetaWF {
                                     partForm.className = cls;
                             }
                         }
-                        $YetaWF.sendCustomEvent(form, Forms.EVENTPOSTSUBMIT, { success: !this.hasErrors(form), form : form });
+                        $YetaWF.sendCustomEvent(form, Forms.EVENTPOSTSUBMIT, { success: !this.hasErrors(form), form : form, customEventData: customEventData, response: responseText });
                         $YetaWF.setFocus([form]);
                     } else {
-                        $YetaWF.sendCustomEvent(form, Forms.EVENTPOSTSUBMIT, { success: false, form : form });
+                        $YetaWF.sendCustomEvent(form, Forms.EVENTPOSTSUBMIT, { success: false, form : form, customEventData: customEventData, });
                     }
                 });
             } else {
@@ -328,7 +346,7 @@ namespace YetaWF {
                 if (hasErrors)
                     this.showErrors(form);
                 // call callback (if any)
-                $YetaWF.sendCustomEvent(form, Forms.EVENTPOSTSUBMIT, { success: false, form : form });
+                $YetaWF.sendCustomEvent(form, Forms.EVENTPOSTSUBMIT, { success: false, form : form, customEventData: customEventData, });
             }
             divs = $YetaWF.getElementsBySelector("div." + this.DATACLASS);
             for (let div of divs)
@@ -359,6 +377,9 @@ namespace YetaWF {
 
         // Cancel
 
+        /**
+         * Cancels the current form (Cancel button handling).
+         */
         public cancel(): void {
             if ($YetaWF.isInPopup()) {
                 // we're in a popup, just close it
@@ -387,10 +408,20 @@ namespace YetaWF {
             }
         }
 
-        // Forms retrieval
+        /**
+         * Retrieve the form element containing the specified element tag.
+         * An error occurs if no form can be found.
+         * @param tag The element contained within a form.
+         * @returns The form containing element tag.
+         */
         public getForm(tag: HTMLElement): HTMLFormElement {
             return $YetaWF.elementClosest(tag, "form") as HTMLFormElement;
         }
+        /**
+         * Retrieve the form element containing the specified element tag.
+         * @param tag The element contained within a form.
+         * @returns The form containing element tag or null.
+         */
         public getFormCond(tag: HTMLElement) : HTMLFormElement | null {
             let form = $YetaWF.elementClosestCond(tag, "form");
             if (!form) return null;
