@@ -65,6 +65,9 @@ namespace YetaWF {
     export interface DetailsEventContainerScroll {
         container: HTMLElement;
     }
+    export interface DetailsEventContentResized {
+        tag: HTMLElement;
+    }
     export interface DetailsActivateDiv {
         tags: HTMLElement[];
     }
@@ -153,6 +156,7 @@ namespace YetaWF {
         public static readonly EVENTAFTERPRINT: string = "print_after";
         public static readonly EVENTCONTAINERSCROLL: string = "container_scroll";
         public static readonly EVENTCONTAINERRESIZE: string = "container_resize";
+        public static readonly EVENTCONTENTRESIZED: string = "content_resized";
         public static readonly EVENTACTIVATEDIV: string = "activate_div";
         public static readonly EVENTPANELSWITCHED: string = "panel_switched";
         public static readonly EVENTADDONCHANGED: string = "addon_changed";
@@ -627,86 +631,6 @@ namespace YetaWF {
             return str1 === str2;
         }
 
-        // Ajax result handling
-
-        /** OBSOLETE: DO NOT USE */
-        public processAjaxReturn(result: string, textStatus: string, xhr: XMLHttpRequest, tagInModule?: HTMLElement,
-            onSuccessNoData?: () => void,
-            onRawDataResult?: (result: string) => void,
-            onJSONResult?: (result: any) => void): boolean {
-
-            //if (xhr.responseType != "json") throw `processAjaxReturn: unexpected responseType ${xhr.responseType}`;
-            try {
-                // eslint-disable-next-line no-eval
-                result = <string>eval(result);
-            } catch (e) { }
-            result = result || "(??)";
-            if (xhr.status === 200) {
-                this.reloadingModuleTagInModule = tagInModule || null;
-                if (result.startsWith(YConfigs.Basics.AjaxJavascriptReturn)) {
-                    var script = result.substring(YConfigs.Basics.AjaxJavascriptReturn.length);
-                    if (script.length === 0) { // all is well, but no script to execute
-                        if (onSuccessNoData !== undefined) {
-                            onSuccessNoData();
-                        }
-                    } else {
-                        // eslint-disable-next-line no-eval
-                        eval(script);
-                    }
-                    return true;
-                } else if (result.startsWith(YConfigs.Basics.AjaxJSONReturn)) {
-                    var json = result.substring(YConfigs.Basics.AjaxJSONReturn.length);
-                    if (onJSONResult) {
-                        onJSONResult(JSON.parse(json));
-                        return true;
-                    }
-                    return false;
-                } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptErrorReturn)) {
-                    var script = result.substring(YConfigs.Basics.AjaxJavascriptErrorReturn.length);
-                    // eslint-disable-next-line no-eval
-                    eval(script);
-                    return false;
-                } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadPage)) {
-                    var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadPage.length);
-                    // eslint-disable-next-line no-eval
-                    eval(script);// if this uses $YetaWF.alert or other "modal" calls, the page will reload immediately (use AjaxJavascriptReturn instead and explicitly reload page in your javascript)
-                    this.reloadPage(true);
-                    return true;
-                } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModule)) {
-                    var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModule.length);
-                    // eslint-disable-next-line no-eval
-                    eval(script);// if this uses $YetaWF.alert or other "modal" calls, the module will reload immediately (use AjaxJavascriptReturn instead and explicitly reload module in your javascript)
-                    this.reloadModule();
-                    return true;
-                } else if (result.startsWith(YConfigs.Basics.AjaxJavascriptReloadModuleParts)) {
-                    //if (!this.isInPopup()) throw "Not supported - only available within a popup";/*DEBUG*/
-                    var script = result.substring(YConfigs.Basics.AjaxJavascriptReloadModuleParts.length);
-                    // eslint-disable-next-line no-eval
-                    eval(script);
-                    if (tagInModule)
-                        this.refreshModuleByAnyTag(tagInModule);
-                    return true;
-                } else {
-                    if (onRawDataResult !== undefined) {
-                        onRawDataResult(result);
-                        return true;
-                    } else {
-                        this.error(YLocs.Basics.IncorrectServerResp);
-                    }
-                    return false;
-                }
-            } else if (xhr.status >= 400 && xhr.status <= 499) {
-                $YetaWF.error(YLocs.Forms.AjaxError.format(xhr.status, YLocs.Forms.AjaxNotAuth), YLocs.Forms.AjaxErrorTitle);
-                return false;
-            } else if (xhr.status === 0) {
-                $YetaWF.error(YLocs.Forms.AjaxError.format(xhr.status, YLocs.Forms.AjaxConnLost), YLocs.Forms.AjaxErrorTitle);
-                return false;
-            } else {
-                $YetaWF.error(YLocs.Forms.AjaxError.format(xhr.status, result), YLocs.Forms.AjaxErrorTitle);
-                return false;
-            }
-        }
-
         /** Send a GET/POST/... request to the specified URL, expecting a JSON response. Errors are automatically handled. The callback is called once the POST response is available.
          * @param url The URL used for the POST request.
          * @param data The data to send as form data with the POST request.
@@ -755,7 +679,7 @@ namespace YetaWF {
         private handleReadyStateChange(request: XMLHttpRequest, callback: (success: boolean, data: any) => void, tagInModule?: HTMLElement): void {
             request.setRequestHeader("X-Requested-With", "XMLHttpRequest");
             request.onreadystatechange = (ev: Event): any => {
-                if (request.readyState === 4 /*DONE*/) {
+                if (request.readyState === XMLHttpRequest.DONE) {
                     this.setLoading(false);
                     if (request.status === 200) {
                         let result: any = null;
@@ -1071,10 +995,14 @@ namespace YetaWF {
             if (!elems)
                 return all;
             for (const elem of elems) {
-                let list: NodeListOf<Element> = elem.querySelectorAll(selector);
-                let len: number = list.length;
-                for (let i: number = 0; i < len; ++i) {
-                    all.push(list[i] as HTMLElement);
+                if (elem.matches(selector)) // oddly enough querySelectorAll doesn't return anything even though the element itself matches...
+                    all.push(elem);
+                else {
+                    let list: NodeListOf<Element> = elem.querySelectorAll(selector);
+                    let len: number = list.length;
+                    for (let i: number = 0; i < len; ++i) {
+                        all.push(list[i] as HTMLElement);
+                    }
                 }
             }
             return all;
@@ -1609,8 +1537,17 @@ namespace YetaWF {
 
         public sendContainerResizeEvent(container?: HTMLElement): void {
             if (!container) container = document.body;
-            let details: DetailsEventContainerScroll = { container: container };
+            let details: DetailsEventContainerResize = { container: container };
             this.sendCustomEvent(document.body, BasicsServices.EVENTCONTAINERRESIZE, details);
+        }
+
+        // CONTENT RESIZED
+        // CONTENT RESIZED
+        // CONTENT RESIZED
+
+        public sendContentResizedEvent(tag: HTMLElement): void {
+            let details: DetailsEventContentResized = { tag: tag };
+            this.sendCustomEvent(document.body, BasicsServices.EVENTCONTENTRESIZED, details);
         }
 
         // Expand/collapse Support
