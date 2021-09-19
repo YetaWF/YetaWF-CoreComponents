@@ -999,10 +999,7 @@ namespace YetaWF {
                     all.push(elem);
                 else {
                     let list: NodeListOf<Element> = elem.querySelectorAll(selector);
-                    let len: number = list.length;
-                    for (let i: number = 0; i < len; ++i) {
-                        all.push(list[i] as HTMLElement);
-                    }
+                    all = all.concat(Array.prototype.slice.call(list));
                 }
             }
             return all;

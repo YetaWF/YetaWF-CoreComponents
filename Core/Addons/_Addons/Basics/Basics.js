@@ -807,10 +807,7 @@ var YetaWF;
                     all.push(elem);
                 else {
                     var list = elem.querySelectorAll(selector);
-                    var len = list.length;
-                    for (var i = 0; i < len; ++i) {
-                        all.push(list[i]);
-                    }
+                    all = all.concat(Array.prototype.slice.call(list));
                 }
             }
             return all;
