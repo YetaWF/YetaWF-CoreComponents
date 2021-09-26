@@ -855,7 +855,11 @@ namespace YetaWF {
                     try { // catch errors to insure all callbacks are called
                         entry.callback(tag);
                     } catch (err: any) {
-                        console.error(err.message || err);
+                        const msg = err.message || err;
+                        console.error(msg);
+                        if (YConfigs.Basics.DEBUGBUILD) {
+                            $YetaWF.error(msg);
+                        }
                     }
                     if (!entry.autoRemove)
                         newList.push(entry);

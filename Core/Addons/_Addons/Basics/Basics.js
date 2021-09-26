@@ -667,7 +667,11 @@ var YetaWF;
                         entry.callback(tag);
                     }
                     catch (err) {
-                        console.error(err.message || err);
+                        var msg = err.message || err;
+                        console.error(msg);
+                        if (YConfigs.Basics.DEBUGBUILD) {
+                            $YetaWF.error(msg);
+                        }
                     }
                     if (!entry.autoRemove)
                         newList.push(entry);
