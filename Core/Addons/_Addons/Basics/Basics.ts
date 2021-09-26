@@ -851,13 +851,14 @@ namespace YetaWF {
 
             let newList: ClearDivEntry[] = [];
             for (const entry of this.ClearDivHandlers) {
-                try { // catch errors to insure all callbacks are called
-                    if (entry.callback != null) {
-                        if (entry.callback(tag) && !entry.autoRemove)
-                            newList.push(entry);
+                if (entry.callback != null) {
+                    try { // catch errors to insure all callbacks are called
+                        entry.callback(tag);
+                    } catch (err: any) {
+                        console.error(err.message || err);
                     }
-                } catch (err: any) {
-                    console.error(err.message || err);
+                    if (!entry.autoRemove)
+                        newList.push(entry);
                 }
             }
             // save new list without removed entries
