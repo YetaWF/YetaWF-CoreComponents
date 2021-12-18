@@ -895,7 +895,7 @@ namespace YetaWF {
                 try { // catch errors to insure all callbacks are called
                     for (const tag of tags)
                         entry.callback(tag);
-                } catch (err) {
+                } catch (err:any) {
                     console.error(err.message);
                 }
             }
@@ -932,7 +932,7 @@ namespace YetaWF {
                         if (entry.callback(tag) && !entry.autoRemove)
                             newList.push(entry);
                     }
-                } catch (err) {
+                } catch (err:any) {
                     console.error(err.message || err);
                 }
             }
