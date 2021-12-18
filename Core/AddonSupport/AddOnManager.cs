@@ -118,30 +118,30 @@ namespace YetaWF.Core.Addons {
         /// If the template name ends in a number, it could be a template with ending numeric variations (like Text20, Text40, Text80)
         /// which are all the same template. However, if we find an installed addon template that ends in the exact name (including number) we use that first.
         /// </remarks>
-        public async Task<bool> AddTemplateAsync(string areaName, string templateName, YetaWFComponentBase.ComponentType componentType) {
+        public async Task<bool> AddBasicTemplateAsync(string areaName, string templateName, YetaWFComponentBase.ComponentType componentType) {
             if (Manager.IsPostRequest) return false;
             string templateNameBasic = templateName.TrimEnd('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
             // first try template name without ending number
             if (componentType == YetaWFComponentBase.ComponentType.Edit) {
-                if (await AddTemplateAsync(areaName, $"{templateNameBasic}Edit"))
+                if (await AddBasicTemplateAsync(areaName, $"{templateNameBasic}Edit"))
                     return true;
             } else {
-                if (await AddTemplateAsync(areaName, templateNameBasic))
+                if (await AddBasicTemplateAsync(areaName, templateNameBasic))
                     return true;
             }
             if (templateName != templateNameBasic) {
                 // try template name including number
                 if (componentType == YetaWFComponentBase.ComponentType.Edit) {
-                    if (await AddTemplateAsync(areaName, $"{templateName}Edit"))
+                    if (await AddBasicTemplateAsync(areaName, $"{templateName}Edit"))
                         return true;
                 } else {
-                    if (await AddTemplateAsync(areaName, templateName))
+                    if (await AddBasicTemplateAsync(areaName, templateName))
                         return true;
                 }
             }
-            return await AddTemplateAsync(areaName, $"{templateName}Both");
+            return await AddBasicTemplateAsync(areaName, $"{templateName}Both");
         }
-        private async Task<bool> AddTemplateAsync(string areaName, string templateName) {
+        private async Task<bool> AddBasicTemplateAsync(string areaName, string templateName) {
             Package.AddOnProduct? version = Package.TryFindTemplate(areaName, templateName);
             if (version != null) {
                 if (!_AddedProducts.Contains(version)) {
@@ -155,30 +155,21 @@ namespace YetaWF.Core.Addons {
         }
 
         /// <summary>
-        /// Add a template given a uihint - ignores non-existent templates
+        /// Add a template given a UIHint - ignores non-existent templates
         /// </summary>
-        /// <param name="uiHintTemplate"></param>
-        public async Task AddTemplateFromUIHintAsync(string uiHintTemplate, YetaWFComponentBase.ComponentType componentType) {
+        /// <param name="areaName"></param>
+        /// <param name="uiHint"></param>
+        public async Task AddTemplateFromUIHintAsync(Package? package, string uiHint, YetaWFComponentBase.ComponentType componentType) {
+
+            if (string.IsNullOrWhiteSpace(uiHint)) return;
+            string uiHintTemplate = package != null ? $"{package.AreaName}_{uiHint}" : uiHint;
+
             if (Manager.IsPostRequest) return;
             if (string.IsNullOrWhiteSpace(uiHintTemplate)) return;
 
             Manager.AddOnManager.CheckInvokedTemplate(uiHintTemplate);
 
-            int firstIndex = uiHintTemplate.IndexOf("_", StringComparison.Ordinal);
-            if (firstIndex < 0) {
-                // standard template
-                await YetaWFCoreRendering.AddTemplateAsync(uiHintTemplate, componentType);
-            } else {
-                // domain_product_name template
-                string[] parts = uiHintTemplate.Split(new char[] { '_' }, 3);
-                if (parts.Length != 3) throw new InternalError($"Template name invalid - {uiHintTemplate}");
-                await AddTemplateAsync($"{parts[0]}_{parts[1]}", parts[2], componentType);
-            }
-
-            if (componentType == YetaWFComponentBase.ComponentType.Display)
-                await YetaWFComponentExtender.MarkUsedDisplayAsync(uiHintTemplate);
-            else
-                await YetaWFComponentExtender.MarkUsedEditAsync(uiHintTemplate);
+            await YetaWFComponentExtender.AddComponentSupportFromUIHintAsync(uiHintTemplate, componentType);
         }
 
         /// <summary>

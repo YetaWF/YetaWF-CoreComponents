@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using YetaWF.Core.Addons;
 using YetaWF.Core.DataProvider;
 using YetaWF.Core.Localize;
+using YetaWF.Core.Log;
 using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Support;
@@ -341,63 +342,43 @@ namespace YetaWF.Core.Components {
                 throw new InternalError($"Component {uiHint} ({renderType}) not found");
             YetaWFComponentBase component = (YetaWFComponentBase)Activator.CreateInstance(compType) ! ;
 
-            // Get standard support for this package
-            if (!Manager.ComponentPackagesSeen.Contains(component.Package)) {
-                if (renderType == YetaWFComponentBase.ComponentType.Edit)
-                    await component.IncludeStandardEditAsync();
-                else
-                    await component.IncludeStandardDisplayAsync();
-                try {
-                    Manager.ComponentPackagesSeen.Add(component.Package);
-                } catch (Exception) { }
-            }
+            await AddComponentSupportFromComponentAsync(component, uiHint, compType, renderType);
 
             Type containerType = container.GetType();
+            string yhtml;
             if (propertyName == null) {
                 // Container
                 component.SetRenderInfo(htmlHelper, container, null, null, null, htmlAttributes, validation);
-                // Invoke IncludeAsync
-                MethodInfo? miAsync = compType.GetMethod(nameof(IYetaWFContainer<object>.IncludeAsync), Array.Empty<Type>());
-                if (miAsync == null)
-                    throw new InternalError($"{compType.FullName} doesn't have an {nameof(IYetaWFContainer<object>.IncludeAsync)} method for {containerType.FullName}");
-                Task methRetvalTask = (Task)miAsync.Invoke(component, null) !;
-                await methRetvalTask;
 
                 // Invoke RenderAsync
-                miAsync = compType.GetMethod(nameof(IYetaWFContainer<object>.RenderContainerAsync), new Type[] { containerType });
+                MethodInfo? miAsync = compType.GetMethod(nameof(IYetaWFContainer<object>.RenderContainerAsync), new Type[] { containerType });
                 if (miAsync == null)
                     throw new InternalError($"{compType.FullName} doesn't have a {nameof(IYetaWFContainer<object?>.RenderContainerAsync)} method accepting a model type {typeof(object).FullName} for {containerType.FullName}");
                 Task<string> methStringTask = (Task<string>)miAsync.Invoke(component, new object?[] { container }) ! ;
-                return await methStringTask;
+                yhtml = await methStringTask;
             } else {
                 // Component
                 if (propData == null)
                     propData = ObjectSupport.GetPropertyData(containerType, propertyName);
                 component.SetRenderInfo(htmlHelper, container, propertyName, fieldName, propData, htmlAttributes, validation);
-                // Invoke IncludeAsync
-                MethodInfo? miAsync = compType.GetMethod(nameof(IYetaWFComponent<object?>.IncludeAsync), Array.Empty<Type>());
-                if (miAsync == null)
-                    throw new InternalError($"{compType.FullName} doesn't have an {nameof(IYetaWFComponent<object?>.IncludeAsync)} method for {containerType.FullName}, {propertyName}");
-                Task methRetvalTask = (Task)miAsync.Invoke(component, null) ! ;
-                await methRetvalTask;
 
                 // Invoke RenderAsync
-                miAsync = compType.GetMethod(nameof(IYetaWFComponent<object?>.RenderAsync), new Type[] { propData.PropInfo.PropertyType });
+                MethodInfo? miAsync = compType.GetMethod(nameof(IYetaWFComponent<object?>.RenderAsync), new Type[] { propData.PropInfo.PropertyType });
                 if (miAsync == null)
                     throw new InternalError($"{compType.FullName} doesn't have a {nameof(IYetaWFComponent<object?>.RenderAsync)} method accepting a model type {propData.PropInfo.PropertyType.FullName} for {containerType.FullName}, {propertyName}");
 
                 Task<string> methStringTask = (Task<string>)miAsync.Invoke(component, new object?[] { model })!;
-                string yhtml = await methStringTask;
-#if DEBUG
-                if (!string.IsNullOrWhiteSpace(yhtml)) {
-                    if (yhtml.Contains("System.Threading.Tasks.Task"))
-                        throw new InternalError($"Component {uiHint} contains System.Threading.Tasks.Task - check for missing \"await\" - generated HTML: \"{yhtml}\"");
-                    if (yhtml.Contains("Microsoft.AspNetCore.Mvc.Rendering"))
-                        throw new InternalError($"Component {uiHint} contains Microsoft.AspNetCore.Mvc.Rendering - check for missing \"ToString()\" - generated HTML: \"{yhtml}\"");
-                }
-#endif
-                return yhtml;
+                yhtml = await methStringTask;
             }
+#if DEBUG
+            if (!string.IsNullOrWhiteSpace(yhtml)) {
+                if (yhtml.Contains("System.Threading.Tasks.Task"))
+                    throw new InternalError($"Component {uiHint} contains System.Threading.Tasks.Task - check for missing \"await\" - generated HTML: \"{yhtml}\"");
+                if (yhtml.Contains("Microsoft.AspNetCore.Mvc.Rendering"))
+                    throw new InternalError($"Component {uiHint} contains Microsoft.AspNetCore.Mvc.Rendering - check for missing \"ToString()\" - generated HTML: \"{yhtml}\"");
+            }
+#endif
+            return yhtml ?? string.Empty;
         }
 
         /// <summary>
@@ -409,49 +390,58 @@ namespace YetaWF.Core.Components {
         ///
         /// The AddComponentForType method is used during the initial HTTP Get request to add all required addons for all components used so they are later available when record data is added to the component.
         /// </remarks>
-        public static async Task AddComponentsForType(Type type) {
+        public static async Task AddComponentSupportForType(Type type) {
             List<PropertyData> propData = ObjectSupport.GetPropertyData(type);
             foreach (PropertyData prop in propData) {
                 if (prop.UIHint != null) {
                     if (prop.ReadOnly)
-                        await YetaWFComponentExtender.MarkUsedDisplayAsync(prop.UIHint);
+                        await YetaWFComponentExtender.AddComponentSupportFromUIHintAsync(prop.UIHint, YetaWFComponentBase.ComponentType.Display);
                     else
-                        await YetaWFComponentExtender.MarkUsedEditAsync(prop.UIHint);
+                        await YetaWFComponentExtender.AddComponentSupportFromUIHintAsync(prop.UIHint, YetaWFComponentBase.ComponentType.Edit);
                     if (prop.PropInfo.PropertyType.IsClass)
-                        await AddComponentsForType(prop.PropInfo.PropertyType);
+                        await AddComponentSupportForType(prop.PropInfo.PropertyType);
                 }
             }
         }
-        internal static async Task MarkUsedDisplayAsync(string? UIHint) {
-            await MarkUsedAsync(YetaWFComponentBaseStartup.GetComponentsDisplay(), YetaWFComponentBase.ComponentType.Display, UIHint);
-        }
-        internal static async Task MarkUsedEditAsync(string? UIHint = null) {
-            await MarkUsedAsync(YetaWFComponentBaseStartup.GetComponentsEdit(), YetaWFComponentBase.ComponentType.Edit, UIHint);
-        }
-        private static async Task MarkUsedAsync(Dictionary<string, Type> components, YetaWFComponentBase.ComponentType renderType, string? uIHint) {
-            if (string.IsNullOrWhiteSpace(uIHint))
+        internal static async Task AddComponentSupportFromUIHintAsync(string uiHintTemplate, YetaWFComponentBase.ComponentType renderType) {
+
+            Dictionary<string, Type> components;
+            if (renderType == YetaWFComponentBase.ComponentType.Display)
+                components = YetaWFComponentBaseStartup.GetComponentsDisplay();
+            else
+                components = YetaWFComponentBaseStartup.GetComponentsEdit();
+            if (string.IsNullOrWhiteSpace(uiHintTemplate))
                 throw new InternalError($"UIHint missing");
-            if (!components.TryGetValue(uIHint, out Type? compType))
-                throw new InternalError($"Component {uIHint} ({renderType}) not found");
+            if (!components.TryGetValue(uiHintTemplate, out Type? compType))
+                throw new InternalError($"Component {uiHintTemplate} ({renderType}) not found");
             YetaWFComponentBase component = (YetaWFComponentBase)Activator.CreateInstance(compType) ! ;
+            await AddComponentSupportFromComponentAsync(component, uiHintTemplate, compType, renderType);
+        }
+        internal static async Task AddComponentSupportFromComponentAsync(YetaWFComponentBase component, string uiHintTemplate, Type compType, YetaWFComponentBase.ComponentType renderType) {
 
             // Get standard support for this package
             if (!Manager.ComponentPackagesSeen.Contains(component.Package)) {
+                try {
+                    Manager.ComponentPackagesSeen.Add(component.Package);
+                } catch (Exception) { }
                 if (renderType == YetaWFComponentBase.ComponentType.Edit)
                     await component.IncludeStandardEditAsync();
                 else
                     await component.IncludeStandardDisplayAsync();
-                try {
-                    Manager.ComponentPackagesSeen.Add(component.Package);
-                } catch (Exception) { }
             }
 
-            // Invoke IncludeAsync
-            MethodInfo? miAsync = compType.GetMethod(nameof(IYetaWFContainer<object>.IncludeAsync), Array.Empty<Type>());
-            if (miAsync == null)
-                throw new InternalError($"{compType.FullName} doesn't have an {nameof(IYetaWFContainer<object>.IncludeAsync)} method");
-            Task methRetvalTask = (Task)miAsync.Invoke(component, null) ! ;
-            await methRetvalTask;
+            string compKey = $"{uiHintTemplate} {renderType}";
+            if (!Manager.ComponentsSeen.Contains(compKey)) {
+                try {
+                    Manager.ComponentsSeen.Add(compKey);
+                } catch (Exception) { }
+                // Invoke IncludeAsync
+                MethodInfo? miAsync = compType.GetMethod(nameof(IYetaWFContainer<object?>.IncludeAsync), Array.Empty<Type>());
+                if (miAsync == null)
+                    throw new InternalError($"{compType.FullName} doesn't have an {nameof(IYetaWFContainer<object>.IncludeAsync)} method");
+                Task methRetvalTask = (Task)miAsync.Invoke(component, null)!;
+                await methRetvalTask;
+            }
         }
     }
 }

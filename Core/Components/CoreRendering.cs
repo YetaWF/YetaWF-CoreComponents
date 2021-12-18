@@ -108,25 +108,5 @@ namespace YetaWF.Core.Components {
             }
         }
         private static IYetaWFCoreRendering? _render;
-
-        /// <summary>
-        /// Called by the framework when a UIHint template is used and adds the package's template specific addons.
-        /// </summary>
-        /// <param name="uiHintTemplate">The UIHint template name.</param>
-        public static async Task AddTemplateAsync(string uiHintTemplate, YetaWFComponentBase.ComponentType componentType) {
-            bool found = false;
-            switch (componentType) {
-                case YetaWFComponentBase.ComponentType.Display:
-                    found = YetaWFComponentBaseStartup.GetComponentsDisplay().ContainsKey(uiHintTemplate);
-                    break;
-                case YetaWFComponentBase.ComponentType.Edit:
-                    found = YetaWFComponentBaseStartup.GetComponentsDisplay().ContainsKey(uiHintTemplate);
-                    break;
-            }
-            if (found) {
-                Package package = Render.GetImplementingPackage();
-                await YetaWFManager.Manager.AddOnManager.AddTemplateAsync(package.AreaName, uiHintTemplate, componentType);
-            }
-        }
     }
 }
