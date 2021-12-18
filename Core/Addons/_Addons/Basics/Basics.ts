@@ -857,13 +857,13 @@ namespace YetaWF {
                     } catch (err: any) {
                         const msg = err.message || err;
                         console.error(msg);
-                        if (!entry.autoRemove)
-                            newList.push(entry);
                         if (YConfigs.Basics.DEBUGBUILD) {
                             $YetaWF.error(msg);
                         }
                     }
                 }
+                if (!entry.autoRemove)
+                    newList.push(entry);
             }
             // save new list without removed entries
             this.ClearDivHandlers = newList;

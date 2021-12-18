@@ -15,9 +15,9 @@ namespace YetaWF.Core.Addons {
 
     public interface IAddOnSupport {
         /// <summary>
-        /// Add template specific localization, variables, etc.
+        /// Called by the framework so the component can add component specific client-side configuration options and localizations to the page.
         /// </summary>
-        /// <param name="manager">A YetaWFManager instance.</param>
+        /// <param name="manager">The YetaWF.Core.Support.Manager instance of current HTTP request.</param>
         Task AddSupportAsync(YetaWFManager manager);
     }
 
