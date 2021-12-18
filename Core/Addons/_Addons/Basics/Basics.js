@@ -1228,7 +1228,7 @@ var YetaWF;
                 }
             }
         };
-        BasicsServices.prototype.registerEventHandlerDocument = function (eventName, selector, callback) {
+        BasicsServices.prototype.registerEventHandlerDocument = function (eventName, selector /* null not supported by handleEvent() */, callback) {
             var _this = this;
             document.addEventListener(eventName, function (ev) { return _this.handleEvent(null, ev, selector, callback); });
         };

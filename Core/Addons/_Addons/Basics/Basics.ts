@@ -676,7 +676,7 @@ namespace YetaWF {
             request.send(JSON.stringify(data));
         }
 
-        private handleReadyStateChange(request: XMLHttpRequest, callback: (success: boolean, data: any) => void, tagInModule?: HTMLElement): void {
+        public handleReadyStateChange(request: XMLHttpRequest, callback: (success: boolean, data: any) => void, tagInModule?: HTMLElement): void {
             request.setRequestHeader("X-Requested-With", "XMLHttpRequest");
             request.onreadystatechange = (ev: Event): any => {
                 if (request.readyState === XMLHttpRequest.DONE) {
@@ -1407,7 +1407,7 @@ namespace YetaWF {
                 }
             }
         }
-        public registerEventHandlerDocument<K extends keyof DocumentEventMap>(eventName: K, selector: string | null, callback: (ev: DocumentEventMap[K]) => boolean): void {
+        public registerEventHandlerDocument<K extends keyof DocumentEventMap>(eventName: K, selector: string /* null not supported by handleEvent() */, callback: (ev: DocumentEventMap[K]) => boolean): void {
             document.addEventListener(eventName, (ev: DocumentEventMap[K]):void => this.handleEvent(null, ev, selector, callback as (ev:Event)=>boolean));
         }
         public registerMultipleEventHandlersDocument(eventNames: string[], selector: string | null, callback: (ev: Event) => boolean): void {
