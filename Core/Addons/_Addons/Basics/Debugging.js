@@ -14,7 +14,7 @@ var YetaWF_Core_Debugging;
                 arr.push(elem);
             }
             else {
-                var msg = "Duplicate id " + id + " in element " + elem.outerHTML + " - like " + found.outerHTML;
+                var msg = "Duplicate id ".concat(id, " in element ").concat(elem.outerHTML, " - like ").concat(found.outerHTML);
                 $YetaWF.error(msg);
                 console.error(msg);
             }
@@ -28,7 +28,7 @@ var YetaWF_Core_Debugging;
         for (var _a = 0, elems_2 = elems; _a < elems_2.length; _a++) {
             var elem = elems_2[_a];
             if ($YetaWF.elementHasClassPrefix(elem, "ui-").length > 0) {
-                var msg = "Element with class ui-... found: " + elem.outerHTML;
+                var msg = "Element with class ui-... found: ".concat(elem.outerHTML);
                 $YetaWF.error(msg);
                 console.error(msg);
             }
@@ -44,7 +44,7 @@ var YetaWF_Core_Debugging;
             // avoid recursive error with video controls. a bit hacky but this is just a debugging tool.
             if (evMsg.startsWith("ResizeObserver"))
                 return;
-            var msg = evMsg + " (" + url + ":" + lineNo + ") " + (error === null || error === void 0 ? void 0 : error.stack);
+            var msg = "".concat(evMsg, " (").concat(url, ":").concat(lineNo, ") ").concat(error === null || error === void 0 ? void 0 : error.stack);
             $YetaWF.error(msg);
             console.error(msg);
             inDebug = false;
@@ -98,7 +98,7 @@ var YetaWF_Core_Debugging;
                 if (!$YetaWF.elementHasClass(todo, "yaction-link"))
                     return "continue";
                 var ignore = this_1.IgnoredParentElements.find(function (s) {
-                    return $YetaWF.elementClosestCond(todo, "." + s) != null;
+                    return $YetaWF.elementClosestCond(todo, ".".concat(s)) != null;
                 });
                 if (ignore)
                     return "continue";
@@ -144,7 +144,7 @@ var YetaWF_Core_Debugging;
                 });
                 if (found)
                     return "continue";
-                console.log("Debug(" + this_2.Remaining.length + "): Clicking " + todo.href + " on " + linkEntry.url + " - " + todo.outerHTML);
+                console.log("Debug(".concat(this_2.Remaining.length, "): Clicking ").concat(todo.href, " on ").concat(linkEntry.url, " - ").concat(todo.outerHTML));
                 this_2.Done.push(this_2.stripUrl(todo.href));
                 // let actual = this.ActualClicks.find((s: string):boolean => {
                 //     return $YetaWF.elementClosestCond(todo, `.${s}`) != null;
@@ -156,7 +156,7 @@ var YetaWF_Core_Debugging;
                 uri.parse(todo.href);
                 if ($YetaWF.ContentHandling.setContent(uri, true) !== YetaWF.SetContentResult.ContentReplaced) {
                     // some how this wasn't possible
-                    console.error("setContent failed for " + todo.href);
+                    console.error("setContent failed for ".concat(todo.href));
                     setTimeout(function () { _this.nextPage(); }, 1);
                 }
                 return { value: void 0 };

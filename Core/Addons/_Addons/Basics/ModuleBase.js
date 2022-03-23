@@ -39,7 +39,7 @@ var YetaWF;
         ModuleBase.getModuleDivFromTag = function (elem) {
             var module = ModuleBase.getModuleDivFromTagCond(elem);
             if (!module)
-                throw "No module found in getModuleDivFromTag for " + elem.outerHTML;
+                throw "No module found in getModuleDivFromTag for ".concat(elem.outerHTML);
             return module;
         };
         ModuleBase.elementClosestModuleDivCond = function (elem) {
@@ -60,7 +60,7 @@ var YetaWF;
         ModuleBase.getModuleDefinition = function (selector) {
             var found = ModuleBase.getModuleDefinitionCond(selector);
             if (!found)
-                throw "Module definition for " + selector + " not found";
+                throw "Module definition for ".concat(selector, " not found");
             return found;
         };
         // Module registration
@@ -104,7 +104,7 @@ var YetaWF;
                 return null;
             var obj = $YetaWF.getObjectData(mod);
             if (obj.Module !== mod)
-                throw "object data doesn't match module type - " + mod.outerHTML;
+                throw "object data doesn't match module type - ".concat(mod.outerHTML);
             return obj;
         };
         /**
@@ -114,7 +114,7 @@ var YetaWF;
         ModuleBaseDataImpl.getModuleFromTag = function (elem) {
             var obj = ModuleBaseDataImpl.getModuleFromTagCond(elem);
             if (obj == null)
-                throw "Object not found - " + elem.outerHTML;
+                throw "Object not found - ".concat(elem.outerHTML);
             return obj;
         };
         /**
@@ -186,7 +186,7 @@ var YetaWF;
                     var module = list_1[_b];
                     var obj = $YetaWF.getObjectData(module);
                     if (obj.Module !== module)
-                        throw "object data doesn't match module type - " + moduleDef.Selector + " - " + module.outerHTML;
+                        throw "object data doesn't match module type - ".concat(moduleDef.Selector, " - ").concat(module.outerHTML);
                     if (moduleDef.DestroyModule)
                         moduleDef.DestroyModule(tag, obj);
                     obj.destroy();

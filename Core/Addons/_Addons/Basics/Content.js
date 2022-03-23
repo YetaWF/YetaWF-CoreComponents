@@ -116,7 +116,7 @@ var YetaWF;
             var path = uri.getPath();
             var divs;
             if (inplace)
-                divs = $YetaWF.getElementsBySelector("." + inplace.FromPane + ".yUnified[data-pane]"); // only requested pane
+                divs = $YetaWF.getElementsBySelector(".".concat(inplace.FromPane, ".yUnified[data-pane]")); // only requested pane
             else
                 divs = $YetaWF.getElementsBySelector(".yUnified[data-pane]"); // all panes
             if (divs.length === 0) // can occur in popups while in edit mode
@@ -288,7 +288,7 @@ var YetaWF;
                         for (var _a = 0, _b = result.Content; _a < _b.length; _a++) {
                             var content = _b[_a];
                             // replace the pane
-                            var pane = $YetaWF.getElement1BySelector(".yUnified[data-pane=\"" + content.Pane + "\"]");
+                            var pane = $YetaWF.getElement1BySelector(".yUnified[data-pane=\"".concat(content.Pane, "\"]"));
                             pane.style.display = "block"; // show in case this is a conditional pane
                             // add pane (can contain mixed html/scripts)
                             $YetaWF.appendMixedHTML(pane, content.HTML);
@@ -354,7 +354,7 @@ var YetaWF;
                 if (hash) {
                     var target = null;
                     try { // handle invalid id
-                        target = $YetaWF.getElement1BySelectorCond("#" + hash);
+                        target = $YetaWF.getElement1BySelectorCond("#".concat(hash));
                     }
                     catch (e) { }
                     if (target) {

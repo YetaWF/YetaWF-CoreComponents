@@ -171,7 +171,7 @@ var YetaWF;
                 if ($YetaWF.isInPopup())
                     formData = formData + "&" + YConfigs.Basics.Link_InPopup + "=y";
                 if (method.toLowerCase() === "get")
-                    action = action + "?" + formData;
+                    action = "".concat(action, "?").concat(formData);
                 $YetaWF.send(method, action, formData, function (success, responseText) {
                     if (success) {
                         if (responseText) {
@@ -212,11 +212,11 @@ var YetaWF;
             }
         };
         Forms.prototype.submitTemplate = function (tag, useValidation, templateName, templateAction, templateExtraData) {
-            var qs = YConfigs.Basics.TemplateName + "=" + templateName + "&" + YConfigs.Basics.Link_SubmitIsApply + "=y";
+            var qs = "".concat(YConfigs.Basics.TemplateName, "=").concat(templateName, "&").concat(YConfigs.Basics.Link_SubmitIsApply, "=y");
             if (templateAction)
-                qs += "&" + YConfigs.Basics.TemplateAction + "=" + encodeURIComponent(templateAction);
+                qs += "&".concat(YConfigs.Basics.TemplateAction, "=").concat(encodeURIComponent(templateAction));
             if (templateExtraData)
-                qs += "&" + YConfigs.Basics.TemplateExtraData + "=" + encodeURIComponent(templateExtraData);
+                qs += "&".concat(YConfigs.Basics.TemplateExtraData, "=").concat(encodeURIComponent(templateExtraData));
             var form = this.getForm(tag);
             if ($YetaWF.elementHasClass(form, YConfigs.Forms.CssFormNoSubmit))
                 return;
@@ -297,10 +297,10 @@ var YetaWF;
         // get RequestVerificationToken, UniqueIdCounters and ModuleGuid in query string format (usually for ajax requests)
         Forms.prototype.getFormInfo = function (tag, addAmpersand) {
             var form = this.getForm(tag);
-            var req = $YetaWF.getElement1BySelector("input[name='" + YConfigs.Forms.RequestVerificationToken + "']", [form]).value;
+            var req = $YetaWF.getElement1BySelector("input[name='".concat(YConfigs.Forms.RequestVerificationToken, "']"), [form]).value;
             if (!req || req.length === 0)
                 throw "Can't locate " + YConfigs.Forms.RequestVerificationToken; /*DEBUG*/
-            var guid = $YetaWF.getElement1BySelector("input[name='" + YConfigs.Basics.ModuleGuid + "']", [form]).value;
+            var guid = $YetaWF.getElement1BySelector("input[name='".concat(YConfigs.Basics.ModuleGuid, "']"), [form]).value;
             if (!guid || guid.length === 0)
                 throw "Can't locate " + YConfigs.Basics.ModuleGuid; /*DEBUG*/
             var qs = "";
@@ -425,7 +425,7 @@ var YetaWF;
                 return false;
             });
             // Submit the form when an apply button is clicked
-            $YetaWF.registerEventHandlerBody("click", "form input[type=\"button\"][" + YConfigs.Forms.CssDataApplyButton + "]", function (ev) {
+            $YetaWF.registerEventHandlerBody("click", "form input[type=\"button\"][".concat(YConfigs.Forms.CssDataApplyButton, "]"), function (ev) {
                 var form = _this.getForm(ev.target);
                 _this.submit(form, true, YConfigs.Basics.Link_SubmitIsApply + "=y");
                 return false;

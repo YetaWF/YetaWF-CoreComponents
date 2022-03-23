@@ -142,9 +142,9 @@ var YetaWF;
         };
         Url.prototype.toUrl = function () {
             if (this.Schema.length === 0 && this.UserInfo.length === 0 && this.Domain.length === 0)
-                return "" + this.getPath() + this.getQuery(true) + this.getHash(true);
+                return "".concat(this.getPath()).concat(this.getQuery(true)).concat(this.getHash(true));
             else
-                return this.getSchema() + "//" + this.getUserInfo(true) + this.getDomain() + this.getPath() + this.getQuery(true) + this.getHash(true);
+                return "".concat(this.getSchema(), "//").concat(this.getUserInfo(true)).concat(this.getDomain()).concat(this.getPath()).concat(this.getQuery(true)).concat(this.getHash(true));
         };
         Url.prototype.toFormData = function () {
             return this.getQuery();
@@ -213,7 +213,7 @@ var YetaWF;
                     var qsEntry = qsArr_1[_i];
                     var entryParts = qsEntry.split("=");
                     if (entryParts.length > 2)
-                        throw "Url has malformed query string entry " + qsEntry;
+                        throw "Url has malformed query string entry ".concat(qsEntry);
                     var key = decodeURIComponent(entryParts[0]);
                     this.QSEntries.push({ key: key, keyLower: key.toLowerCase(), value: entryParts.length > 1 ? decodeURIComponent(entryParts[1]) : "" });
                 }

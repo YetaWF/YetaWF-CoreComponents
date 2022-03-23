@@ -42,13 +42,13 @@ var YetaWF;
         ComponentBase.getTemplateDefinition = function (templateName, display) {
             var found = ComponentBase.getTemplateDefinitionCond(templateName, display);
             if (!found)
-                throw "Template " + templateName + " not found";
+                throw "Template ".concat(templateName, " not found");
             return found;
         };
         ComponentBase.getTemplateDefinitionFromTemplate = function (elem) {
             var cls = $YetaWF.elementHasClassPrefix(elem, "yt_");
             if (cls.length === 0)
-                throw "Template definition requested for element " + elem.outerHTML + " that is not a template";
+                throw "Template definition requested for element ".concat(elem.outerHTML, " that is not a template");
             for (var _i = 0, cls_1 = cls; _i < cls_1.length; _i++) {
                 var cl = cls_1[_i];
                 var templateDef = null;
@@ -59,12 +59,12 @@ var YetaWF;
                 if (templateDef)
                     return templateDef;
             }
-            throw "No template definition for element " + elem.outerHTML;
+            throw "No template definition for element ".concat(elem.outerHTML);
         };
         ComponentBase.getTemplateFromControlNameCond = function (name, containers) {
-            var elem = $YetaWF.getElement1BySelectorCond("[name='" + name + "']", containers);
+            var elem = $YetaWF.getElement1BySelectorCond("[name='".concat(name, "']"), containers);
             if (!elem) {
-                elem = $YetaWF.getElement1BySelectorCond("[name^='" + name + ".']", containers); // composite fields
+                elem = $YetaWF.getElement1BySelectorCond("[name^='".concat(name, ".']"), containers); // composite fields
                 if (!elem)
                     return null;
                 // we found an element (a composite field). This may be a template within another template (usually a propertylist)
@@ -156,7 +156,7 @@ var YetaWF;
             if (!obj)
                 return null;
             if (obj.Control !== control)
-                throw "object data doesn't match control type - " + controlSelector + " - " + control.outerHTML;
+                throw "object data doesn't match control type - ".concat(controlSelector, " - ").concat(control.outerHTML);
             return obj;
         };
         /**
@@ -167,7 +167,7 @@ var YetaWF;
         ComponentBaseDataImpl.getControlFromTag = function (elem, controlSelector) {
             var obj = ComponentBaseDataImpl.getControlFromTagCond(elem, controlSelector);
             if (obj == null)
-                throw "Object matching " + controlSelector + " not found";
+                throw "Object matching ".concat(controlSelector, " not found");
             return obj;
         };
         /**
@@ -229,7 +229,7 @@ var YetaWF;
                 var obj = $YetaWF.getObjectDataCond(ctrl);
                 if (obj) {
                     if (obj.Control !== ctrl)
-                        throw "object data doesn't match control type - " + controlSelector + " - " + ctrl.outerHTML;
+                        throw "object data doesn't match control type - ".concat(controlSelector, " - ").concat(ctrl.outerHTML);
                     objs.push(obj);
                 }
             }
@@ -256,7 +256,7 @@ var YetaWF;
                     //    debugger;
                     var obj = $YetaWF.getObjectData(control);
                     if (obj.Control !== control)
-                        throw "object data doesn't match control type - " + templateDef.Selector + " - " + control.outerHTML;
+                        throw "object data doesn't match control type - ".concat(templateDef.Selector, " - ").concat(control.outerHTML);
                     if (templateDef.DestroyControl)
                         templateDef.DestroyControl(tag, obj);
                     obj.destroy();

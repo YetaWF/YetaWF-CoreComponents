@@ -166,7 +166,7 @@ var YetaWF;
                         origUri.removeSearch(YConfigs.Basics.Link_InPopup); // remove popup info from current URL
                         var contentUrl = origUri.getSearch("!ContentUrl");
                         if (!contentUrl)
-                            throw "In place content must have a !ContentUrl query string argument - " + url;
+                            throw "In place content must have a !ContentUrl query string argument - ".concat(url);
                         // remove noise from requested url
                         // build the new requested url
                         var uriBase = $YetaWF.parseUrl(window.location.href);

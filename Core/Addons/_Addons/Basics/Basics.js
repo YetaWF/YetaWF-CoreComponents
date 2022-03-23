@@ -258,7 +258,7 @@ var YetaWF;
                 // this should happen late in case the content is changed dynamically (use with caution)
                 // if it does, the pane will still expand because we're only setting the minimum height
                 this.registerDocumentReady(function () {
-                    var panes = _this.getElementsBySelector("#" + id + " > div"); // get all immediate child divs (i.e., the panes)
+                    var panes = _this.getElementsBySelector("#".concat(id, " > div")); // get all immediate child divs (i.e., the panes)
                     panes = _this.limitToVisibleOnly(panes); //:visible
                     // exclude panes that have .y_cleardiv
                     var newPanes = [];
@@ -279,7 +279,7 @@ var YetaWF;
                     // set each pane's height
                     for (var _b = 0, panes_3 = panes; _b < panes_3.length; _b++) {
                         var pane = panes_3[_b];
-                        pane.style.minHeight = height + "px";
+                        pane.style.minHeight = "".concat(height, "px");
                     }
                 });
             }
@@ -342,7 +342,7 @@ var YetaWF;
         };
         BasicsServices.prototype.refreshModule = function (mod) {
             if (!this.getElementByIdCond(mod.id))
-                throw "Module with id " + mod.id + " not found"; /*DEBUG*/
+                throw "Module with id ".concat(mod.id, " not found"); /*DEBUG*/
             this.processReloadInfo(mod.id);
         };
         BasicsServices.prototype.refreshModuleByAnyTag = function (elem) {
@@ -401,7 +401,7 @@ var YetaWF;
         BasicsServices.prototype.registerModuleRefresh = function (tag, callback) {
             var module = YetaWF.ModuleBase.getModuleDivFromTag(tag); // get the containing module
             if (!tag.id || tag.id.length === 0)
-                throw "No id defined for " + tag.outerHTML;
+                throw "No id defined for ".concat(tag.outerHTML);
             // reuse existing entry if this id is already registered
             for (var _i = 0, _a = this.reloadInfo; _i < _a.length; _i++) {
                 var entry = _a[_i];
@@ -682,8 +682,8 @@ var YetaWF;
             // also release any attached objects
             for (var i = 0; i < this.DataObjectCache.length;) {
                 var doe = this.DataObjectCache[i];
-                if (this.getElement1BySelectorCond("#" + doe.DivId, [tag])) {
-                    console.log("Element #" + doe.DivId + " is being removed but still has a data object - forced cleanup");
+                if (this.getElement1BySelectorCond("#".concat(doe.DivId), [tag])) {
+                    console.log("Element #".concat(doe.DivId, " is being removed but still has a data object - forced cleanup"));
                     if (YConfigs.Basics.DEBUGBUILD) {
                         // eslint-disable-next-line no-debugger
                         debugger; // if we hit this, there is an object that's not cleaned up by handling processClearDiv in a component specific way
@@ -699,8 +699,8 @@ var YetaWF;
                 //DEBUG ONLY
                 for (var _i = 0, _a = this.DataObjectCache; _i < _a.length; _i++) {
                     var doe = _a[_i];
-                    if (!this.getElement1BySelectorCond("#" + doe.DivId)) {
-                        console.log("Element #" + doe.DivId + " no longer exists but still has a data object");
+                    if (!this.getElement1BySelectorCond("#".concat(doe.DivId))) {
+                        console.log("Element #".concat(doe.DivId, " no longer exists but still has a data object"));
                         // eslint-disable-next-line no-debugger
                         debugger; // if we hit this, there is an object that has no associated dom element
                     }
@@ -720,7 +720,7 @@ var YetaWF;
             this.getElementById(tagId); // used to validate the existence of the element
             var doe = this.DataObjectCache.filter(function (entry) { return entry.DivId === tagId; });
             if (doe.length > 0)
-                throw "addObjectDataById - tag with id " + tagId + " already has data"; /*DEBUG*/
+                throw "addObjectDataById - tag with id ".concat(tagId, " already has data"); /*DEBUG*/
             this.DataObjectCache.push({ DivId: tagId, Data: obj });
         };
         /**
@@ -740,7 +740,7 @@ var YetaWF;
         BasicsServices.prototype.getObjectDataById = function (tagId) {
             var data = this.getObjectDataByIdCond(tagId);
             if (!data)
-                throw "getObjectDataById - tag with id " + tagId + " doesn't have any data"; /*DEBUG*/
+                throw "getObjectDataById - tag with id ".concat(tagId, " doesn't have any data"); /*DEBUG*/
             return data;
         };
         /**
@@ -749,7 +749,7 @@ var YetaWF;
          */
         BasicsServices.prototype.getObjectDataCond = function (element) {
             if (!element.id)
-                throw "element without id - " + element.outerHTML;
+                throw "element without id - ".concat(element.outerHTML);
             return this.getObjectDataByIdCond(element.id);
         };
         /**
@@ -758,7 +758,7 @@ var YetaWF;
          */
         BasicsServices.prototype.getObjectData = function (element) {
             if (!element.id)
-                throw "element without id - " + element.outerHTML;
+                throw "element without id - ".concat(element.outerHTML);
             return this.getObjectDataById(element.id);
         };
         /**
@@ -775,23 +775,23 @@ var YetaWF;
                     return;
                 }
             }
-            throw "Element with id " + tagId + " doesn't have attached data"; /*DEBUG*/
+            throw "Element with id ".concat(tagId, " doesn't have attached data"); /*DEBUG*/
         };
         // Selectors
         /**
          * Get an element by id.
          */
         BasicsServices.prototype.getElementById = function (elemId) {
-            var div = document.querySelector("#" + elemId);
+            var div = document.querySelector("#".concat(elemId));
             if (!div)
-                throw "Element with id " + elemId + " not found"; /*DEBUG*/
+                throw "Element with id ".concat(elemId, " not found"); /*DEBUG*/
             return div;
         };
         /**
          * Get an element by id.
          */
         BasicsServices.prototype.getElementByIdCond = function (elemId) {
-            var div = document.querySelector("#" + elemId);
+            var div = document.querySelector("#".concat(elemId));
             return div;
         };
         /**
@@ -839,7 +839,7 @@ var YetaWF;
         BasicsServices.prototype.getElement1BySelector = function (selector, elems) {
             var elem = this.getElement1BySelectorCond(selector, elems);
             if (elem == null)
-                throw "Element with selector " + selector + " not found";
+                throw "Element with selector ".concat(selector, " not found");
             return elem;
         };
         /**
@@ -917,7 +917,7 @@ var YetaWF;
         BasicsServices.prototype.elementClosest = function (elem, selector) {
             var e = this.elementClosestCond(elem, selector);
             if (!e)
-                throw "Closest parent element with selector " + selector + " not found";
+                throw "Closest parent element with selector ".concat(selector, " not found");
             return e;
         };
         // DOM manipulation
@@ -960,7 +960,7 @@ var YetaWF;
             // convert the string to DOM representation
             var temp = document.createElement("YetaWFTemp");
             if (tableBody) {
-                temp.innerHTML = "<table><tbody>" + content + "</tbody></table>";
+                temp.innerHTML = "<table><tbody>".concat(content, "</tbody></table>");
                 temp = $YetaWF.getElement1BySelector("tbody", [temp]);
             }
             else {
@@ -1009,7 +1009,7 @@ var YetaWF;
             if (!elem)
                 return false;
             if (css.startsWith("."))
-                throw "elementHasClass called with class starting with a . \"" + css + "\" - that probably wasn't intended";
+                throw "elementHasClass called with class starting with a . \"".concat(css, "\" - that probably wasn't intended");
             if (elem.classList)
                 return elem.classList.contains(css);
             else
@@ -1027,7 +1027,7 @@ var YetaWF;
             if (!elem)
                 return list;
             if (cssPrefix.startsWith("."))
-                throw "elementHasClassPrefix called with cssPrefix starting with a . \"" + cssPrefix + "\" - that probably wasn't intended";
+                throw "elementHasClassPrefix called with cssPrefix starting with a . \"".concat(cssPrefix, "\" - that probably wasn't intended");
             if (elem.classList) {
                 // eslint-disable-next-line @typescript-eslint/prefer-for-of
                 for (var i = 0; i < elem.classList.length; ++i) {
@@ -1072,7 +1072,7 @@ var YetaWF;
          */
         BasicsServices.prototype.elementAddClass = function (elem, className) {
             if (className.startsWith("."))
-                throw "elementAddClass called with class starting with a . \"" + className + "\" - that probably wasn't intended";
+                throw "elementAddClass called with class starting with a . \"".concat(className, "\" - that probably wasn't intended");
             if (elem.classList)
                 elem.classList.add(className);
             else
@@ -1105,7 +1105,7 @@ var YetaWF;
          */
         BasicsServices.prototype.elementRemoveClass = function (elem, className) {
             if (className.startsWith("."))
-                throw "elementRemoveClass called with class starting with a . \"" + className + "\" - that probably wasn't intended";
+                throw "elementRemoveClass called with class starting with a . \"".concat(className, "\" - that probably wasn't intended");
             if (elem.classList)
                 elem.classList.remove(className);
             else
@@ -1131,7 +1131,7 @@ var YetaWF;
         BasicsServices.prototype.getAttribute = function (elem, name) {
             var val = elem.getAttribute(name);
             if (!val)
-                throw "missing " + name + " attribute";
+                throw "missing ".concat(name, " attribute");
             return val;
         };
         /**
@@ -1464,7 +1464,7 @@ var YetaWF;
                     sub.style.top = "0px";
                 else
                     sub.style.top = "";
-                sub.style.bottom = bottom - window.pageYOffset + "px";
+                sub.style.bottom = "".concat(bottom - window.pageYOffset, "px");
             }
             else {
                 top = mainRect.bottom;
@@ -1472,11 +1472,11 @@ var YetaWF;
                 bottom = window.innerHeight - bottom;
                 if (bottom < 0)
                     sub.style.bottom = "0px";
-                sub.style.top = top + window.pageYOffset + "px";
+                sub.style.top = "".concat(top + window.pageYOffset, "px");
             }
             if (left) {
                 // set left
-                sub.style.left = mainRect.left + window.pageXOffset + "px";
+                sub.style.left = "".concat(mainRect.left + window.pageXOffset, "px");
                 if (mainRect.left + subRect.right > window.innerWidth)
                     sub.style.right = "0px";
             }
@@ -1485,7 +1485,7 @@ var YetaWF;
                 var left_1 = mainRect.right - subRect.width + window.pageXOffset;
                 if (left_1 < 0)
                     left_1 = 0;
-                sub.style.left = left_1 + "px";
+                sub.style.left = "".concat(left_1, "px");
             }
         };
         BasicsServices.prototype.init = function () {
