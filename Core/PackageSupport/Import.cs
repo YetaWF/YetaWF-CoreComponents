@@ -5,18 +5,17 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using YetaWF.Core.DataProvider;
 using YetaWF.Core.IO;
-using YetaWF.Core.PackageSupport;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.Serializers;
 using YetaWF.Core.Support.Zip;
 using YetaWF.Core.Upload;
 using YetaWF.PackageAttributes;
 
-namespace YetaWF.Core.Packages {
+namespace YetaWF.Core.Packages
+{
 
     public partial class Package {
 
@@ -253,75 +252,17 @@ namespace YetaWF.Core.Packages {
             await FileSystem.FileSystemProvider.CopyFileAsync(sourceFile, targetFile);
         }
 
-        public static async Task<bool> CreatePackageSymLinkAsync(string from, string to) {
+        public static Task<bool> CreatePackageSymLinkAsync(string from, string to) {
             if (Directory.Exists(from))
                 Directory.Delete(from);
             if (!Directory.Exists(to))
-                return false;
-            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
-                //RESEARCH:  SE_CREATE_SYMBOLIC_LINK_NAME
-                // secpol.msc
-                // Local Policies > User Rights Assignments - Create Symbolic Links
-                // IIS APPPOOL\application-pool
-                // Needs special UAC/elevation so it's not usable for our purposes
-                // return CreateSymbolicLink(from, to, (int)SymbolicLink.Directory) != 0;
-                // use junctions instead (no special privilege needed)
-                await Junction.CreateAsync(from, to, true);
-                return true;
-                // if (!CreateSymbolicLink(srcFolder, targetFolder, SymbolicLink.Directory))
-                //     throw new ApplicationException($"Unable to create symlink from {srcFolder} to {targetFolder}");
-            } else if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
-                RunCommand("ln" , $"-s \"{to}\" \"{from}\"");
-                if (!Directory.Exists(from))
-                    throw new ApplicationException($"Unable to create symlink from {from} to {to}");
-                return true;
-            } else {
-                throw new ApplicationException($"Unsupported operating system (currently only Windows and Linux are supported)");
-            }
-        }
-        private static void RunCommand(string cmd, string args) {
-
-            Process p = new Process();
-
-            Console.WriteLine($"Executing {cmd} {args}");
-
-            p.StartInfo.FileName = cmd;
-            p.StartInfo.Arguments = args;
-
-            p.StartInfo.CreateNoWindow = true;
-            p.EnableRaisingEvents = true;
-
-            p.StartInfo.RedirectStandardOutput = true;
-            p.StartInfo.UseShellExecute = false;
-
-
-            if (p.Start()) {
-                string result = p.StandardOutput.ReadToEnd();
-                p.WaitForExit();
-            } else {
-                throw new ApplicationException($"Failed to start {cmd}");
-            }
-
-            if (p.ExitCode != 0)
-                throw new ApplicationException($"{cmd} {args} failed - {p.ExitCode}");
+                return Task.FromResult(false);
+            Directory.CreateSymbolicLink(from, to);
+            return Task.FromResult(true);
         }
 
-        public static async Task<bool> IsPackageSymLinkAsync(string folder) {
-            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
-                return await Junction.ExistsAsync(folder);
-            } else if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
-                return Directory.Exists(folder);
-            } else {
-                throw new ApplicationException($"Unsupported operating system (currently only Windows and Linux are supported)");
-            }
+        public static Task<bool> IsPackageSymLinkAsync(string folder) {
+            return Task.FromResult(Directory.Exists(folder));
         }
-
-        //enum SymbolicLink {
-        //    File = 0,
-        //    Directory = 1
-        //}
-        //[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass")]
-        //[DllImport("kernel32.dll", EntryPoint = "CreateSymbolicLinkW", CharSet = CharSet.Unicode)]
-        //internal static extern int CreateSymbolicLink([In] string lpSymlinkFileName, [In] string lpTargetFileName, int dwFlags);
     }
 }
