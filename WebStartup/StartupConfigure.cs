@@ -212,8 +212,7 @@ namespace YetaWF.Core.WebStartup {
                 options.Conventions.Add(new AreaConventionAttribute());
             })
             .AddNewtonsoftJson()
-            .ConfigureApplicationPartManager((partManager) => { YetaWFApplicationPartManager.AddAssemblies(partManager); })
-            .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            .ConfigureApplicationPartManager((partManager) => { YetaWFApplicationPartManager.AddAssemblies(partManager); });
 
             // We don't need a view engine
             services.Configure<MvcViewOptions>(

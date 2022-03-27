@@ -13,7 +13,7 @@ namespace YetaWF.Core.Controllers {
                 },
             };
         }
-        public object Data { get { return Value; }  set { Value = value; } }
+        public object? Data { get { return Value; }  set { Value = value; } }
     }
 }
 

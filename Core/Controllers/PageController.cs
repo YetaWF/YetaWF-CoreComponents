@@ -214,7 +214,7 @@ namespace YetaWF.Core.Controllers {
             CanProcessAsStaticPageInfo info = await CanProcessAsStaticPageAsync(uri);
             if (info.Success) {
                 AddStandardHeaders();
-                return Content(info.Contents, "text/html");
+                return Content(info.Contents ?? String.Empty, "text/html");
             }
 
             // if this is a url with segments (like http://...local.../segment/segment/segment/segment/segment/segment)

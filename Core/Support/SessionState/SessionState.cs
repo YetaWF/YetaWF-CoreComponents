@@ -30,14 +30,14 @@ namespace YetaWF.Core.Support {
             _session.Clear();
         }
         public string GetString(string key) {
-            return _session.GetString(key);
+            return _session.GetString(key) ?? string.Empty;
         }
         public void SetString(string key, string value) {
             _session.SetString(key, value);
         }
         internal byte[] GetBytes(string key) {
-            byte[] btes;
-            if (_session.TryGetValue(key, out btes))
+            byte[]? btes;
+            if (_session.TryGetValue(key, out btes) && btes != null)
                 return btes;
             return new byte[] { };
         }

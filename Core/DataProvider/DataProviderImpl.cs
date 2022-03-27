@@ -88,8 +88,9 @@ namespace YetaWF.Core.DataProvider {
             Options = new Dictionary<string, object>();
             if (Parms != null) {
                 foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(Parms)) {
-                    object val = property.GetValue(Parms);
-                    Options.Add(property.Name, val);
+                    object? val = property.GetValue(Parms);
+                    if (val != null)
+                        Options.Add(property.Name, val);
                 }
             }
             Options.Add(nameof(Package), Package);

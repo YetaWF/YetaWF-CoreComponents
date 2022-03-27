@@ -53,7 +53,7 @@ namespace YetaWF2.Logger {
             return logLevel != LogLevel.None;
         }
 
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter) {
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter) {
             if (CategoryName == YetaWFLoggerProvider.IgnoredCategory)
                 return;
             Logging.LevelEnum level;

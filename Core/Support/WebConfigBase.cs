@@ -42,8 +42,9 @@ namespace YetaWF.Core.Support {
             if (vars != null) {
                 foreach (JToken var in vars.Children()) {
                     JProperty p = (JProperty)var;
-                    string file = (string)p.Value;
-                    await ProcessIncludeAsync(settingsFile, file, Variables);
+                    string? file = (string?)p.Value;
+                    if (file != null)
+                        await ProcessIncludeAsync(settingsFile, file, Variables);
                 }
             }
 
@@ -53,7 +54,7 @@ namespace YetaWF.Core.Support {
             if (vars != null) {
                 foreach (JToken var in vars.Children()) {
                     JProperty p = (JProperty)var;
-                    string s = varSubst.ReplaceVariables((string)p.Value);
+                    string s = varSubst.ReplaceVariables((string?)p.Value);
                     Variables.Add(p.Name, s);
                 }
             }
@@ -136,17 +137,19 @@ namespace YetaWF.Core.Support {
         }
 
         public void SetValue<TYPE>(string areaName, string key, TYPE? value, bool Package = true) {
-            JObject jObj;
+            JObject? jObj;
             if (Package)
-                jObj = (JObject)Settings["Application"]["P"];
+                jObj = (JObject?)Settings["Application"]["P"];
             else
-                jObj = (JObject)Settings["Application"];
-            JObject jArea = (JObject)jObj[areaName];
+                jObj = (JObject?)Settings["Application"];
+            if (jObj == null) throw new InternalError($"No entry found for Application:P or Application");
+            JObject? jArea = (JObject?)jObj[areaName];
             if (jArea == null) {
                 jObj.Add(areaName, new JObject());
-                jArea = (JObject)jObj[areaName];
+                jArea = (JObject?)jObj[areaName];
             }
-            JToken jKey = jArea[key];
+            if (jArea == null) throw new InternalError($"No entry found for {areaName}");
+            JToken? jKey = jArea[key];
             if (jKey == null) {
                 if (value != null)
                     jArea.Add(key, JToken.FromObject(value));

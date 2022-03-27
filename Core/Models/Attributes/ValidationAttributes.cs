@@ -40,7 +40,7 @@ namespace YetaWF.Core.Models.Attributes {
             } else {
                 if (value != null) {
                     TypeConverter conv = TypeDescriptor.GetConverter(value.GetType());
-                    string val = conv.ConvertToString(value);
+                    string? val = conv.ConvertToString(value);
                     return base.IsValid(val);
                 }
                 return base.IsValid(value);

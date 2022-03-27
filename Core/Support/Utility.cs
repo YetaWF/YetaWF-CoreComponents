@@ -152,7 +152,9 @@ namespace YetaWF.Core.Support {
         /// <param name="value">The JSON string.</param>
         /// <returns>Returns the object.</returns>
         public static object JsonDeserialize(string value) {
-            return JsonConvert.DeserializeObject(value, _JsonSettings);
+            object? o = JsonConvert.DeserializeObject(value, _JsonSettings);
+            if (o == null) throw new InternalError("No object");
+            return o;
         }
         /// <summary>
         /// Deserializes a JSON string to an object.
@@ -161,7 +163,9 @@ namespace YetaWF.Core.Support {
         /// <param name="type">The type of the deserialized object.</param>
         /// <returns>Returns the object.</returns>
         public static object JsonDeserialize(string value, Type type) {
-            return JsonConvert.DeserializeObject(value, type, _JsonSettings);
+            object? o = JsonConvert.DeserializeObject(value, type, _JsonSettings);
+            if (o == null) throw new InternalError("No object");
+            return o;
         }
         /// <summary>
         /// Deserializes a JSON string to an object.
@@ -170,7 +174,9 @@ namespace YetaWF.Core.Support {
         /// <param name="value">The JSON string.</param>
         /// <returns>Returns the object.</returns>
         public static TYPE JsonDeserialize<TYPE>(string value) {
-            return JsonConvert.DeserializeObject<TYPE>(value, _JsonSettings);
+            TYPE? o = JsonConvert.DeserializeObject<TYPE>(value, _JsonSettings);
+            if (o == null) throw new InternalError("No object");
+            return o;
         }
         private static JsonSerializerSettings _JsonSettings = new JsonSerializerSettings {
             StringEscapeHandling = StringEscapeHandling.EscapeHtml,
@@ -206,7 +212,7 @@ namespace YetaWF.Core.Support {
                             propList.Add(prop.Name);
                         }
                     }
-                    properties = (from p in properties where propList.Contains(p.PropertyName) select p).ToList();
+                    properties = (from p in properties where propList.Contains(p.PropertyName!) select p).ToList();
                 }
                 return properties;
             }
@@ -241,7 +247,7 @@ namespace YetaWF.Core.Support {
                             propList.Add(prop.Name);
                         }
                     }
-                    properties = (from p in properties where propList.Contains(p.PropertyName) select p).ToList();
+                    properties = (from p in properties where propList.Contains(p.PropertyName!) select p).ToList();
                 }
                 return properties;
             }
