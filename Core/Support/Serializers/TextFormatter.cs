@@ -3,7 +3,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
@@ -161,14 +160,8 @@ namespace YetaWF.Core.Serializers {
                 string? val = Convert.ToString(o, CultureInfo.InvariantCulture);
                 if (val != null)
                     xmlOut.WriteAttributeString("Value", val);
-            } else if (tp == typeof(System.Drawing.Image) || tp == typeof(Bitmap)) {
-                if (o != null) {
-                    System.Drawing.Image img = (System.Drawing.Image)o;
-                    using (MemoryStream ms = new MemoryStream()) {
-                        img.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
-                        xmlOut.WriteAttributeString("Value", Convert.ToBase64String(ms.ToArray()));
-                    }
-                }
+            } else if (tp == typeof(System.Drawing.Image) || tp == typeof(System.Drawing.Bitmap)) {
+                throw new InternalError("Image and Bitmap types no longer supported/needed");
             } else if (tp.IsValueType) {
                 string? val = Convert.ToString(o, CultureInfo.InvariantCulture);
                 if (val != null)
@@ -350,10 +343,8 @@ namespace YetaWF.Core.Serializers {
                                 objVal = new Guid(strVal);
                         } else if (pi.PropertyType == typeof(TimeSpan) || pi.PropertyType == typeof(TimeSpan?)) {
                             objVal = new TimeSpan((long)Convert.ToInt64(strVal));
-                        } else if (pi.PropertyType == typeof(System.Drawing.Image) || pi.PropertyType == typeof(Bitmap)) {
-                            using (MemoryStream ms = new MemoryStream(Convert.FromBase64String(strVal))) {
-                                objVal = System.Drawing.Image.FromStream(ms);
-                            }
+                        } else if (pi.PropertyType == typeof(System.Drawing.Image) || pi.PropertyType == typeof(System.Drawing.Bitmap)) {
+                            throw new InternalError("Image and Bitmap types no longer supported/needed");
                         } else {
                             objVal = Convert.ChangeType(strVal, pi.PropertyType, CultureInfo.InvariantCulture);
                         }

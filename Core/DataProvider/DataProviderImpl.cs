@@ -12,6 +12,10 @@ using YetaWF.Core.Packages;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
 using YetaWF.Core.Upload;
+#if SYSTEM_DRAWING
+#pragma warning disable CA1416 // Validate platform compatibility
+#else
+#endif
 
 namespace YetaWF.Core.DataProvider {
 
@@ -237,9 +241,17 @@ namespace YetaWF.Core.DataProvider {
                 Guid newGuid = Guid.NewGuid();
                 string file = Path.Combine(path, newGuid.ToString());
                 using (MemoryStream ms = new MemoryStream(bytes)) {
+#if SYSTEM_DRAWING
                     using (System.Drawing.Image img = System.Drawing.Image.FromStream(ms)) {
                         img.Save(file);
                     }
+#else
+                    (SixLabors.ImageSharp.Image img, SixLabors.ImageSharp.Formats.IImageFormat format) = await SixLabors.ImageSharp.Image.LoadWithFormatAsync(ms);
+                    using (img) {
+                        await img.SaveAsync(ms, new SixLabors.ImageSharp.Formats.ImageFormatManager().FindEncoder(format));
+                    }
+                    await FileSystem.FileSystemProvider.WriteAllBytesAsync(file, ms.GetBuffer());
+#endif
                 }
                 // Remove the temp file (if any)
                 await fileUpload.RemoveTempFileAsync(fileName);

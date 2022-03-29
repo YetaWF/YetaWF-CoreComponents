@@ -3,7 +3,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -282,13 +281,8 @@ namespace YetaWF.Core.Serializers {
             } else if (tp == typeof(Guid) || tp == typeof(Guid?)) {
                 WriteString("V");
                 WriteBytes(((Guid)o).ToByteArray());
-            } else if (tp == typeof(System.Drawing.Image) || tp == typeof(Bitmap)) {
-                System.Drawing.Image img = (System.Drawing.Image)o;
-                using (MemoryStream ms = new MemoryStream()) {
-                    img.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
-                    WriteString("V");
-                    WriteBytes(ms.GetBuffer());
-                }
+            } else if (tp == typeof(System.Drawing.Image) || tp == typeof(System.Drawing.Bitmap)) {
+                throw new InternalError("Image and Bitmap types no longer supported/needed");
             } else if (tp.IsValueType) {
                 // Occasionally test here that no commonly used types are converted to strings (performance penalty)
                 string? val = Convert.ToString(o, CultureInfo.InvariantCulture);
@@ -528,14 +522,8 @@ namespace YetaWF.Core.Serializers {
                         Buffer.BlockCopy(btes, offs, b, 0, len);
                         objVal = new Guid(b);
                     }, () => { objVal = null; }, () => { objVal = Guid.Empty; });
-                } else if (pType == typeof(System.Drawing.Image) || pType == typeof(Bitmap)) {
-                    ReadBytes((btes, offs, len) => {
-                        byte[] b = new byte[len];
-                        Buffer.BlockCopy(btes, offs, b, 0, len);
-                        using (MemoryStream ms = new MemoryStream(b)) {
-                            objVal = System.Drawing.Image.FromStream(ms);
-                        }
-                    }, () => { objVal = null; }, () => { objVal = Guid.Empty; });
+                } else if (pType == typeof(System.Drawing.Image) || pType == typeof(System.Drawing.Bitmap)) {
+                    throw new InternalError("Image and Bitmap types no longer supported/needed");
                 } else {
                     string? strVal = ReadString();
                     objVal = Convert.ChangeType(strVal, pType, CultureInfo.InvariantCulture);

@@ -7,7 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using YetaWF.Core.Addons;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Image;
 using YetaWF.Core.IO;
@@ -15,6 +14,10 @@ using YetaWF.Core.Log;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
 using YetaWF.Core.Upload;
+#if SYSTEM_DRAWING
+#pragma warning disable CA1416 // Validate platform compatibility
+#else
+#endif
 
 namespace YetaWF.Core.HttpHandler {
 
@@ -84,7 +87,12 @@ namespace YetaWF.Core.HttpHandler {
                             nameVal = parts[0];
                     }
 
+#if SYSTEM_DRAWING
                     System.Drawing.Image? img = null;
+#else
+                    SixLabors.ImageSharp.Image? img = null;
+                    string imgContentType = String.Empty;
+#endif
                     byte[]? bytes = null;
 
                     // check if this is a temporary (uploaded image)
@@ -105,7 +113,12 @@ namespace YetaWF.Core.HttpHandler {
                         if (info.Success) {
                             bytes = info.Content;
                             using (MemoryStream ms = new MemoryStream(info.Content)) {
+#if SYSTEM_DRAWING
                                 img = System.Drawing.Image.FromStream(ms);
+#else
+                                (img, SixLabors.ImageSharp.Formats.IImageFormat imgFormat) = await SixLabors.ImageSharp.Image.LoadWithFormatAsync(ms);
+                                imgContentType = imgFormat.DefaultMimeType;
+#endif
                             }
                         }
                     }
@@ -135,9 +148,17 @@ namespace YetaWF.Core.HttpHandler {
                         if (percent > 0) {
                             // resize to fit
                             if (img != null && bytes != null) {
-                                img = ImageSupport.NewImageSize(img, percent, stretch, out bytes);
+                                (img, bytes) = await ImageSupport.NewImageSizeAsync(img, percent, stretch);
+#if SYSTEM_DRAWING
+#else
+                                imgContentType = "image/png";
+#endif
                             } else if (filePath != null) {
-                                img = ImageSupport.NewImageSize(filePath, percent, stretch, out bytes);
+                                (img, bytes) = await ImageSupport.NewImageSizeAsync(filePath, percent, stretch);
+#if SYSTEM_DRAWING
+#else
+                                imgContentType = "image/png";
+#endif
                                 filePath = null;
                             }
                         }
@@ -154,9 +175,17 @@ namespace YetaWF.Core.HttpHandler {
                             if (width > 0 && height > 0) {
                                 // resize to fit
                                 if (img != null && bytes != null) {
-                                    img = ImageSupport.NewImageSize(img, width, height, stretch, out bytes);
+                                    (img, bytes) = await ImageSupport.NewImageSizeAsync(img, width, height, stretch);
+#if SYSTEM_DRAWING
+#else
+                                    imgContentType = "image/png";
+#endif
                                 } else if (filePath != null) {
-                                    img = ImageSupport.NewImageSize(filePath, width, height, stretch, out bytes);
+                                    (img, bytes) = await ImageSupport.NewImageSizeAsync(filePath, width, height, stretch);
+#if SYSTEM_DRAWING
+#else
+                                    imgContentType = "image/png";
+#endif
                                     filePath = null;
                                 }
                             }
@@ -194,11 +223,16 @@ namespace YetaWF.Core.HttpHandler {
                         }
                         return;
                     } else if (img != null && bytes != null) {
+#if SYSTEM_DRAWING
                         if (img.RawFormat == System.Drawing.Imaging.ImageFormat.Gif) contentType = "image/gif";
                         else if (img.RawFormat == System.Drawing.Imaging.ImageFormat.Png) contentType = "image/png";
                         else if (img.RawFormat == System.Drawing.Imaging.ImageFormat.Jpeg) contentType = "image/jpeg";
                         else contentType = "image/jpeg";
-
+#else
+                        contentType = imgContentType;
+                        if (string.IsNullOrWhiteSpace(contentType))
+                            contentType = "image/jpeg";
+#endif
                         YetaWFManager.SetStaticCacheInfo(context);
                         context.Response.Headers.Add("ETag", GetETag(bytes));
                         context.Response.Headers.Add("Last-Modified", String.Format("{0:r}", DateTime.Now.AddDays(-1)));/*can use local time*/

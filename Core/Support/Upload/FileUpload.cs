@@ -10,6 +10,10 @@ using YetaWF.Core.IO;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Log;
 using YetaWF.Core.Support;
+#if SYSTEM_DRAWING
+#pragma warning disable CA1416 // Validate platform compatibility
+#else
+#endif
 
 namespace YetaWF.Core.Upload {
 
@@ -238,11 +242,7 @@ namespace YetaWF.Core.Upload {
         public bool IsTempName(string name) {
             return (!string.IsNullOrWhiteSpace(name) && name.StartsWith(FileUpload.TempId));
         }
-        public async Task<System.Drawing.Image?> GetImageFromTempNameAsync(string name) {
-            string? fileName = await GetTempFilePathFromNameAsync(name);
-            if (string.IsNullOrWhiteSpace(fileName)) return null;
-            return System.Drawing.Image.FromFile(fileName);
-        }
+#if SYSTEM_DRAWING
         public async Task<byte[]?> GetImageBytesFromTempNameAsync(string name) {
             byte[] bytes;
             using (System.Drawing.Image? image = await GetImageFromTempNameAsync(name)) {
@@ -254,6 +254,33 @@ namespace YetaWF.Core.Upload {
             }
             return bytes;
         }
+        private async Task<System.Drawing.Image?> GetImageFromTempNameAsync(string name) {
+            string? fileName = await GetTempFilePathFromNameAsync(name);
+            if (string.IsNullOrWhiteSpace(fileName)) return null;
+            return System.Drawing.Image.FromFile(fileName);
+        }
+#else
+        public async Task<byte[]?> GetImageBytesFromTempNameAsync(string name) {
+            byte[] bytes;
+            (SixLabors.ImageSharp.Image? image, SixLabors.ImageSharp.Formats.IImageFormat? format) = await GetImageFromTempNameAsync(name);
+            if (image == null) return null;
+            using (image)
+            using (MemoryStream ms = new MemoryStream()) {
+                await image.SaveAsync(ms, new SixLabors.ImageSharp.Formats.ImageFormatManager().FindEncoder(format!));
+                bytes = ms.GetBuffer();
+            }
+            return bytes;
+        }
+        private async Task<(SixLabors.ImageSharp.Image?, SixLabors.ImageSharp.Formats.IImageFormat?)> GetImageFromTempNameAsync(string name) {
+            string? fileName = await GetTempFilePathFromNameAsync(name);
+            if (string.IsNullOrWhiteSpace(fileName)) return (null, null);
+            byte[] bytes = await FileSystem.TempFileSystemProvider.ReadAllBytesAsync(fileName);
+            using (MemoryStream ms = new MemoryStream(bytes)) {
+                return await SixLabors.ImageSharp.Image.LoadWithFormatAsync(ms);
+            }
+        }
+#endif
+
         public async Task RemoveAllExpiredTempFilesAsync(TimeSpan timeSpan) {
             // remove all temp files on all sites that are older than "timeSpan"
             if (!await FileSystem.TempFileSystemProvider.DirectoryExistsAsync(TempUploadFolder)) return;
