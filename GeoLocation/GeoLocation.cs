@@ -199,6 +199,8 @@ namespace YetaWF.Core.GeoLocation {
                     } else {
                         resp = await Client.GetStringAsync(url);
                     }
+                    if (string.IsNullOrWhiteSpace(resp))
+                        throw new InternalError($"Unable to obtain geodata");
                     geoData = Utility.JsonDeserialize<GeoData>(resp);
                 }
             } catch (Exception exc) {

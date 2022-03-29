@@ -151,6 +151,8 @@ namespace YetaWF.Core.Upload {
                     } else {
                         resp = await Client.SendAsync(request);
                     }
+                    if (!resp.IsSuccessStatusCode)
+                        throw new InternalError($"Unable to download file {remoteUrl} {resp.StatusCode}");
                 }
             } catch (Exception ex) {
                 throw new Error(this.__ResStr("cantDownload", "File {0} cannot be downloaded: {1}", remoteUrl, ErrorHandling.FormatExceptionMessage(ex)));
