@@ -8,7 +8,7 @@ namespace YetaWF.Core.Security {
 
         public string StringMD5(string text) {
 
-            using (System.Security.Cryptography.MD5CryptoServiceProvider md5Obj = new System.Security.Cryptography.MD5CryptoServiceProvider()) {
+            using (System.Security.Cryptography.MD5 md5Obj = System.Security.Cryptography.MD5.Create()) {
 
                 byte[] btes = System.Text.Encoding.ASCII.GetBytes(text);
                 btes = md5Obj.ComputeHash(btes);

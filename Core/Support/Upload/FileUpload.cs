@@ -266,7 +266,9 @@ namespace YetaWF.Core.Upload {
             if (image == null) return null;
             using (image)
             using (MemoryStream ms = new MemoryStream()) {
-                await image.SaveAsync(ms, new SixLabors.ImageSharp.Formats.ImageFormatManager().FindEncoder(format!));
+                SixLabors.ImageSharp.Formats.ImageFormatManager imageFormatManager = new SixLabors.ImageSharp.Formats.ImageFormatManager();
+                imageFormatManager.AddImageFormat(format!);
+                await image.SaveAsync(ms, imageFormatManager.FindEncoder(format!));
                 bytes = ms.GetBuffer();
             }
             return bytes;
