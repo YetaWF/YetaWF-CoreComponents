@@ -53,7 +53,6 @@ namespace YetaWF.Core.Packages {
             "YetaWF.TinyLanguage",
             "YetaWF.TinyLogin",
             "Softelvdm.TwilioProcessor",
-            "Softelvdm.TwilioProcessorDataProvider",
             "YetaWF.UserProfile",
             "YetaWF.UserSettings",
             "YetaWF.Visitors",
