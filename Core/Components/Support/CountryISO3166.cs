@@ -87,7 +87,7 @@ namespace YetaWF.Core.Components {
         /// <param name="country">The country name.</param>
         /// <param name="AllowMismatch">true to return a default value if the country doesn't exist, false otherwise (throws an error).</param>
         /// <returns>Returns the two character country ID.</returns>
-        public static string CountryToId(string country, bool AllowMismatch = false) {
+        public static string CountryToId(string? country, bool AllowMismatch = false) {
             if (string.IsNullOrWhiteSpace(country))
                 country = Manager.CurrentSite.Country;
             string? id = (from c in GetCountries() where c.Name == country select c.Id).FirstOrDefault();
