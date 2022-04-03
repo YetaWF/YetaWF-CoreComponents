@@ -61,7 +61,7 @@ using YetaWF.Core.Support;
 //   This could still be used for small requests.
 // Post-load Components
 //   (*) done for grids, captcha only
-//   Unified Page Sets (dynamic content) progressively add page content as user navigates between pages of a set, including CSS, JavaScript, etc.
+//   YetaWF progressively adds page content as the user navigates between pages of a set, including CSS, JavaScript, etc.
 // Preload Components
 //   (*) This is somewhat in conflict with YetaWF's design philosophy as modules at the end of a page can affect modules at the top of the page, completely changing rendering of all affected HTML,CSS,JavaScript
 // Reduce the Number of DOM Elements
@@ -69,8 +69,7 @@ using YetaWF.Core.Support;
 // Split Components Across Domains
 //   YetaWF supports an alternate domain/url for all static content
 // Minimize the Number of iframes
-//   YetaWF makes little use of iframes, except for popups.
-//   When using Unified Page Sets (Single Page Site) and popups are enabled for the page set, no iframes are used.
+//   YetaWF does not use iframes (unless explicitly embedded in a page by the page designer).
 // No 404s
 //   Duh
 // Reduce Cookie Size
@@ -87,7 +86,7 @@ using YetaWF.Core.Support;
 //   YetaWF makes no use of filters
 // Optimize Images
 //   Always considered for new images - YetaWF also dynamically re-renders images if requested at other than the natural size
-//   YetaWF automatically servers WEBP images for PNG and JPG images
+//   YetaWF automatically serves WEBP images for PNG and JPG images
 // Optimize CSS Sprites
 //   Built-in icons use sprites
 // Don't Scale Images in HTML
