@@ -117,20 +117,14 @@ namespace YetaWF.Core.DataProvider {
         /// <summary>
         /// Start a transaction with the owning dataprovider and all provided additional dataproviders.
         /// </summary>
-        public DataProviderTransaction StartTransaction(DataProviderImpl ownerDP, params DataProviderImpl[] dps) {
-            return GetIDataProviderTransactions().StartTransaction(ownerDP, dps);
+        public DataProviderTransaction StartTransaction(params DataProviderImpl[] dps) {
+            return GetIDataProviderTransactions().StartTransaction(this, dps);
         }
         /// <summary>
-        /// Commits a transaction, saving all updates.
+        /// Used when creating a dataprovider whithin StartTransAction().
         /// </summary>
-        protected Task CommitTransactionAsync() {
-            return GetIDataProviderTransactions().CommitTransactionAsync();
-        }
-        /// <summary>
-        /// Aborts a transaction, abandoning all updates.
-        /// </summary>
-        protected void AbortTransaction() {
-            GetIDataProviderTransactions().AbortTransaction();
+        public void SupportTransactions(DataProviderImpl dp) {
+            GetIDataProviderTransactions().SupportTransactions(this, dp);
         }
 
         // IINSTALLABLEMODEL ASYNC
