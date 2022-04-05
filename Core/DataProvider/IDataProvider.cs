@@ -57,7 +57,11 @@ namespace YetaWF.Core.DataProvider {
         /// Aborts a transaction, abandoning all updates.
         /// </summary>
         void AbortTransaction();
-    }
+        /// <summary>
+        /// Used when creating a dataprovider whithin StartTransAction().
+        /// </summary>
+        void SupportTransactions(DataProviderImpl ownerDP, DataProviderImpl dp);
+    }       
 
     /// <summary>
     /// This interface is implemented by low-level data providers that offer access to record-based data with one primary key, without record identity.
