@@ -26,7 +26,7 @@ namespace YetaWF.Core.Serializers {
             protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization) {
 
                 JsonProperty property = base.CreateProperty(member, memberSerialization);
-                PropertyInfo pi = ObjectSupport.GetProperty(property.DeclaringType, property.PropertyName);
+                PropertyInfo pi = ObjectSupport.GetProperty(property.DeclaringType!, property.PropertyName!);
 
                 bool shouldSerialize = false;
                 if (pi.CanRead && pi.CanWrite) {
@@ -82,11 +82,7 @@ namespace YetaWF.Core.Serializers {
             assemblyName = serializedType.Assembly.FullName!;
             typeName = serializedType.FullName!;
         }
-        public Type BindToType(string assemblyName, string typeName) {
-//#if MVC6
-//#else
-//            typeName = typeName.Replace("System.Private.CoreLib", "mscorlib");
-//#endif
+        public Type BindToType(string? assemblyName, string typeName) {
             string resolvedTypeName = string.Format($"{typeName}, {assemblyName}");
             return Type.GetType(resolvedTypeName, true)!;
         }

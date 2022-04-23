@@ -333,7 +333,7 @@ namespace YetaWF.Core.Models {
     /// </summary>
     public class MultiStringConv : TypeConverter {
         /// <inheritdoc/>
-        public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) {
+        public override bool CanConvertTo(ITypeDescriptorContext? context, Type? destinationType) {
             if (destinationType == typeof(string))
                 return true;
             //else if (destinationType == typeof(EditorDefinition))
@@ -341,8 +341,8 @@ namespace YetaWF.Core.Models {
             return base.CanConvertTo(context, destinationType);
         }
         /// <inheritdoc/>
-        public override Object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, Object value, Type destinationType) {
-            if (destinationType == typeof(string))
+        public override object? ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, Type destinationType) {
+            if (destinationType == typeof(string) && value != null)
                 return ((MultiString)value).ToString();
             //else if (destinationType == typeof(EditorDefinition))
             //    return new EditorDefinition((MultiString)value);

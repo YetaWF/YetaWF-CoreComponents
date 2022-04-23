@@ -286,7 +286,7 @@ namespace YetaWF.Core.Support {
         /// <param name="overridden">Returns whether the domain name was explicitly defined using the !Domain query string argument.</param>
         /// <param name="newSwitch">Returns whether this is a request for a new domain (being created).</param>
         /// <returns></returns>
-        public static string GetRequestedDomain(HttpContext httpContext, Uri uri, bool loopBack, string siteDomain, out bool overridden, out bool newSwitch) {
+        public static string GetRequestedDomain(HttpContext httpContext, Uri uri, bool loopBack, string? siteDomain, out bool overridden, out bool newSwitch) {
             overridden = newSwitch = false;
 
             if (loopBack) {
@@ -307,6 +307,8 @@ namespace YetaWF.Core.Support {
             }
             if (!overridden)
                 siteDomain = uri.Host;
+
+            if (siteDomain == null) throw new InternalError("No site domain name available");
 
             // beautify the host name a bit
             if (siteDomain.Length > 1)
@@ -946,7 +948,7 @@ namespace YetaWF.Core.Support {
         public string UserHostAddress {
             get {
                 if (!HaveCurrentRequest) return string.Empty;
-                IHttpConnectionFeature connectionFeature = CurrentContext.Features.Get<IHttpConnectionFeature>();
+                IHttpConnectionFeature? connectionFeature = CurrentContext.Features.Get<IHttpConnectionFeature>();
                 if (connectionFeature != null && connectionFeature.RemoteIpAddress != null)
                     return connectionFeature.RemoteIpAddress.ToString();
                 return string.Empty;

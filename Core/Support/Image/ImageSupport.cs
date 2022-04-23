@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing.Drawing2D;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -14,6 +13,11 @@ using YetaWF.Core.Scheduler;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
 using YetaWF.Core.Upload;
+#if SYSTEM_DRAWING
+#pragma warning disable CA1416 // Validate platform compatibility
+#else
+using SixLabors.ImageSharp.Processing;
+#endif
 
 namespace YetaWF.Core.Image {
 
@@ -117,37 +121,39 @@ namespace YetaWF.Core.Image {
         // IMAGE SUPPORT
         // IMAGE SUPPORT
 
-        public static System.Drawing.Image NewImageSize(string filePath, int width, int height, bool stretch, out byte[] bytes) {
+#if SYSTEM_DRAWING
+        public static async Task<(System.Drawing.Image, byte[])> NewImageSizeAsync(string filePath, int width, int height, bool stretch) {
             System.Drawing.Image imgOrig = System.Drawing.Image.FromFile(filePath);
-            return NewImageSize(imgOrig, width, height, stretch, out bytes);
+            return await NewImageSizeAsync(imgOrig, width, height, stretch);
         }
-        public static System.Drawing.Image NewImageSize(string filePath, int percent, bool stretch, out byte[] bytes) {
+        public static async Task<(System.Drawing.Image, byte[])> NewImageSizeAsync(string filePath, int percent, bool stretch) {
             System.Drawing.Image imgOrig = System.Drawing.Image.FromFile(filePath);
-            return NewImageSize(imgOrig, percent, stretch, out bytes);
+            return await NewImageSizeAsync(imgOrig, percent, stretch);
         }
-        public static System.Drawing.Image NewImageSize(System.Drawing.Image imgOrig, int percent, bool stretch, out byte[] bytes) {
-            return NewImageSize(imgOrig, (imgOrig.Size.Width * percent) / 100, (imgOrig.Size.Height * percent) / 100, stretch, out bytes);
+        public static async Task<(System.Drawing.Image, byte[])> NewImageSizeAsync(System.Drawing.Image imgOrig, int percent, bool stretch) {
+            return await NewImageSizeAsync(imgOrig, (imgOrig.Size.Width * percent) / 100, (imgOrig.Size.Height * percent) / 100, stretch);
         }
-
-        public static System.Drawing.Image NewImageSize(System.Drawing.Image imgOrig, int width, int height, bool stretch, out byte[] bytes) {
+        public static Task<(System.Drawing.Image, byte[])> NewImageSizeAsync(System.Drawing.Image imgOrig, int width, int height, bool stretch) {
             width = Math.Max(1, width);
             height = Math.Max(1, height);
             System.Drawing.Size newSize = CalcProportionalSize(new System.Drawing.Size(width, height), stretch, imgOrig.Size);
             System.Drawing.Bitmap newImage = new System.Drawing.Bitmap(width, height);
             using (System.Drawing.Graphics g = System.Drawing.Graphics.FromImage(newImage)) {
                 g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
                 g.DrawImage(imgOrig,
                     new System.Drawing.Rectangle(new System.Drawing.Point(0 + (width - newSize.Width) / 2, 0 + (height - newSize.Height) / 2), newSize),
                     new System.Drawing.Rectangle(System.Drawing.Point.Empty, imgOrig.Size),
                     System.Drawing.GraphicsUnit.Pixel);
             }
             imgOrig.Dispose();
+
+            byte[] btes;
             using (MemoryStream ms = new MemoryStream()) {
                 newImage.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                bytes = ms.GetBuffer();
+                btes = ms.GetBuffer();
             }
-            return newImage;
+            return Task.FromResult(((System.Drawing.Image)newImage, btes));
         }
         private static System.Drawing.Size CalcProportionalSize(System.Drawing.Size sizeMax, bool stretch, System.Drawing.Size sizeCurr) {
             int w, h;
@@ -182,14 +188,13 @@ namespace YetaWF.Core.Image {
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public static async Task<System.Drawing.Size> GetImageSizeAsync(string name) {
-            System.Drawing.Size size = new System.Drawing.Size();
+        public static async Task<(int, int)> GetImageSizeAsync(string name) {
             FileUpload fileUpload = new FileUpload();
             string? filePath = await fileUpload.GetTempFilePathFromNameAsync(name);
             if (filePath == null)
-                return size;
+                return (0, 0);
             using (System.Drawing.Image img = System.Drawing.Image.FromFile(filePath)) {
-                return img.Size;
+                return (img.Width, img.Height);
             }
         }
         /// <summary>
@@ -198,26 +203,119 @@ namespace YetaWF.Core.Image {
         /// <param name="name"></param>
         /// <param name="folder"></param>
         /// <returns></returns>
-        public static System.Drawing.Size GetImageSize(string name, string folder) {
+        public static Task<(int, int)> GetImageSizeAsync(string name, string folder) {
             string filePath = Path.Combine(Manager.SiteFolder, folder, name);
             using (System.Drawing.Image img = System.Drawing.Image.FromFile(filePath)) {
-                return img.Size;
+                return Task.FromResult((img.Width, img.Height));
             }
         }
         /// <summary>
         /// Get the image size
         /// </summary>
-        public static System.Drawing.Size GetImageSize(byte[] data) {
-            System.Drawing.Size size = new System.Drawing.Size();
-            if (data == null) return size;
-            if (data.Length == 0) return size;
-            using (MemoryStream ms = new MemoryStream(data)) {
-                using (System.Drawing.Image img = System.Drawing.Image.FromStream(ms)) {
-                    size = img.Size;
+        public static Task<(int, int)> GetImageSizeAsync(byte[] data) {
+            if (data == null) return Task.FromResult((0, 0));
+            if (data.Length == 0) return Task.FromResult((0, 0));
+            using (MemoryStream ms = new MemoryStream(data))
+            using (System.Drawing.Image img = System.Drawing.Image.FromStream(ms)) {
+                return Task.FromResult((img.Width, img.Height));
+            }
+        }
+#else
+        public static async Task<(SixLabors.ImageSharp.Image, byte[])> NewImageSizeAsync(string filePath, int width, int height, bool stretch) {
+            SixLabors.ImageSharp.Image imgOrig = await SixLabors.ImageSharp.Image.LoadAsync(filePath);
+            return await NewImageSizeAsync(imgOrig, width, height, stretch);
+        }
+        public static async Task<(SixLabors.ImageSharp.Image, byte[])> NewImageSizeAsync(string filePath, int percent, bool stretch) {
+            SixLabors.ImageSharp.Image imgOrig = await SixLabors.ImageSharp.Image.LoadAsync(filePath);
+            return await NewImageSizeAsync(imgOrig, percent, stretch);
+        }
+        public static Task<(SixLabors.ImageSharp.Image, byte[])> NewImageSizeAsync(SixLabors.ImageSharp.Image imgOrig, int percent, bool stretch) {
+            return NewImageSizeAsync(imgOrig, (imgOrig.Width * percent) / 100, (imgOrig.Height * percent) / 100, stretch);
+        }
+        public static async Task<(SixLabors.ImageSharp.Image, byte[])> NewImageSizeAsync(SixLabors.ImageSharp.Image imgOrig, int width, int height, bool stretch) {
+
+            width = Math.Max(1, width);
+            height = Math.Max(1, height);
+            SixLabors.ImageSharp.Size newSize = CalcProportionalSize(new SixLabors.ImageSharp.Size(width, height), stretch, new SixLabors.ImageSharp.Size(imgOrig.Width, imgOrig.Height));
+            imgOrig.Mutate(x => x.Resize(newSize));
+            SixLabors.ImageSharp.Image<SixLabors.ImageSharp.PixelFormats.Rgba32> newImage = new SixLabors.ImageSharp.Image<SixLabors.ImageSharp.PixelFormats.Rgba32>(width, height);
+            newImage.Mutate(o => o.DrawImage(imgOrig, new SixLabors.ImageSharp.Point(0 + (width - newSize.Width) / 2, 0 + (height - newSize.Height) / 2), 1f));
+            imgOrig.Dispose();
+
+            byte[] btes;
+            using (MemoryStream ms = new MemoryStream()) {
+                await newImage.SaveAsync(ms, new SixLabors.ImageSharp.Formats.Png.PngEncoder());
+                btes = ms.GetBuffer();
+            }
+            return (newImage, btes);
+        }
+        private static SixLabors.ImageSharp.Size CalcProportionalSize(SixLabors.ImageSharp.Size sizeMax, bool stretch, SixLabors.ImageSharp.Size sizeCurr) {
+            int w, h;
+
+            if (sizeMax.Width <= 0 || sizeMax.Height <= 0 || sizeCurr.Width <= 0 || sizeCurr.Height <= 0)
+                return SixLabors.ImageSharp.Size.Empty;
+
+            double maxRatio = sizeMax.Width / (double)sizeMax.Height;
+            double actRatio = sizeCurr.Width / (double)sizeCurr.Height;
+            if (stretch) {
+                if (maxRatio < actRatio) {
+                    w = sizeMax.Width;
+                    h = (int)Math.Round(w / actRatio);
+                } else {
+                    h = sizeMax.Height;
+                    w = (int)Math.Round(h * actRatio);
+                }
+            } else {
+                if (maxRatio < actRatio) {
+                    w = Math.Min(sizeMax.Width, sizeCurr.Width);
+                    h = (int)Math.Round(w / actRatio);
+                } else {
+                    h = Math.Min(sizeMax.Height, sizeCurr.Height);
+                    w = (int)Math.Round(h * actRatio);
                 }
             }
-            return size;
+            return new SixLabors.ImageSharp.Size(w, h);
         }
+
+        /// <summary>
+        /// Get the image size (temp files only)
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static async Task<(int, int)> GetImageSizeAsync(string name) {
+            FileUpload fileUpload = new FileUpload();
+            string? filePath = await fileUpload.GetTempFilePathFromNameAsync(name);
+            if (filePath == null)
+                return (0, 0);
+            using (SixLabors.ImageSharp.Image img = await SixLabors.ImageSharp.Image.LoadAsync(filePath)) {
+                return (img.Width, img.Height);
+            }
+        }
+        /// <summary>
+        /// Get the image size
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="folder"></param>
+        /// <returns></returns>
+        public static async Task<(int, int)> GetImageSizeAsync(string name, string folder) {
+            string filePath = Path.Combine(Manager.SiteFolder, folder, name);
+            using (SixLabors.ImageSharp.Image img = await SixLabors.ImageSharp.Image.LoadAsync(filePath)) {
+                return (img.Width, img.Height);
+            }
+        }
+        /// <summary>
+        /// Get the image size
+        /// </summary>
+        public static async Task<(int, int)> GetImageSizeAsync(byte[] data) {
+            if (data == null) return (0, 0);
+            if (data.Length == 0) return (0, 0);
+            using (MemoryStream ms = new MemoryStream(data)) {
+                using (SixLabors.ImageSharp.Image img = await SixLabors.ImageSharp.Image.LoadAsync(ms)) {
+                    return (img.Width, img.Height);
+                }
+            }
+        }
+#endif
 
         static Regex _imgCDNRe = new Regex(@"(?'kwd'\s+(src|href)=)(?'quot'(""|'))(?'url'/FileHndlr\.image\?Type=[^\'\""]*)", RegexOptions.Compiled | RegexOptions.Singleline);
 

@@ -4,12 +4,16 @@ using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using YetaWF.Core.IO;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Log;
 using YetaWF.Core.Support;
+#if SYSTEM_DRAWING
+#pragma warning disable CA1416 // Validate platform compatibility
+#else
+#endif
 
 namespace YetaWF.Core.Upload {
 
@@ -21,6 +25,14 @@ namespace YetaWF.Core.Upload {
 
         public static string TempUploadFolder { get { return Path.Combine(FileSystem.TempFileSystemProvider.RequiredRootFolder, "Uploads"); } }
         public static string TempSiteUploadFolder { get { return Path.Combine(FileSystem.TempFileSystemProvider.RequiredRootFolder, "Uploads", Manager.CurrentSite.Identity.ToString()); } }
+
+        private static readonly HttpClientHandler Handler = new HttpClientHandler {
+            AllowAutoRedirect = true,
+            UseCookies = false,
+        };
+        private static readonly HttpClient Client = new HttpClient(Handler, true) {
+            Timeout = new TimeSpan(0, 1, 0),
+        };
 
         // UPLOAD
         // UPLOAD
@@ -132,24 +144,27 @@ namespace YetaWF.Core.Upload {
             MimeSection mimeSection = new MimeSection();
 
             const string UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko";
-            HttpWebRequest req;
-            HttpWebResponse resp;
+            HttpResponseMessage? resp = null;
 
-            try {
-                req = (HttpWebRequest)WebRequest.Create(remoteUrl);
-                req.UserAgent = UserAgent;
-                if (YetaWFManager.IsSync()) {
-                    resp = (HttpWebResponse)req.GetResponse();
-                } else {
-                    resp = (HttpWebResponse)await req.GetResponseAsync();
+            try
+            {
+                using (var request = new HttpRequestMessage(HttpMethod.Get, remoteUrl)) {
+                    request.Headers.TryAddWithoutValidation("User-Agent", UserAgent);
+                    if (YetaWFManager.IsSync()) {
+                        resp = Client.Send(request);
+                    } else {
+                        resp = await Client.SendAsync(request);
+                    }
+                    if (!resp.IsSuccessStatusCode)
+                        throw new InternalError($"Unable to download file {remoteUrl} {resp.StatusCode}");
                 }
             } catch (Exception ex) {
                 throw new Error(this.__ResStr("cantDownload", "File {0} cannot be downloaded: {1}", remoteUrl, ErrorHandling.FormatExceptionMessage(ex)));
             }
 
-            if (!mimeSection.CanUse(resp.ContentType, useType)) {
-                string contentType = resp.ContentType;
-                resp.Close();
+            string? contentType = resp.Content.Headers.ContentType?.MediaType;
+            if (!mimeSection.CanUse(contentType, useType)) {
+                resp.Dispose();
                 throw new Error(this.__ResStr("errDownloadPkgType", "Download not allowed - The file type '{0}' is not an allowable file type"), contentType);
             }
 
@@ -160,8 +175,14 @@ namespace YetaWF.Core.Upload {
             await FileSystem.TempFileSystemProvider.CreateDirectoryAsync(TempSiteUploadFolder);
             string filePath = Path.Combine(TempSiteUploadFolder, name);
 
-            using (Stream strm = resp.GetResponseStream()) {
-                int totlen = (int)resp.ContentLength;
+            Stream strm;
+            if (YetaWFManager.IsSync()) {
+                strm = resp.Content.ReadAsStream();
+            } else {
+                strm = await resp.Content.ReadAsStreamAsync();
+            }
+            using (strm) {
+                int totlen = (int)strm.Length;
                 byte[] bts = new byte[totlen];
                 using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(filePath)) {
                     int remlen = totlen;
@@ -181,7 +202,7 @@ namespace YetaWF.Core.Upload {
                 }
             }
 
-            resp.Close();
+            resp.Dispose();
 
             return Path.GetFileName(name);
         }
@@ -221,11 +242,7 @@ namespace YetaWF.Core.Upload {
         public bool IsTempName(string name) {
             return (!string.IsNullOrWhiteSpace(name) && name.StartsWith(FileUpload.TempId));
         }
-        public async Task<System.Drawing.Image?> GetImageFromTempNameAsync(string name) {
-            string? fileName = await GetTempFilePathFromNameAsync(name);
-            if (string.IsNullOrWhiteSpace(fileName)) return null;
-            return System.Drawing.Image.FromFile(fileName);
-        }
+#if SYSTEM_DRAWING
         public async Task<byte[]?> GetImageBytesFromTempNameAsync(string name) {
             byte[] bytes;
             using (System.Drawing.Image? image = await GetImageFromTempNameAsync(name)) {
@@ -237,6 +254,35 @@ namespace YetaWF.Core.Upload {
             }
             return bytes;
         }
+        private async Task<System.Drawing.Image?> GetImageFromTempNameAsync(string name) {
+            string? fileName = await GetTempFilePathFromNameAsync(name);
+            if (string.IsNullOrWhiteSpace(fileName)) return null;
+            return System.Drawing.Image.FromFile(fileName);
+        }
+#else
+        public async Task<byte[]?> GetImageBytesFromTempNameAsync(string name) {
+            byte[] bytes;
+            (SixLabors.ImageSharp.Image? image, SixLabors.ImageSharp.Formats.IImageFormat? format) = await GetImageFromTempNameAsync(name);
+            if (image == null) return null;
+            using (image)
+            using (MemoryStream ms = new MemoryStream()) {
+                SixLabors.ImageSharp.Formats.ImageFormatManager imageFormatManager = new SixLabors.ImageSharp.Formats.ImageFormatManager();
+                imageFormatManager.AddImageFormat(format!);
+                await image.SaveAsync(ms, imageFormatManager.FindEncoder(format!));
+                bytes = ms.GetBuffer();
+            }
+            return bytes;
+        }
+        private async Task<(SixLabors.ImageSharp.Image?, SixLabors.ImageSharp.Formats.IImageFormat?)> GetImageFromTempNameAsync(string name) {
+            string? fileName = await GetTempFilePathFromNameAsync(name);
+            if (string.IsNullOrWhiteSpace(fileName)) return (null, null);
+            byte[] bytes = await FileSystem.TempFileSystemProvider.ReadAllBytesAsync(fileName);
+            using (MemoryStream ms = new MemoryStream(bytes)) {
+                return await SixLabors.ImageSharp.Image.LoadWithFormatAsync(ms);
+            }
+        }
+#endif
+
         public async Task RemoveAllExpiredTempFilesAsync(TimeSpan timeSpan) {
             // remove all temp files on all sites that are older than "timeSpan"
             if (!await FileSystem.TempFileSystemProvider.DirectoryExistsAsync(TempUploadFolder)) return;

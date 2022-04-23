@@ -1,7 +1,7 @@
 ﻿/* Copyright © 2021 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
-using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using YetaWF.Core.Log;
 using YetaWF.Core.Support;
@@ -79,6 +79,14 @@ namespace YetaWF.Core.GeoLocation {
 
         private static DateTime InitialRequestTime { get; set; } = DateTime.Now;// Local time
         private static int RemainingRequests { get; set; } = MAXREQUESTSPERMINUTE;
+
+        private static readonly HttpClientHandler Handler = new HttpClientHandler {
+            AllowAutoRedirect = true,
+            UseCookies = false,
+        };
+        private static readonly HttpClient Client = new HttpClient(Handler, true) {
+            Timeout = new TimeSpan(0, 0, 20),
+        };
 
         /// <summary>
         /// Returns the number of remaining requests that can be made before the limit is exceeded.
@@ -179,25 +187,21 @@ namespace YetaWF.Core.GeoLocation {
 
             if (ipAddress == "127.0.0.1")
                 return null;
-            UriBuilder uri = new UriBuilder($"http://www.geoplugin.net/json.gp?ip={ipAddress}");
+
             GeoData? geoData = null;
             try {
-                var http = (HttpWebRequest)WebRequest.Create(uri.ToString());
-                http.Accept = "application/json";
-                http.Method = "GET";
-                System.Net.WebResponse resp;
-                if (YetaWFManager.IsSync()) {
-                    using (resp = http.GetResponse()) {
-                        System.IO.StreamReader sr = new System.IO.StreamReader(resp.GetResponseStream());
-                        string response = sr.ReadToEnd().Trim();
-                        geoData = Utility.JsonDeserialize<GeoData>(response);
+                string url = $"http://www.geoplugin.net/json.gp?ip={ipAddress}";
+                string? resp = null;
+
+                using (var request = new HttpRequestMessage()) {
+                    if (YetaWFManager.IsSync()) {
+                        resp = Client.GetStringAsync(url).Result;
+                    } else {
+                        resp = await Client.GetStringAsync(url);
                     }
-                } else {
-                    using (resp = await http.GetResponseAsync()) {
-                        System.IO.StreamReader sr = new System.IO.StreamReader(resp.GetResponseStream());
-                        string response = (await sr.ReadToEndAsync()).Trim();
-                        geoData = Utility.JsonDeserialize<GeoData>(response);
-                    }
+                    if (string.IsNullOrWhiteSpace(resp))
+                        throw new InternalError($"Unable to obtain geodata");
+                    geoData = Utility.JsonDeserialize<GeoData>(resp);
                 }
             } catch (Exception exc) {
                 Logging.AddErrorLog("geoplugin failed - {0} - ip address {1}", ErrorHandling.FormatExceptionMessage(exc), ipAddress);

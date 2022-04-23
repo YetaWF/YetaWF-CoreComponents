@@ -58,8 +58,8 @@ namespace YetaWF.Core.Models {
                     foreach (string modelStateKey in modelState.Keys) {
                         string? key = FindModelStateKey(modelState, modelStateKey);
                         if (key != null) {
-                            ModelStateEntry modelEntry = modelState[key];
-                            if (modelEntry.Errors.FirstOrDefault()?.ErrorMessage == error.HardcodedMessage) {
+                            ModelStateEntry? modelEntry = modelState[key];
+                            if (modelEntry != null && modelEntry.Errors.FirstOrDefault()?.ErrorMessage == error.HardcodedMessage) {
                                 error.PropertyName = modelStateKey;// save property name that matches this error
                                 switch (error.NetCoreErrorName) {
                                     case "ValueMustNotBeNullAccessor":
@@ -75,14 +75,16 @@ namespace YetaWF.Core.Models {
                 } else if (error.PropertyName != null) {
                     string? key = FindModelStateKey(modelState, error.PropertyName);
                     if (key != null) {
-                        ModelStateEntry modelEntry = modelState[key];
-                        switch (error.NetCoreErrorName) {
-                            case "AttemptedValueIsInvalidAccessor":
-                                string? caption = GetCaption(container, key);
-                                modelEntry.Errors.Clear();
-                                modelEntry.Errors.Add(this.__ResStr("invVal", "The value '{0}' is not valid for field '{1}'", error.AttemptedValue, caption));
-                                Handled.Add(modelEntry);
-                                break;
+                        ModelStateEntry? modelEntry = modelState[key];
+                        if (modelEntry != null) { 
+                            switch (error.NetCoreErrorName) {
+                                case "AttemptedValueIsInvalidAccessor":
+                                    string? caption = GetCaption(container, key);
+                                    modelEntry.Errors.Clear();
+                                    modelEntry.Errors.Add(this.__ResStr("invVal", "The value '{0}' is not valid for field '{1}'", error.AttemptedValue, caption));
+                                    Handled.Add(modelEntry);
+                                    break;
+                            }
                         }
                     }
                 }
@@ -90,9 +92,9 @@ namespace YetaWF.Core.Models {
         }
 
         private string? FindModelStateKey(ModelStateDictionary modelState, string propertyName) {
-            string? key = modelState.Keys.FirstOrDefault((x) => x == propertyName && !Handled.Contains(modelState[x]));
+            string? key = modelState.Keys.FirstOrDefault((x) => x == propertyName && !Handled.Contains(modelState[x]!));
             if (key == null)
-                key = modelState.Keys.FirstOrDefault((x) => x.EndsWith($".{propertyName}") && !Handled.Contains(modelState[x]));
+                key = modelState.Keys.FirstOrDefault((x) => x.EndsWith($".{propertyName}") && !Handled.Contains(modelState[x]!));
             if (key == null)
                 return null;
             return key;

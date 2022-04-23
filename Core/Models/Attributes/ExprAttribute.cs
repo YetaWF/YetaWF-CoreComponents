@@ -482,7 +482,7 @@ namespace YetaWF.Core.Models.Attributes {
 
             TypeConverter conv = TypeDescriptor.GetConverter(value.GetType());
             try {
-                string v = conv.ConvertToString(value);
+                string? v = conv.ConvertToString(value);
                 if (string.IsNullOrWhiteSpace(v))
                     return true;
             } catch (Exception) { }
@@ -508,7 +508,7 @@ namespace YetaWF.Core.Models.Attributes {
                 return true;
 
             TypeConverter conv = TypeDescriptor.GetConverter(value.GetType());
-            string v = conv.ConvertToString(value);
+            string? v = conv.ConvertToString(value);
             if (string.IsNullOrWhiteSpace(v))
                 return true;
             if (v == "0")
@@ -521,19 +521,25 @@ namespace YetaWF.Core.Models.Attributes {
             if (val1 == null) {
                 if (val2 == null)
                     return true;
-                TypeConverter conv = TypeDescriptor.GetConverter(val2.GetType());
-                string v = conv.ConvertToString(val2);
+                TypeConverter? conv = TypeDescriptor.GetConverter(val2.GetType());
+                if (conv == null) return false;
+                string? v = conv.ConvertToString(val2);
+                if (v == null) return false;
                 return v.Length == 0;
             } else if (val2 == null) {
-                TypeConverter conv = TypeDescriptor.GetConverter(val1.GetType());
-                string v = conv.ConvertToString(val1);
+                TypeConverter? conv = TypeDescriptor.GetConverter(val1.GetType());
+                if (conv == null) return false;
+                string? v = conv.ConvertToString(val1);
+                if (v == null) return false;
                 return v.Length == 0;
             }
             {
-                TypeConverter conv = TypeDescriptor.GetConverter(val1.GetType());
-                string v1 = conv.ConvertToString(val1);
+                TypeConverter? conv = TypeDescriptor.GetConverter(val1.GetType());
+                if (conv == null) return false;
+                string? v1 = conv.ConvertToString(val1);
                 conv = TypeDescriptor.GetConverter(val2.GetType());
-                string v2 = conv.ConvertToString(val2);
+                if (conv == null) return false;
+                string? v2 = conv.ConvertToString(val2);
                 return v1 == v2;
             }
         }
@@ -647,9 +653,10 @@ namespace YetaWF.Core.Models.Attributes {
             public object? Value {
                 get {
                     if (_Value == null) return null;
-                    TypeConverter conv = TypeDescriptor.GetConverter(_Value.GetType());
-                    string v = conv.ConvertToString(_Value);
-                    if (v.StartsWith(ValueOf))
+                    TypeConverter? conv = TypeDescriptor.GetConverter(_Value.GetType());
+                    if (conv == null) throw new InternalError("No type converter");
+                    string? v = conv.ConvertToString(_Value);
+                    if (v != null && v.StartsWith(ValueOf))
                         throw new InternalError("Value used when the attribute describes another property");
                     return _Value;
                 }
@@ -661,9 +668,10 @@ namespace YetaWF.Core.Models.Attributes {
             public bool IsRightProperty {
                 get {
                     if (_Value == null) return false;
-                    TypeConverter conv = TypeDescriptor.GetConverter(_Value.GetType());
-                    string v = conv.ConvertToString(_Value);
-                    if (v.StartsWith(ValueOf))
+                    TypeConverter? conv = TypeDescriptor.GetConverter(_Value.GetType());
+                    if (conv == null) throw new InternalError("No type converter");
+                    string? v = conv.ConvertToString(_Value);
+                    if (v != null && v.StartsWith(ValueOf))
                         return true;
                     return false;
                 }
@@ -673,9 +681,10 @@ namespace YetaWF.Core.Models.Attributes {
                 get {
                     if (_Value == null)
                         throw new InternalError("Property used when the attribute describes a value");
-                    TypeConverter conv = TypeDescriptor.GetConverter(_Value.GetType());
-                    string v = conv.ConvertToString(_Value);
-                    if (!v.StartsWith(ValueOf))
+                    TypeConverter? conv = TypeDescriptor.GetConverter(_Value.GetType());
+                    if (conv == null) throw new InternalError("No type converter");
+                    string? v = conv.ConvertToString(_Value);
+                    if (v == null || !v.StartsWith(ValueOf))
                         throw new InternalError("Property used when the attribute describes a value");
                     return v.Substring(ValueOf.Length);
                 }

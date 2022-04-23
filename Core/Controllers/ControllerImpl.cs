@@ -212,7 +212,7 @@ namespace YetaWF.Core.Controllers {
 
             // action is about to start - if this is a postback or ajax request, we'll clean up parameters
             if (Manager.IsPostRequest) {
-                IDictionary<string,object> parms = filterContext.ActionArguments;
+                IDictionary<string,object?> parms = filterContext.ActionArguments;
                 if (parms != null) {
                     // remove leading/trailing spaces based on TrimAttribute for properties
                     // and update ModelState for RequiredIfxxx attributes
@@ -483,10 +483,10 @@ namespace YetaWF.Core.Controllers {
         }
 
         // search for templates
-        private static bool SearchTemplate(string templateName, bool modelIsValid, string actionValStr, string actionExtraStr, KeyValuePair<string, object> pair) {
+        private static bool SearchTemplate(string templateName, bool modelIsValid, string actionValStr, string actionExtraStr, KeyValuePair<string, object?> pair) {
             return SearchTemplateArgument(templateName, modelIsValid, actionValStr, actionExtraStr, pair.Value);
         }
-        private static bool SearchTemplateArgument(string templateName, bool modelIsValid, string actionValStr, string actionExtraStr, object parm) {
+        private static bool SearchTemplateArgument(string templateName, bool modelIsValid, string actionValStr, string actionExtraStr, object? parm) {
             if (parm == null) return false;
             Type tpParm = parm.GetType();
             List<PropertyData> props = ObjectSupport.GetPropertyData(tpParm);
@@ -523,7 +523,7 @@ namespace YetaWF.Core.Controllers {
         }
 
         // Replace JSON parms
-        private void ReplaceJSONParms(IDictionary<string, object> actionParms) {
+        private void ReplaceJSONParms(IDictionary<string, object?> actionParms) {
             if (HttpContext.Request.HasFormContentType) {
                 foreach (var entry in HttpContext.Request.Form.Keys) {
                     if (entry != null && entry.EndsWith("-JSON")) {
@@ -535,7 +535,7 @@ namespace YetaWF.Core.Controllers {
             }
         }
 
-        private void AddJSONParmData(IDictionary<string, object> actionParms, string parmName, string jsonData) {
+        private void AddJSONParmData(IDictionary<string, object?> actionParms, string parmName, string jsonData) {
             // search each direct parm
             // NOT SUPPORTED FOR DIRECT PARMS (MUST USE MODEL)
             //foreach (var parm in actionParms) {

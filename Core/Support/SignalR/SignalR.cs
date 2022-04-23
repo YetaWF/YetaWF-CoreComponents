@@ -59,7 +59,8 @@ namespace YetaWF.Core {
         /// </remarks>
         public static async Task SetupSignalRHubAsync(Hub hub, Func<Task> run) {
 
-            HttpContext httpContext = hub.Context.GetHttpContext();
+            HttpContext? httpContext = hub.Context.GetHttpContext();
+            if (httpContext == null) throw new InternalError("No HTTP Context for this connection");
             HttpRequest httpReq = httpContext.Request;
             string host = httpReq.Host.Host;
 

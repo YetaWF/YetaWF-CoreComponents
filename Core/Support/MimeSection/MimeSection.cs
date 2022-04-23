@@ -77,10 +77,11 @@ namespace YetaWF.Core.Support {
             }
             return null;
         }
-        public bool CanUse(string contentType, string resourceName) {
+        public bool CanUse(string? contentType, string resourceName) {
             if (CachedEntries == null)
                 return false;
-            contentType = contentType.Trim().ToLower();
+            contentType = contentType?.Trim().ToLower();
+            if (string.IsNullOrWhiteSpace(contentType)) return false;
             foreach (MimeEntry entry in CachedEntries) {
                 if (entry.Type == contentType) {
                     if (entry.Dynamic != null) {// built-in entries don't have dynamic section

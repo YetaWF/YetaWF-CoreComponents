@@ -56,8 +56,7 @@ namespace YetaWF.Core.WebAPIStartup {
                 options.Conventions.Add(new AreaConventionAttribute());
             })
             .AddNewtonsoftJson()
-            .ConfigureApplicationPartManager((partManager) => { YetaWFApplicationPartManager.AddAssemblies(partManager); })
-            .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            .ConfigureApplicationPartManager((partManager) => { YetaWFApplicationPartManager.AddAssemblies(partManager); });
 
 #if !DEBUG
             // in release builds we allow sync I/O - Simply can't be sure that all sync I/O has been corrected in development

@@ -65,13 +65,13 @@ namespace YetaWF.Core.Pages {
 
             ActionInfo info = new ActionInfo();
 
-            ActionDescriptor actionDescriptor = actionSelector.SelectBestCandidate(routeContext, candidates);
+            ActionDescriptor? actionDescriptor = actionSelector.SelectBestCandidate(routeContext, candidates);
             if (actionDescriptor != null) {
 
                 ActionContext actionContext = new ActionContext(httpContext, routeData, actionDescriptor);
 
                 // invoke action and retrieve the response body
-                IActionInvoker invoker = actionInvokerFactory.CreateInvoker(actionContext);
+                IActionInvoker? invoker = actionInvokerFactory.CreateInvoker(actionContext);
                 if (invoker != null) {
                     Stream body = httpContext.Response.Body;
                     using (httpContext.Response.Body = new MemoryStream()) {

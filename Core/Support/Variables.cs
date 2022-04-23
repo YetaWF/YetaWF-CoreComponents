@@ -335,9 +335,9 @@ namespace YetaWF.Core.Support {
                 // convert to a string
                 try {
                     TypeConverter conv = TypeDescriptor.GetConverter(val.GetType());
-                    retString = conv.ConvertToString(val);
+                    retString = conv.ConvertToString(val) ?? string.Empty;
                 } catch {
-                    retString = val.ToString()!;
+                    retString = val.ToString() ?? string.Empty;
                 }
                 return true;
             }
@@ -352,9 +352,9 @@ namespace YetaWF.Core.Support {
                     // convert to a string
                     try {
                         TypeConverter conv = TypeDescriptor.GetConverter(val.GetType());
-                        retString = conv.ConvertToString(val);
+                        retString = conv.ConvertToString(val) ?? string.Empty;
                     } catch {
-                        retString = val.ToString()!;
+                        retString = val.ToString() ?? string.Empty;
                     }
                     return true;
                 }

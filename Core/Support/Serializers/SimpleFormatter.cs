@@ -3,7 +3,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
@@ -194,13 +193,8 @@ namespace YetaWF.Core.Serializers {
             } else if (tp == typeof(DayOfWeek) || tp == typeof(DayOfWeek?)) {
                 stream.Write("V");
                 string val = Convert.ToInt64(o).ToString(CultureInfo.InvariantCulture);
-            } else if (tp == typeof(System.Drawing.Image) || tp == typeof(Bitmap)) {
-                System.Drawing.Image img = (System.Drawing.Image)o;
-                using (MemoryStream ms = new MemoryStream()) {
-                    img.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
-                    stream.Write("V");
-                    stream.Write(Convert.ToBase64String(ms.ToArray()));
-                }
+            } else if (tp == typeof(System.Drawing.Image) || tp == typeof(System.Drawing.Bitmap)) {
+                throw new InternalError("Image and Bitmap types no longer supported/needed");
             } else if (tp.IsValueType) {
                 string val = Convert.ToString(o, CultureInfo.InvariantCulture)!;
                 stream.Write("V");
@@ -355,10 +349,8 @@ namespace YetaWF.Core.Serializers {
                             objVal = new TimeSpan(Convert.ToInt64(strVal));
                         } else if (pType == typeof(DayOfWeek) || pType == typeof(DayOfWeek?)) {
                             objVal = (DayOfWeek)(Convert.ToInt64(strVal));
-                        } else if (pType == typeof(System.Drawing.Image) || pType == typeof(Bitmap)) {
-                            using (MemoryStream ms = new MemoryStream(Convert.FromBase64String(strVal))) {
-                                objVal = System.Drawing.Image.FromStream(ms);
-                            }
+                        } else if (pType == typeof(System.Drawing.Image) || pType == typeof(System.Drawing.Bitmap)) {
+                            throw new InternalError("Image and Bitmap types no longer supported/needed");
                         } else {
                             objVal = Convert.ChangeType(strVal, pType, CultureInfo.InvariantCulture);
                         }

@@ -12,6 +12,10 @@ using YetaWF.Core.Packages;
 using YetaWF.Core.Serializers;
 using YetaWF.Core.Support;
 using YetaWF.Core.Upload;
+#if SYSTEM_DRAWING
+#pragma warning disable CA1416 // Validate platform compatibility
+#else
+#endif
 
 namespace YetaWF.Core.DataProvider {
 
@@ -88,8 +92,9 @@ namespace YetaWF.Core.DataProvider {
             Options = new Dictionary<string, object>();
             if (Parms != null) {
                 foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(Parms)) {
-                    object val = property.GetValue(Parms);
-                    Options.Add(property.Name, val);
+                    object? val = property.GetValue(Parms);
+                    if (val != null)
+                        Options.Add(property.Name, val);
                 }
             }
             Options.Add(nameof(Package), Package);
@@ -230,9 +235,19 @@ namespace YetaWF.Core.DataProvider {
                 Guid newGuid = Guid.NewGuid();
                 string file = Path.Combine(path, newGuid.ToString());
                 using (MemoryStream ms = new MemoryStream(bytes)) {
+#if SYSTEM_DRAWING
                     using (System.Drawing.Image img = System.Drawing.Image.FromStream(ms)) {
                         img.Save(file);
                     }
+#else
+                    (SixLabors.ImageSharp.Image img, SixLabors.ImageSharp.Formats.IImageFormat format) = await SixLabors.ImageSharp.Image.LoadWithFormatAsync(ms);
+                    using (img) {
+                        SixLabors.ImageSharp.Formats.ImageFormatManager imageFormatManager = new SixLabors.ImageSharp.Formats.ImageFormatManager();
+                        imageFormatManager.AddImageFormat(format!);
+                        await img.SaveAsync(ms, imageFormatManager.FindEncoder(format));
+                    }
+                    await FileSystem.FileSystemProvider.WriteAllBytesAsync(file, ms.GetBuffer());
+#endif
                 }
                 // Remove the temp file (if any)
                 await fileUpload.RemoveTempFileAsync(fileName);
