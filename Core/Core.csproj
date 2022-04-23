@@ -46,9 +46,14 @@
     <PackageReference Include="YamlDotNet" Version="11.2.1" />
   </ItemGroup>
 
+  <!-- Added: dotnet SDK 6.0.202 - Detected package downgrade during dotnet restore -->
   <ItemGroup>
-    <Compile Remove="Controllers\YetaWFApplicationModelProvider.cs" />
-    <Compile Remove="Startup\VersionManager.cs" />
+    <PackageReference Include="System.Collections" Version="4.3.0" />
+    <PackageReference Include="System.Diagnostics.Debug" Version="4.3.0" />
+	<PackageReference Include="System.Runtime.Handles" Version="4.3.0" />
+    <PackageReference Include="System.Runtime.Extensions" Version="4.3.0" />
+    <PackageReference Include="System.Runtime.InteropServices" Version="4.3.0" />
+    <PackageReference Include="System.IO.FileSystem.Primitives" Version="4.3.0" />
   </ItemGroup>
 
 </Project>
