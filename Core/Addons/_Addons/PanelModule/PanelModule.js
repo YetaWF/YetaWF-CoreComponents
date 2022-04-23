@@ -1,5 +1,5 @@
 "use strict";
-/* Copyright © 2021 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+/* Copyright © 2022 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 var YetaWF_Core;
 (function (YetaWF_Core) {
     var PanelModuleHandler = /** @class */ (function () {

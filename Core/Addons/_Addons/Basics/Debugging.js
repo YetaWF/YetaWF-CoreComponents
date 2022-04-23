@@ -1,5 +1,5 @@
 "use strict";
-/* Copyright © 2021 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+/* Copyright © 2022 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 // This is only loaded in non-deployed builds
 var YetaWF_Core_Debugging;
 (function (YetaWF_Core_Debugging) {

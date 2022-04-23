@@ -1,11 +1,11 @@
-﻿/* Copyright © 2021 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+﻿/* Copyright © 2022 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 namespace YetaWF.Core {
 
     public static class Globals {
 
         public const string RUNTIME = "net6.0"; // runtime
-        public const string RUNTIMEVERSION = "5.0";
+        public const string RUNTIMEVERSION = "6.0";
 
         public const int MaxIP = 40;
         public const int MaxUser = 100;

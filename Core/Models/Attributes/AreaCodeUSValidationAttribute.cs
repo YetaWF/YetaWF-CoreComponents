@@ -1,4 +1,4 @@
-/* Copyright © 2021 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+/* Copyright © 2022 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
 using System.ComponentModel.DataAnnotations;
