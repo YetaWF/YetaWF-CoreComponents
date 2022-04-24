@@ -388,7 +388,7 @@ namespace YetaWF.Core.Modules {
         /// </summary>
         public static ModuleDefinition Create(string assembly, string type) {
             // load the assembly/type to create a new module
-            Type? tp = null;
+            Type? tp;
             try {
                 Assembly? asm = Assemblies.Load(assembly);
                 tp = asm!.GetType(type);

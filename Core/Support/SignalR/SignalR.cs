@@ -64,7 +64,7 @@ namespace YetaWF.Core {
             HttpRequest httpReq = httpContext.Request;
             string host = httpReq.Host.Host;
 
-            SiteDefinition site = await SiteDefinition.LoadSiteDefinitionAsync(host);
+            SiteDefinition? site = await SiteDefinition.LoadSiteDefinitionAsync(host);
             if (site == null) throw new InternalError($"No site definition for {host}");
 
             ExecuteParms parms = new ExecuteParms {

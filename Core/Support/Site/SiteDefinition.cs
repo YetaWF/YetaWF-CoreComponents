@@ -191,7 +191,7 @@ namespace YetaWF.Core.Site {
         }
         public static async Task<string> GetDefaultSiteDomainAsync() {
             if (_defaultSiteDomain == null) {
-                SiteDefinition defaultSite = await LoadSiteDefinitionAsync(null);
+                SiteDefinition? defaultSite = await LoadSiteDefinitionAsync(null) ?? throw new InternalError("No default domain");
                 _defaultSiteDomain = defaultSite.SiteDomain;
             }
             return _defaultSiteDomain;

@@ -29,7 +29,7 @@ namespace YetaWF.Core.Site {
         private async Task<ImageSupport.GetImageInBytesInfo> RetrieveImageAsync(string? name, string? location) {
             if (!string.IsNullOrWhiteSpace(location)) return new ImageSupport.GetImageInBytesInfo();
             if (string.IsNullOrWhiteSpace(name)) return new ImageSupport.GetImageInBytesInfo();
-            SiteDefinition site = await SiteDefinition.LoadSiteDefinitionAsync(name);
+            SiteDefinition? site = await SiteDefinition.LoadSiteDefinitionAsync(name);
             if (site == null) return new ImageSupport.GetImageInBytesInfo();
             if (site.FavIcon_Data == null || site.FavIcon_Data.Length == 0) return new ImageSupport.GetImageInBytesInfo();
             return new ImageSupport.GetImageInBytesInfo {
@@ -40,7 +40,7 @@ namespace YetaWF.Core.Site {
         private async Task<ImageSupport.GetImageInBytesInfo> RetrieveLargeImageAsync(string? name, string? location) {
             if (!string.IsNullOrWhiteSpace(location)) return new ImageSupport.GetImageInBytesInfo();
             if (string.IsNullOrWhiteSpace(name)) return new ImageSupport.GetImageInBytesInfo();
-            SiteDefinition site = await SiteDefinition.LoadSiteDefinitionAsync(name);
+            SiteDefinition? site = await SiteDefinition.LoadSiteDefinitionAsync(name);
             if (site == null) return new ImageSupport.GetImageInBytesInfo();
             if (site.FavIconLrg_Data == null || site.FavIconLrg_Data.Length == 0) return new ImageSupport.GetImageInBytesInfo();
             return new ImageSupport.GetImageInBytesInfo {
@@ -353,12 +353,12 @@ namespace YetaWF.Core.Site {
         // LOAD/SAVE
 
         // these must be provided during app startup
-        public static Func<string?, Task<SiteDefinition>> LoadSiteDefinitionAsync { get; set; } = null!;
+        public static Func<string?, Task<SiteDefinition?>> LoadSiteDefinitionAsync { get; set; } = null!;
         public static Func<SiteDefinition, Task> SaveSiteDefinitionAsync { get; set; } = null!;
         public static Func<Task> RemoveSiteDefinitionAsync { get; set; } = null!;
         public static Func<int, int, List<DataProviderSortInfo>?, List<DataProviderFilterInfo>?, Task<DataProviderGetRecords<SiteDefinition>>> GetSitesAsync { get; set; } = null!;
-        public static Func<string, Task<SiteDefinition>> LoadStaticSiteDefinitionAsync { get; set; } = null!;
-        public static Func<string, Task<SiteDefinition>> LoadTestSiteDefinitionAsync { get; set; } = null!;
+        public static Func<string, Task<SiteDefinition?>> LoadStaticSiteDefinitionAsync { get; set; } = null!;
+        public static Func<string, Task<SiteDefinition?>> LoadTestSiteDefinitionAsync { get; set; } = null!;
 
         public async Task SaveAsync() {
             await SiteDefinition.SaveSiteDefinitionAsync(this);

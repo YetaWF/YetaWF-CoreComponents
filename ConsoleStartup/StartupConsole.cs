@@ -43,7 +43,7 @@ namespace YetaWF.Core.ConsoleStartup {
 
             YetaWFManager.Syncify((Func<System.Threading.Tasks.Task>)(async () => {
                 // Set up specific site to use, requires YetaWF.SitePropertiesService
-                SiteDefinition site = await SiteDefinition.LoadSiteDefinitionAsync(siteDomain);
+                SiteDefinition? site = await SiteDefinition.LoadSiteDefinitionAsync(siteDomain);
                 if (site == null)
                     throw new InternalError("Default site not defined (AppSettings.json) or not found");
                 YetaWFManager.Manager.CurrentSite = site;
