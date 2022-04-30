@@ -502,7 +502,7 @@ namespace YetaWF.Core.Controllers {
 
                 Manager.CurrentModule = oldMod;
 
-                byte[] btes = Encoding.ASCII.GetBytes(viewHtml);
+                byte[] btes = Encoding.UTF8.GetBytes(viewHtml);
                 await context.HttpContext.Response.Body.WriteAsync(btes, 0, btes.Length);
             }
 

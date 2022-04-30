@@ -85,7 +85,7 @@ namespace YetaWF.Core.Controllers {
             Response.Headers.Add("Content-Disposition", "attachment;" + (string.IsNullOrWhiteSpace(FileName) ? "" : $@"filename=""{FileName}"""));
             Response.Cookies.Append(Basics.CookieDone, CookieToReturn.ToString(), new Microsoft.AspNetCore.Http.CookieOptions { HttpOnly = false, Path = "/" });
 
-            byte[] btes = Encoding.ASCII.GetBytes(sb.ToString());
+            byte[] btes = Encoding.UTF8.GetBytes(sb.ToString());
             await context.HttpContext.Response.Body.WriteAsync(btes, 0, btes.Length);
         }
     }

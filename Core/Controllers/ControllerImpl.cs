@@ -647,7 +647,7 @@ namespace YetaWF.Core.Controllers {
                         throw new InternalError($"View {ViewName} wrote output which is not supported - All output must be rendered using ForViewAsync and returned as a string - output rendered: \"{sw.ToString()}\"");
 #endif
                     if (!string.IsNullOrWhiteSpace(data)) {
-                        byte[] buffer = System.Text.Encoding.ASCII.GetBytes(data.ToString());
+                        byte[] buffer = System.Text.Encoding.UTF8.GetBytes(data.ToString());
                         Stream body = context.HttpContext.Response.Body;
                         await body.WriteAsync(buffer, 0, buffer.Length);
                     }

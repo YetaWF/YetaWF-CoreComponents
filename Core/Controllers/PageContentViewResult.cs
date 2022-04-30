@@ -91,7 +91,7 @@ namespace YetaWF.Core.Controllers {
 
             // This is worth gzip'ing - client-side always requests gzip (it's us) so no need to check whether it was asked for.
             // gzip encoding is performed by middleware
-            byte[] btes = Encoding.ASCII.GetBytes(json);
+            byte[] btes = Encoding.UTF8.GetBytes(json);
             await context.HttpContext.Response.Body.WriteAsync(btes, 0, btes.Length);
         }
     }

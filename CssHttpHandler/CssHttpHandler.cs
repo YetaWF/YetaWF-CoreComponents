@@ -108,7 +108,7 @@ namespace YetaWF.Core.HttpHandler {
                     }
                     return;
                 }
-                bytes = Encoding.ASCII.GetBytes(text);
+                bytes = Encoding.UTF8.GetBytes(text);
                 if (!manager.CurrentSite.DEBUGMODE && manager.CurrentSite.AllowCacheUse) {
                     using (ICacheDataProvider localCacheDP = YetaWF.Core.IO.Caching.GetLocalCacheProvider()) {
                         await localCacheDP.AddAsync<byte[]>(cacheKey, bytes);

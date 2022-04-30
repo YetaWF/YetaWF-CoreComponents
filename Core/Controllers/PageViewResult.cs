@@ -94,7 +94,7 @@ namespace YetaWF.Core.Controllers {
             }
             context.HttpContext.Response.Headers.Add("Content-Type", "text/html");
 
-            byte[] btes = Encoding.ASCII.GetBytes(pageHtml);
+            byte[] btes = Encoding.UTF8.GetBytes(pageHtml);
             await context.HttpContext.Response.Body.WriteAsync(btes, 0, btes.Length);
         }
 
