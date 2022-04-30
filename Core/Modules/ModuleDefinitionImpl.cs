@@ -374,6 +374,17 @@ namespace YetaWF.Core.Modules {
         }
 
         /// <summary>
+        /// Create a unique module.
+        /// </summary>
+        /// <param name="modType"></param>
+        /// <returns></returns>
+        public static async Task<TYPE> CreateRequiredUniqueModuleAsync<TYPE>() {
+            Type modType = typeof(TYPE);
+            ModuleDefinition mod = await CreateUniqueModuleAsync(modType) ?? throw new InternalError($"Unique module of type {modType.Name} not found");
+            return (TYPE)(object) mod;
+        }
+
+        /// <summary>
         /// Removes a module definition.
         /// </summary>
         /// <param name="moduleGuid"></param>

@@ -109,7 +109,7 @@ namespace YetaWF.Core.Components {
         /// </summary>
         /// <param name="uiHint">The component name handling this filter.</param>
         /// <returns>Returns a ComplexFilter instance with information about the available filter.</returns>
-        Task<ComplexFilter> GetComplexFilterAsync(string uiHint);
+        Task<ComplexFilter?> GetComplexFilterAsync(string uiHint);
         /// <summary>
         /// Returns DataProviderFilterInfo given the filter's JSON data.
         /// </summary>

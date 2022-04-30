@@ -31,7 +31,7 @@ namespace YetaWF.Core.Support {
             return helper.GetValue<TYPE>(areaName, key, dflt, Package, Required);
         }
 
-        public static void SetValue<TYPE>(string areaName, string key, TYPE value, bool Package = true) {
+        public static void SetValue<TYPE>(string areaName, string key, TYPE? value, bool Package = true) {
             helper.SetValue<TYPE>(areaName, key, value, Package);
         }
 
