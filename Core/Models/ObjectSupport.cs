@@ -1266,40 +1266,38 @@ namespace YetaWF.Core.Models {
             return true;
         }
 
-        public static async Task<bool> TranslateObject(object data, string language, Func<string, bool> isHtml, Func<List<string>, Task<List<string>>> translateStringsAsync, Func<string, Task<string>> translateComplexStringAsync, List<PropertyInfo>? props = null) {
+        public static async Task<bool> TranslateObject(object data, string language, Func<string, bool> isHtml, Func<List<string>, Task<List<string>>> translateStringsAsync, Func<string, Task<string>> translateComplexStringAsync, List<PropertyInfo>? allProps = null) {
 
             bool FORCE = false; // Set to True to force re-translation of everything, even if there already is a translation
+            List<PropertyInfo>? props = allProps;
             if (props == null)
                 props = ObjectSupport.GetProperties(data.GetType());
+            props = (from p in props where p.PropertyType == typeof(MultiString) && Attribute.GetCustomAttribute(p, typeof(DontSaveAttribute)) == null && Attribute.GetCustomAttribute(p, typeof(Data_DontSave)) == null && p.CanRead && p.CanWrite select p).ToList();
 
             bool changed = false;
 
             List<string> list = new List<string>();
             foreach (PropertyInfo prop in props) {
-                if (prop.PropertyType == typeof(MultiString)) {
-                    MultiString ms = (MultiString)prop.GetValue(data) !;
-                    if ((FORCE || !ms.HasLanguageText(language)) && !string.IsNullOrEmpty(ms.DefaultText)) {
-                        if (isHtml(ms.DefaultText)) {
-                            ms[language] = await translateComplexStringAsync(ms.DefaultText);
-                            prop.SetValue(data, ms);
-                        } else {
-                            list.Add(ms.DefaultText);
-                        }
-                        changed = true;
+                MultiString ms = (MultiString)prop.GetValue(data) !;
+                if ((FORCE || !ms.HasLanguageText(language)) && !string.IsNullOrEmpty(ms.DefaultText)) {
+                    if (isHtml(ms.DefaultText)) {
+                        ms[language] = await translateComplexStringAsync(ms.DefaultText);
+                        prop.SetValue(data, ms);
+                    } else {
+                        list.Add(ms.DefaultText);
                     }
+                    changed = true;
                 }
             }
             if (list.Count > 0) {
                 list = await translateStringsAsync(list);
                 foreach (PropertyInfo prop in props) {
-                    if (prop.PropertyType == typeof(MultiString)) {
-                        MultiString ms = (MultiString)prop.GetValue(data) !;
-                        if ((FORCE || !ms.HasLanguageText(language)) && !string.IsNullOrEmpty(ms.DefaultText)) {
-                            if (!isHtml(ms.DefaultText)) {
-                                ms[language] = list[0];
-                                prop.SetValue(data, ms);
-                                list.RemoveAt(0);
-                            }
+                    MultiString ms = (MultiString)prop.GetValue(data) !;
+                    if ((FORCE || !ms.HasLanguageText(language)) && !string.IsNullOrEmpty(ms.DefaultText)) {
+                        if (!isHtml(ms.DefaultText)) {
+                            ms[language] = list[0];
+                            prop.SetValue(data, ms);
+                            list.RemoveAt(0);
                         }
                     }
                 }
