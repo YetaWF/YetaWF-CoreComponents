@@ -193,8 +193,10 @@ namespace YetaWF.Core.Serializers {
             } else if (tp == typeof(DayOfWeek) || tp == typeof(DayOfWeek?)) {
                 stream.Write("V");
                 string val = Convert.ToInt64(o).ToString(CultureInfo.InvariantCulture);
+#if SYSTEM_DRAWING
             } else if (tp == typeof(System.Drawing.Image) || tp == typeof(System.Drawing.Bitmap)) {
                 throw new InternalError("Image and Bitmap types no longer supported/needed");
+#endif
             } else if (tp.IsValueType) {
                 string val = Convert.ToString(o, CultureInfo.InvariantCulture)!;
                 stream.Write("V");
@@ -349,8 +351,10 @@ namespace YetaWF.Core.Serializers {
                             objVal = new TimeSpan(Convert.ToInt64(strVal));
                         } else if (pType == typeof(DayOfWeek) || pType == typeof(DayOfWeek?)) {
                             objVal = (DayOfWeek)(Convert.ToInt64(strVal));
+#if SYSTEM_DRAWING
                         } else if (pType == typeof(System.Drawing.Image) || pType == typeof(System.Drawing.Bitmap)) {
                             throw new InternalError("Image and Bitmap types no longer supported/needed");
+#endif
                         } else {
                             objVal = Convert.ChangeType(strVal, pType, CultureInfo.InvariantCulture);
                         }

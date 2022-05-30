@@ -281,8 +281,10 @@ namespace YetaWF.Core.Serializers {
             } else if (tp == typeof(Guid) || tp == typeof(Guid?)) {
                 WriteString("V");
                 WriteBytes(((Guid)o).ToByteArray());
+#if SYSTEM_DRAWING
             } else if (tp == typeof(System.Drawing.Image) || tp == typeof(System.Drawing.Bitmap)) {
                 throw new InternalError("Image and Bitmap types no longer supported/needed");
+#endif
             } else if (tp.IsValueType) {
                 // Occasionally test here that no commonly used types are converted to strings (performance penalty)
                 string? val = Convert.ToString(o, CultureInfo.InvariantCulture);
@@ -522,8 +524,10 @@ namespace YetaWF.Core.Serializers {
                         Buffer.BlockCopy(btes, offs, b, 0, len);
                         objVal = new Guid(b);
                     }, () => { objVal = null; }, () => { objVal = Guid.Empty; });
+#if SYSTEM_DRAWING
                 } else if (pType == typeof(System.Drawing.Image) || pType == typeof(System.Drawing.Bitmap)) {
                     throw new InternalError("Image and Bitmap types no longer supported/needed");
+#endif
                 } else {
                     string? strVal = ReadString();
                     objVal = Convert.ChangeType(strVal, pType, CultureInfo.InvariantCulture);

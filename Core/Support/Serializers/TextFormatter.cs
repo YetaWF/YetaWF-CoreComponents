@@ -160,8 +160,10 @@ namespace YetaWF.Core.Serializers {
                 string? val = Convert.ToString(o, CultureInfo.InvariantCulture);
                 if (val != null)
                     xmlOut.WriteAttributeString("Value", val);
+#if SYSTEM_DRAWING
             } else if (tp == typeof(System.Drawing.Image) || tp == typeof(System.Drawing.Bitmap)) {
                 throw new InternalError("Image and Bitmap types no longer supported/needed");
+#endif
             } else if (tp.IsValueType) {
                 string? val = Convert.ToString(o, CultureInfo.InvariantCulture);
                 if (val != null)
@@ -343,8 +345,10 @@ namespace YetaWF.Core.Serializers {
                                 objVal = new Guid(strVal);
                         } else if (pi.PropertyType == typeof(TimeSpan) || pi.PropertyType == typeof(TimeSpan?)) {
                             objVal = new TimeSpan((long)Convert.ToInt64(strVal));
+#if SYSTEM_DRAWING
                         } else if (pi.PropertyType == typeof(System.Drawing.Image) || pi.PropertyType == typeof(System.Drawing.Bitmap)) {
                             throw new InternalError("Image and Bitmap types no longer supported/needed");
+#endif
                         } else {
                             objVal = Convert.ChangeType(strVal, pi.PropertyType, CultureInfo.InvariantCulture);
                         }
