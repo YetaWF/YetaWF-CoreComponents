@@ -808,12 +808,10 @@ var YetaWF;
                 return all;
             for (var _i = 0, elems_1 = elems; _i < elems_1.length; _i++) {
                 var elem = elems_1[_i];
+                var list = elem.querySelectorAll(selector);
+                all = all.concat(Array.prototype.slice.call(list));
                 if (elem.matches(selector)) // oddly enough querySelectorAll doesn't return anything even though the element itself matches...
                     all.push(elem);
-                else {
-                    var list = elem.querySelectorAll(selector);
-                    all = all.concat(Array.prototype.slice.call(list));
-                }
             }
             return all;
         };

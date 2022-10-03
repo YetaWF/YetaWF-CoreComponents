@@ -4,7 +4,7 @@
 
 # To support sites that want full bootstrap or a specific version, a skin has to be created which uses Bootstrap. 
 #
-# The skin's filelistJS.txt would include bootstrap using 
+# The skin's filelistJS/CSS.txt would include bootstrap using 
 # Uses YetaWF_Core,getbootstrap.com.4
 # or
 # Uses YetaWF_Core,getbootstrap.com.5

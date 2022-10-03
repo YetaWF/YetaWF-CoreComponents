@@ -1000,12 +1000,10 @@ namespace YetaWF {
             if (!elems)
                 return all;
             for (const elem of elems) {
+                let list: NodeListOf<Element> = elem.querySelectorAll(selector);
+                all = all.concat(Array.prototype.slice.call(list));
                 if (elem.matches(selector)) // oddly enough querySelectorAll doesn't return anything even though the element itself matches...
                     all.push(elem);
-                else {
-                    let list: NodeListOf<Element> = elem.querySelectorAll(selector);
-                    all = all.concat(Array.prototype.slice.call(list));
-                }
             }
             return all;
         }
