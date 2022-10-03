@@ -516,6 +516,9 @@ namespace YetaWF.Core.Controllers {
 
                     if (Module == null) throw new InternalError("Must use PureContent when no module context is available");
 
+                    if (response.ContentType == null)
+                        response.ContentType = DefaultContentType;// otherwise we get complaints from FireFox
+
                     Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentSite.ReferencedModules);
 
                     if (Manager.CurrentPage != null) Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentPage.ReferencedModules);
