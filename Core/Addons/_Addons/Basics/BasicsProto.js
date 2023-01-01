@@ -1,4 +1,4 @@
-/* Copyright © 2022 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+/* Copyright © 2023 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 /* eslint-disable id-blacklist */
 /* eslint-disable no-bitwise */
 /* eslint-disable prefer-arrow/prefer-arrow-functions */
