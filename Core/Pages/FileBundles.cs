@@ -56,7 +56,7 @@ namespace YetaWF.Core.Pages {
             string BUNDLEKEY = $"__FileBundles_{YetaWFManager.Manager.CurrentSite.Identity}";
 
             await using (ILockObject bundleLock = await YetaWF.Core.IO.Caching.LockProvider.LockResourceAsync(BUNDLEKEY)) {
-                using (ICacheDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
+                await using (ICacheDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
                     await cacheStaticDP.RemoveAsync<SerializableList<Bundle>>(BUNDLEKEY);
                     await RemoveFolderAsync();
                 }
@@ -88,7 +88,7 @@ namespace YetaWF.Core.Pages {
                 string BUNDLEKEY = $"__FileBundles_{YetaWFManager.Manager.CurrentSite.Identity}";
 
                 await using (ILockObject bundleLock = await YetaWF.Core.IO.Caching.LockProvider.LockResourceAsync(BUNDLEKEY)) {
-                    using (ICacheDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
+                    await using (ICacheDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
                         SerializableList<Bundle> bundles;
                         GetObjectInfo<SerializableList<Bundle>> info = await cacheStaticDP.GetAsync<SerializableList<Bundle>>(BUNDLEKEY);
                         if (info.Success)

@@ -132,7 +132,7 @@ namespace YetaWF.Core.HttpHandler {
 
             if (!manager.CurrentSite.DEBUGMODE && manager.CurrentSite.AllowCacheUse) {
                 GetObjectInfo<byte[]> objInfo;
-                using (ICacheDataProvider localCacheDP = YetaWF.Core.IO.Caching.GetLocalCacheProvider()) {
+                await using (ICacheDataProvider localCacheDP = YetaWF.Core.IO.Caching.GetLocalCacheProvider()) {
                     objInfo = await localCacheDP.GetAsync<byte[]>(cacheKey);
                 }
                 if (objInfo.Success)
@@ -145,14 +145,14 @@ namespace YetaWF.Core.HttpHandler {
                     context.Response.StatusCode = 404;
                     Logging.AddErrorLog("Not Found");
                     if (!manager.CurrentSite.DEBUGMODE && manager.CurrentSite.AllowCacheUse) {
-                        using (ICacheDataProvider localCacheDP = YetaWF.Core.IO.Caching.GetLocalCacheProvider()) {
+                        await using (ICacheDataProvider localCacheDP = YetaWF.Core.IO.Caching.GetLocalCacheProvider()) {
                             await localCacheDP.AddAsync<byte[]>(cacheKey, null);
                         }
                     }
                     return;
                 }
                 if (!manager.CurrentSite.DEBUGMODE && manager.CurrentSite.AllowCacheUse) {
-                    using (ICacheDataProvider localCacheDP = YetaWF.Core.IO.Caching.GetLocalCacheProvider()) {
+                    await using (ICacheDataProvider localCacheDP = YetaWF.Core.IO.Caching.GetLocalCacheProvider()) {
                         await localCacheDP.AddAsync<byte[]>(cacheKey, btes);
                     }
                 }

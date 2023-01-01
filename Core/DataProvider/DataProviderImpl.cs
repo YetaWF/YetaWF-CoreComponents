@@ -19,7 +19,7 @@ using YetaWF.Core.Upload;
 
 namespace YetaWF.Core.DataProvider {
 
-    public abstract partial class DataProviderImpl : IDisposable {
+    public abstract partial class DataProviderImpl : IDisposable, IAsyncDisposable {
 
         protected DataProviderImpl(int siteIdentity) {
             SiteIdentity = siteIdentity;
@@ -35,6 +35,22 @@ namespace YetaWF.Core.DataProvider {
                     _dataProvider.Dispose();
                 _dataProvider = null;
             }
+        }
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public async ValueTask DisposeAsync() {
+            await DisposeAsyncCore().ConfigureAwait(false);
+            Dispose(false);
+        }
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        protected virtual async ValueTask DisposeAsyncCore() {
+            DisposableTracker.RemoveObject(this);
+            if (_dataProvider != null)
+                await _dataProvider.DisposeAsync();
+            _dataProvider = null;
         }
         //~DataProviderImpl() { Dispose(false); }
 

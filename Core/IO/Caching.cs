@@ -70,7 +70,7 @@ namespace YetaWF.Core.IO {
     /// <summary>
     /// Interface implemented by locking data providers to lock a resource.
     /// </summary>
-    public interface ILockProvider : IDisposable {
+    public interface ILockProvider : IDisposable, IAsyncDisposable {
         /// <summary>
         /// Locks a resource defined by <paramref name="key"/>. The resource name is application-defined.
         /// </summary>
@@ -97,7 +97,7 @@ namespace YetaWF.Core.IO {
     /// <summary>
     /// Interface implemented by pub/sub providers.
     /// </summary>
-    public interface IPubSubProvider : IDisposable {
+    public interface IPubSubProvider : IDisposable, IAsyncDisposable {
         /// <summary>
         /// Subscribe to a channel.
         /// </summary>
@@ -120,7 +120,7 @@ namespace YetaWF.Core.IO {
     /// <summary>
     /// All caching data providers implement this interface which is used to access cached data.
     /// </summary>
-    public interface ICacheDataProvider : IDisposable {
+    public interface ICacheDataProvider : IDisposable, IAsyncDisposable {
         /// <summary>
         /// Adds an object to the cache.
         /// </summary>
