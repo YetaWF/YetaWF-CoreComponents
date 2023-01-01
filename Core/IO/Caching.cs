@@ -87,7 +87,7 @@ namespace YetaWF.Core.IO {
     /// The object returned by the ILockProvider.LockResourceAsync method
     /// implements this interface. It is used to unlock a locked resource.
     /// </summary>
-    public interface ILockObject : IDisposable {
+    public interface ILockObject : IDisposable, IAsyncDisposable {
         /// <summary>
         /// Unlocks the resource that was locked by the call to ILockProvider.LockResourceAsync, which returned the ILockObject interface.
         /// </summary>

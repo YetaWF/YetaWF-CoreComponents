@@ -135,11 +135,10 @@ namespace YetaWF.Core.Support.StaticPages {
         /// </summary>
         /// <returns>A list of all currently saved static pages.</returns>
         public async Task<List<PageEntry>> GetSiteStaticPagesAsync() {
-            using (ILockObject staticLock = await YetaWF.Core.IO.Caching.LockProvider.LockResourceAsync(STATICPAGESKEY)) {
+            await using (ILockObject staticLock = await YetaWF.Core.IO.Caching.LockProvider.LockResourceAsync(STATICPAGESKEY)) {
                 using (ICacheDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
                     List<SiteEntry> siteEntries = await InitSiteWithLockAsync(cacheStaticDP, staticLock);
                     List<PageEntry> list = new List<PageEntry>(Site.StaticPages.Values);
-                    await staticLock.UnlockAsync();
                     return list;
                 }
             }
@@ -148,7 +147,7 @@ namespace YetaWF.Core.Support.StaticPages {
             return Manager.HostSchemeUsed;
         }
         internal async Task AddPageAsync(string localUrl, bool cache, string pageHtml, DateTime lastUpdated) {
-            using (ILockObject staticLock = await YetaWF.Core.IO.Caching.LockProvider.LockResourceAsync(STATICPAGESKEY)) {
+            await using(ILockObject staticLock = await YetaWF.Core.IO.Caching.LockProvider.LockResourceAsync(STATICPAGESKEY)) {
                 using (ICacheDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
                     List<SiteEntry> siteEntries = await InitSiteWithLockAsync(cacheStaticDP, staticLock);
 
@@ -193,7 +192,6 @@ namespace YetaWF.Core.Support.StaticPages {
                     await FileSystem.FileSystemProvider.WriteAllTextAsync(tempFile, pageHtml);
 
                     await cacheStaticDP.AddAsync(STATICPAGESKEY, siteEntries);
-                    await staticLock.UnlockAsync();
                 }
             }
         }
@@ -319,7 +317,7 @@ namespace YetaWF.Core.Support.StaticPages {
         /// <param name="localUrl">The page whose saved static page is to be removed.</param>
         /// <remarks>The next time the page is accessed, it will be saved again as a static page.</remarks>
         public async Task RemovePageAsync(string localUrl) {
-            using (ILockObject staticLock = await YetaWF.Core.IO.Caching.LockProvider.LockResourceAsync(STATICPAGESKEY)) {
+            await using (ILockObject staticLock = await YetaWF.Core.IO.Caching.LockProvider.LockResourceAsync(STATICPAGESKEY)) {
                 using (ICacheDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
                     List<SiteEntry> siteEntries = await InitSiteWithLockAsync(cacheStaticDP, staticLock);
 
@@ -329,8 +327,6 @@ namespace YetaWF.Core.Support.StaticPages {
                     await cacheStaticDP.AddAsync(STATICPAGESKEY, siteEntries);
 
                     await RemovePageSet(localUrl);
-
-                    await staticLock.UnlockAsync();
                 }
             }
         }
@@ -350,7 +346,7 @@ namespace YetaWF.Core.Support.StaticPages {
         internal async Task RemovePagesAsync(List<PageDefinition> pages) {
             if (pages == null) return;
             using (ICacheDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
-                using (ILockObject staticLock = await YetaWF.Core.IO.Caching.LockProvider.LockResourceAsync(STATICPAGESKEY)) {
+                await using (ILockObject staticLock = await YetaWF.Core.IO.Caching.LockProvider.LockResourceAsync(STATICPAGESKEY)) {
                     List<SiteEntry> siteEntries = await InitSiteWithLockAsync(cacheStaticDP, staticLock);
                     foreach (PageDefinition page in pages) {
                         string localUrlLower = page.Url.ToLower();
@@ -358,8 +354,6 @@ namespace YetaWF.Core.Support.StaticPages {
                         Site.StaticPages.Remove(localUrlLower);
                     }
                     await cacheStaticDP.AddAsync(STATICPAGESKEY, siteEntries);
-
-                    await staticLock.UnlockAsync();
                 }
             }
         }
@@ -370,12 +364,11 @@ namespace YetaWF.Core.Support.StaticPages {
         /// <remarks>The next time a page is accessed, it will be saved again as a static page.</remarks>
         public async Task RemoveAllPagesAsync() {
             using (ICacheDataProvider cacheStaticDP = YetaWF.Core.IO.Caching.GetStaticCacheProvider()) {
-                using (ILockObject staticLock = await YetaWF.Core.IO.Caching.LockProvider.LockResourceAsync(STATICPAGESKEY)) {
+                await using (ILockObject staticLock = await YetaWF.Core.IO.Caching.LockProvider.LockResourceAsync(STATICPAGESKEY)) {
                     List<SiteEntry> siteEntries = await InitSiteWithLockAsync(cacheStaticDP, staticLock);
                     Site.StaticPages = new SerializableDictionary<string, StaticPages.StaticPageManager.PageEntry>();
                     await cacheStaticDP.AddAsync(STATICPAGESKEY, siteEntries);
                     await RemoveAllPagesInternalAsync();
-                    await staticLock.UnlockAsync();
                 }
             }
         }

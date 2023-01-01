@@ -55,7 +55,7 @@ namespace YetaWF.Core.Modules {
                 mod = await Module.LoadModuleDefinitionAsync(permGuid);
                 if (mod == null) {
                     // doesn't exist, lock and try again
-                    using (ILockObject lockObject = await Module.LockModuleAsync(permGuid)) {
+                    await using (ILockObject lockObject = await Module.LockModuleAsync(permGuid)) {
                         mod = await Module.LoadModuleDefinitionAsync(permGuid);
                         if (mod == null) {
                             mod = ModuleDefinition.CreateNewDesignedModule(permGuid, null, null);
@@ -71,7 +71,6 @@ namespace YetaWF.Core.Modules {
                                 throw new InternalError("{0} is not a unique module (must specify a module guid)", modType.FullName);
                             mod.Temporary = false;
                         }
-                        await lockObject.UnlockAsync();
                     }
                 }
                 mod.Temporary = false;
@@ -96,7 +95,7 @@ namespace YetaWF.Core.Modules {
                 mod = await Module.LoadModuleDefinitionAsync(moduleGuid);
                 if (mod == null) {
                     // doesn't exist, lock and try again
-                    using (ILockObject lockObject = await Module.LockModuleAsync(moduleGuid)) {
+                    await using (ILockObject lockObject = await Module.LockModuleAsync(moduleGuid)) {
                         mod = await Module.LoadModuleDefinitionAsync(moduleGuid);
                         if (mod == null) {
                             Guid permGuid = ModuleDefinition.GetPermanentGuid(typeof(TYPE));
@@ -113,7 +112,6 @@ namespace YetaWF.Core.Modules {
                                 throw new InternalError("{0} is a unique module (can't specify a module guid)", typeof(TYPE).FullName);
                             mod.Temporary = false;
                         }
-                        await lockObject.UnlockAsync();
                     }
                 }
                 mod.Temporary = false;
@@ -131,7 +129,7 @@ namespace YetaWF.Core.Modules {
                 mod = await Module.LoadModuleDefinitionAsync(permGuid);
                 if (mod == null) {
                     // doesn't exist, lock and try again
-                    using (ILockObject lockObject = await Module.LockModuleAsync(permGuid)) {
+                    await using (ILockObject lockObject = await Module.LockModuleAsync(permGuid)) {
                         mod = await Module.LoadModuleDefinitionAsync(permGuid);
                         if (mod == null) {
                             mod = ModuleDefinition.CreateNewDesignedModule(permGuid, null, null);
@@ -147,7 +145,6 @@ namespace YetaWF.Core.Modules {
                                 throw new InternalError("{0} is not a unique module (must specify a module guid)", modType.FullName);
                             mod.Temporary = false;
                         }
-                        await lockObject.UnlockAsync();
                     }
                 }
                 mod.Temporary = false;

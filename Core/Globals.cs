@@ -4,8 +4,8 @@ namespace YetaWF.Core {
 
     public static class Globals {
 
-        public const string RUNTIME = "net6.0"; // runtime
-        public const string RUNTIMEVERSION = "6.0";
+        public const string RUNTIME = "net7.0"; // runtime
+        public const string RUNTIMEVERSION = "7.0";
 
         public const int MaxIP = 40;
         public const int MaxUser = 100;
