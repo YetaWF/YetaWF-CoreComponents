@@ -137,7 +137,7 @@ namespace YetaWF.Core.Support {
             QueryHelper qh = new QueryHelper();
             Dictionary<string,StringValues> queryDictionary = QueryHelpers.ParseQuery(queryString);
             foreach (KeyValuePair<string, StringValues> e in queryDictionary) {
-                foreach (string sv in e.Value) {
+                foreach (string? sv in e.Value) {
                     qh.Entries.Add(new Entry { Key = e.Key, Value = sv, });
                 }
             }
@@ -245,7 +245,7 @@ namespace YetaWF.Core.Support {
             Dictionary<string, string> d = new Dictionary<string, string>();
             if (Collection == null) return d;
             foreach (string key in Collection.Keys)
-                d.Add(key, Collection[key]);
+                d.Add(key, (string?)Collection[key] ?? string.Empty);
             return d;
         }
         public FormHelper() {

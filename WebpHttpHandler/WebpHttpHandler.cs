@@ -54,7 +54,8 @@ namespace YetaWF.Core.HttpHandler {
         }
 
         // A bit of a simplification - we're just looking for image/webp, don't care about quality and don't look for image/*
-        private bool UseWEBP(string acceptHeader) {
+        private bool UseWEBP(string? acceptHeader) {
+            if (string.IsNullOrEmpty(acceptHeader)) return false;
             List<MediaTypeHeaderValue> mediaTypes = acceptHeader.Split(',').Select(MediaTypeHeaderValue.Parse).ToList();
             return (from m in mediaTypes where m.MediaType == "image/webp" select m).FirstOrDefault() != null;
         }
@@ -115,8 +116,8 @@ namespace YetaWF.Core.HttpHandler {
             lastMod = await FileSystem.FileSystemProvider.GetLastWriteTimeUtcAsync(file);
 
             // Cache verification?
-            string ifNoneMatch = context.Request.Headers["If-None-Match"];
-            if (ifNoneMatch.TruncateStart("W/") == GetETag()) {
+            string? ifNoneMatch = context.Request.Headers["If-None-Match"];
+            if (ifNoneMatch != null && ifNoneMatch.TruncateStart("W/") == GetETag()) {
                 context.Response.ContentType = contentType;
                 context.Response.StatusCode = 304;
                 context.Response.Headers.Add("Last-Modified", String.Format("{0:r}", lastMod));

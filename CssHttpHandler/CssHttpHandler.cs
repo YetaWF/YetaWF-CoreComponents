@@ -72,8 +72,8 @@ namespace YetaWF.Core.HttpHandler {
             DateTime lastMod = await FileSystem.FileSystemProvider.GetLastWriteTimeUtcAsync(file);
 
             // Cache verification?
-            string ifNoneMatch = context.Request.Headers["If-None-Match"];
-            if (ifNoneMatch.TruncateStart("W/") == GetETag()) {
+            string? ifNoneMatch = context.Request.Headers["If-None-Match"];
+            if (ifNoneMatch != null && ifNoneMatch.TruncateStart("W/") == GetETag()) {
                 context.Response.ContentType = "text/css";
                 context.Response.StatusCode = 304;
                 context.Response.Headers.Add("Last-Modified", String.Format("{0:r}", lastMod));

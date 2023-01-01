@@ -25,7 +25,7 @@ namespace YetaWF.Core.Support {
             bool staticHost = false;
             bool testHost = false;
             bool loopBack = uri.IsLoopback;
-            string host = YetaWFManager.GetRequestedDomain(httpContext, uri, loopBack, loopBack ? (string)httpReq.Query[Globals.Link_ForceSite] : string.Empty, out forcedHost, out newSwitch);
+            string host = YetaWFManager.GetRequestedDomain(httpContext, uri, loopBack, loopBack ? (string?)httpReq.Query[Globals.Link_ForceSite] : string.Empty, out forcedHost, out newSwitch);
             string? host2 = null;
 
             SiteDefinition? site = null;

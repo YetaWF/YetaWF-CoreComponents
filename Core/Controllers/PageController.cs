@@ -122,7 +122,7 @@ namespace YetaWF.Core.Controllers {
             }
 
             // Check if site language requested using !yLang= arg
-            string lang = Manager.CurrentRequest.Query[Globals.Link_Language];
+            string? lang = Manager.CurrentRequest.Query[Globals.Link_Language];
             if (!string.IsNullOrWhiteSpace(lang))
                 await Manager.SetUserLanguageAsync(lang);
 

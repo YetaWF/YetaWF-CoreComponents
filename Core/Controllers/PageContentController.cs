@@ -237,7 +237,7 @@ namespace YetaWF.Core.Controllers {
             }
 
             // Check if site language requested using !yLang= arg
-            string lang = Manager.CurrentRequest.Query[Globals.Link_Language];
+            string? lang = Manager.CurrentRequest.Query[Globals.Link_Language];
             if (dataIn.CacheVersion != YetaWFManager.CacheBuster || !string.IsNullOrWhiteSpace(lang)) {
                 // If the cache version doesn't match, client is using an "old" site which was restarted, so we need to redirect to reload the entire page
                 // !yLang= is only used in <link rel='alternate' href='{0}' hreflang='{1}' /> to indicate multi-language support for pages, so we just redirect to that page

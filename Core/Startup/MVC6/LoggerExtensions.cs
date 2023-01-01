@@ -45,8 +45,8 @@ namespace YetaWF2.Logger {
             CategoryName = categoryName;
         }
 
-        public IDisposable BeginScope<TState>(TState state) {
-            return null!;
+        public IDisposable? BeginScope<TState>(TState state) where TState : notnull {
+            return null;
         }
 
         public bool IsEnabled(LogLevel logLevel) {

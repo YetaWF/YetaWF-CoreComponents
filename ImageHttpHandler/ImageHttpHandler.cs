@@ -54,7 +54,8 @@ namespace YetaWF.Core.HttpHandler {
     public class ImageHttpHandler {
 
         // A bit of a simplification - we're just looking for image/webp, don't care about quality and don't look for image/*
-        private bool UseWEBP(string acceptHeader) {
+        private bool UseWEBP(string? acceptHeader) {
+            if (string.IsNullOrEmpty(acceptHeader)) return false;
             List<MediaTypeHeaderValue> mediaTypes = acceptHeader.Split(',').Select(MediaTypeHeaderValue.Parse).ToList();
             if (mediaTypes == null)
                 return false;
@@ -214,8 +215,8 @@ namespace YetaWF.Core.HttpHandler {
                         context.Response.Headers.Add("Last-Modified", String.Format("{0:r}", lastMod));
                         YetaWFManager.SetStaticCacheInfo(context);
                         context.Response.ContentType = contentType;
-                        string ifNoneMatch = context.Request.Headers["If-None-Match"];
-                        if (ifNoneMatch.TruncateStart("W/") != GetETag(filePath, lastMod)) {
+                        string? ifNoneMatch = context.Request.Headers["If-None-Match"];
+                        if (ifNoneMatch == null || ifNoneMatch.TruncateStart("W/") != GetETag(filePath, lastMod)) {
                             context.Response.StatusCode = 200;
                             await context.Response.SendFileAsync(filePath);
                         } else {
@@ -237,8 +238,8 @@ namespace YetaWF.Core.HttpHandler {
                         context.Response.Headers.Add("ETag", GetETag(bytes));
                         context.Response.Headers.Add("Last-Modified", String.Format("{0:r}", DateTime.Now.AddDays(-1)));/*can use local time*/
                         context.Response.ContentType = contentType;
-                        string ifNoneMatch = context.Request.Headers["If-None-Match"];
-                        if (ifNoneMatch.TruncateStart("W/") != GetETag(bytes)) {
+                        string? ifNoneMatch = context.Request.Headers["If-None-Match"];
+                        if (ifNoneMatch == null || ifNoneMatch.TruncateStart("W/") != GetETag(bytes)) {
                             context.Response.StatusCode = 200;
                             await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
                         } else {

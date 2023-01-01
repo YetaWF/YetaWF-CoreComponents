@@ -1120,7 +1120,7 @@ namespace YetaWF.Core.Support {
         public bool IsPostRequest {
             get {
                 HttpRequest request = CurrentRequest;
-                string overRide = request.Headers["X-HTTP-Method-Override"];
+                string? overRide = request.Headers["X-HTTP-Method-Override"];
                 if (overRide != null)
                     return request.Headers["X-HTTP-Method-Override"] == "POST";
                 return (request.Method == "POST");
@@ -1140,7 +1140,7 @@ namespace YetaWF.Core.Support {
         public bool IsHeadRequest {
             get {
                 HttpRequest request = CurrentRequest;
-                string overRide = request.Headers["X-HTTP-Method-Override"];
+                string? overRide = request.Headers["X-HTTP-Method-Override"];
                 if (overRide != null)
                     return overRide == "HEAD";
                 return (request.Method == "HEAD");

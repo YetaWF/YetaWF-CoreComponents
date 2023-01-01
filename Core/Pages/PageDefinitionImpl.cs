@@ -507,7 +507,7 @@ namespace YetaWF.Core.Pages {
                 string paneHtml = await RenderPaneAsync(htmlHelper, pane, Unified: true, PaneDiv: false);
 
                 // Inspect for redirect, if so create PageContentData to reflect that, no need to process the remaining panes
-                string url = (string)Manager.CurrentResponse.Headers["Location"];
+                string? url = (string?)Manager.CurrentResponse.Headers["Location"];
                 if (!string.IsNullOrWhiteSpace(url)) {
                     if (url.StartsWith("/"))
                         model.RedirectContent = url;

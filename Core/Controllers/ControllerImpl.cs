@@ -232,10 +232,10 @@ namespace YetaWF.Core.Controllers {
 
                     // if we have a template action, search parameters for templates with actions and execute it
                     if (HttpContext.Request.HasFormContentType) {
-                        string templateName = HttpContext.Request.Form[Basics.TemplateName];
+                        string? templateName = HttpContext.Request.Form[Basics.TemplateName];
                         if (!string.IsNullOrWhiteSpace(templateName)) {
-                            string actionValStr = HttpContext.Request.Form[Basics.TemplateAction];
-                            string actionExtraStr = HttpContext.Request.Form[Basics.TemplateExtraData];
+                            string? actionValStr = HttpContext.Request.Form[Basics.TemplateAction];
+                            string? actionExtraStr = HttpContext.Request.Form[Basics.TemplateExtraData];
                             foreach (var parm in parms) {
                                 if (SearchTemplate(templateName, modelState.IsValid, actionValStr, actionExtraStr, parm)) {
                                     modelState.Clear();
@@ -483,10 +483,10 @@ namespace YetaWF.Core.Controllers {
         }
 
         // search for templates
-        private static bool SearchTemplate(string templateName, bool modelIsValid, string actionValStr, string actionExtraStr, KeyValuePair<string, object?> pair) {
+        private static bool SearchTemplate(string templateName, bool modelIsValid, string? actionValStr, string? actionExtraStr, KeyValuePair<string, object?> pair) {
             return SearchTemplateArgument(templateName, modelIsValid, actionValStr, actionExtraStr, pair.Value);
         }
-        private static bool SearchTemplateArgument(string templateName, bool modelIsValid, string actionValStr, string actionExtraStr, object? parm) {
+        private static bool SearchTemplateArgument(string templateName, bool modelIsValid, string? actionValStr, string? actionExtraStr, object? parm) {
             if (parm == null) return false;
             Type tpParm = parm.GetType();
             List<PropertyData> props = ObjectSupport.GetPropertyData(tpParm);
@@ -503,7 +503,7 @@ namespace YetaWF.Core.Controllers {
                                 int actionVal = 0;
                                 if (!string.IsNullOrWhiteSpace(actionValStr))
                                     actionVal = Convert.ToInt32(actionValStr);
-                                if (act.ExecuteAction(actionVal, modelIsValid, actionExtraStr))
+                                if (act.ExecuteAction(actionVal, modelIsValid, actionExtraStr ?? string.Empty))
                                     return true;
                                 return false;
                             }
@@ -527,9 +527,9 @@ namespace YetaWF.Core.Controllers {
             if (HttpContext.Request.HasFormContentType) {
                 foreach (var entry in HttpContext.Request.Form.Keys) {
                     if (entry != null && entry.EndsWith("-JSON")) {
-                        string data = HttpContext.Request.Form[entry];
+                        string? data = (string?)HttpContext.Request.Form[entry];
                         string parmName = entry[0..^5];
-                        AddJSONParmData(actionParms, parmName, data);
+                        AddJSONParmData(actionParms, parmName, data ?? string.Empty);
                     }
                 }
             }
@@ -1299,10 +1299,10 @@ $YetaWF.message({popupText}, {popupTitle}, function() {{
             //    ReplaceJSONParms(filterContext.ActionParameters);
 
             // Search parameters for templates with actions and execute the action
-            string templateName = HttpContext.Request.Form[Basics.TemplateName];
+            string? templateName = HttpContext.Request.Form[Basics.TemplateName];
             if (!string.IsNullOrWhiteSpace(templateName)) {
-                string actionValStr = HttpContext.Request.Form[Basics.TemplateAction];
-                string actionExtraStr = HttpContext.Request.Form[Basics.TemplateExtraData];
+                string? actionValStr = HttpContext.Request.Form[Basics.TemplateAction];
+                string? actionExtraStr = HttpContext.Request.Form[Basics.TemplateExtraData];
                 if (SearchTemplateArgument(templateName, ViewData.ModelState.IsValid, actionValStr, actionExtraStr, obj))
                     ViewData.ModelState.Clear();
             }

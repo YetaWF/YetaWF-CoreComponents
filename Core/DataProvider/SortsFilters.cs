@@ -71,10 +71,10 @@ namespace YetaWF.Core.DataProvider {
             public Dictionary<Type, List<MethodInfo>> GetExtensionMethods() {
                 return new Dictionary<Type, List<MethodInfo>>();
             }
-            public Type ResolveType(string typeName) {
+            public Type? ResolveType(string typeName) {
                 return ResolveType(Assemblies.GetLoadedAssemblies(), typeName);
             }
-            public Type ResolveTypeBySimpleName(string typeName) {
+            public Type? ResolveTypeBySimpleName(string typeName) {
                 return ResolveTypeBySimpleName(Assemblies.GetLoadedAssemblies(), typeName);
             }
         }

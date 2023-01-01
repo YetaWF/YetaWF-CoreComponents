@@ -25,7 +25,7 @@ namespace YetaWF.Core.Controllers {
 
         public override bool IsValidForRequest(RouteContext routeContext, ActionDescriptor action) {
             HttpRequest request = routeContext.HttpContext.Request;
-            string overRide = request.Headers["X-HTTP-Method-Override"];
+            string? overRide = request.Headers["X-HTTP-Method-Override"];
             foreach (string verb in Methods) {
                 if (overRide == verb || request.Method == verb)
                     return true;
