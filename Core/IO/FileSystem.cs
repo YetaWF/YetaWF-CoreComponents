@@ -83,7 +83,7 @@ namespace YetaWF.Core.IO {
         Task<IFileStream> CreateFileStreamAsync(string filePath);
     }
 
-    public interface IFileStream : IDisposable {
+    public interface IFileStream : IDisposable, IAsyncDisposable {
         FileStream GetFileStream();
         long GetLength();
         Task<int> ReadAsync(byte[] btes, int offset, int length);

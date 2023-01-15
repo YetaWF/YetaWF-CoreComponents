@@ -48,8 +48,12 @@ namespace YetaWF.Core.DataProvider {
         /// </summary>
         protected virtual async ValueTask DisposeAsyncCore() {
             DisposableTracker.RemoveObject(this);
-            if (_dataProvider != null)
-                await _dataProvider.DisposeAsync();
+            if (_dataProvider != null) {
+                if (_dataProvider as IAsyncDisposable != null)
+                    await _dataProvider.DisposeAsync();
+                else
+                    _dataProvider.Dispose();
+            }
             _dataProvider = null;
         }
         //~DataProviderImpl() { Dispose(false); }

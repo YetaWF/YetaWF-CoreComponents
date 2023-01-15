@@ -47,17 +47,15 @@ namespace YetaWF.Core.Pages {
 
                 // read contents file
                 string jsonFile = FileSystem.TempFileSystemProvider.GetTempFile();
-                using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(jsonFile)) {
+                await using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(jsonFile)) {
                     ze = zip.GetEntry(PageContentsFile);
                     using (Stream entryStream = zip.GetInputStream(ze)) {
                         Extract(entryStream, fs);
                     }
-                    await fs.CloseAsync();
                 }
                 SerializablePage serPage;
-                using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(jsonFile)) {
+                await using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(jsonFile)) {
                     serPage = new GeneralFormatter(Package.ExportFormat).Deserialize<SerializablePage>(fs.GetFileStream());
-                    await fs.CloseAsync();
                 }
                 await FileSystem.TempFileSystemProvider.DeleteFileAsync(jsonFile);
 
@@ -143,12 +141,11 @@ namespace YetaWF.Core.Pages {
 
             // read module zip file
             string modZipFileName = FileSystem.TempFileSystemProvider.GetTempFile();
-            using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(modZipFileName)) {
+            await using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(modZipFileName)) {
                 ZipEntry ze = zip.GetEntry(modZipFile);
                 using (Stream entryStream = zip.GetInputStream(ze)) {
                     Extract(entryStream, fs);
                 }
-                await fs.CloseAsync();
             }
 
             // open the module zip file
@@ -157,16 +154,14 @@ namespace YetaWF.Core.Pages {
 
                 // read contents file
                 string jsonFile = FileSystem.TempFileSystemProvider.GetTempFile();
-                using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(jsonFile)) {
+                await using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(jsonFile)) {
                     ZipEntry ze = modZip.GetEntry(ModuleContentsFile);
                     using (Stream entryStream = modZip.GetInputStream(ze)) {
                         Extract(entryStream, fs);
                     }
-                    await fs.CloseAsync();
                 }
-                using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(jsonFile)) {
+                await using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(jsonFile)) {
                     serModule = new GeneralFormatter(Package.ExportFormatModules).Deserialize<SerializableModule>(fs.GetFileStream());
-                    await fs.CloseAsync();
                 }
                 await FileSystem.TempFileSystemProvider.DeleteFileAsync(jsonFile);
 
@@ -186,11 +181,10 @@ namespace YetaWF.Core.Pages {
                             string fName = file.FileName;
                             fName = Manager.SiteFolder + fName;
                             await FileSystem.FileSystemProvider.CreateDirectoryAsync(Path.GetDirectoryName(fName)!);
-                            using (IFileStream fs = await FileSystem.FileSystemProvider.CreateFileStreamAsync(fName)) {
+                            await using (IFileStream fs = await FileSystem.FileSystemProvider.CreateFileStreamAsync(fName)) {
                                 using (Stream entryStream = modZip.GetInputStream(e)) {
                                     Extract(entryStream, fs);
                                 }
-                                await fs.CloseAsync();
                             }
                         } else {
                             throw new Error(__ResStr("nonSite", "Module data {0} cannot be imported - It contains unexpected non site specific data", serModule.ModuleName));

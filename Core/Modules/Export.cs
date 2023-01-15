@@ -54,9 +54,8 @@ namespace YetaWF.Core.Modules {
                 string fileName = FileSystem.TempFileSystemProvider.GetTempFile();
                 zipFile.TempFiles.Add(fileName);
 
-                using (IFileStream fs = await FileSystem.FileSystemProvider.CreateFileStreamAsync(fileName)) {
+                await using (IFileStream fs = await FileSystem.FileSystemProvider.CreateFileStreamAsync(fileName)) {
                     new GeneralFormatter(Package.ExportFormatModules).Serialize(fs.GetFileStream(), serModule);
-                    await fs.CloseAsync();
                 }
                 zipFile.AddFile(fileName, ModuleContentsFile);
 

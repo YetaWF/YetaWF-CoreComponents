@@ -100,9 +100,8 @@ namespace YetaWF.Core.Packages {
                                 fileName = FileSystem.TempFileSystemProvider.GetTempFile();
                                 zipFile.TempFiles.Add(fileName);
 
-                                using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(fileName)) {
+                                await using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(fileName)) {
                                     new GeneralFormatter(Package.ExportFormatChunks).Serialize(fs.GetFileStream(), expChunk.ObjectList);
-                                    await fs.CloseAsync();
                                 }
 
                                 zipFile.AddFile(fileName, string.Format("{0}_{1}.json", modelType.Name, chunk));
@@ -122,9 +121,8 @@ namespace YetaWF.Core.Packages {
             // serialize package contents
             fileName = FileSystem.TempFileSystemProvider.GetTempFile();
             zipFile.TempFiles.Add(fileName);
-            using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(fileName)) {
+            await using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(fileName)) {
                 new GeneralFormatter(Package.ExportFormat).Serialize(fs.GetFileStream(), serData);
-                await fs.CloseAsync();
             }
             zipFile.AddFile(fileName, PackageContentsFile);
 

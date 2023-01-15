@@ -88,7 +88,7 @@ namespace YetaWF.Core.Support.Zip {
                 AddFile(file, Path.GetFileName(file));
         }
         public async Task SaveAsync(string file) {
-            using (IFileStream fs = await FileSystem.FileSystemProvider.CreateFileStreamAsync(file)) {
+            await using (IFileStream fs = await FileSystem.FileSystemProvider.CreateFileStreamAsync(file)) {
                 await SaveAsync(fs.GetFileStream());
             }
             await CleanupFoldersAsync();
@@ -124,7 +124,7 @@ namespace YetaWF.Core.Support.Zip {
         }
 
         private async Task WriteFileAsync(ZipOutputStream zipStream, string absoluteFileName, string relativeName) {
-            using (IFileStream fs = await FileSystem.FileSystemProvider.OpenFileStreamAsync(absoluteFileName)) {
+            await using (IFileStream fs = await FileSystem.FileSystemProvider.OpenFileStreamAsync(absoluteFileName)) {
                 DateTime lastWrite = await FileSystem.FileSystemProvider.GetLastWriteTimeUtcAsync(absoluteFileName);
                 ZipEntry newEntry = new ZipEntry(relativeName);
                 newEntry.DateTime = lastWrite;
@@ -133,8 +133,6 @@ namespace YetaWF.Core.Support.Zip {
 
                 byte[] buffer = new byte[4096];
                 StreamUtils.Copy(fs.GetFileStream(), zipStream, buffer);
-
-                await fs.CloseAsync();
             }
         }
 

@@ -38,7 +38,7 @@ namespace YetaWF.Core.Packages
 
                 // read contents file
                 xmlFile = FileSystem.TempFileSystemProvider.GetTempFile();
-                using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(xmlFile)) {
+                await using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(xmlFile)) {
                     ze = zip.GetEntry(PackageContentsFile);
                     if (ze == null) {
                         errorList.Add(__ResStr("invContentsFormat", "{0} is not a valid binary or source code package file - No contents file found.", displayFileName));
@@ -47,12 +47,10 @@ namespace YetaWF.Core.Packages
                     using (Stream entryStream = zip.GetInputStream(ze)) {
                         Extract(entryStream, fs);
                     }
-                    await fs.CloseAsync();
                 }
                 SerializablePackage serPackage;
-                using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(xmlFile)) {
+                await using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(xmlFile)) {
                     serPackage = new GeneralFormatter(Package.ExportFormat).Deserialize<SerializablePackage>(fs.GetFileStream());
-                    await fs.CloseAsync();
                 }
                 await FileSystem.TempFileSystemProvider.DeleteFileAsync(xmlFile);
 

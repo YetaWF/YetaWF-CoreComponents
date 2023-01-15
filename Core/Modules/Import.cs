@@ -38,17 +38,15 @@ namespace YetaWF.Core.Modules {
 
                 // read contents file
                 string jsonFile = FileSystem.TempFileSystemProvider.GetTempFile();
-                using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(jsonFile)) {
+                await using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(jsonFile)) {
                     ze = zip.GetEntry(ModuleContentsFile);
                     using (Stream entryStream = zip.GetInputStream(ze)) {
                         Extract(entryStream, fs);
                     }
-                    await fs.CloseAsync();
                 }
                 SerializableModule serModule;
-                using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(jsonFile)) {
+                await using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(jsonFile)) {
                     serModule = new GeneralFormatter(Package.ExportFormatModules).Deserialize<SerializableModule>(fs.GetFileStream());
-                    await fs.CloseAsync();
                 }
                 await FileSystem.TempFileSystemProvider.DeleteFileAsync(jsonFile);
 
@@ -136,11 +134,10 @@ namespace YetaWF.Core.Modules {
                         fName = fName.Replace(originalGuid.ToString(), modDef.ModuleGuid.ToString());
                         fName = Manager.SiteFolder + fName;
                         await FileSystem.FileSystemProvider.CreateDirectoryAsync(Path.GetDirectoryName(fName)!);
-                        using (IFileStream fs = await FileSystem.FileSystemProvider.CreateFileStreamAsync(fName)) {
+                        await using (IFileStream fs = await FileSystem.FileSystemProvider.CreateFileStreamAsync(fName)) {
                             using (Stream entryStream = zip.GetInputStream(e)) {
                                 Extract(entryStream, fs);
                             }
-                            await fs.CloseAsync();
                         }
 
                         // open file and replace old module guid with new module guid (this is mostly in case module has guid embedded in data)

@@ -69,9 +69,8 @@ namespace YetaWF.Core.Pages {
                 string fileName = FileSystem.TempFileSystemProvider.GetTempFile();
                 zipFile.TempFiles.Add(fileName);
 
-                using (IFileStream fs = await FileSystem.FileSystemProvider.CreateFileStreamAsync(fileName)) {
+                await using (IFileStream fs = await FileSystem.FileSystemProvider.CreateFileStreamAsync(fileName)) {
                     new GeneralFormatter(Package.ExportFormat).Serialize(fs.GetFileStream(), serPage);
-                    await fs.CloseAsync();
                 }
                 zipFile.AddFile(fileName, PageContentsFile);
 

@@ -55,7 +55,7 @@ namespace YetaWF.Core.Image {
         }
     }
 
-    public class ImageSupport : IInstallableModel, IDisposable {
+    public class ImageSupport : IInstallableModel, IDisposable, IAsyncDisposable {
 
         protected static string __ResStr(string name, string defaultValue, params object?[] parms) { return ResourceAccess.GetResourceString(typeof(ImageSupport), name, defaultValue, parms); }
         protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
@@ -97,6 +97,14 @@ namespace YetaWF.Core.Image {
 
         protected virtual void Dispose(bool disposing) { if (disposing) DisposableTracker.RemoveObject(this); }
         public void Dispose() { Dispose(true); }
+        public async ValueTask DisposeAsync() {
+            await DisposeAsyncCore().ConfigureAwait(false);
+            Dispose(false);
+        }
+        protected virtual ValueTask DisposeAsyncCore() {
+            DisposableTracker.RemoveObject(this);
+            return ValueTask.CompletedTask;
+        }
 
         // IINSTALLABLEMODEL (used so we can install the scheduler events)
         // IINSTALLABLEMODEL

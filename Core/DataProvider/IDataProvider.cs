@@ -11,11 +11,11 @@ namespace YetaWF.Core.DataProvider {
 
     public enum UpdateStatusEnum { OK = 0, NewKeyExists, RecordDeleted }
 
-    public sealed class DataProviderTransaction : IDisposable {
+    public sealed class DataProviderTransaction : IDisposable, IAsyncDisposable {
 
-        private Action abortTransaction;
+        private Func<Task> abortTransaction;
         private Func<Task> commitTransactionAsync;
-        public DataProviderTransaction(Func<Task> commitTransaction, Action abortTransaction) {
+        public DataProviderTransaction(Func<Task> commitTransaction, Func<Task> abortTransaction) {
             this.abortTransaction = abortTransaction;
             this.commitTransactionAsync = commitTransaction;
             DisposableTracker.AddObject(this);
@@ -25,7 +25,23 @@ namespace YetaWF.Core.DataProvider {
         }
         public void Dispose() {
             DisposableTracker.RemoveObject(this);
+            YetaWFManager.Syncify(async () => {
+                await abortTransaction();
+            });
+        }
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public async ValueTask DisposeAsync() {
+            await DisposeAsyncCore().ConfigureAwait(false);
+        }
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        private ValueTask DisposeAsyncCore() {
+            DisposableTracker.RemoveObject(this);
             abortTransaction();
+            return ValueTask.CompletedTask;
         }
     }
     public sealed class DataProviderGetRecords<OBJTYPE> {
@@ -56,7 +72,7 @@ namespace YetaWF.Core.DataProvider {
         /// <summary>
         /// Aborts a transaction, abandoning all updates.
         /// </summary>
-        void AbortTransaction();
+        Task AbortTransactionAsync();
         /// <summary>
         /// Used when creating a dataprovider whithin StartTransAction().
         /// </summary>
@@ -82,7 +98,7 @@ namespace YetaWF.Core.DataProvider {
         /// <summary>
         /// Aborts a transaction, abandoning all updates.
         /// </summary>
-        void AbortTransaction();
+        Task AbortTransactionAsync();
 
         Task<bool> AddAsync(OBJTYPE obj); // returns false if key already exists
         Task<UpdateStatusEnum> UpdateAsync(KEYTYPE origKey, KEYTYPE newKey, OBJTYPE obj);
@@ -187,7 +203,7 @@ namespace YetaWF.Core.DataProvider {
         /// <summary>
         /// Aborts a transaction, abandoning all updates.
         /// </summary>
-        void AbortTransaction();
+        Task AbortTransactionAsync();
 
         Task<bool> AddAsync(OBJTYPE obj); // returns false if key already exists
         Task<UpdateStatusEnum> UpdateAsync(KEYTYPE origKey, KEY2TYPE? origKey2, KEYTYPE newKey, KEY2TYPE? newKey2, OBJTYPE obj);

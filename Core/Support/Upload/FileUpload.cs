@@ -110,7 +110,7 @@ namespace YetaWF.Core.Upload {
                 await FileSystem.TempFileSystemProvider.CreateDirectoryAsync(TempSiteUploadFolder);
                 string filePath = Path.Combine(TempSiteUploadFolder, fileName);
 
-                using (IFileStream fileStream = await FileSystem.FileSystemProvider.CreateFileStreamAsync(filePath)) {
+                await using (IFileStream fileStream = await FileSystem.FileSystemProvider.CreateFileStreamAsync(filePath)) {
                     if (YetaWFManager.IsSync()) {
                         uploadFile.CopyTo(fileStream.GetFileStream());
                     } else {
@@ -121,7 +121,7 @@ namespace YetaWF.Core.Upload {
 
                 await FileSystem.FileSystemProvider.CreateDirectoryAsync(folder!);
                 string filePath = Path.Combine(folder!, fileName);
-                using (IFileStream fileStream = await FileSystem.FileSystemProvider.CreateFileStreamAsync(filePath)) {
+                await using (IFileStream fileStream = await FileSystem.FileSystemProvider.CreateFileStreamAsync(filePath)) {
                     if (YetaWFManager.IsSync()) {
                         uploadFile.CopyTo(fileStream.GetFileStream());
                     } else {
@@ -184,7 +184,7 @@ namespace YetaWF.Core.Upload {
             using (strm) {
                 int totlen = (int)strm.Length;
                 byte[] bts = new byte[totlen];
-                using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(filePath)) {
+                await using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(filePath)) {
                     int remlen = totlen;
                     for (int offset = 0; remlen > 0;) {
                         int nRead;

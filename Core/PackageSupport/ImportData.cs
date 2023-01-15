@@ -37,7 +37,7 @@ namespace YetaWF.Core.Packages {
 
                 // read contents file
                 string xmlFile = FileSystem.TempFileSystemProvider.GetTempFile();
-                using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(xmlFile)) {
+                await using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(xmlFile)) {
                     ze = zip.GetEntry(PackageContentsFile);
                     if (ze == null) {
                         errorList.Add(__ResStr("invDataContentsFormat", "{0} is not a valid package data file - No contents file found.", displayFileName));
@@ -46,12 +46,10 @@ namespace YetaWF.Core.Packages {
                     using (Stream entryStream = zip.GetInputStream(ze)) {
                         Extract(entryStream, fs);
                     }
-                    await fs.CloseAsync();
                 }
                 SerializableData serData;
-                using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(xmlFile)) {
+                await using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(xmlFile)) {
                     serData = new GeneralFormatter(Package.ExportFormat).Deserialize<SerializableData>(fs.GetFileStream());
-                    await fs.CloseAsync();
                 }
                 await FileSystem.TempFileSystemProvider.DeleteFileAsync(xmlFile);
 
@@ -111,14 +109,13 @@ namespace YetaWF.Core.Packages {
                                 }
 
                                 string xmlFile = FileSystem.TempFileSystemProvider.GetTempFile();
-                                using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(xmlFile)) {
+                                await using (IFileStream fs = await FileSystem.TempFileSystemProvider.CreateFileStreamAsync(xmlFile)) {
                                     using (Stream entryStream = zip.GetInputStream(e)) {
                                         Extract(entryStream, fs);
                                     }
-                                    await fs.CloseAsync();
                                 }
                                 object obj;
-                                using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(xmlFile)) {
+                                await using (IFileStream fs = await FileSystem.TempFileSystemProvider.OpenFileStreamAsync(xmlFile)) {
                                     try {
                                         obj = new GeneralFormatter(Package.ExportFormatChunks).Deserialize<object>(fs.GetFileStream());
                                     } catch (Exception exc) {
@@ -171,9 +168,8 @@ namespace YetaWF.Core.Packages {
         private static async Task ExtractAsync(string siteFolder, string name, Stream entryStream) {
             string fileName = Path.Combine(siteFolder, name);
             await FileSystem.FileSystemProvider.CreateDirectoryAsync(Path.GetDirectoryName(fileName)!);
-            using (IFileStream fs = await FileSystem.FileSystemProvider.CreateFileStreamAsync(fileName)) {
+            await using (IFileStream fs = await FileSystem.FileSystemProvider.CreateFileStreamAsync(fileName)) {
                 Extract(entryStream, fs);
-                await fs.CloseAsync();
             }
         }
         private static void Extract(Stream entryStream, IFileStream fs) {

@@ -22,7 +22,7 @@ using YetaWF.Core.Support;
 namespace YetaWF.Core.Modules {
 
     // Interface to derived module type data provider
-    public interface IModuleDefinitionIO : IDisposable {
+    public interface IModuleDefinitionIO : IDisposable, IAsyncDisposable {
         Task SaveModuleDefinitionAsync(ModuleDefinition mod);
     }
 
