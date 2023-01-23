@@ -203,7 +203,7 @@ namespace YetaWF {
         }
         private postLink(url: string, anchorOwner: HTMLElement | null, cookieToReturn: number | null) : void {
             this.waitForCookie(cookieToReturn);
-            $YetaWF.post(url, "", (success: boolean, data: any) : void => { }, anchorOwner || undefined);
+            $YetaWF.postJSON(url, "", (success: boolean, data: any) : void => { }, anchorOwner || undefined);
         }
     }
 

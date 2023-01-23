@@ -922,7 +922,7 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
             }
             return false;
         }
-        public bool IsAuthorized(string? level) {
+        public bool IsAuthorized(string? level = null) {
             string? internalName;
             if (string.IsNullOrWhiteSpace(level))
                 internalName = level = Manager.EditMode ? RoleDefinition.Edit : RoleDefinition.View;

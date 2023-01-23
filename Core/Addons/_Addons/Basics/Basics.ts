@@ -661,20 +661,20 @@ namespace YetaWF {
             $YetaWF.handleReadyStateChange(request, callback, tagInModule);
             request.send(data);
         }
-
         /** POST JSON data to the specified URL, expecting a JSON response. Errors are automatically handled. The callback is called once the POST response is available.
          * @param url The URL used for the POST request.
          * @param data The data to send as form data with the POST request.
          * @param callback The callback to call when the POST response is available. Errors are automatically handled.
+         * @param tagInModule The optional tag in a module to refresh when AjaxJavascriptReloadModuleParts is returned.
          */
-        public postJSON(url: string, data: any, callback: (success: boolean, data: any) => void): void {
+        public postJSON(url: string, data: any, callback: (success: boolean, data: any) => void, tagInModule?: HTMLElement): void {
             this.setLoading(true);
             let request: XMLHttpRequest = new XMLHttpRequest();
             request.open("POST", url, true);
             request.setRequestHeader("Content-Type", "application/json");
             if (data?.__RequestVerificationToken)
                 request.setRequestHeader("RequestVerificationToken", data.__RequestVerificationToken);
-            $YetaWF.handleReadyStateChange(request, callback);
+            $YetaWF.handleReadyStateChange(request, callback, tagInModule);
             request.send(JSON.stringify(data));
         }
 

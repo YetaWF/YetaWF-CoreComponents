@@ -485,14 +485,14 @@ var YetaWF;
          * @param data The data to send as form data with the POST request.
          * @param callback The callback to call when the POST response is available. Errors are automatically handled.
          */
-        BasicsServices.prototype.postJSON = function (url, data, callback) {
+        BasicsServices.prototype.postJSON = function (url, data, callback, tagInModule) {
             this.setLoading(true);
             var request = new XMLHttpRequest();
             request.open("POST", url, true);
             request.setRequestHeader("Content-Type", "application/json");
             if (data === null || data === void 0 ? void 0 : data.__RequestVerificationToken)
                 request.setRequestHeader("RequestVerificationToken", data.__RequestVerificationToken);
-            $YetaWF.handleReadyStateChange(request, callback);
+            $YetaWF.handleReadyStateChange(request, callback, tagInModule);
             request.send(JSON.stringify(data));
         };
         BasicsServices.prototype.handleReadyStateChange = function (request, callback, tagInModule) {

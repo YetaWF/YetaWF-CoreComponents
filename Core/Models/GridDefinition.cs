@@ -52,7 +52,7 @@ namespace YetaWF.Core.Models {
 
         public object? ExtraData { get; set; }// additional data to return during ajax callback
 
-        public Guid ModuleGuid { get; set; } // the module owning the grid
+        public Guid ModuleGuid { /* get;$$$$ */ set { } } // the module owning the grid
         public Guid? SettingsModuleGuid { get; set; } // the module guid used to save/restore grid settings and is optional
 
         public bool ShowHeader { get; set; }

@@ -34,13 +34,16 @@ namespace YetaWF.Core.Endpoints {
         /// <param name="model">The model.</param>
         /// <param name="contentType">The content type.</param>
         /// <returns>Returns the HTML for the requested partial view.</returns>
-        public static async Task<IResult> RenderPartialView(HttpContext context, string viewName, PartialViewData pvData, object? model, string contentType) {
+        public static async Task<IResult> RenderPartialView(HttpContext context, string viewName, ModuleDefinition? module, PartialViewData pvData, object? model, string contentType) {
 
             Manager.UniqueIdCounters = pvData.__UniqueIdInfo;
             Manager.NextUniqueIdPrefix();// get the next unique id prefix (so we don't have any conflicts when replacing modules)
 
             ModuleDefinition? oldMod = Manager.CurrentModule;
-            Manager.CurrentModule = await GetModuleAsync(pvData.__ModuleGuid, viewName);
+            if (module is null)
+                Manager.CurrentModule = await YetaWFEndpoints.GetModuleAsync(pvData.__ModuleGuid);
+            else
+                Manager.CurrentModule = module;
 
             string viewHtml;
             StringBuilder sb = new StringBuilder();

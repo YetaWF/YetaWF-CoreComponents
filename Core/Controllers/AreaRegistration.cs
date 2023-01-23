@@ -27,21 +27,7 @@ namespace YetaWF.Core.Controllers {
     ///
     /// Applications do not instantiate this class.
     /// </remarks>    
-    public abstract class AreaRegistrationBase {
-        /// <summary>
-        /// Constructor.
-        /// </summary>
-        protected AreaRegistrationBase() { }
-
-        /// <summary>
-        /// Used internally to register area routes. Don't mess with this.
-        /// </summary>
-        public void RegisterArea(IEndpointRouteBuilder endpoints) {
-            Package package = Package.GetPackageFromAssembly(GetType().Assembly);
-            string areaName = package.AreaName;
-            Logging.AddLog("Found {0} in namespace {1}", areaName, GetType().Namespace!);
-            endpoints.MapAreaControllerRoute(areaName, areaName, areaName + "/{controller}/{action}/{*whatevz}");
-        }
+    public static class AreaRegistrationBase {
 
         /// <summary>
         /// Used to register all package areas and endpoints.
@@ -49,15 +35,19 @@ namespace YetaWF.Core.Controllers {
         public static void RegisterPackages(IEndpointRouteBuilder? endpoints = null) {
             Logging.AddLog($"Processing {nameof(RegisterPackages)}");
             // Areas
-            List<Type> types = GetAreaRegistrationTypes();
+            List<Type> types = GetRegisterablePackages();
             foreach (Type type in types) {
                 try {
-                    dynamic? areaReg = Activator.CreateInstance(type);
-                    if (areaReg != null) {
-                        Logging.AddLog($"{nameof(RegisterPackages)} class \'{0}\' found", type.FullName!);
-                        if (endpoints != null)
-                            areaReg.RegisterArea(endpoints);
-                    }
+                    // Set CurrentPackage
+                    Logging.AddLog($"{nameof(RegisterPackages)} class \'{0}\' found", type.FullName!);
+                    Package? package = Package.TryGetPackageFromType(type);
+                    if (package is null) throw new InternalError($"{nameof(RegisterPackages)} couldn't determine package for type {type.FullName}");
+                    PropertyInfo? prop = type.GetProperty("CurrentPackage", BindingFlags.Static | BindingFlags.Public);
+                    if (prop is null) throw new InternalError($"CurrentPackage property not found on area type {type.FullName}");
+                    prop.SetValue(null, package);
+                    // Register area
+                    if (endpoints != null)
+                        RegisterArea(package, endpoints);
                 } catch (Exception exc) {
                     Logging.AddErrorLog($"{nameof(RegisterPackages)} class {0} failed.", type.FullName!, exc);
                     throw;
@@ -83,12 +73,39 @@ namespace YetaWF.Core.Controllers {
             Logging.AddLog($"Processing {nameof(RegisterPackages)} Ended");
         }
 
-        private static List<Type> GetAreaRegistrationTypes() {
-            return Package.GetClassesInPackages<AreaRegistrationBase>();
+        /// <summary>
+        /// Used internally to register area routes.
+        /// </summary>
+        private static void RegisterArea(Package package, IEndpointRouteBuilder endpoints) {
+            string areaName = package.AreaName;
+            Logging.AddLog("Found area {0}", areaName);
+            endpoints.MapAreaControllerRoute(areaName, areaName, areaName + "/{controller}/{action}/{*whatevz}");
         }
 
         private static List<Type> GetEndpointRegistrationTypes() {
             return Package.GetClassesInPackages<YetaWFEndpoints>();
+        }
+
+        /// <summary>
+        /// Return a list of all packages that can be registered
+        /// </summary>
+        private static List<Type> GetRegisterablePackages() {
+            List<Type> list = new List<Type>();
+            List<Package> packages = Package.GetAvailablePackages();
+
+            foreach (Package package in packages) {
+                Type?[] typesInAsm;
+                try {
+                    typesInAsm = package.PackageAssembly.GetTypes();
+                } catch (ReflectionTypeLoadException ex) {
+                    typesInAsm = ex.Types;
+                }
+                foreach (Type? t in typesInAsm) {
+                    if (t != null && t.Name == nameof(AreaRegistration))
+                        list.Add(t);
+                }
+            }
+            return list;
         }
     }
 }

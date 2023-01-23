@@ -6,16 +6,17 @@ using System.Linq;
 using System.Threading.Tasks;
 using YetaWF.Core.Components;
 using YetaWF.Core.DataProvider;
-using YetaWF.Core.Localize;
 using YetaWF.Core.Models;
+using YetaWF.Core.Modules;
 using YetaWF.Core.Support;
-using static YetaWF.Core.Endpoints.PartialView;
 
 namespace YetaWF.Core.Endpoints {
 
     public class GridSupport {
 
-        private static string __ResStr(string name, string defaultValue, params object?[] parms) { return ResourceAccess.GetResourceString(typeof(GridSupport), name, defaultValue, parms); }
+        public const string BrowseGridData = "BrowseGridData";
+        public const string DisplaySortFilter = "DisplaySortFilter";
+        public const string EditSortFilter = "EditSortFilter";
 
         /// <summary>
         /// The YetaWFManager instance for the current HTTP request.
@@ -49,10 +50,10 @@ namespace YetaWF.Core.Endpoints {
         /// Returns rendered grid contents.
         /// </summary>
         /// <returns>Returns rendered grid contents.</returns>
-        public static async Task<IResult> GetGridPartialAsync(HttpContext context, GridDefinition gridModel, GridPartialViewData gridPVData) {
+        public static async Task<IResult> GetGridPartialAsync(HttpContext context, ModuleDefinition? module, GridDefinition gridModel, GridPartialViewData gridPVData) {
             gridPVData.UpdateSearchLogic();
             DataSourceResult ds = await gridModel.DirectDataAsync(gridPVData.Skip, gridPVData.Take, gridPVData.Sorts?.ToList(), gridPVData.Filters?.ToList());// copy sort/filter in case changes are made (we save this later)
-            return await GetGridPartialAsync(context, gridModel, ds, gridPVData);
+            return await GetGridPartialAsync(context, module, gridModel, ds, gridPVData);
         }
 
         /// <summary>
@@ -60,15 +61,15 @@ namespace YetaWF.Core.Endpoints {
         /// </summary>
         /// <returns>Returns rendered grid contents.</returns>
         /// <remarks>Used for static grids.</remarks>
-        public static async Task<IResult> GetGridPartialAsync<TYPE>(HttpContext context, GridDefinition gridModel, GridPartialViewData gridPVData) {
+        public static async Task<IResult> GetGridPartialAsync<TYPE>(HttpContext context, ModuleDefinition? module, GridDefinition gridModel, GridPartialViewData gridPVData) {
             List<TYPE> list = Utility.JsonDeserialize<List<TYPE>>(gridPVData.Data);
             List<object> objList = (from l in list select (object)l).ToList();
             gridPVData.UpdateSearchLogic();
             DataSourceResult ds = gridModel.SortFilterStaticData!(objList, 0, int.MaxValue, gridPVData.Sorts?.ToList(), gridPVData.Filters?.ToList());// copy sort/filter in case changes are made (we save this later)
-            return await GetGridPartialAsync(context, gridModel, ds, gridPVData, objList);
+            return await GetGridPartialAsync(context, module, gridModel, ds, gridPVData, objList);
         }
 
-        private static async Task<IResult> GetGridPartialAsync(HttpContext context, GridDefinition gridModel, DataSourceResult data, GridPartialViewData gridPVData, List<object>? objList = null) {
+        private static async Task<IResult> GetGridPartialAsync(HttpContext context, ModuleDefinition? module, GridDefinition gridModel, DataSourceResult data, GridPartialViewData gridPVData, List<object>? objList = null) {
             GridPartialData gridPartialModel = new GridPartialData() {
                 Data = data,
                 StaticData = objList,
@@ -80,7 +81,7 @@ namespace YetaWF.Core.Endpoints {
                 FieldPrefix = gridPVData.FieldPrefix,
                 GridDef = gridModel,
             };
-            return await PartialView.RenderPartialView(context, "GridPartialDataView", gridPVData, gridPartialModel, "application/json");
+            return await PartialView.RenderPartialView(context, "GridPartialDataView", module, gridPVData, gridPartialModel, "application/json");
         }
 
         /// <summary>
@@ -90,8 +91,8 @@ namespace YetaWF.Core.Endpoints {
         /// <param name="pvData"></param>
         /// <param name="model"></param>
         /// <returns></returns>
-        public static async Task<IResult> GetGridRecordAsync(HttpContext context, PartialViewData pvData, GridRecordData model) {
-            return await PartialView.RenderPartialView(context, "GridRecord", pvData, model, "application/json");
+        public static async Task<IResult> GetGridRecordAsync(HttpContext context, PartialView.PartialViewData pvData, GridRecordData model) {
+            return await PartialView.RenderPartialView(context, "GridRecord", null, pvData, model, "application/json");
         }
     }
 }
