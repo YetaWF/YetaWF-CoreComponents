@@ -48,9 +48,6 @@ namespace YetaWF.Core.Controllers {
             Uri uri = new Uri(Manager.CurrentRequestUrl);
             Manager.RenderContentOnly = false;
 
-            // set up all info, like who is logged on, popup, origin list, etc.
-            await YetaWFController.SetupEnvironmentInfoAsync();
-
             // process logging type callbacks
             await PageLogging.HandleCallbacksAsync(Manager.CurrentRequestUrl, false);
 

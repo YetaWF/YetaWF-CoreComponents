@@ -1197,7 +1197,7 @@ namespace YetaWF.Core.Support {
         // MODULES
         // MODULES
 
-        public ModuleDefinition? CurrentModule { get; set; } // current module rendered
+        public ModuleDefinition? CurrentModule { get; set; }
 
         // COMPONENTS/VIEWS
         // COMPONENTS/VIEWS

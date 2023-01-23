@@ -154,6 +154,7 @@ namespace YetaWF.Core.Addons {
             scripts.AddConfigOption("Basics", "AjaxJavascriptReloadModuleParts", AjaxJavascriptReloadModuleParts);
             scripts.AddLocalization("Basics", "IncorrectServerResp", this.__ResStr("IncorrectServerResp", "Incorrect server response: Expecting a javascript return"));
 
+            scripts.AddConfigOption("Basics", nameof(Globals.ApiPrefix), Globals.ApiPrefix); // API prefix (internal API)
             scripts.AddConfigOption("Basics", nameof(Globals.Link_OriginList), Globals.Link_OriginList); // chain of urls
             scripts.AddConfigOption("Basics", nameof(Globals.Link_InPopup), Globals.Link_InPopup); // we're in a popup
             scripts.AddConfigOption("Basics", nameof(Globals.Link_ToPopup), Globals.Link_ToPopup); // we're going into a popup

@@ -101,6 +101,7 @@ namespace YetaWF {
 
         DEBUGBUILD: boolean;
 
+        ApiPrefix: string;          // API Prefix, internal API
         Link_OriginList: string;    // chain of urls
         Link_InPopup: string;       // we're in a popup
         Link_ToPopup: string;       // we're going into a popup
@@ -187,4 +188,35 @@ namespace YetaWF {
         // Server response
         IncorrectServerResp: string;
     }
+
+    // PARTIAL VIEW
+    // PARTIAL VIEW
+    // PARTIAL VIEW
+
+    //$$$ MOVE
+    export interface PartialViewData {
+        __UniqueIdInfo: YetaWF.UniqueIdInfo,
+        __ModuleGuid: string|null; // The module for which the partial view is rendered
+        __RequestVerificationToken: string;
+    }
+
+    // DATAPROVIDER
+    // DATAPROVIDER
+    // DATAPROVIDER
+
+    export enum SortDirection {
+        Asending = 0,
+        Descending = 1,
+    }
+
+    export interface DataProviderSortInfo {
+        Field: string;
+        Order: SortDirection;
+    }
+    export interface DataProviderFilterInfo {
+        Field: string;
+        Operator: string;
+        ValueAsString: string;
+    }
+
 }

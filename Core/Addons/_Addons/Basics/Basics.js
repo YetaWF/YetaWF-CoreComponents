@@ -490,6 +490,8 @@ var YetaWF;
             var request = new XMLHttpRequest();
             request.open("POST", url, true);
             request.setRequestHeader("Content-Type", "application/json");
+            if (data === null || data === void 0 ? void 0 : data.__RequestVerificationToken)
+                request.setRequestHeader("RequestVerificationToken", data.__RequestVerificationToken);
             $YetaWF.handleReadyStateChange(request, callback);
             request.send(JSON.stringify(data));
         };

@@ -232,7 +232,7 @@ namespace YetaWF {
             $YetaWF.setLoading();
 
             let request: XMLHttpRequest = new XMLHttpRequest();
-            request.open("POST", "/YetaWF_Core/PageContent/Show" + uri.getQuery(true), true);
+            request.open("POST", `${YConfigs.Basics.ApiPrefix}YetaWF_Core/PageContent/Show` + uri.getQuery(true), true);
             request.setRequestHeader("Content-Type", "application/json");
             request.setRequestHeader("X-HTTP-Method-Override", "GET");// server has to think this is a GET request so all actions that are invoked actually work
             request.setRequestHeader("X-Requested-With", "XMLHttpRequest");

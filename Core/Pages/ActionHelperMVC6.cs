@@ -47,8 +47,10 @@ namespace YetaWF.Core.Pages {
             var routeParams = new RouteValueDictionary(parameters ?? new { });
             var routeValues = new RouteValueDictionary(new { area = area, controller = controller, action = action, ModuleDefinition = module });
 
-            foreach (var router in htmlHelper.RouteData.Routers)
-                routeData.PushState(router, null, null);
+            if (htmlHelper.RouteData != null) {//$$$
+                foreach (var router in htmlHelper.RouteData.Routers)
+                    routeData.PushState(router, null, null);
+            }
 
             routeData.PushState(null, routeValues, null);
             routeData.PushState(null, routeParams, null);

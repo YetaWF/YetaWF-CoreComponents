@@ -11,7 +11,7 @@ using YetaWF2.Logger;
 
 namespace YetaWF.Core.WebStartup {
 
-    public partial class StartupMVC6 {
+    public partial class Startup {
 
         /// <summary>
         /// The main application entry point.
@@ -22,10 +22,10 @@ namespace YetaWF.Core.WebStartup {
 
             string currPath = Directory.GetCurrentDirectory();
 
-            if (Startup.RunningInContainer) {
+            if (Support.Startup.RunningInContainer) {
                 {
                     // Copy any new files from /DataInit to /Data
-                    // This is needed with Docker during first-time installs if a DataLocalInit folder is present.
+                    // This is needed with Docker during first-time installs if a DataInit folder is present.
                     string dataInitFolder = Path.Combine(currPath, "DataInit");
                     if (Directory.Exists(dataInitFolder)) { // this is optional
                         string dataFolder = Path.Combine(currPath, Globals.DataFolder);
@@ -79,7 +79,7 @@ namespace YetaWF.Core.WebStartup {
                     webBuilder.UseIISIntegration();
                     webBuilder.CaptureStartupErrors(true);
                     webBuilder.UseSetting(WebHostDefaults.DetailedErrorsKey, "true");
-                    webBuilder.UseStartup<StartupMVC6>();
+                    webBuilder.UseStartup<Startup>();
                 })
                 .ConfigureAppConfiguration((bldr) => {
                     bldr.AddEnvironmentVariables();
@@ -107,7 +107,7 @@ namespace YetaWF.Core.WebStartup {
         /// <returns>Returns an environment and runtime specific AppSettings.json file name.</returns>
         public static string GetAppSettingsFile() {
             if (_AppSettingsFile == null)
-                _AppSettingsFile = Startup.GetEnvironmentFile(Path.Combine(Directory.GetCurrentDirectory(), Globals.DataFolder), "AppSettings", "json")!;
+                _AppSettingsFile = Support.Startup.GetEnvironmentFile(Path.Combine(Directory.GetCurrentDirectory(), Globals.DataFolder), "AppSettings", "json")!;
             return _AppSettingsFile;
         }
         private static string? _AppSettingsFile = null;
@@ -117,7 +117,7 @@ namespace YetaWF.Core.WebStartup {
         /// </summary>
         /// <returns>Returns an environment and runtime specific hosting.json file name.</returns>
         public static string? GetHostingFile() {
-            return Startup.GetEnvironmentFile(Directory.GetCurrentDirectory(), "hosting", "json", Optional: true);
+            return Support.Startup.GetEnvironmentFile(Directory.GetCurrentDirectory(), "hosting", "json", Optional: true);
         }
 
         //private static void CopyFiles(string srcInitFolder, string targetFolder) {

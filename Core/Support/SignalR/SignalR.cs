@@ -84,7 +84,7 @@ namespace YetaWF.Core {
             if (manager != YetaWFManager.Manager)
                 throw new InternalError("Mismatched Manager");
             YetaWFManager.Syncify(async () => {
-                await YetaWFController.SetupEnvironmentInfoAsync();
+                //$$$$ await YetaWFController.SetupEnvironmentInfoAsync();
                 await parms.Run();
             });
             YetaWFManager.RemoveThreadInstance();

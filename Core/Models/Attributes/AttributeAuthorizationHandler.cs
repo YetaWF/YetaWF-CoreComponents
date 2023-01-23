@@ -54,7 +54,6 @@ namespace YetaWF.Core.Identity {
         }
 
         private async Task<bool> AuthorizeAsync(ClaimsPrincipal user, string permission) {
-            await YetaWFController.SetupEnvironmentInfoAsync();// for ajax calls this may be the first chance to set up identity
             if (!await Resource.ResourceAccess.IsResourceAuthorizedAsync(permission)) {
                 // Don't challenge a resource as there is no alternative
                 throw new Error(this.__ResStr("notAuth", "Not Authorized"));

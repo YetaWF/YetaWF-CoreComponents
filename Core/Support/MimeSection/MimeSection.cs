@@ -33,21 +33,21 @@ namespace YetaWF.Core.Support {
             dynamic settings = Utility.JsonDeserialize(File.ReadAllText(SettingsFile)); // use local file system as we need this during initialization
 
             dynamic mimeSection = settings["MimeSection"];
-            List<MimeEntry> list = new List<MimeEntry>();
-
-            // add required extensions (see FileExtensionContentTypeProvider.cs for complete list supported by .net core, but limited here)
-            list.Add(new MimeEntry { Extensions = ".js", Type = "application/javascript" });
-            list.Add(new MimeEntry { Extensions = ".css", Type = "text/css" });
-            list.Add(new MimeEntry { Extensions = ".gif", Type = "image/gif" });
-            list.Add(new MimeEntry { Extensions = ".png", Type = "image/png" });
-            list.Add(new MimeEntry { Extensions = ".jpe;.jpeg;.jpg", Type = "image/jpeg" });
-            list.Add(new MimeEntry { Extensions = ".webp;.webp-gen", Type = "image/webp" });
-            list.Add(new MimeEntry { Extensions = ".svg;.svgz", Type = "image/svg+xml" });
-            list.Add(new MimeEntry { Extensions = ".htm;.html", Type = "text/html" });
-            list.Add(new MimeEntry { Extensions = ".map", Type = "text/plain" });
-            list.Add(new MimeEntry { Extensions = ".xml", Type = "text/xml" }); // sitemap
-            list.Add(new MimeEntry { Extensions = ".txt", Type = "text/plain" }); // robots
-            list.Add(new MimeEntry { Extensions = ".ico", Type = "image/x-icon" }); // favicon
+            List<MimeEntry> list = new List<MimeEntry> {
+                // add required extensions (see FileExtensionContentTypeProvider.cs for complete list supported by .net core, but limited here)
+                new MimeEntry { Extensions = ".js", Type = "application/javascript" },
+                new MimeEntry { Extensions = ".css", Type = "text/css" },
+                new MimeEntry { Extensions = ".gif", Type = "image/gif" },
+                new MimeEntry { Extensions = ".png", Type = "image/png" },
+                new MimeEntry { Extensions = ".jpe;.jpeg;.jpg", Type = "image/jpeg" },
+                new MimeEntry { Extensions = ".webp;.webp-gen", Type = "image/webp" },
+                new MimeEntry { Extensions = ".svg;.svgz", Type = "image/svg+xml" },
+                new MimeEntry { Extensions = ".htm;.html", Type = "text/html" },
+                new MimeEntry { Extensions = ".map", Type = "text/plain" },
+                new MimeEntry { Extensions = ".xml", Type = "text/xml" }, // sitemap
+                new MimeEntry { Extensions = ".txt", Type = "text/plain" }, // robots
+                new MimeEntry { Extensions = ".ico", Type = "image/x-icon" } // favicon
+            };
 
             // add specified extensions
             foreach (var t in mimeSection["MimeTypes"]) {
@@ -60,7 +60,7 @@ namespace YetaWF.Core.Support {
         }
 
         private static string SettingsFile = null!;
-        public static List<MimeEntry>? CachedEntries;
+        private static List<MimeEntry>? CachedEntries;
 
         public List<MimeEntry>? GetMimeTypes() {
             return CachedEntries;

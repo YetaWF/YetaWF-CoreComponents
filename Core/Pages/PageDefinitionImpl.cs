@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using YetaWF.Core.Controllers;
+using YetaWF.Core.Endpoints;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Image;
@@ -495,7 +496,7 @@ namespace YetaWF.Core.Pages {
         /// Render pane contents so they can be returned to the client (used during unified page sets dynamic module processing).
         /// </summary>
         internal async Task RenderPaneContentsAsync(YHtmlHelper htmlHelper,
-            PageContentController.DataIn dataIn, PageContentController.PageContentData model, bool MainOnly = false)
+            PageContentEndpoints.DataIn dataIn, PageContentEndpoints.PageContentData model, bool MainOnly = false)
         {
             if (dataIn.Panes == null) throw new InternalError("No panes with Unified=true found in current skin");
 
@@ -523,7 +524,7 @@ namespace YetaWF.Core.Pages {
                 paneHtml = pageProc.PostProcessContentHtml(paneHtml);
                 if (!string.IsNullOrWhiteSpace(paneHtml)) {
                     paneHtml = WhiteSpaceResponseFilter.Compress(paneHtml);
-                    model.Content.Add(new Controllers.PageContentController.PaneContent {
+                    model.Content.Add(new Endpoints.PageContentEndpoints.PaneContent {
                         Pane = pane,
                         HTML = paneHtml,
                     });

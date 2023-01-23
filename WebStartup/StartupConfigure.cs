@@ -51,7 +51,7 @@ namespace YetaWF.Core.WebStartup {
     /// <summary>
     /// The class implementing all startup processing for a YetaWF website.
     /// </summary>
-    public partial class StartupMVC6 {
+    public partial class Startup {
 
         private IServiceCollection Services = null!;
 
@@ -59,7 +59,7 @@ namespace YetaWF.Core.WebStartup {
         /// Constructor.
         /// </summary>
         /// <param name="env">An instance of an IWebHostEnvironment interface.</param>
-        public StartupMVC6(IWebHostEnvironment env) {
+        public Startup(IWebHostEnvironment env) {
 
             YetaWFManager.RootFolder = env.WebRootPath;
             YetaWFManager.RootFolderWebProject = env.ContentRootPath;
@@ -214,6 +214,12 @@ namespace YetaWF.Core.WebStartup {
             .AddNewtonsoftJson()
             .ConfigureApplicationPartManager((partManager) => { YetaWFApplicationPartManager.AddAssemblies(partManager); });
 
+            services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options => { // Minimal API serialization
+                options.SerializerOptions.PropertyNamingPolicy = null;
+                options.SerializerOptions.PropertyNameCaseInsensitive = true;
+                options.SerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+            });
+
             // We don't need a view engine
             services.Configure<MvcViewOptions>(
                 options => {
@@ -363,6 +369,11 @@ namespace YetaWF.Core.WebStartup {
             app.UseAuthorization();
 
             app.UseLetsEncrypt();
+
+            app.Use(async (context, next) => {
+                await YetaWFController.SetupEnvironmentInfoAsync();
+                await next();
+            });
 
             app.UseEndpoints(endpoints => {
 

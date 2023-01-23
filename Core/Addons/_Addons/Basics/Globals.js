@@ -21,6 +21,14 @@ var YetaWF;
         MessageTypeEnum[MessageTypeEnum["ToastRight"] = 10] = "ToastRight";
         MessageTypeEnum[MessageTypeEnum["ToastLeft"] = 11] = "ToastLeft";
     })(MessageTypeEnum = YetaWF.MessageTypeEnum || (YetaWF.MessageTypeEnum = {}));
+    // DATAPROVIDER
+    // DATAPROVIDER
+    // DATAPROVIDER
+    var SortDirection;
+    (function (SortDirection) {
+        SortDirection[SortDirection["Asending"] = 0] = "Asending";
+        SortDirection[SortDirection["Descending"] = 1] = "Descending";
+    })(SortDirection = YetaWF.SortDirection || (YetaWF.SortDirection = {}));
 })(YetaWF || (YetaWF = {}));
 
 //# sourceMappingURL=Globals.js.map

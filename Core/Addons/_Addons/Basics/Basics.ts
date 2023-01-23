@@ -672,6 +672,8 @@ namespace YetaWF {
             let request: XMLHttpRequest = new XMLHttpRequest();
             request.open("POST", url, true);
             request.setRequestHeader("Content-Type", "application/json");
+            if (data?.__RequestVerificationToken)
+                request.setRequestHeader("RequestVerificationToken", data.__RequestVerificationToken);
             $YetaWF.handleReadyStateChange(request, callback);
             request.send(JSON.stringify(data));
         }

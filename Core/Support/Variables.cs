@@ -67,7 +67,7 @@ namespace YetaWF.Core.Support {
             }
             return text;
         }
-        public string ReplaceModuleVariables(ModuleDefinition module, string? text) {
+        public string ReplaceModuleVariables(ModuleDefinition? module, string? text) {
             if (string.IsNullOrWhiteSpace(text)) return string.Empty;
             _thisModule = module;
             if (DoubleEscape) {

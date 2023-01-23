@@ -158,7 +158,7 @@ var YetaWF;
             data.KnownScripts = data.KnownScripts.concat(YVolatile.Basics.UnifiedScriptBundleFiles || []); // add known javascript files that were added via bundles
             $YetaWF.setLoading();
             var request = new XMLHttpRequest();
-            request.open("POST", "/YetaWF_Core/PageContent/Show" + uri.getQuery(true), true);
+            request.open("POST", "".concat(YConfigs.Basics.ApiPrefix, "YetaWF_Core/PageContent/Show") + uri.getQuery(true), true);
             request.setRequestHeader("Content-Type", "application/json");
             request.setRequestHeader("X-HTTP-Method-Override", "GET"); // server has to think this is a GET request so all actions that are invoked actually work
             request.setRequestHeader("X-Requested-With", "XMLHttpRequest");

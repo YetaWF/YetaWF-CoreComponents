@@ -134,7 +134,6 @@ namespace YetaWF.Core.Controllers {
 
         internal async Task SetupActionContextAsync(ActionExecutingContext filterContext) {
 
-            await SetupEnvironmentInfoAsync();
             await GetModuleAsync();
 
             if (YetaWFManager.IsDemo || Manager.IsDemoUser) {

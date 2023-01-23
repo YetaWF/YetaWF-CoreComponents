@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using YetaWF.Core.Controllers;
+using YetaWF.Core.Endpoints;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.IO;
 using YetaWF.Core.Packages;
@@ -270,14 +270,14 @@ namespace YetaWF.Core.Pages {
         // RENDER
         // RENDER
 
-        private bool WantBundle(PageContentController.PageContentData? cr) {
+        private bool WantBundle(PageContentEndpoints.PageContentData? cr) {
             if (cr != null)
                 return false;
             else
                 return Manager.CurrentSite.BundleCSSFiles;
         }
 
-        internal async Task<string> RenderAsync(PageContentController.PageContentData? cr = null, List<string>? KnownCss = null) {
+        internal async Task<string> RenderAsync(PageContentEndpoints.PageContentData? cr = null, List<string>? KnownCss = null) {
             HtmlBuilder tag = new HtmlBuilder();
 
             List<CssEntry> externalList;
@@ -308,7 +308,7 @@ namespace YetaWF.Core.Pages {
                     tag.Append(string.Format("<link rel='stylesheet' type='text/css' data-name='{0}' href='{1}'>", Utility.HAE(entry.Url), Utility.HAE(url)));
                 } else {
                     if (KnownCss == null || !KnownCss.Contains(entry.Url)) {
-                        cr.CssFiles.Add(new Controllers.PageContentController.UrlEntry {
+                        cr.CssFiles.Add(new Endpoints.PageContentEndpoints.UrlEntry {
                             Name = entry.Url,
                             Url = entry.Url,
                         });
@@ -316,7 +316,7 @@ namespace YetaWF.Core.Pages {
                             string file = Utility.UrlToPhysical(entry.Url);
                             string contents = await FileSystem.FileSystemProvider.ReadAllTextAsync(file);
                             contents = FileBundles.ProcessIncludedFiles(contents, entry.Url);
-                            cr.CssFilesPayload.Add(new PageContentController.Payload {
+                            cr.CssFilesPayload.Add(new PageContentEndpoints.Payload {
                                 Name = entry.Url,
                                 Text = contents,
                             });

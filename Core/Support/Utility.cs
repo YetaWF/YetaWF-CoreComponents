@@ -9,9 +9,11 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NodeDeserializers;
+using YetaWF.Core.Endpoints;
 using YetaWF.Core.Models;
 using YetaWF.Core.Packages;
 
@@ -412,23 +414,44 @@ namespace YetaWF.Core.Support {
         }
 
         /// <summary>
-        /// Returns a URL with query string, given a type implementing a controller, and an action name.
+        /// Returns a URL with query string, given a type implementing a controller or endpoint, and an action name.
         /// </summary>
-        /// <param name="type">The type of the controller.</param>
-        /// <param name="actionName">The action name implemented by the controller.</param>
+        /// <param name="type">The type of the controller or endpoint.</param>
+        /// <param name="actionName">The action name implemented by the controller or endpoint.</param>
         /// <param name="args">An optional array of arguments that are translated to query string parameters.</param>
         /// <returns>A formatted URL for the current site (without scheme or domain).</returns>
         public static string UrlFor(Type type, string actionName, object? args = null) {
-            if (!type.Name.EndsWith("Controller")) throw new InternalError("Type {0} is not a controller", type.FullName);
-            string controller = type.Name.Substring(0, type.Name.Length - "Controller".Length);
+            string name;
+            string prefix;
+            if (type.Name.EndsWith("Controller")) {
+                name = type.Name.Substring(0, type.Name.Length - "Controller".Length);
+                prefix = "/";
+            } else if (type.Name.EndsWith("Endpoint")) {
+                name = type.Name.Substring(0, type.Name.Length - "Endpoint".Length);
+                prefix = Globals.ApiPrefix;
+            } else if (type.Name.EndsWith("Endpoints")) {
+                name = type.Name.Substring(0, type.Name.Length - "Endpoints".Length);
+                prefix = Globals.ApiPrefix;
+            } else
+                throw new InternalError("Type {0} is not a controller or endpoint", type.FullName);
             Package? package = Package.TryGetPackageFromAssembly(type.Assembly);
             if (package == null)
                 throw new InternalError("Type {0} is not part of a package", type.FullName);
-            string area = package.AreaName;
-            string url = "/" + area + "/" + controller + "/" + actionName;
+            string url = $"{prefix}{package.AreaName}/{name}/{actionName}"; 
             QueryHelper query = QueryHelper.FromAnonymousObject(args);
             return query.ToUrl(url);
         }
+        /// <summary>
+        /// Returns a URL with query string, given a type implementing a controller or endpoint, and an action name.
+        /// </summary>
+        /// <typeparam name="T">The type of the class implementing the controller or endpoint.</typeparam>
+        /// <param name="actionName">The action name implemented by the controller or endpoint.</param>
+        /// <param name="args">An optional array of arguments that are translated to query string parameters.</param>
+        /// <returns>A formatted URL for the current site (without scheme or domain).</returns>
+        public static string UrlFor<T>(string actionName, object? args = null) {
+            return UrlFor(typeof(T), actionName, args);
+        }
+
 
         // YAML
         // YAML

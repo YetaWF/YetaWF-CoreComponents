@@ -8,7 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using YetaWF.Core.Addons;
-using YetaWF.Core.Controllers;
+using YetaWF.Core.Endpoints;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.IO;
 using YetaWF.Core.Packages;
@@ -478,7 +478,7 @@ namespace YetaWF.Core.Pages {
         // RENDER
         // RENDER
 
-        internal async Task<string> RenderAsync(PageContentController.PageContentData? cr = null, List<string>? KnownScripts = null) {
+        internal async Task<string> RenderAsync(PageContentEndpoints.PageContentData? cr = null, List<string>? KnownScripts = null) {
 
             if (cr == null)
                 Manager.Verify_NotPostRequest();
@@ -537,7 +537,7 @@ namespace YetaWF.Core.Pages {
             return tag.ToString();
         }
 
-        private ScriptBuilder RenderScriptsPartA(PageContentController.PageContentData? cr = null) {
+        private ScriptBuilder RenderScriptsPartA(PageContentEndpoints.PageContentData? cr = null) {
 
             ScriptBuilder sb = new ScriptBuilder();
 
@@ -581,7 +581,7 @@ namespace YetaWF.Core.Pages {
             return sb;
         }
 
-        private void GenerateNonVolatileJSVariables(ScriptBuilder sb, PageContentController.PageContentData? cr = null) {
+        private void GenerateNonVolatileJSVariables(ScriptBuilder sb, PageContentEndpoints.PageContentData? cr = null) {
 
             if (_SavedConfigOptionsGroups.Count > 0) {
 
@@ -650,14 +650,14 @@ namespace YetaWF.Core.Pages {
             }
         }
 
-        private bool WantBundle(PageContentController.PageContentData? cr) {
+        private bool WantBundle(PageContentEndpoints.PageContentData? cr) {
             if (cr != null)
                 return false;
             else
                 return Manager.CurrentSite.BundleJSFiles;
         }
 
-        private async Task<HtmlBuilder> RenderScriptsFilesAsync(PageContentController.PageContentData? cr = null, List<string>? KnownScripts = null) {
+        private async Task<HtmlBuilder> RenderScriptsFilesAsync(PageContentEndpoints.PageContentData? cr = null, List<string>? KnownScripts = null) {
             HtmlBuilder hb = new HtmlBuilder();
 
             ScriptBuilder sbStart = new ScriptBuilder();
@@ -696,7 +696,7 @@ namespace YetaWF.Core.Pages {
                     hb.Append($"<script data-name='{Utility.UrlEncodePath(entry.Url)}' src='{Utility.UrlEncodePath(url)}'{async}{defer}{attr}></script>");
                 } else {
                     if (KnownScripts == null || !KnownScripts.Contains(entry.Url)) {
-                        cr.ScriptFiles.Add(new Controllers.PageContentController.UrlEntry {
+                        cr.ScriptFiles.Add(new Endpoints.PageContentEndpoints.UrlEntry {
                             Name = entry.Url,
                             Url = url,
                             Attributes = HtmlBuilder.AnonymousObjectToHtmlAttributes(entry.HtmlAttributes),
@@ -704,7 +704,7 @@ namespace YetaWF.Core.Pages {
                         if (entry.Bundle) {
                             string file = Utility.UrlToPhysical(entry.Url);
                             string contents = await FileSystem.FileSystemProvider.ReadAllTextAsync(file);
-                            cr.ScriptFilesPayload.Add(new PageContentController.Payload {
+                            cr.ScriptFilesPayload.Add(new PageContentEndpoints.Payload {
                                 Name = entry.Url,
                                 Text = contents,
                             });
@@ -739,7 +739,7 @@ namespace YetaWF.Core.Pages {
         public string RenderEndofPageScripts() {
             return RenderEndofPageScripts(null);
         }
-        internal string RenderEndofPageScripts(PageContentController.PageContentData? cr = null) {
+        internal string RenderEndofPageScripts(PageContentEndpoints.PageContentData? cr = null) {
             HtmlBuilder hb = new HtmlBuilder();
 
             ScriptBuilder sbB = RenderScriptsPartB();
