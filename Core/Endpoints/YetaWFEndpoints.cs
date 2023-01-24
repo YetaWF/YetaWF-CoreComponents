@@ -77,8 +77,8 @@ namespace YetaWF.Core.Endpoints {
         /// <param name="PopupText">The optional text of the popup message to be displayed. If not specified, no popup will be shown.</param>
         /// <param name="PopupTitle">The optional title of the popup message to be displayed. If not specified, the default is "Success".</param>
         /// <param name="Reload">The method with which the current page or module is processed, i.e., by reloading the page or module.</param>
-        protected static IResult Reload(string? PopupText = null, string? PopupTitle = null, ReloadEnum Reload = ReloadEnum.Page) {
-            return Results.Json(Reload switch {
+        protected static IResult Reload(ReloadEnum reload = ReloadEnum.Page, string ? PopupText = null, string? PopupTitle = null) {
+            return Results.Json(reload switch {
                 ReloadEnum.Module => Reload_Module(PopupText, PopupTitle),
                 ReloadEnum.ModuleParts => Reload_ModuleParts(PopupText, PopupTitle),
                 _ => Reload_Page(PopupText, PopupTitle),
