@@ -16,6 +16,21 @@ namespace YetaWF.Core.Endpoints {
         protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
         /// <summary>
+        /// Format a partial Url for a package, derived from the package and endpoint class.
+        /// </summary>
+        /// <param name="package">The package.</param>
+        /// <param name="type">The type of the class implementing the endpoint. The class name must end in "Endpoint".</param>
+        /// <returns>A formatted partial Url to access the endpoint.</returns>
+        /// <exception cref="InternalError"></exception>
+        protected static string GetPackageRoute(Package package, Type type) {
+            string className = type.Name;
+            if (!className.EndsWith("Endpoints"))
+                throw new InternalError($"Class {className} is not an endpoint");
+            className = className.Substring(0, className.Length - "Endpoints".Length);
+            return $"{Globals.ApiPrefix}{package.AreaName}/{className}/";
+        }
+
+        /// <summary>
         /// Format a Url for an enpoint, derived from the package, endpoint class and endpoint action.
         /// </summary>
         /// <param name="package">The package.</param>

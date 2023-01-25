@@ -4,13 +4,12 @@ using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using System.Threading.Tasks;
 
 namespace YetaWF.Core.Endpoints.Filters {
 
     public static class AntiForgeryTokenFilterExtension  {
 
-        public static RouteHandlerBuilder AntiForgeryToken(this RouteHandlerBuilder builder) {
+        public static TBuilder AntiForgeryToken<TBuilder>(this TBuilder builder) where TBuilder : IEndpointConventionBuilder {
             builder.AddEndpointFilterFactory((filterFactoryContext, next) => {
                 return async invocationContext => {
                     IAntiforgery antiforgery = filterFactoryContext.ApplicationServices.GetRequiredService<IAntiforgery>();
