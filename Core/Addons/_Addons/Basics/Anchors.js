@@ -190,7 +190,7 @@ var YetaWF;
         };
         Anchors.prototype.postLink = function (url, anchorOwner, cookieToReturn) {
             this.waitForCookie(cookieToReturn);
-            $YetaWF.postJSON(url, "", function (success, data) { }, anchorOwner || undefined);
+            $YetaWF.postJSON($YetaWF.parseUrl(url), null, null, function (success, data) { }, anchorOwner || undefined);
         };
         return Anchors;
     }());

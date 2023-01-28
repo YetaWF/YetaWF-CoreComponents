@@ -317,6 +317,20 @@ var YetaWF;
             };
             return info;
         };
+        // get RequestVerificationToken, UniqueIdCounters and ModuleGuid (usually for ajax requests)
+        Forms.prototype.getJSONInfo = function (tagInForm) {
+            var form = this.getForm(tagInForm);
+            var req = $YetaWF.getElement1BySelector("input[name='".concat(YConfigs.Forms.RequestVerificationToken, "']"), [form]).value;
+            if (!req || req.length === 0)
+                throw "Can't locate " + YConfigs.Forms.RequestVerificationToken; /*DEBUG*/
+            var guid = $YetaWF.getElement1BySelector("input[name='".concat(YConfigs.Basics.ModuleGuid, "']"), [form]).value;
+            if (!guid || guid.length === 0)
+                throw "Can't locate " + YConfigs.Basics.ModuleGuid; /*DEBUG*/
+            var info = {};
+            info[YConfigs.Forms.RequestVerificationToken] = req;
+            info[YConfigs.Basics.ModuleGuid] = guid;
+            return info;
+        };
         // Submit/apply on change/keydown
         Forms.prototype.submitOnChange = function (elem) {
             var _this = this;

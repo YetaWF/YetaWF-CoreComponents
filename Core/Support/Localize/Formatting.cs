@@ -318,7 +318,8 @@ namespace YetaWF.Core.Localize {
             return __ResStr("timeSpanHM", "{0:D2}:{1:D2}", hours, ts.Minutes);
         }
 
-        public static string LongMBDisplay(long value, bool detailed = false) {
+        public static string LongMBDisplay(long? value, bool detailed = false) {
+            if (value is null) return string.Empty;
             if (detailed) {
                 return __ResStr("strFmtMBdet", "{0:##,#} Bytes", value);
             } else {
@@ -334,7 +335,8 @@ namespace YetaWF.Core.Localize {
                 return strValue;
             }
         }
-        public static string LongKBDisplay(long value, bool detailed = false, bool Show0 = true) {
+        public static string LongKBDisplay(long? value, bool detailed = false, bool Show0 = true) {
+            if (value is null) return string.Empty;
             if (detailed) {
                 return __ResStr("strFmtKBdet", "{0:##,0} Bytes", value);
             } else {
@@ -349,10 +351,10 @@ namespace YetaWF.Core.Localize {
                 return string.Empty;
             }
         }
-        public static string FormatFileSize(long value) {
+        public static string FormatFileSize(long? value) {
             return LongKBDisplay(value);
         }
-        public static string FormatFileFolderSize(long value) {
+        public static string FormatFileFolderSize(long? value) {
             return LongKBDisplay(value, Show0: false);
         }
 

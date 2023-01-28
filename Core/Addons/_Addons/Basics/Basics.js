@@ -480,20 +480,51 @@ var YetaWF;
             $YetaWF.handleReadyStateChange(request, callback, tagInModule);
             request.send(data);
         };
+        /** POST JSON data to the specified URL, ignoring any response.
+         * @param url The URL used for the POST request.
+         * @param query The optional query data sent as query string.
+         * @param data The optional data to send as JSON data with the POST request.
+         */
+        BasicsServices.prototype.postJSONIgnore = function (uri, query, data) {
+            var request = this.getPostRequest(uri, query, data);
+            request.send(JSON.stringify(data));
+            this.setLoading(false);
+        };
         /** POST JSON data to the specified URL, expecting a JSON response. Errors are automatically handled. The callback is called once the POST response is available.
          * @param url The URL used for the POST request.
-         * @param data The data to send as form data with the POST request.
+         * @param query The optional query data sent as query string.
+         * @param data The optional data to send as JSON data with the POST request.
          * @param callback The callback to call when the POST response is available. Errors are automatically handled.
+         * @param tagInModule The optional tag in a module to refresh when AjaxJavascriptReloadModuleParts is returned.
          */
-        BasicsServices.prototype.postJSON = function (url, data, callback, tagInModule) {
-            this.setLoading(true);
-            var request = new XMLHttpRequest();
-            request.open("POST", url, true);
-            request.setRequestHeader("Content-Type", "application/json");
-            if (data === null || data === void 0 ? void 0 : data.__RequestVerificationToken)
-                request.setRequestHeader("RequestVerificationToken", data.__RequestVerificationToken);
+        BasicsServices.prototype.postJSON = function (uri, query, data, callback, tagInModule) {
+            var request = this.getPostRequest(uri, query, data);
             $YetaWF.handleReadyStateChange(request, callback, tagInModule);
             request.send(JSON.stringify(data));
+        };
+        BasicsServices.prototype.getPostRequest = function (uri, query, data) {
+            this.setLoading(true);
+            if (query && query[YConfigs.Basics.ModuleGuid]) {
+                uri.addSearch(YConfigs.Basics.ModuleGuid, query[YConfigs.Basics.ModuleGuid]);
+                delete query[YConfigs.Basics.ModuleGuid];
+            }
+            var token = null;
+            if (!token && query && query[YConfigs.Forms.RequestVerificationToken]) {
+                token = query[YConfigs.Forms.RequestVerificationToken];
+                delete query[YConfigs.Forms.RequestVerificationToken];
+            }
+            if (!token && data && data[YConfigs.Forms.RequestVerificationToken]) {
+                token = data[YConfigs.Forms.RequestVerificationToken];
+                delete data[YConfigs.Forms.RequestVerificationToken];
+            }
+            if (query)
+                uri.addSearchSimpleObject(query);
+            var request = new XMLHttpRequest();
+            request.open("POST", uri.toUrl(), true);
+            request.setRequestHeader("Content-Type", "application/json");
+            if (token)
+                request.setRequestHeader("RequestVerificationToken", token);
+            return request;
         };
         BasicsServices.prototype.handleReadyStateChange = function (request, callback, tagInModule) {
             var _this = this;

@@ -183,7 +183,11 @@ namespace YetaWF.Core.WebStartup {
             // antiforgery filter for conditional antiforgery attribute
             builder.Services.AddSingleton<ConditionalAntiForgeryTokenFilter>();
 
-            builder.Services.AddMemoryCache();
+            builder.Services.AddMemoryCache((o) => {
+                o.TrackStatistics = WebConfigHelper.GetValue<bool>("MemoryCache", "TrackStatistics", true, Package: false);
+                o.TrackLinkedCacheEntries = WebConfigHelper.GetValue<bool>("MemoryCache", "TrackLinkedCacheEntries", true, Package: false);
+                o.SizeLimit = WebConfigHelper.GetValue<long>("MemoryCache", "SizeLimit", 20 * 1024 * 1024, Package: false);
+            });
 
             // Memory or distributed caching
             string distProvider = WebConfigHelper.GetValue<string>("SessionState", "Provider", "", Package: false)!.ToLower();
@@ -260,8 +264,11 @@ namespace YetaWF.Core.WebStartup {
 
                 // AreaConvention to simplify Area discovery (using IControllerModelConvention)
                 options.Conventions.Add(new AreaConventionAttribute());
+
             })
-            .AddNewtonsoftJson()
+            .AddNewtonsoftJson((options) => {
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+            })
             .ConfigureApplicationPartManager((partManager) => { YetaWFApplicationPartManager.AddAssemblies(partManager); });
 
             builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options => { // Minimal API serialization

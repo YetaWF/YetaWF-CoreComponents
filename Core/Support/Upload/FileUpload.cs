@@ -1,6 +1,7 @@
 /* Copyright © 2023 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using Microsoft.AspNetCore.Http;
+using SixLabors.ImageSharp;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -211,7 +212,7 @@ namespace YetaWF.Core.Upload {
         // HELPERS
         // HELPERS
 
-        public async Task RemoveTempFileAsync(string tempName) {
+        public async Task RemoveTempFileAsync(string? tempName) {
             string? tempFilePath = await GetTempFilePathFromNameAsync(tempName);
             if (tempFilePath == null) return;
             try {
@@ -266,8 +267,7 @@ namespace YetaWF.Core.Upload {
             if (image == null) return null;
             using (image)
             using (MemoryStream ms = new MemoryStream()) {
-                SixLabors.ImageSharp.Formats.ImageFormatManager imageFormatManager = new SixLabors.ImageSharp.Formats.ImageFormatManager();
-                imageFormatManager.AddImageFormat(format!);
+                SixLabors.ImageSharp.Formats.ImageFormatManager imageFormatManager = Configuration.Default.ImageFormatsManager;
                 await image.SaveAsync(ms, imageFormatManager.FindEncoder(format!));
                 bytes = ms.GetBuffer();
             }

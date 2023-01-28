@@ -1,5 +1,6 @@
 ﻿/* Copyright © 2023 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using SixLabors.ImageSharp;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -262,8 +263,7 @@ namespace YetaWF.Core.DataProvider {
 #else
                     (SixLabors.ImageSharp.Image img, SixLabors.ImageSharp.Formats.IImageFormat format) = await SixLabors.ImageSharp.Image.LoadWithFormatAsync(ms);
                     using (img) {
-                        SixLabors.ImageSharp.Formats.ImageFormatManager imageFormatManager = new SixLabors.ImageSharp.Formats.ImageFormatManager();
-                        imageFormatManager.AddImageFormat(format!);
+                        SixLabors.ImageSharp.Formats.ImageFormatManager imageFormatManager = Configuration.Default.ImageFormatsManager;
                         await img.SaveAsync(ms, imageFormatManager.FindEncoder(format));
                     }
                     await FileSystem.FileSystemProvider.WriteAllBytesAsync(file, ms.GetBuffer());

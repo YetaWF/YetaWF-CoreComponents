@@ -195,7 +195,7 @@ namespace YetaWF {
 
     //$$$ MOVE
     export interface PartialViewData {
-        __UniqueIdInfo: YetaWF.UniqueIdInfo,
+        __UniqueIdCounters: YetaWF.UniqueIdInfo,
         __ModuleGuid: string|null; // The module for which the partial view is rendered
         __RequestVerificationToken: string;
     }

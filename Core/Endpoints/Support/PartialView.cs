@@ -14,7 +14,7 @@ namespace YetaWF.Core.Endpoints {
     public class PartialView {
 
         public class PartialViewData {
-            public YetaWFManager.UniqueIdInfo __UniqueIdInfo { get; set; } = null!;
+            public YetaWFManager.UniqueIdInfo __UniqueIdCounters { get; set; } = null!;
             public Guid __ModuleGuid { get; set; } // The module for which the partial view is rendered
             public string __RequestVerificationToken { get; set; } = null!;
         }
@@ -36,7 +36,7 @@ namespace YetaWF.Core.Endpoints {
         /// <returns>Returns the HTML for the requested partial view.</returns>
         public static async Task<IResult> RenderPartialView(HttpContext context, string viewName, ModuleDefinition? module, PartialViewData pvData, object? model, string contentType) {
 
-            Manager.UniqueIdCounters = pvData.__UniqueIdInfo;
+            Manager.UniqueIdCounters = pvData.__UniqueIdCounters;
             Manager.NextUniqueIdPrefix();// get the next unique id prefix (so we don't have any conflicts when replacing modules)
 
             ModuleDefinition? oldMod = Manager.CurrentModule;

@@ -46,14 +46,18 @@ namespace YetaWF.Core.Endpoints {
             }
         }
 
+        public class GridAdditionPartialViewData<TYPE> : PartialView.PartialViewData {
+            public List<TYPE> GridData { get; set; } = null!;
+        }
+
         /// <summary>
         /// Returns rendered grid contents.
         /// </summary>
         /// <returns>Returns rendered grid contents.</returns>
-        public static async Task<IResult> GetGridPartialAsync(HttpContext context, ModuleDefinition? module, GridDefinition gridModel, GridPartialViewData gridPVData) {
-            gridPVData.UpdateSearchLogic();
-            DataSourceResult ds = await gridModel.DirectDataAsync(gridPVData.Skip, gridPVData.Take, gridPVData.Sorts?.ToList(), gridPVData.Filters?.ToList());// copy sort/filter in case changes are made (we save this later)
-            return await GetGridPartialAsync(context, module, gridModel, ds, gridPVData);
+        public static async Task<IResult> GetGridPartialAsync(HttpContext context, ModuleDefinition? module, GridDefinition gridModel, GridPartialViewData gridPvData) {
+            gridPvData.UpdateSearchLogic();
+            DataSourceResult ds = await gridModel.DirectDataAsync(gridPvData.Skip, gridPvData.Take, gridPvData.Sorts?.ToList(), gridPvData.Filters?.ToList());// copy sort/filter in case changes are made (we save this later)
+            return await GetGridPartialAsync(context, module, gridModel, ds, gridPvData);
         }
 
         /// <summary>
@@ -61,27 +65,27 @@ namespace YetaWF.Core.Endpoints {
         /// </summary>
         /// <returns>Returns rendered grid contents.</returns>
         /// <remarks>Used for static grids.</remarks>
-        public static async Task<IResult> GetGridPartialAsync<TYPE>(HttpContext context, ModuleDefinition? module, GridDefinition gridModel, GridPartialViewData gridPVData) {
-            List<TYPE> list = Utility.JsonDeserialize<List<TYPE>>(gridPVData.Data);
+        public static async Task<IResult> GetGridPartialAsync<TYPE>(HttpContext context, ModuleDefinition? module, GridDefinition gridModel, GridPartialViewData gridPvData) {
+            List<TYPE> list = Utility.JsonDeserialize<List<TYPE>>(gridPvData.Data);
             List<object> objList = (from l in list select (object)l).ToList();
-            gridPVData.UpdateSearchLogic();
-            DataSourceResult ds = gridModel.SortFilterStaticData!(objList, 0, int.MaxValue, gridPVData.Sorts?.ToList(), gridPVData.Filters?.ToList());// copy sort/filter in case changes are made (we save this later)
-            return await GetGridPartialAsync(context, module, gridModel, ds, gridPVData, objList);
+            gridPvData.UpdateSearchLogic();
+            DataSourceResult ds = gridModel.SortFilterStaticData!(objList, 0, int.MaxValue, gridPvData.Sorts?.ToList(), gridPvData.Filters?.ToList());// copy sort/filter in case changes are made (we save this later)
+            return await GetGridPartialAsync(context, module, gridModel, ds, gridPvData, objList);
         }
 
-        private static async Task<IResult> GetGridPartialAsync(HttpContext context, ModuleDefinition? module, GridDefinition gridModel, DataSourceResult data, GridPartialViewData gridPVData, List<object>? objList = null) {
+        private static async Task<IResult> GetGridPartialAsync(HttpContext context, ModuleDefinition? module, GridDefinition gridModel, DataSourceResult data, GridPartialViewData gridPvData, List<object>? objList = null) {
             GridPartialData gridPartialModel = new GridPartialData() {
                 Data = data,
                 StaticData = objList,
-                Skip = gridPVData.Skip,
-                Take = gridPVData.Take,
-                Sorts = gridPVData.Sorts,
-                Filters = gridPVData.Filters,
-                Search = gridPVData.Search,
-                FieldPrefix = gridPVData.FieldPrefix,
+                Skip = gridPvData.Skip,
+                Take = gridPvData.Take,
+                Sorts = gridPvData.Sorts,
+                Filters = gridPvData.Filters,
+                Search = gridPvData.Search,
+                FieldPrefix = gridPvData.FieldPrefix,
                 GridDef = gridModel,
             };
-            return await PartialView.RenderPartialView(context, "GridPartialDataView", module, gridPVData, gridPartialModel, "application/json");
+            return await PartialView.RenderPartialView(context, "GridPartialDataView", module, gridPvData, gridPartialModel, "application/json");
         }
 
         /// <summary>

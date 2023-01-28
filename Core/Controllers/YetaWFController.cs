@@ -270,10 +270,10 @@ namespace YetaWF.Core.Controllers {
         /// </summary>
         /// <remarks>Used for Ajax grids.</remarks>
         /// <returns>Returns an action result that renders a grid as a partial view.</returns>
-        protected async Task<PartialViewResult> GridPartialViewAsync(GridDefinition gridModel, GridPartialViewData gridPVData) {
-            gridPVData.UpdateSearchLogic();
-            DataSourceResult ds = await gridModel.DirectDataAsync(gridPVData.Skip, gridPVData.Take, gridPVData.Sorts?.ToList(), gridPVData.Filters?.ToList());// copy sort/filter in case changes are made (we save this later)
-            return await GridPartialViewAsync(gridModel, ds, null, gridPVData.FieldPrefix, gridPVData.Skip, gridPVData.Take, gridPVData.Sorts, gridPVData.Filters, gridPVData.Search);
+        protected async Task<PartialViewResult> GridPartialViewAsync(GridDefinition gridModel, GridPartialViewData gridPvData) {
+            gridPvData.UpdateSearchLogic();
+            DataSourceResult ds = await gridModel.DirectDataAsync(gridPvData.Skip, gridPvData.Take, gridPvData.Sorts?.ToList(), gridPvData.Filters?.ToList());// copy sort/filter in case changes are made (we save this later)
+            return await GridPartialViewAsync(gridModel, ds, null, gridPvData.FieldPrefix, gridPvData.Skip, gridPvData.Take, gridPvData.Sorts, gridPvData.Filters, gridPvData.Search);
         }
 
         /// <summary>
@@ -281,12 +281,12 @@ namespace YetaWF.Core.Controllers {
         /// </summary>
         /// <remarks>Used for static grids.</remarks>
         /// <returns>Returns an action result that renders a grid as a partial view.</returns>
-        protected async Task<PartialViewResult> GridPartialViewAsync<TYPE>(GridDefinition gridModel, GridPartialViewData gridPVData) {
-            List<TYPE> list = Utility.JsonDeserialize<List<TYPE>>(gridPVData.Data);
+        protected async Task<PartialViewResult> GridPartialViewAsync<TYPE>(GridDefinition gridModel, GridPartialViewData gridPvData) {
+            List<TYPE> list = Utility.JsonDeserialize<List<TYPE>>(gridPvData.Data);
             List<object> objList = (from l in list select (object)l).ToList();
-            gridPVData.UpdateSearchLogic();
-            DataSourceResult ds = gridModel.SortFilterStaticData!(objList, 0, int.MaxValue, gridPVData.Sorts?.ToList(), gridPVData.Filters?.ToList());// copy sort/filter in case changes are made (we save this later)
-            return await GridPartialViewAsync(gridModel, ds, objList, gridPVData.FieldPrefix, gridPVData.Skip, gridPVData.Take, gridPVData.Sorts, gridPVData.Filters, gridPVData.Search);
+            gridPvData.UpdateSearchLogic();
+            DataSourceResult ds = gridModel.SortFilterStaticData!(objList, 0, int.MaxValue, gridPvData.Sorts?.ToList(), gridPvData.Filters?.ToList());// copy sort/filter in case changes are made (we save this later)
+            return await GridPartialViewAsync(gridModel, ds, objList, gridPvData.FieldPrefix, gridPvData.Skip, gridPvData.Take, gridPvData.Sorts, gridPvData.Filters, gridPvData.Search);
         }
 
         /// <summary>

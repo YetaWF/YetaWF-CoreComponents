@@ -32,13 +32,6 @@ namespace YetaWF.Core.Endpoints {
             });
         }
 
-        internal class PageContentResult : YJsonResult {
-            public PageContentResult() {
-                Result = new PageContentData();
-                Data = Result;
-            }
-            public PageContentData Result { get; set; }
-        }
         internal class PageContentData {
             public PageContentData() {
                 Content = new List<PaneContent>();
@@ -229,11 +222,11 @@ namespace YetaWF.Core.Endpoints {
                     Manager.UserHostAddress != site.GetLockedForIP() && Manager.UserHostAddress != "127.0.0.1" &&
                     string.Compare(uri.AbsolutePath, site.LockedUrl, true) != 0) {
                 Logging.AddLog("302 Found - {0}", site.LockedUrl).Truncate(100);
-                PageContentResult cr = new PageContentResult();
+                PageContentData cr = new PageContentData();
                 if (site.LockedUrl.StartsWith("/"))
-                    cr.Result.RedirectContent = site.LockedUrl;
+                    cr.RedirectContent = site.LockedUrl;
                 else
-                    cr.Result.Redirect = site.LockedUrl;
+                    cr.Redirect = site.LockedUrl;
                 return Results.Ok(cr);
             }
 
@@ -243,11 +236,11 @@ namespace YetaWF.Core.Endpoints {
                 // If the cache version doesn't match, client is using an "old" site which was restarted, so we need to redirect to reload the entire page
                 // !yLang= is only used in <link rel='alternate' href='{0}' hreflang='{1}' /> to indicate multi-language support for pages, so we just redirect to that page
                 // we need the entire page, content is not sufficient
-                PageContentResult cr = new PageContentResult();
+                PageContentData cr = new PageContentData();
                 if (dataIn.CacheFailUrl != null)
-                    cr.Result.Redirect = dataIn.CacheFailUrl;
+                    cr.Redirect = dataIn.CacheFailUrl;
                 else
-                    cr.Result.Redirect = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
+                    cr.Redirect = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
                 return Results.Ok(cr);
             }
 
@@ -258,8 +251,8 @@ namespace YetaWF.Core.Endpoints {
             // It seems if we can handle a page as a content replacement, that's better than a static page, which reruns all javascript
             // If it turns out it's not a content page, we'll redirect to the static page
             //if (CanProcessAsStaticPage(dataIn.Path)) { // if this is a static page, render as complete static page
-            //    PageContentResult cr = new PageContentResult();
-            //    cr.Result.Redirect = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
+            //    PageContentData cr = new PageContentData();
+            //    cr.Redirect = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
             //    return cr;
             //}
 
@@ -273,8 +266,8 @@ namespace YetaWF.Core.Endpoints {
                 if (url.StartsWith(Globals.ModuleUrl, StringComparison.InvariantCultureIgnoreCase)) {
                     PageDefinition.GetUrlFromUrlWithSegments(url, uri.Segments, 3, uri.Query, out newUrl, out newQs);
                     if (newUrl != url) {
-                        PageContentResult cr = new PageContentResult();
-                        cr.Result.RedirectContent = QueryHelper.ToUrl(newUrl, newQs);
+                        PageContentData cr = new PageContentData();
+                        cr.RedirectContent = QueryHelper.ToUrl(newUrl, newQs);
                         return Results.Ok(cr);
                     }
                     ModuleDefinition? module = await ModuleDefinition.FindDesignedModuleAsync(dataIn.Path);
@@ -284,8 +277,8 @@ namespace YetaWF.Core.Endpoints {
                 } else if (url.StartsWith(Globals.PageUrl, StringComparison.InvariantCultureIgnoreCase)) {
                     PageDefinition.GetUrlFromUrlWithSegments(url, uri.Segments, 3, uri.Query, out newUrl, out newQs);
                     if (newUrl != url) {
-                        PageContentResult cr = new PageContentResult();
-                        cr.Result.RedirectContent = QueryHelper.ToUrl(newUrl, newQs);
+                        PageContentData cr = new PageContentData();
+                        cr.RedirectContent = QueryHelper.ToUrl(newUrl, newQs);
                         return Results.Ok(cr);
                     }
                     pageFound = await PageDefinition.LoadFromUrlAsync(url);
@@ -295,15 +288,15 @@ namespace YetaWF.Core.Endpoints {
                     if (page != null) {
                         // we have a page, check if the URL was rewritten because it had human readable arguments
                         if (pageInfo.NewUrl != url) {
-                            PageContentResult cr = new PageContentResult();
-                            cr.Result.RedirectContent = QueryHelper.ToUrl(pageInfo.NewUrl, pageInfo.NewQS);
+                            PageContentData cr = new PageContentData();
+                            cr.RedirectContent = QueryHelper.ToUrl(pageInfo.NewUrl, pageInfo.NewQS);
                             return Results.Ok(cr);
                         }
                         pageFound = page;
                     } else {
                         // direct urls don't participate in unified page sets
-                        PageContentResult cr = new PageContentResult();
-                        cr.Result.Redirect = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
+                        PageContentData cr = new PageContentData();
+                        cr.Redirect = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
                         return Results.Ok(cr);
                     }
                 }
@@ -319,12 +312,12 @@ namespace YetaWF.Core.Endpoints {
                     Manager.Need2FARedirect = false;
                     Manager.OriginList.Add(new Origin() { Url = uri.ToString() });// where to go after setup
                     Manager.OriginList.Add(new Origin() { Url = action2FA.GetCompleteUrl() }); // setup
-                    PageContentResult cr = new PageContentResult();
+                    PageContentData cr = new PageContentData();
                     string returnUrl = Manager.ReturnToUrl;
                     if (returnUrl.StartsWith("/"))
-                        cr.Result.RedirectContent = returnUrl;
+                        cr.RedirectContent = returnUrl;
                     else
-                        cr.Result.Redirect = returnUrl;
+                        cr.Redirect = returnUrl;
                     return Results.Ok(cr);
                 }
                 // this shouldn't be necessary because the first page shown in the unified page set would have generated this
@@ -337,7 +330,7 @@ namespace YetaWF.Core.Endpoints {
 
             // Process the page
             if (pageFound != null) {
-                PageContentResult cr = new PageContentResult();
+                PageContentData cr = new PageContentData();
                 switch (await CanProcessAsDesignedPageAsync(pageFound, dataIn, cr)) {
                     case ProcessingStatus.Complete:
                         return Results.Ok(cr);
@@ -349,8 +342,8 @@ namespace YetaWF.Core.Endpoints {
                 }
             }
             if (moduleFound != null) {
-                PageContentResult cr = new PageContentResult();
-                switch (CanProcessAsModule(moduleFound, dataIn, cr)) {
+                PageContentData cr = new PageContentData();
+                switch (CanProcessAsModule(moduleFound)) {
                     case ProcessingStatus.Complete:
                         return Results.Ok(cr);
                     case ProcessingStatus.Page:
@@ -362,8 +355,8 @@ namespace YetaWF.Core.Endpoints {
             }
             // if we got here, we shouldn't be here - we're requesting a page outside of unified page set
             {
-                PageContentResult cr = new PageContentResult();
-                cr.Result.Redirect = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
+                PageContentData cr = new PageContentData();
+                cr.Redirect = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
                 return Results.Ok(cr);
             }
         }
@@ -380,7 +373,7 @@ namespace YetaWF.Core.Endpoints {
         //    }
         //    return false;
         //}
-        private static async Task<ProcessingStatus> CanProcessAsDesignedPageAsync(PageDefinition page, DataIn dataIn, PageContentResult cr) {
+        private static async Task<ProcessingStatus> CanProcessAsDesignedPageAsync(PageDefinition page, DataIn dataIn, PageContentData cr) {
             // request for a designed page
             if (!string.IsNullOrWhiteSpace(page.RedirectToPageUrl)) {
                 if (page.RedirectToPageUrl.StartsWith("/") && page.RedirectToPageUrl.IndexOf('?') < 0) {
@@ -389,7 +382,7 @@ namespace YetaWF.Core.Endpoints {
                         if (string.IsNullOrWhiteSpace(redirectPage.RedirectToPageUrl)) {
                             string redirUrl = Manager.CurrentSite.MakeUrl(QueryHelper.ToUrl(page.RedirectToPageUrl, dataIn.QueryString));
                             Logging.AddLog("302 Found - Redirect to {0}", redirUrl).Truncate(100);
-                            cr.Result.RedirectContent = redirUrl;
+                            cr.RedirectContent = redirUrl;
                             return ProcessingStatus.Complete;
                         } else
                             throw new InternalError("Page {0} redirects to page {1}, which redirects to page {2}", page.Url, page.RedirectToPageUrl, redirectPage.RedirectToPageUrl);
@@ -398,9 +391,9 @@ namespace YetaWF.Core.Endpoints {
                     // redirect elsewhere
                     Logging.AddLog("302 Found - Redirect to {0}", page.RedirectToPageUrl).Truncate(100);
                     if (page.RedirectToPageUrl.StartsWith("/"))
-                        cr.Result.RedirectContent = page.RedirectToPageUrl;
+                        cr.RedirectContent = page.RedirectToPageUrl;
                     else
-                        cr.Result.Redirect = page.RedirectToPageUrl;
+                        cr.Redirect = page.RedirectToPageUrl;
                     return ProcessingStatus.Complete;
                 }
             }
@@ -413,7 +406,7 @@ namespace YetaWF.Core.Endpoints {
                             string redirUrl = page.MobilePageUrl;
                             Logging.AddLog("302 Found - {0}", redirUrl).Truncate(100);
                             redirUrl = QueryHelper.ToUrl(redirUrl, dataIn.QueryString);
-                            cr.Result.RedirectContent = redirUrl;
+                            cr.RedirectContent = redirUrl;
                             return ProcessingStatus.Complete;
                         }
 #if DEBUG
@@ -440,17 +433,17 @@ namespace YetaWF.Core.Endpoints {
                     string retUrl = Manager.ReturnToUrl;
                     Logging.AddLog("Redirect - {0}", retUrl);
                     if (retUrl.StartsWith("/"))
-                        cr.Result.RedirectContent = retUrl;
+                        cr.RedirectContent = retUrl;
                     else
-                        cr.Result.Redirect = retUrl;
+                        cr.Redirect = retUrl;
                     return ProcessingStatus.Complete;
                 } else {
-                    cr.Result.Status = Logging.AddErrorLog("403 Not Authorized");
+                    cr.Status = Logging.AddErrorLog("403 Not Authorized");
                     return ProcessingStatus.Complete;
                 }
             }
         }
-        private static ProcessingStatus CanProcessAsModule(ModuleDefinition module, DataIn dataIn, PageContentResult cr) {
+        private static ProcessingStatus CanProcessAsModule(ModuleDefinition module) {
             // direct request for a module without page
             if ((Manager.HaveUser || Manager.CurrentSite.AllowAnonymousUsers) && module.IsAuthorized(ModuleDefinition.RoleDefinition.View)) {
                 PageDefinition page = PageDefinition.Create();
