@@ -456,10 +456,24 @@ namespace YetaWF {
             };
             return info;
         }
-        // get RequestVerificationToken, UniqueIdCounters and ModuleGuid (usually for ajax requests)
+        // get RequestVerificationToken and ModuleGuid (usually for ajax requests)
         public getJSONInfo(tagInForm: HTMLElement) : any {
-            let form = this.getForm(tagInForm);
-            let req = ($YetaWF.getElement1BySelector(`input[name='${YConfigs.Forms.RequestVerificationToken}']`, [form]) as HTMLInputElement).value;
+            let req: string|null = null;
+            let form: HTMLFormElement|null = null;
+            if (!form) {
+                // get token from form containing the tag
+                form = this.getFormCond(tagInForm);
+            }
+            if (!form) {
+                // get token from module, then form containing the tag
+                let mod = YetaWF.ModuleBase.getModuleDivFromTagCond(tagInForm);
+                if (mod)
+                    form = this.getInnerFormCond(mod);
+            }
+            if (!form) throw "Can't locate form";
+            const reqVerElem = $YetaWF.getElement1BySelectorCond(`input[name='${YConfigs.Forms.RequestVerificationToken}']`, [form]) as HTMLInputElement|null;            
+            if (reqVerElem)
+                req = reqVerElem.value;
             if (!req || req.length === 0) throw "Can't locate " + YConfigs.Forms.RequestVerificationToken;/*DEBUG*/
             let guid = ($YetaWF.getElement1BySelector(`input[name='${YConfigs.Basics.ModuleGuid}']`, [form]) as HTMLInputElement).value;
             if (!guid || guid.length === 0) throw "Can't locate " + YConfigs.Basics.ModuleGuid;/*DEBUG*/

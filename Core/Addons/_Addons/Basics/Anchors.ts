@@ -133,7 +133,7 @@ namespace YetaWF {
                     if (confirm) {
                         let anchorOwner = $YetaWF.getOwnerFromTag(anchor) || anchor;
                         $YetaWF.alertYesNo(confirm, undefined, (): void => {
-                            this.postLink(url, anchorOwner, cookieToReturn);
+                            this.postLink(url, anchorOwner, anchor, cookieToReturn);
                             let s = anchor.getAttribute(YConfigs.Basics.CssPleaseWait);
                             if (s)
                                 $YetaWF.pleaseWait(s);
@@ -144,7 +144,7 @@ namespace YetaWF {
                         if (s)
                             $YetaWF.pleaseWait(s);
                         let anchorOwner = $YetaWF.getOwnerFromTag(anchor) || anchor;
-                        this.postLink(url, anchorOwner, cookieToReturn);
+                        this.postLink(url, anchorOwner, anchor, cookieToReturn);
                         return false;
                     }
                 }
@@ -201,9 +201,9 @@ namespace YetaWF {
                 new CookieWait(cookieToReturn);
             }
         }
-        private postLink(url: string, anchorOwner: HTMLElement | null, cookieToReturn: number | null) : void {
+        private postLink(url: string, anchorOwner: HTMLElement | null, tag: HTMLElement, cookieToReturn: number | null) : void {
             this.waitForCookie(cookieToReturn);
-            $YetaWF.postJSON($YetaWF.parseUrl(url), null, null, (success: boolean, data: any) : void => { }, anchorOwner || undefined);
+            $YetaWF.postJSON($YetaWF.parseUrl(url), $YetaWF.Forms.getJSONInfo(tag), null, (success: boolean, data: any) : void => { }, anchorOwner || undefined);
         }
     }
 

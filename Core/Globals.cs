@@ -58,7 +58,7 @@ namespace YetaWF.Core {
         public const string DefaultCountry = "United States";
 
         // Url parts
-        public const string ApiPrefix = "/!api/";// api prefix (built-in api)
+        public const string ApiPrefix = "/!api";// api prefix (built-in api)
         public const string PageUrl = "/!Page/";
         public const string ModuleUrl = "/!Mod/";
         public const string Link_OriginList = "!OriginList"; // chain of urls

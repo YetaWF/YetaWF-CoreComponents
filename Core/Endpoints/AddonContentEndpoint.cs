@@ -17,10 +17,10 @@ namespace YetaWF.Core.Endpoints {
     /// Endpoint for all page requests within YetaWF that only need addons rendered (used client-side to bootstrap additional missing addons, i.e., progressively populating JavaScript/CSS).
     /// </summary>
     /// <remarks>There is currently no use case so this is untested. This used to be used with components that require jQuery, which no longer exist.</remarks>
-    public class AddonContentEndpoint : YetaWFEndpoints {
+    public class AddonContentEndpoints : YetaWFEndpoints {
 
         public static void RegisterEndpoints(IEndpointRouteBuilder endpoints, Package package, string areaName) {
-            endpoints.MapPost(GetEndpoint(package, typeof(AddonContentEndpoint), nameof(Show)), async (HttpContext context, [FromBody] DataIn dataIn) => {
+            endpoints.MapPost(GetPackageApiEndpoint(package, typeof(AddonContentEndpoints), nameof(Show)), async (HttpContext context, [FromBody] DataIn dataIn) => {
                 return await Show(context, dataIn);
             });
         }
@@ -71,7 +71,7 @@ namespace YetaWF.Core.Endpoints {
                 if (context == null)
                     throw new ArgumentNullException(nameof(context));
 
-                foreach (AddonContentEndpoint.AddonDescription addon in dataIn.Addons) {
+                foreach (AddonContentEndpoints.AddonDescription addon in dataIn.Addons) {
                     await Manager.AddOnManager.AddAddOnNamedAsync(addon.AreaName, addon.ShortName, addon.Argument1);
                 }
 

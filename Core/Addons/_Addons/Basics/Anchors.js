@@ -117,7 +117,7 @@ var YetaWF;
                     if (confirm_2) {
                         var anchorOwner_1 = $YetaWF.getOwnerFromTag(anchor) || anchor;
                         $YetaWF.alertYesNo(confirm_2, undefined, function () {
-                            _this.postLink(url, anchorOwner_1, cookieToReturn);
+                            _this.postLink(url, anchorOwner_1, anchor, cookieToReturn);
                             var s = anchor.getAttribute(YConfigs.Basics.CssPleaseWait);
                             if (s)
                                 $YetaWF.pleaseWait(s);
@@ -129,7 +129,7 @@ var YetaWF;
                         if (s)
                             $YetaWF.pleaseWait(s);
                         var anchorOwner = $YetaWF.getOwnerFromTag(anchor) || anchor;
-                        _this.postLink(url, anchorOwner, cookieToReturn);
+                        _this.postLink(url, anchorOwner, anchor, cookieToReturn);
                         return false;
                     }
                 }
@@ -188,9 +188,9 @@ var YetaWF;
                 new CookieWait(cookieToReturn);
             }
         };
-        Anchors.prototype.postLink = function (url, anchorOwner, cookieToReturn) {
+        Anchors.prototype.postLink = function (url, anchorOwner, tag, cookieToReturn) {
             this.waitForCookie(cookieToReturn);
-            $YetaWF.postJSON($YetaWF.parseUrl(url), null, null, function (success, data) { }, anchorOwner || undefined);
+            $YetaWF.postJSON($YetaWF.parseUrl(url), $YetaWF.Forms.getJSONInfo(tag), null, function (success, data) { }, anchorOwner || undefined);
         };
         return Anchors;
     }());

@@ -255,7 +255,7 @@ namespace YetaWF.Core.Controllers {
                         }
                         pageFound = page;
                     } else {
-                        // we have a direct url, make sure it's exactly 3 segments otherwise rewrite the remaining args as non-human readable qs args
+                        // we have a direct url, make sure it's exactly 4 segments otherwise rewrite the remaining args as non-human readable qs args
                         // don't rewrite css/scss/less file path - we handle that in a http handler
                         PageDefinition.GetUrlFromUrlWithSegments(url, uri.Segments, 4, uri.Query, out newUrl, out newQs);
                         if (newUrl != url) {

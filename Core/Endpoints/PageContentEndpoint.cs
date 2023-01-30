@@ -27,7 +27,7 @@ namespace YetaWF.Core.Endpoints {
     public class PageContentEndpoints : YetaWFEndpoints {
 
         public static void RegisterEndpoints(IEndpointRouteBuilder endpoints, Package package, string areaName) {
-            endpoints.MapPost(GetEndpoint(package, typeof(PageContentEndpoints), nameof(Show)), async (HttpContext context, [FromBody] DataIn dataIn) => {
+            endpoints.MapPost(GetPackageApiEndpoint(package, typeof(PageContentEndpoints), nameof(Show)), async (HttpContext context, [FromBody] DataIn dataIn) => {
                 return await Show(context, dataIn);
             });
         }
@@ -264,7 +264,7 @@ namespace YetaWF.Core.Endpoints {
                 string url = dataIn.Path;
                 string? newUrl, newQs;
                 if (url.StartsWith(Globals.ModuleUrl, StringComparison.InvariantCultureIgnoreCase)) {
-                    PageDefinition.GetUrlFromUrlWithSegments(url, uri.Segments, 3, uri.Query, out newUrl, out newQs);
+                    PageDefinition.GetUrlFromUrlWithSegments(url, uri.Segments, 5, uri.Query, out newUrl, out newQs);
                     if (newUrl != url) {
                         PageContentData cr = new PageContentData();
                         cr.RedirectContent = QueryHelper.ToUrl(newUrl, newQs);
@@ -275,7 +275,7 @@ namespace YetaWF.Core.Endpoints {
                         module = await ModuleDefinition.LoadByUrlAsync(dataIn.Path);
                     moduleFound = module;
                 } else if (url.StartsWith(Globals.PageUrl, StringComparison.InvariantCultureIgnoreCase)) {
-                    PageDefinition.GetUrlFromUrlWithSegments(url, uri.Segments, 3, uri.Query, out newUrl, out newQs);
+                    PageDefinition.GetUrlFromUrlWithSegments(url, uri.Segments, 5, uri.Query, out newUrl, out newQs);
                     if (newUrl != url) {
                         PageContentData cr = new PageContentData();
                         cr.RedirectContent = QueryHelper.ToUrl(newUrl, newQs);

@@ -426,9 +426,6 @@ namespace YetaWF.Core.Support {
             if (type.Name.EndsWith("Controller")) {
                 name = type.Name.Substring(0, type.Name.Length - "Controller".Length);
                 prefix = "/";
-            } else if (type.Name.EndsWith("Endpoint")) {
-                name = type.Name.Substring(0, type.Name.Length - "Endpoint".Length);
-                prefix = Globals.ApiPrefix;
             } else if (type.Name.EndsWith("Endpoints")) {
                 name = type.Name.Substring(0, type.Name.Length - "Endpoints".Length);
                 prefix = Globals.ApiPrefix;
@@ -437,7 +434,7 @@ namespace YetaWF.Core.Support {
             Package? package = Package.TryGetPackageFromAssembly(type.Assembly);
             if (package == null)
                 throw new InternalError("Type {0} is not part of a package", type.FullName);
-            string url = $"{prefix}{package.AreaName}/{name}/{actionName}"; 
+            string url = $"{prefix}/{package.AreaName}/{name}/{actionName}"; 
             QueryHelper query = QueryHelper.FromAnonymousObject(args);
             return query.ToUrl(url);
         }

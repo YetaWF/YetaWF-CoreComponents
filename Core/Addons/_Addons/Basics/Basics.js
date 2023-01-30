@@ -505,7 +505,8 @@ var YetaWF;
         BasicsServices.prototype.getPostRequest = function (uri, query, data) {
             this.setLoading(true);
             if (query && query[YConfigs.Basics.ModuleGuid]) {
-                uri.addSearch(YConfigs.Basics.ModuleGuid, query[YConfigs.Basics.ModuleGuid]);
+                if (!uri.hasSearch(YConfigs.Basics.ModuleGuid))
+                    uri.addSearch(YConfigs.Basics.ModuleGuid, query[YConfigs.Basics.ModuleGuid]);
                 delete query[YConfigs.Basics.ModuleGuid];
             }
             var token = null;

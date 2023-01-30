@@ -317,10 +317,25 @@ var YetaWF;
             };
             return info;
         };
-        // get RequestVerificationToken, UniqueIdCounters and ModuleGuid (usually for ajax requests)
+        // get RequestVerificationToken and ModuleGuid (usually for ajax requests)
         Forms.prototype.getJSONInfo = function (tagInForm) {
-            var form = this.getForm(tagInForm);
-            var req = $YetaWF.getElement1BySelector("input[name='".concat(YConfigs.Forms.RequestVerificationToken, "']"), [form]).value;
+            var req = null;
+            var form = null;
+            if (!form) {
+                // get token from form containing the tag
+                form = this.getFormCond(tagInForm);
+            }
+            if (!form) {
+                // get token from module, then form containing the tag
+                var mod = YetaWF.ModuleBase.getModuleDivFromTagCond(tagInForm);
+                if (mod)
+                    form = this.getInnerFormCond(mod);
+            }
+            if (!form)
+                throw "Can't locate form";
+            var reqVerElem = $YetaWF.getElement1BySelectorCond("input[name='".concat(YConfigs.Forms.RequestVerificationToken, "']"), [form]);
+            if (reqVerElem)
+                req = reqVerElem.value;
             if (!req || req.length === 0)
                 throw "Can't locate " + YConfigs.Forms.RequestVerificationToken; /*DEBUG*/
             var guid = $YetaWF.getElement1BySelector("input[name='".concat(YConfigs.Basics.ModuleGuid, "']"), [form]).value;

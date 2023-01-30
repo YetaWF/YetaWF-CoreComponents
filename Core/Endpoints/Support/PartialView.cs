@@ -16,7 +16,6 @@ namespace YetaWF.Core.Endpoints {
         public class PartialViewData {
             public YetaWFManager.UniqueIdInfo __UniqueIdCounters { get; set; } = null!;
             public Guid __ModuleGuid { get; set; } // The module for which the partial view is rendered
-            public string __RequestVerificationToken { get; set; } = null!;
         }
 
         /// <summary>
