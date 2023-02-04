@@ -425,7 +425,7 @@ namespace YetaWF.Core.Support {
             string prefix;
             if (type.Name.EndsWith("Controller")) {
                 name = type.Name.Substring(0, type.Name.Length - "Controller".Length);
-                prefix = "/";
+                prefix = string.Empty;
             } else if (type.Name.EndsWith("Endpoints")) {
                 name = type.Name.Substring(0, type.Name.Length - "Endpoints".Length);
                 prefix = Globals.ApiPrefix;

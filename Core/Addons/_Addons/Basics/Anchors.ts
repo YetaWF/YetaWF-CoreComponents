@@ -34,16 +34,8 @@ namespace YetaWF {
                         if (!urlTrack) throw "data-track not defined";/*DEBUG*/
 
                         let uri = $YetaWF.parseUrl(urlTrack);
-                        let data = { "url": url };
-                        uri.addSearchSimpleObject(data);
                         uri.addFormInfo(f);
-
-                        let request: XMLHttpRequest = new XMLHttpRequest();
-                        request.open("POST", urlTrack, true);
-                        request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-                        request.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-                        request.send(uri.toFormData());
-                        // no response handling
+                        $YetaWF.postJSONIgnore(uri, { Url: url }, null);
                     }
                 }
 

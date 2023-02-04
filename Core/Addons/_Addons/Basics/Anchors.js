@@ -31,15 +31,8 @@ var YetaWF;
                         if (!urlTrack)
                             throw "data-track not defined"; /*DEBUG*/
                         var uri_1 = $YetaWF.parseUrl(urlTrack);
-                        var data = { "url": url };
-                        uri_1.addSearchSimpleObject(data);
                         uri_1.addFormInfo(f);
-                        var request = new XMLHttpRequest();
-                        request.open("POST", urlTrack, true);
-                        request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-                        request.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-                        request.send(uri_1.toFormData());
-                        // no response handling
+                        $YetaWF.postJSONIgnore(uri_1, { Url: url }, null);
                     }
                 }
                 var uri = $YetaWF.parseUrl(url);
