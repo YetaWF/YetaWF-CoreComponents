@@ -170,9 +170,6 @@ var YetaWF;
                     var uri = $YetaWF.parseUrl(action);
                     // serialize the form
                     var model = this.serializeFormObject(form);
-                    // add extra data
-                    if (extraData)
-                        model = Object.assign(model, extraData);
                     var formData = {
                         Model: model,
                         __Apply: false,
@@ -182,16 +179,19 @@ var YetaWF;
                         __Pagectl: YVolatile.Basics.PageControlVisible,
                         __InPopup: $YetaWF.isInPopup(),
                     };
-                    if (extraData) {
-                        if (extraData[YConfigs.Basics.Link_SubmitIsApply] != null) {
-                            formData.__Apply = extraData[YConfigs.Basics.Link_SubmitIsApply];
-                            delete model[YConfigs.Basics.Link_SubmitIsApply];
-                        }
-                        if (extraData[YConfigs.Basics.Link_SubmitIsReload] != null) {
-                            formData.__Reload = extraData[YConfigs.Basics.Link_SubmitIsReload];
-                            delete model[YConfigs.Basics.Link_SubmitIsReload];
-                        }
-                    }
+                    // add extra data
+                    if (extraData)
+                        formData = Object.assign(formData, extraData);
+                    // if (extraData) {
+                    //     if (extraData[YConfigs.Basics.Link_SubmitIsApply] != null) {
+                    //         formData.__Apply = extraData[YConfigs.Basics.Link_SubmitIsApply];
+                    //         delete model[YConfigs.Basics.Link_SubmitIsApply];
+                    //     }
+                    //     if (extraData[YConfigs.Basics.Link_SubmitIsReload] != null) {
+                    //         formData.__Reload = extraData[YConfigs.Basics.Link_SubmitIsReload];
+                    //         delete model[YConfigs.Basics.Link_SubmitIsReload];
+                    //     }
+                    // }
                     $YetaWF.postJSON(uri, null, formData, function (success, responseText) {
                         if (success) {
                             if (responseText) {

@@ -114,7 +114,7 @@ using YetaWF.Core.Support;
 
 // https://tools.pingdom.com
 // YetaWF sites rate A in all categories except one. There is a slight penalty for "Leverage browser caching", all related to Urls linking to other sites,
-// like addthis.com, google-analytics.com, etc.
+// like google-analytics.com, etc.
 // For an A rating, a static domain must be defined in YetaWF so static files can be served from this static, cookie-less domain.
 // The one category where YetaWF will not achieve an A rating is "Remove query strings from static resources". Their explanation:
 // Resources with a "?" in the URL are not cached by some proxy caching servers. Remove the query string and encode the parameters into the URL.

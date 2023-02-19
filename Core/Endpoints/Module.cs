@@ -71,6 +71,11 @@ namespace YetaWF.Core.Endpoints {
             /// Defines whether we're in a popup.
             /// </summary>
             public bool __InPopup { get; set; }
+
+            // Templates
+            public string? __TemplateName { get; set; }
+            public int? __TemplateAction { get; set; }
+            public string? __TemplateExtraData { get; set; }
         }
 
         /// <summary>
@@ -126,6 +131,8 @@ namespace YetaWF.Core.Endpoints {
             if (model is null)
                 throw new InternalError($"Model data missing for module {moduleType.FullName} method {actionUpdate}");
 
+            //$$$$ resource authorize attribute
+
             // Authorization
             string? level = null;
             PermissionAttribute? permAttr = (PermissionAttribute?)Attribute.GetCustomAttribute(miAsync, typeof(PermissionAttribute));
@@ -149,9 +156,7 @@ namespace YetaWF.Core.Endpoints {
                     throw new Error("This action is not available in Demo mode.");
             }
 
-            //$$$ action is about to start - if this is a postback or ajax request, we'll clean up parameters
-            //$$$ process ModelState
-            module2.ModelState.ValidateModel(model);
+            await module2.ModelState.ValidateModel(model, dataIn.__TemplateName, dataIn.__TemplateAction, dataIn.__TemplateExtraData);
 
             Task<IResult> methStringTask = (Task<IResult>)miAsync.Invoke(module, new object?[] { model })!;
             return await methStringTask;

@@ -80,12 +80,12 @@ namespace YetaWF.Core.Components {
             Task<string> methStringTask = (Task<string>)miAsync.Invoke(view, new object?[] { module, model }) ! ;
             string yhtml = await methStringTask;
 #if DEBUG
-            if (!string.IsNullOrWhiteSpace(yhtml)) {
-                if (yhtml.Contains("System.Threading.Tasks.Task"))
-                    throw new InternalError($"View {viewName} contains System.Threading.Tasks.Task - check for missing \"await\" - generated HTML: \"{yhtml}\"");
-                if (yhtml.Contains("Microsoft.AspNetCore.Mvc.Rendering"))
-                    throw new InternalError($"View {viewName} contains Microsoft.AspNetCore.Mvc.Rendering - check for missing \"ToString()\" - generated HTML: \"{yhtml}\"");
-            }
+            //if (!string.IsNullOrWhiteSpace(yhtml)) {
+            //    if (yhtml.Contains("System.Threading.Tasks.Task"))
+            //        throw new InternalError($"View {viewName} contains System.Threading.Tasks.Task - check for missing \"await\" - generated HTML: \"{yhtml}\"");
+            //    if (yhtml.Contains("Microsoft.AspNetCore.Mvc.Rendering"))
+            //        throw new InternalError($"View {viewName} contains Microsoft.AspNetCore.Mvc.Rendering - check for missing \"ToString()\" - generated HTML: \"{yhtml}\"");
+            //}
 #endif
             return yhtml;
         }

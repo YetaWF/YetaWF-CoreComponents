@@ -98,7 +98,7 @@ namespace YetaWF.Core.Addons {
             scripts.AddLocalization("Basics", "DefaultErrorTitle", this.__ResStr("DefaultErrorTitle", "Error"));
             scripts.AddLocalization("Basics", "DefaultSuccessTitle", this.__ResStr("DefaultSuccessTitle", "Success"));
 
-            // Links
+            // Links33
             scripts.AddLocalization("Basics", "OpenNewWindowTT", this.__ResStr("openNewWindowTT", "Click to visit this page on {0} (opens a new window)"));
 
             // Page/Module Edit Control
@@ -125,9 +125,9 @@ namespace YetaWF.Core.Addons {
             string css = CssManager.CombineCss(CssNoTooltip, manager.CurrentSite.CssNoTooltips);
             scripts.AddVolatileOption("Basics", "CssNoTooltips", css);
 
-            scripts.AddConfigOption("Basics", "TemplateName", TemplateName);
-            scripts.AddConfigOption("Basics", "TemplateAction", TemplateAction);
-            scripts.AddConfigOption("Basics", "TemplateExtraData", TemplateExtraData);
+            scripts.AddConfigOption("Basics", "TemplateName", nameof(Endpoints.ModuleEndpoints.ModuleSubmitData.__TemplateName));
+            scripts.AddConfigOption("Basics", "TemplateAction", nameof(Endpoints.ModuleEndpoints.ModuleSubmitData.__TemplateAction));
+            scripts.AddConfigOption("Basics", "TemplateExtraData", nameof(Endpoints.ModuleEndpoints.ModuleSubmitData.__TemplateExtraData));
 
             scripts.AddConfigOption("Basics", "AjaxJavascriptErrorReturn", AjaxJavascriptErrorReturn);
             scripts.AddConfigOption("Basics", "DefaultPleaseWaitWidth", DefaultPleaseWaitWidth);

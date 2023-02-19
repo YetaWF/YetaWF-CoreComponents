@@ -359,27 +359,27 @@ namespace YetaWF.Core.Controllers {
                 PropertyInfo pi = prop.PropInfo;
                 if (pi.CanRead && pi.CanWrite) {
 
-                    if (prop.UIHint != null && !prop.ReadOnly) {
-                        // check template-specific processing
-                        Dictionary<string, MethodInfo> meths = YetaWFComponentBaseStartup.GetComponentsWithControllerPreprocessAction();
-                        if (meths.TryGetValue(prop.UIHint, out MethodInfo? meth)) {
-                            bool preprocess = false;
-                            if (ModelState.TryGetValue(prop.UIHint, out ModelStateEntry? modelStateEntry)) {
-                                if (modelStateEntry.ValidationState == ModelValidationState.Valid)
-                                    preprocess = true;
-                            } else {
-                                preprocess = true;
-                            }
-                            if (preprocess) { // don't call component if there already is an error
-                                //string caption = prop.GetCaption(parm);
-                                object? obj = prop.GetPropertyValue<object?>(parm);
-                                Task methObjTask = (Task)meth.Invoke(null, new object?[] { prop.Name, obj, ModelState }) !;
-                                await methObjTask.ConfigureAwait(false);
-                                PropertyInfo resultProp = methObjTask.GetType().GetProperty("Result") !;
-                                pi.SetValue(parm, resultProp.GetValue(methObjTask));
-                            }
-                        }
-                    }
+                    //if (prop.UIHint != null && !prop.ReadOnly) {
+                    //    // check template-specific processing
+                    //    Dictionary<string, MethodInfo> meths = YetaWFComponentBaseStartup.GetComponentsWithControllerPreprocessAction();
+                    //    if (meths.TryGetValue(prop.UIHint, out MethodInfo? meth)) {
+                    //        bool preprocess = false;
+                    //        if (ModelState.TryGetValue(prop.UIHint, out ModelStateEntry? modelStateEntry)) {
+                    //            if (modelStateEntry.ValidationState == ModelValidationState.Valid)
+                    //                preprocess = true;
+                    //        } else {
+                    //            preprocess = true;
+                    //        }
+                    //        if (preprocess) { // don't call component if there already is an error
+                    //            //string caption = prop.GetCaption(parm);
+                    //            object? obj = prop.GetPropertyValue<object?>(parm);
+                    //            Task methObjTask = (Task)meth.Invoke(null, new object?[] { prop.Name, obj, ModelState }) !;
+                    //            await methObjTask.ConfigureAwait(false);
+                    //            PropertyInfo resultProp = methObjTask.GetType().GetProperty("Result") !;
+                    //            pi.SetValue(parm, resultProp.GetValue(methObjTask));
+                    //        }
+                    //    }
+                    //}
 
                     ParameterInfo[] indexParms = pi.GetIndexParameters();
                     int indexParmsLen = indexParms.Length;

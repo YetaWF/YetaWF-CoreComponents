@@ -8,6 +8,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
+using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Support;
 
@@ -45,11 +46,25 @@ namespace YetaWF.Core.Pages {
 
             // Check direct module invocation (for now)
             {
-                // we use the module and the action to invoke direct rendering
                 Type moduleType = module.GetType();
                 MethodInfo? miAsync = moduleType.GetMethod(ModuleDefinition2.MethodRenderModuleAsync, new Type[] { });
-                if (miAsync is not null) {
-                    Task<ActionInfo> result = (Task<ActionInfo>) miAsync.Invoke(module, null)!;
+                if (miAsync != null) {
+
+                    //$$$$ resource authorize attribute
+
+                    // check if the action is authorized by checking the module's authorization
+                    string? level = null;
+                    PermissionAttribute? permAttr = (PermissionAttribute?)Attribute.GetCustomAttribute(miAsync, typeof(PermissionAttribute));
+                    if (permAttr != null)
+                        level = permAttr.Level;
+
+                    if (!module.IsAuthorized(level)) {
+                        // We get here if an action is attempted that the user is not authorized for
+                        // we could attempt to capture and redirect to user login, whatevz
+                        return ActionInfo.Empty;
+                    }
+                    // we use the module and the action to invoke direct rendering
+                    Task<ActionInfo> result = (Task<ActionInfo>)miAsync.Invoke(module, null)!;
                     info = await result;
                     return info;
                 }

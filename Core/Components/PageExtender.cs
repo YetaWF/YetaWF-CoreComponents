@@ -46,12 +46,12 @@ namespace YetaWF.Core.Components {
             string contents = await iPage.RenderPageBodyAsync();
 
 #if DEBUG
-            if (!string.IsNullOrWhiteSpace(contents)) {
-                if (contents.Contains("System.Threading.Tasks.Task"))
-                    throw new InternalError($"Page {pageName} contains System.Threading.Tasks.Task - check for missing \"await\" - generated HTML: \"{contents}\"");
-                if (contents.Contains("Microsoft.AspNetCore.Mvc.Rendering"))
-                    throw new InternalError($"Page {pageName} contains Microsoft.AspNetCore.Mvc.Rendering - check for missing \"ToString()\" - generated HTML: \"{contents}\"");
-            }
+            //if (!string.IsNullOrWhiteSpace(contents)) {
+            //    if (contents.Contains("System.Threading.Tasks.Task"))
+            //        throw new InternalError($"Page {pageName} contains System.Threading.Tasks.Task - check for missing \"await\" - generated HTML: \"{contents}\"");
+            //    if (contents.Contains("Microsoft.AspNetCore.Mvc.Rendering"))
+            //        throw new InternalError($"Page {pageName} contains Microsoft.AspNetCore.Mvc.Rendering - check for missing \"ToString()\" - generated HTML: \"{contents}\"");
+            //}
 #endif
 
             HtmlBuilder hb = new HtmlBuilder();

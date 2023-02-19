@@ -1,5 +1,6 @@
 ﻿/* Copyright © 2023 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ using YetaWF.Core.DataProvider;
 using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Localize;
+using YetaWF.Core.Log;
 using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Packages;
@@ -555,35 +557,18 @@ namespace YetaWF.Core.Modules {
         /// </summary>
         /// <param name="model">The data model.</param>
         /// <returns>A <cref="ActionInfo"/> containing HTML and success information.</returns>
-        public async Task<ActionInfo> RenderAsync(object model) {
+        public async Task<ActionInfo> RenderAsync(object model, string? ViewName = null, bool UseAreaViewName = true) {
 
-            Type moduleType = GetType();
-            string action = ModuleDefinition2.MethodRenderModuleAsync;
-            MethodInfo? mi = moduleType.GetMethod(action, BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public);
-            if (mi == null)
-                throw new InternalError($"Method {action} not found on module {moduleType.FullName}");
-            // check if the action is authorized by checking the module's authorization
-            string? level = null;
-            PermissionAttribute? permAttr = (PermissionAttribute?)Attribute.GetCustomAttribute(mi, typeof(PermissionAttribute));
-            if (permAttr != null)
-                level = permAttr.Level;
-
-            if (!IsAuthorized(level)) {
-                //if (Manager.IsPostRequest) {
-                //    filterContext.Result = new UnauthorizedResult();
-                //} else {
-                // We get here if an action is attempted that the user is not authorized for
-                // we could attempt to capture and redirect to user login, whatevz
-                return new ActionInfo { HTML = string.Empty, Failed = false };
+            if (string.IsNullOrEmpty(ViewName)) {
+                ViewName = DefaultViewName;
             }
-
-            string? viewName = DefaultViewName;
-            if (string.IsNullOrWhiteSpace(viewName)) {
-                viewName = ModuleName;
-                viewName = MakeFullViewName(viewName, AreaName);
+            if (string.IsNullOrWhiteSpace(ViewName)) {
+                ViewName = ModuleName;
+                if (UseAreaViewName)
+                    ViewName = MakeFullViewName(ViewName, AreaName);
             }
             YHtmlHelper htmlHelper = new YHtmlHelper(new Microsoft.AspNetCore.Mvc.ActionContext(), (this as ModuleDefinition2)?.ModelState);//$$$$$ remove this garbage
-            string html = await htmlHelper.ForViewAsync(viewName, this, model);
+            string html = await htmlHelper.ForViewAsync(ViewName, this, model);
 
             return new ActionInfo { HTML = html, Failed = false };
         }
@@ -593,6 +578,14 @@ namespace YetaWF.Core.Modules {
                 throw new InternalError("Missing view name");
             viewName = area + "_" + viewName;
             return viewName;
+        }
+
+        /// <summary>
+        /// Current request is marked 404 (Not Found).
+        /// </summary>
+        /// <remarks>The page and all modules are still rendered and processed.</remarks>
+        protected void MarkNotFound() {
+            Manager.CurrentResponse.StatusCode = StatusCodes.Status404NotFound;
         }
 
         // CONTROLLER RENDERING

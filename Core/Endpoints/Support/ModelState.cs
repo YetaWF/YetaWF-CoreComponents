@@ -4,9 +4,11 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
+using YetaWF.Core.Components;
 using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Endpoints.Support {
 
@@ -49,12 +51,15 @@ namespace YetaWF.Core.Endpoints.Support {
             }
         }
 
-        public void ValidateModel(object model) {
-            EvaluateModel(model, string.Empty, true, true);
+        public Task ValidateModel(object model, string? templateName, int? templateAction, string? templateExtraData) {
+            return EvaluateModel(model, string.Empty, true, true, templateName, templateAction, templateExtraData);
         }
 
-        private void EvaluateModel(object? model, string prefix, bool hasTrim, bool hasCase) {
+        private async Task EvaluateModel(object? model, string prefix, bool hasTrim, bool hasCase, string? templateName, int? templateAction, string? templateExtraData) {
             if (model == null) return;
+
+            Dictionary<string, MethodInfo> preMeths = YetaWFComponentBaseStartup.GetComponentsWithControllerPreprocessAction();
+
             Type modelType = model.GetType();
             List<PropertyData> props = ObjectSupport.GetPropertyData(modelType);
             foreach (var prop in props) {
@@ -88,11 +93,11 @@ namespace YetaWF.Core.Endpoints.Support {
                 foreach (object attr in attrs) {
                     ValidationAttribute? valAttr = attr as ValidationAttribute;
                     if (valAttr != null) {
-                        valid = false;
                         ValidationResult? rs = valAttr.GetValidationResult(o, context);
                         if (rs != null) {
                             string msg = rs.ErrorMessage ?? valAttr.FormatErrorMessage(context.DisplayName);
                             AddModelError(prefix + prop.Name, msg);
+                            valid = false;
                         }
                     }
                 }
@@ -105,7 +110,21 @@ namespace YetaWF.Core.Endpoints.Support {
                 } else if (typeof(IEnumerable).IsAssignableFrom(pi.PropertyType)) {
                     // nothing
                 } else if (pi.PropertyType.IsClass) {
-                    EvaluateModel(o, $"{prefix}{prop.Name}.", hasTrim && trim, hasCase && @case);
+                    await EvaluateModel(o, $"{prefix}{prop.Name}.", hasTrim && trim, hasCase && @case, templateName, templateAction, templateExtraData);
+                }
+
+                // Template specific processing
+                if (prop.UIHint != null) {
+                    if (preMeths.TryGetValue(prop.UIHint, out MethodInfo? meth)) {
+                        PropertyState? state = GetProperty(prefix + prop.Name);
+                        if (state?.Valid ?? false) { // don't call component if there already is an error
+                            Task methObjTask = (Task)meth.Invoke(null, new object?[] { prefix + prop.Name, o, this })!;
+                            await methObjTask.ConfigureAwait(false);
+                            PropertyInfo resultProp = methObjTask.GetType().GetProperty("Result")!;
+                            o = resultProp.GetValue(methObjTask);
+                            pi.SetValue(model, o);
+                        }
+                    }
                 }
             }
             // remove fields that aren't processed (we validate all first because conditions can reference
@@ -134,6 +153,28 @@ namespace YetaWF.Core.Endpoints.Support {
                 if (!process) {
                     // we don't process this property
                     RemoveModelState(prefix + prop.Name);
+                }
+            }
+
+            // Template Actions
+            if (!string.IsNullOrEmpty(templateName) && templateAction != null) {
+                foreach (var prop in props) {
+                    PropertyInfo pi = prop.PropInfo;
+                    if (prop.ReadOnly || !pi.CanRead || !pi.CanWrite) continue;
+                    if (pi.PropertyType.IsClass && !pi.PropertyType.IsAbstract) {
+                        ClassData classData = ObjectSupport.GetClassData(prop.PropInfo.PropertyType);
+                        TemplateActionAttribute? templateAttr = classData.TryGetAttribute<TemplateActionAttribute>();
+                        if (templateAttr != null) {
+                            if (templateAttr.Value == templateName) {
+                                object? o = prop.GetPropertyValue<object?>(model);
+                                if (o is not ITemplateAction act)
+                                    throw new InternalError("ITemplateAction not implemented for {0}", prop.Name);
+                                if (act.ExecuteAction((int)templateAction, this.IsValid, templateExtraData ?? string.Empty)) {
+                                    AddValid(prefix + prop.Name);
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

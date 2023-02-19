@@ -19,7 +19,7 @@ namespace YetaWF.Core.Components {
     /// </remarks>
     public class YetaWFComponentBaseStartup : IInitializeApplicationStartup {
 
-        public const string CONTROLLERPREPROCESSMETHOD = "ControllerPreprocessActionAsync";
+        public const string TEMPLATEPREPROCESSMETHOD = "TemplatePreprocessActionAsync";
 
         /// <summary>
         /// List of edit components.
@@ -40,7 +40,7 @@ namespace YetaWF.Core.Components {
         /// <summary>
         /// Dictionary of components that have a controller preprocessor action.
         /// </summary>
-        private static readonly Dictionary<string, MethodInfo> ComponentsWithControllerPreprocessAction = new Dictionary<string, MethodInfo>();
+        private static readonly Dictionary<string, MethodInfo> ComponentsWithTemplatePreprocessAction = new Dictionary<string, MethodInfo>();
 
         /// <summary>
         /// Called during application startup.
@@ -79,9 +79,9 @@ namespace YetaWF.Core.Components {
 
                 // check if the component has a controller preprocessor action
                 // Invoke RenderAsync
-                MethodInfo? meth = component.GetType().GetMethod(CONTROLLERPREPROCESSMETHOD, BindingFlags.Static| BindingFlags.Public);
+                MethodInfo? meth = component.GetType().GetMethod(TEMPLATEPREPROCESSMETHOD, BindingFlags.Static| BindingFlags.Public);
                 if (meth != null) {
-                    ComponentsWithControllerPreprocessAction.Add(templateName, meth);
+                    ComponentsWithTemplatePreprocessAction.Add(templateName, meth);
                 }
             }
 
@@ -141,6 +141,6 @@ namespace YetaWF.Core.Components {
         /// <summary>
         /// Returns a dictionary of components that have a controller preprocessor action.
         /// </summary>
-        public static Dictionary<string, MethodInfo> GetComponentsWithControllerPreprocessAction() { return ComponentsWithControllerPreprocessAction; }
+        public static Dictionary<string, MethodInfo> GetComponentsWithControllerPreprocessAction() { return ComponentsWithTemplatePreprocessAction; }
     }
 }

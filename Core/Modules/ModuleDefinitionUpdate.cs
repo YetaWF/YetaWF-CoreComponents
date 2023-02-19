@@ -7,6 +7,7 @@ using YetaWF.Core.Components;
 using YetaWF.Core.Endpoints;
 using YetaWF.Core.Endpoints.Support;
 using YetaWF.Core.Localize;
+using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Modules {
@@ -20,7 +21,9 @@ namespace YetaWF.Core.Modules {
 
         public override bool JSONModule { get { return true; } }//$$$ eventually remove
 
+        [DontSave]
         public bool IsApply { get; set; }
+        [DontSave]
         public bool IsReload { get; set; }
 
         /// <summary>
