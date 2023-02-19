@@ -235,7 +235,7 @@ namespace YetaWF.Core.Packages {
             }
         }
 
-        private static readonly Regex csNsRegex = new Regex("namespace\\s+(?'namespace'[A-Za-z0-9_\\.]+)\\s*\\{", RegexOptions.Compiled | RegexOptions.Multiline);
+        private static readonly Regex csNsRegex = new Regex("namespace\\s+(?'namespace'[A-Za-z0-9_\\.]+)\\s*(\\{|;)", RegexOptions.Compiled | RegexOptions.Multiline);
 
         /// <summary>
         /// Get the namespace used in this file.
