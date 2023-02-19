@@ -85,7 +85,7 @@ namespace YetaWF.Core.Endpoints {
                 FieldPrefix = gridPvData.FieldPrefix,
                 GridDef = gridModel,
             };
-            return await PartialView.RenderPartialView(context, "GridPartialDataView", module, gridPvData, gridPartialModel, "application/json");
+            return await PartialView.RenderPartialView(context, "GridPartialDataView", module, gridPvData, gridPartialModel, "application/json", PureContent: true);
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace YetaWF.Core.Endpoints {
         /// <param name="model"></param>
         /// <returns></returns>
         public static async Task<IResult> GetGridRecordAsync(HttpContext context, PartialView.PartialViewData pvData, GridRecordData model) {
-            return await PartialView.RenderPartialView(context, "GridRecord", null, pvData, model, "application/json");
+            return await PartialView.RenderPartialView(context, "GridRecord", null, pvData, model, "application/json", PureContent: true);
         }
     }
 }

@@ -640,7 +640,7 @@ namespace YetaWF.Core.Controllers {
             public override async Task ExecuteResultAsync(ActionContext context) {
 
                 using (var sw = new StringWriter()) {
-                    YHtmlHelper htmlHelper = new YHtmlHelper(context, context.ModelState);
+                    YHtmlHelper htmlHelper = new YHtmlHelper(context, null); //$$$$  context.ModelState);
                     string data = await htmlHelper.ForViewAsync(ViewName, Module, Model);
 #if DEBUG
                     if (sw.ToString().Length > 0)

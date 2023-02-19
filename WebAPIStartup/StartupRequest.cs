@@ -1,5 +1,6 @@
 ﻿/* Copyright © 2023 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using System;
@@ -59,7 +60,7 @@ namespace YetaWF.Core.WebAPIStartup {
         /// <summary>
         /// First time YetaWF API service startup processing.
         /// </summary>
-        public static void StartYetaWF() {
+        public static void StartYetaWF(this IApplicationBuilder app) {
 
             if (!YetaWF.Core.Support.Startup.Started) {
 
@@ -77,7 +78,7 @@ namespace YetaWF.Core.WebAPIStartup {
 
                             Logging.AddLog($"{nameof(StartYetaWF)} starting");
 
-                            YetaWFManager manager = YetaWFManager.MakeInitialThreadInstance(new SiteDefinition() { SiteDomain = YetaWFManager.SERVICEMODE }, null); // while loading packages we need a manager
+                            YetaWFManager manager = YetaWFManager.MakeInitialThreadInstance(new SiteDefinition() { SiteDomain = YetaWFManager.SERVICEMODE }, null, app.ApplicationServices); // while loading packages we need a manager
                             YetaWFManager.Syncify(async () => {
                                 // External data providers
                                 ExternalDataProviders.RegisterExternalDataProviders();

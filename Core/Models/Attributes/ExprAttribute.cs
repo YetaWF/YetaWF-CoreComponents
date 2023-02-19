@@ -406,7 +406,7 @@ namespace YetaWF.Core.Models.Attributes {
                 case OpEnum.RequiredIfSupplied:
                 case OpEnum.RequiredIfNotSupplied:
                     if (IsEmpty(value))
-                        return new ValidationResult(__ResStr("requiredExpr", "The field '{0}' is required", AttributeHelper.GetPropertyCaption(context)));
+                        return new ValidationResult(__ResStr("requiredExpr", "The field '{0}' is required", context.DisplayName));
                     break;
                 case OpEnum.SelectionRequired:
                 case OpEnum.SelectionRequiredIf:
@@ -414,7 +414,7 @@ namespace YetaWF.Core.Models.Attributes {
                 case OpEnum.SelectionRequiredIfSupplied:
                 case OpEnum.SelectionRequiredIfNotSupplied:
                     if (IsEmptyOrZero(value))
-                        return new ValidationResult(__ResStr("requiredExpr", "The field '{0}' is required", AttributeHelper.GetPropertyCaption(context)));
+                        return new ValidationResult(__ResStr("requiredExpr", "The field '{0}' is required", context.DisplayName));
                     break;
                 case OpEnum.SuppressIf:
                 case OpEnum.SuppressIfNot:

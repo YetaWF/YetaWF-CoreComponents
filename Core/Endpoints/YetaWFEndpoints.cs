@@ -2,8 +2,6 @@
 using System;
 using System.Threading.Tasks;
 using YetaWF.Core.Addons;
-using YetaWF.Core.Controllers;
-using YetaWF.Core.Extensions;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Packages;
@@ -66,6 +64,11 @@ namespace YetaWF.Core.Endpoints {
             mod = await ModuleDefinition.LoadAsync((Guid)moduleGuid);
             return mod ?? throw new InternalError("No ModuleDefinition available");
         }
+        public static async Task<TMod> GetModuleAsync<TMod>(Guid? moduleGuid = null) where TMod: ModuleDefinition {
+            ModuleDefinition mod = await GetModuleAsync(moduleGuid);
+            return (TMod)mod;
+        }
+
 
         /// <summary>
         /// The type of form reload used with the Reload method.
@@ -147,7 +150,7 @@ namespace YetaWF.Core.Endpoints {
             return Results.Text(sb.ToString(), "application/json");
         }
 
-        protected static string AddUrlPayload(string url, bool SetCurrentEditMode, string? ExtraData) {
+        public static string AddUrlPayload(string url, bool SetCurrentEditMode, string? ExtraData) {
 
             QueryHelper qhUrl = QueryHelper.FromUrl(url, out string urlOnly);
             // If we're coming from a referring page with edit/noedit, we need to propagate that to the redirect

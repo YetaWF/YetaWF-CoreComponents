@@ -78,7 +78,7 @@ namespace YetaWF.Core.Modules {
                 HtmlBuilder hb = ModuleDefinition.ProcessModuleError(exc, permGuid.ToString());
                 return hb.ToString();
             }
-            return await mod.RenderModuleAsync(htmlHelper);
+            return await mod.RenderModuleWithContainerAsync(htmlHelper);
         }
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace YetaWF.Core.Modules {
                 HtmlBuilder hb = ModuleDefinition.ProcessModuleError(exc, moduleGuid.ToString());
                 return hb.ToString();
             }
-            return await mod.RenderModuleAsync(htmlHelper);
+            return await mod.RenderModuleWithContainerAsync(htmlHelper);
         }
 
         public static async Task<string> RenderReferencedModule_AjaxAsync(this YHtmlHelper htmlHelper, Type modType, Action<object>? initModule = null) {

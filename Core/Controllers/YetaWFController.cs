@@ -475,7 +475,7 @@ namespace YetaWF.Core.Controllers {
                 StringBuilder sb = new StringBuilder();
                 using (StringWriter sw = new StringWriter(sb)) {
 
-                    YHtmlHelper htmlHelper = new YHtmlHelper(context, context.ModelState);
+                    YHtmlHelper htmlHelper = new YHtmlHelper(context, null); //$$$$$ context.ModelState);
 
                     context.RouteData.Values.Add(Globals.RVD_ModuleDefinition, Module);//$$ needed?
 
@@ -484,7 +484,7 @@ namespace YetaWF.Core.Controllers {
                     bool wantFocus = Manager.WantFocus;
                     Manager.WantFocus = Module.WantFocus;
                     try {
-                        viewHtml = await htmlHelper.ForViewAsync(base.ViewName, Module, Model);
+                        viewHtml = await htmlHelper.ForViewAsync(ViewName, Module, Model);
                     } catch (Exception) {
                         throw;
                     } finally {

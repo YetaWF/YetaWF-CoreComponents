@@ -1,5 +1,6 @@
 ﻿/* Copyright © 2023 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -110,7 +111,7 @@ namespace YetaWF.Core.Log {
                 // create an instance of the class implementing logging
                 ILogging? log = null;
                 try {
-                    log = (ILogging?)Activator.CreateInstance(tp!);
+                    log = (ILogging?)ActivatorUtilities.CreateInstance(YetaWFManager.Manager.ServiceProvider, tp!);
                 } catch (Exception) { }
 
                 if (log != null) {

@@ -51,7 +51,7 @@ namespace YetaWF.Core.Models.Attributes {
             ValidationResult? result = base.IsValid(value, validationContext);
             if (result == ValidationResult.Success)
                 return ValidationResult.Success;
-            string errorMessage = GetErrorMessage(AttributeHelper.GetPropertyCaption(validationContext));
+            string errorMessage = GetErrorMessage(validationContext.DisplayName);
             return new ValidationResult(errorMessage);
         }
         private string GetErrorMessage(string? caption) {

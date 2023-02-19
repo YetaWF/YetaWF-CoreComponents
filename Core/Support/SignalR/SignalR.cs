@@ -80,7 +80,7 @@ namespace YetaWF.Core {
         private static void Execute(object? p) {
             if (p == null) return;
             ExecuteParms parms = (ExecuteParms)p;
-            YetaWFManager manager = YetaWFManager.MakeInitialThreadInstance(parms.Site, parms.HttpContext, true);
+            YetaWFManager manager = YetaWFManager.MakeInitialThreadInstance(parms.Site, parms.HttpContext, null, true);
             if (manager != YetaWFManager.Manager)
                 throw new InternalError("Mismatched Manager");
             YetaWFManager.Syncify(async () => {

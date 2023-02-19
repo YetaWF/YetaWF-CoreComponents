@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using System;
 using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Support;
@@ -15,6 +16,8 @@ namespace YetaWF.Core.Pages {
     // Inspired by http://stackoverflow.com/questions/26916664/html-action-in-asp-net-core
 
     internal static class HtmlHelperActionExtensions {
+
+        private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
         public static async Task<ActionInfo> ActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, string action, object? parameters = null) {
             var controller = (string)htmlHelper.RouteData.Values["controller"] !;
@@ -37,10 +40,27 @@ namespace YetaWF.Core.Pages {
         }
 
         private static async Task<ActionInfo> RenderActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, string action, string controller, string area, object? parameters = null) {
+
+            ActionInfo info = new ActionInfo();
+
+            // Check direct module invocation (for now)
+            {
+                // we use the module and the action to invoke direct rendering
+                Type moduleType = module.GetType();
+                MethodInfo? miAsync = moduleType.GetMethod(ModuleDefinition2.MethodRenderModuleAsync, new Type[] { });
+                if (miAsync is not null) {
+                    Task<ActionInfo> result = (Task<ActionInfo>) miAsync.Invoke(module, null)!;
+                    info = await result;
+                    return info;
+                }
+            }
+
+            // Old style controller invocation
+
             // fetching required services for invocation
             var httpContext = YetaWFManager.Manager.CurrentContext;
-            IActionInvokerFactory actionInvokerFactory = (IActionInvokerFactory)YetaWFManager.ServiceProvider.GetService(typeof(IActionInvokerFactory)) !;
-            IActionSelector actionSelector = (IActionSelector)YetaWFManager.ServiceProvider.GetService(typeof(IActionSelector)) !;
+            IActionInvokerFactory actionInvokerFactory = (IActionInvokerFactory)Manager.ServiceProvider.GetService(typeof(IActionInvokerFactory)) !;
+            IActionSelector actionSelector = (IActionSelector)Manager.ServiceProvider.GetService(typeof(IActionSelector)) !;
 
             // creating new action invocation context
             var routeData = new RouteData();
@@ -64,8 +84,6 @@ namespace YetaWF.Core.Pages {
             var candidates = actionSelector.SelectCandidates(routeContext);
             if (candidates == null || candidates.Count == 0)
                 throw new InternalError("No route candidates found - /{0}/{1}/{2}", area, controller, action);
-
-            ActionInfo info = new ActionInfo();
 
             ActionDescriptor? actionDescriptor = actionSelector.SelectBestCandidate(routeContext, candidates);
             if (actionDescriptor != null) {

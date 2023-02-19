@@ -4,10 +4,13 @@ using Microsoft.AspNetCore.Http;
 using System;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using YetaWF.Core.Components;
 using YetaWF.Core.Modules;
+using YetaWF.Core.ResponseFilter;
 using YetaWF.Core.Support;
+using YetaWF.Core.Views;
 
 namespace YetaWF.Core.Endpoints {
 
@@ -33,23 +36,27 @@ namespace YetaWF.Core.Endpoints {
         /// <param name="model">The model.</param>
         /// <param name="contentType">The content type.</param>
         /// <returns>Returns the HTML for the requested partial view.</returns>
-        public static async Task<IResult> RenderPartialView(HttpContext context, string viewName, ModuleDefinition? module, PartialViewData pvData, object? model, string contentType) {
+        public static async Task<IResult> RenderPartialView(HttpContext context, string viewName, ModuleDefinition? module, PartialViewData? pvData, object? model, string contentType, bool PureContent = false,
+            ScriptBuilder? Script = null) {
 
-            Manager.UniqueIdCounters = pvData.__UniqueIdCounters;
+            if (pvData is null) {
+                // Manager.UniqueIdCounters set by caller
+            } else {
+                if (module is null)
+                    module = await YetaWFEndpoints.GetModuleAsync(pvData.__ModuleGuid);
+                Manager.UniqueIdCounters = pvData.__UniqueIdCounters;
+            }
+            if (module is null) throw new InternalError("Module is required");
             Manager.NextUniqueIdPrefix();// get the next unique id prefix (so we don't have any conflicts when replacing modules)
 
             ModuleDefinition? oldMod = Manager.CurrentModule;
-            if (module is null)
-                Manager.CurrentModule = await YetaWFEndpoints.GetModuleAsync(pvData.__ModuleGuid);
-            else
-                Manager.CurrentModule = module;
+            Manager.CurrentModule = module;
 
             string viewHtml;
             StringBuilder sb = new StringBuilder();
             using (StringWriter sw = new StringWriter(sb)) {
 
-                YHtmlHelper htmlHelper = new YHtmlHelper(new Microsoft.AspNetCore.Mvc.ActionContext(), null); //$$$$$$ context.ModelState);
-
+                YHtmlHelper htmlHelper = new YHtmlHelper(new Microsoft.AspNetCore.Mvc.ActionContext(), (module as ModuleDefinition2)?.ModelState); //$$$$$$
                 bool inPartialView = Manager.InPartialView;//$$$ is this needed
                 Manager.InPartialView = true;
                 bool wantFocus = Manager.WantFocus;
@@ -62,6 +69,9 @@ namespace YetaWF.Core.Endpoints {
                     Manager.InPartialView = inPartialView;
                     Manager.WantFocus = wantFocus;
                 }
+
+                if (!PureContent)
+                    viewHtml = await PostRenderAsync(htmlHelper, context, module, viewHtml, Script);
             }
 #if DEBUG
             if (sb.Length > 0)
@@ -81,6 +91,44 @@ namespace YetaWF.Core.Endpoints {
             if (mod == null)
                 throw new InternalError($"No ModuleDefinition available in partial view {pvName}");
             return mod;
+        }
+
+        private static readonly Regex reEndDiv = new Regex(@"</div>\s*$"); // very last div
+
+        private static async Task<string> PostRenderAsync(YHtmlHelper htmlHelper, HttpContext context, ModuleDefinition module, string viewHtml, ScriptBuilder? Script = null) {
+
+            HttpResponse response = context.Response;
+
+            // if the controller specified a content type, only return the exact response
+            // if the controller didn't specify a content type and the content type is text/html, add all the other goodies
+
+            Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentSite.ReferencedModules);
+
+            //$$$ if (Manager.CurrentPage != null) Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentPage.ReferencedModules);
+            Manager.AddOnManager.AddExplicitlyInvokedModules(module.ReferencedModules);
+
+            //if (ForcePopup)
+            //    viewHtml += "<script>YVolatile.Basics.ForcePopup=true;</script>";
+
+            viewHtml += (await htmlHelper.RenderReferencedModule_AjaxAsync()).ToString();
+            viewHtml = await PostProcessView.ProcessAsync(htmlHelper, module, viewHtml);
+
+            if (Script != null)
+                Manager.ScriptManager.AddLastWhenReadyOnce(Script);
+
+            if (Manager.UniqueIdCounters.IsTracked)
+                Manager.ScriptManager.AddVolatileOption("Basics", "UniqueIdCounters", Manager.UniqueIdCounters);
+
+            // add generated scripts
+            string js = await Manager.ScriptManager.RenderVolatileChangesAsync() ?? "";
+            js += await Manager.ScriptManager.RenderAjaxAsync() ?? "";
+
+            viewHtml = reEndDiv.Replace(viewHtml, js + "</div>", 1);
+
+            // DEBUG: viewHtml is the complete response to the Ajax request
+
+            viewHtml = WhiteSpaceResponseFilter.Compress(viewHtml);
+            return viewHtml;
         }
     }
 }

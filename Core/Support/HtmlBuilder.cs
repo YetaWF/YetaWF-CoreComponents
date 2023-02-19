@@ -187,7 +187,7 @@ namespace YetaWF.Core.Support {
         /// <returns>Returns an antiforgery token (HTML).</returns>
         public static string AntiForgeryToken() {
             if (YetaWFManager.Manager.AntiForgeryTokenHTML == null) {
-                IAntiforgery? antiForgery = (IAntiforgery?)YetaWFManager.ServiceProvider.GetService(typeof(IAntiforgery));
+                IAntiforgery? antiForgery = (IAntiforgery?)YetaWFManager.Manager.ServiceProvider.GetService(typeof(IAntiforgery));
                 IHtmlContent ihtmlContent = antiForgery!.GetHtml(YetaWFManager.Manager.CurrentContext);
                 using (System.IO.StringWriter writer = new System.IO.StringWriter()) {
                     ihtmlContent.WriteTo(writer, System.Text.Encodings.Web.HtmlEncoder.Default);

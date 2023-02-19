@@ -102,7 +102,7 @@ using YetaWF.Core.Support;
 
 // https://developers.google.com/speed/pagespeed/
 // YetaWF sites will generally have a desktop speed rating of near 100. The only penalties are due to "Leverage browser caching" when external
-// JavaScript is used, like addthis.com, google-analytics.com (oh the irony) and some CDNs which may have an expiration interval of less than 7 days.
+// JavaScript is used, like google-analytics.com (oh the irony) and some CDNs which may have an expiration interval of less than 7 days.
 // Google is looking for more than 1 year.
 // The other penalty is due to "Eliminate render-blocking JavaScript and CSS in above-the-fold content". Even with JavaScript/CSS located at the bottom
 // of the page, a certain percentage of the above-the-fold content cannot be rendered without waiting for the resources to load.

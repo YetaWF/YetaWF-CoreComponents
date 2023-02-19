@@ -1,8 +1,8 @@
 ﻿/* Copyright © 2023 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Routing;
+using YetaWF.Core.Endpoints.Support;
 
 namespace YetaWF.Core.Support {
 
@@ -15,11 +15,11 @@ namespace YetaWF.Core.Support {
 
         public ActionContext ActionContext { get; private set; }
         public RouteData RouteData { get { return ActionContext.RouteData; } }
-        public ModelStateDictionary ModelState { get; private set; }
+        public ModelState ModelState { get; private set; }
 
-        public YHtmlHelper(ActionContext actionContext, ModelStateDictionary? modelState) {
+        public YHtmlHelper(ActionContext actionContext, ModelState? modelState) {
             ActionContext = actionContext;
-            ModelState = modelState ?? new ModelStateDictionary();
+            ModelState = modelState ?? new ModelState();
         }
     }
 }

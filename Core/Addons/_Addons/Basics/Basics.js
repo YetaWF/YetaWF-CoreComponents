@@ -338,7 +338,9 @@ var YetaWF;
             }
             var mod = YetaWF.ModuleBase.getModuleDivFromTag(tag);
             var form = this.getElement1BySelector("form", [mod]);
-            this.Forms.submit(form, false, YConfigs.Basics.Link_SubmitIsApply + "=y"); // the form must support a simple Apply
+            var extraData = {};
+            extraData[YConfigs.Basics.Link_SubmitIsApply] = true;
+            this.Forms.submit(form, false, extraData); // the form must support a simple Apply
         };
         BasicsServices.prototype.refreshModule = function (mod) {
             if (!this.getElementByIdCond(mod.id))

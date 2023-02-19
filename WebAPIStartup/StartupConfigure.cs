@@ -105,8 +105,7 @@ namespace YetaWF.Core.WebAPIStartup {
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider svp) {
 
             IHttpContextAccessor httpContextAccessor = (IHttpContextAccessor)svp.GetService(typeof(IHttpContextAccessor))!;
-            IMemoryCache memoryCache = (IMemoryCache)svp.GetService(typeof(IMemoryCache))!;
-            YetaWFManager.Init(httpContextAccessor, memoryCache, app.ApplicationServices);
+            YetaWFManager.Init(httpContextAccessor);
 
             app.UseForwardedHeaders();
 #if DEBUG
@@ -134,7 +133,7 @@ namespace YetaWF.Core.WebAPIStartup {
                 AreaRegistrationBase.RegisterPackages(endpoints);
             });
 
-            StartupRequest.StartYetaWF();
+            app.StartYetaWF();
         }
     }
 

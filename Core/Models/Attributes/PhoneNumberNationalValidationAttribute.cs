@@ -29,8 +29,8 @@ namespace YetaWF.Core.Models.Attributes {
         public PhoneNumberNationalValidationAttribute() { }
 
         protected override ValidationResult? IsValid(object? value, ValidationContext context) {
-            if (value != null) {
-                string number = (string)value;
+            string? number = (string?)value;
+            if (!string.IsNullOrEmpty(number)) {
                 if (!PhoneNumberNationalValidationAttribute.Valid(number))
                     return new ValidationResult(__ResStr("inv", "{0} is an invalid phone number. International phone numbers are not supported.", number));
             }
@@ -58,7 +58,7 @@ namespace YetaWF.Core.Models.Attributes {
         /// <param name="phoneNumber">The phone number to format in E164 ISO format.</param>
         /// <returns>The phone number formatted in E164 ISO format. null is returned if the phone number is invalid.</returns>
         public static string? GetE164(string? phoneNumber) {
-            if (string.IsNullOrWhiteSpace(phoneNumber))
+            if (string.IsNullOrEmpty(phoneNumber))
                 return null;
             PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.GetInstance();
             try {
@@ -77,7 +77,7 @@ namespace YetaWF.Core.Models.Attributes {
         /// <returns>Returns a formatted user-displayable phone number.</returns>
         /// <remarks>National numbers are formatted without country codes.</remarks>
         public static string? GetDisplay(string? phoneNumber) {
-            if (string.IsNullOrWhiteSpace(phoneNumber))
+            if (string.IsNullOrEmpty(phoneNumber))
                 return null;
             PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.GetInstance();
             try {

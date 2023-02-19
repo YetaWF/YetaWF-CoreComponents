@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
@@ -61,7 +62,7 @@ namespace YetaWF.Core.Support {
         public const string SERVICEMODE = "__Service";
 
         /// <summary>
-        /// Defines the current run-time mode. Currently defined are batch mode and service mode. Is neither is set, this is a web application.
+        /// Defines the current run-time mode. Currently defined are batch mode and service mode. If neither is set, this is a web application.
         /// </summary>
         public static string Mode { get; set; } = null!;
         /// <summary>
@@ -80,37 +81,48 @@ namespace YetaWF.Core.Support {
         internal class DummyHttpContextAccessor : IHttpContextAccessor {
             public HttpContext? HttpContext { get { return null; } set { } }
         }
-        internal class DummyMemoryCache : IMemoryCache {
-            public ICacheEntry CreateEntry(object key) { return null!; }
-            public void Dispose() { }
-            public void Remove(object key) { }
-            public bool TryGetValue(object key, out object value) { value = null!; return false; }
-        }
 
         /// <summary>
         /// Called during application startup to save some environmental information. For internal framework use only.
         /// </summary>
         /// <param name="httpContextAccessor">An IHttpContextAccessor instance.</param>
-        /// <param name="memoryCache">An IMemoryCache instance.</param>
-        /// <param name="svp">An IServiceProvider instance.</param>
-        public static void Init(IHttpContextAccessor? httpContextAccessor = null, IMemoryCache? memoryCache = null, IServiceProvider? svp = null) {
+        public static void Init(IHttpContextAccessor? httpContextAccessor = null) {
             HttpContextAccessor = httpContextAccessor ?? new DummyHttpContextAccessor();
-            MemoryCache = memoryCache ?? new DummyMemoryCache();
-            ServiceProvider = svp!;
         }
 
         /// <summary>
         /// A global instance of Microsoft.AspNetCore.Http.IHttpContextAccessor. For internal framework use only.
         /// </summary>
         public static IHttpContextAccessor HttpContextAccessor { get; private set; } = null!;
+
         /// <summary>
-        /// A global instance of Microsoft.Extensions.Caching.Memory.IMemoryCache. For internal framework use only.
+        /// Returns an instance of Microsoft.Extensions.Caching.Memory.IMemoryCache for the current request. For internal framework use only.
         /// </summary>
-        public static IMemoryCache MemoryCache { get; private set; } = null!;
+        public IMemoryCache MemoryCache {
+            get {
+                if (_memoryCache is null) {
+                    _memoryCache = ServiceProvider.GetRequiredService<IMemoryCache>();
+                }
+                return _memoryCache;
+            }
+        }
+        private IMemoryCache? _memoryCache;
+
         /// <summary>
-        /// A global instance of System.IServiceProvider. For internal framework use only.
+        /// Returns an instance of System.IServiceProvider for the current request. For internal framework use only.
         /// </summary>
-        public static IServiceProvider ServiceProvider { get; private set; } = null!;
+        /// <remarks>
+        /// This should not be used by general application code. It is an abomination, but oh well.
+        /// </remarks>
+        public IServiceProvider ServiceProvider {
+            get {
+                if (_serviceProvider is null) {
+                    _serviceProvider = CurrentContext.RequestServices;
+                }
+                return _serviceProvider;
+            } 
+        }
+        private IServiceProvider? _serviceProvider;
 
         private YetaWFManager(string? host) {
             SiteDomain = host ?? "(default)" ; // save the host name that owns this Manager
@@ -183,7 +195,7 @@ namespace YetaWF.Core.Support {
         /// <param name="site">Defines the site associated with the Manager instance. Can be null implying batch mode.</param>
         /// <param name="context">An instance of Microsoft.AspNetCore.Http.HttpContext.</param>
         /// <param name="forceSync">Specify true to force synchronous requests, otherwise async requests are used.</param>
-        public static YetaWFManager MakeThreadInstance(SiteDefinition? site, HttpContext? context, bool forceSync = false) {
+        public static YetaWFManager MakeThreadInstance(SiteDefinition? site, HttpContext? context, IServiceProvider? serviceProvider, bool forceSync = false) {
             YetaWFManager manager;
             if (site != null) {
                 manager = new YetaWFManager(site.Identity.ToString());
@@ -203,6 +215,7 @@ namespace YetaWF.Core.Support {
                     manager.HostUsed = BATCHMODE;
                 }
             }
+            manager._serviceProvider = serviceProvider;
 
             _ManagerThreadInstance = manager;
 
@@ -244,7 +257,7 @@ namespace YetaWF.Core.Support {
         /// <returns>The Manager instance for the current request.</returns>
         public static YetaWFManager MakeInitialThreadInstance(SiteDefinition? site) {
             _ManagerThreadInstance = null;
-            return MakeThreadInstance(site, null, true);
+            return MakeThreadInstance(site, null, null, true);
         }
         /// <summary>
         /// Attaches a YetaWFManager instance to the current thread. For internal framework use only.
@@ -254,9 +267,9 @@ namespace YetaWF.Core.Support {
         /// <param name="context">The HttpContext instance for the current request. If null is specified, local thread storage is used instead of attaching the Manager instance to the HttpRequest.</param>
         /// <param name="forceSync">Specify true to force synchronous requests, otherwise async requests are used.</param>
         /// <returns>The Manager instance for the current request.</returns>
-        public static YetaWFManager MakeInitialThreadInstance(SiteDefinition site, HttpContext? context, bool forceSync = false) {
+        public static YetaWFManager MakeInitialThreadInstance(SiteDefinition site, HttpContext? context, IServiceProvider? serviceProvider, bool forceSync = false) {
             _ManagerThreadInstance = null;
-            return MakeThreadInstance(site, context, forceSync);
+            return MakeThreadInstance(site, context, serviceProvider, forceSync);
         }
         /// <summary>
         /// Removes the YetaWF instance from the current thread. For internal framework use only.

@@ -511,7 +511,9 @@ namespace YetaWF {
             }
             let mod = ModuleBase.getModuleDivFromTag(tag);
             let form = this.getElement1BySelector("form", [mod]) as HTMLFormElement;
-            this.Forms.submit(form, false, YConfigs.Basics.Link_SubmitIsApply + "=y");// the form must support a simple Apply
+            let extraData = {};
+            extraData[YConfigs.Basics.Link_SubmitIsApply] = true;
+            this.Forms.submit(form, false, extraData);// the form must support a simple Apply
         }
 
         private reloadingModuleTagInModule: HTMLElement | null = null;

@@ -61,12 +61,12 @@ namespace YetaWF.Core {
         public const string ApiPrefix = "/!api";// api prefix (built-in api)
         public const string PageUrl = "/!Page/";
         public const string ModuleUrl = "/!Mod/";
-        public const string Link_OriginList = "!OriginList"; // chain of urls
-        public const string Link_InPopup = "!InPopup"; // we're in a popup
+        public const string Link_OriginList = "__OriginList"; // chain of urls
+        public const string Link_InPopup = "__InPopup"; // we're in a popup
         public const string Link_ToPopup = "!ToPopup"; // we're going into a popup
-        public const string Link_PageControl = "!Pagectl"; // show page control module
-        public const string Link_SubmitIsApply = "!Apply"; // a submit button was clicked and should be handled as Apply
-        public const string Link_SubmitIsReload = "!Reload"; // a submit button was clicked and should be handled as a form reload
+        public const string Link_PageControl = "__Pagectl"; // show page control module
+        public const string Link_SubmitIsApply = "__Apply"; // a submit button was clicked and should be handled as Apply
+        public const string Link_SubmitIsReload = "__Reload"; // a submit button was clicked and should be handled as a form reload
         public const string Link_EditMode = "!Edit"; // site edit mode
         public const string Link_ForceSite = "!Domain"; // force a specific site
         public const string Link_ScrollLeft = "!Left";

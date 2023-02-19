@@ -435,7 +435,7 @@ namespace YetaWF.Core.Pages {
                         module = await modEntry.GetModuleAsync();
                         if (module != null) {
                             if (module.IsAuthorized(ModuleDefinition.RoleDefinition.View))
-                                hb.Append(await module.RenderModuleAsync(htmlHelper, Args: Args));
+                                hb.Append(await module.RenderModuleWithContainerAsync(htmlHelper, Args: Args));
                         }
                     } catch (Exception exc) {
                         modExc = exc;

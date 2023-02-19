@@ -41,7 +41,7 @@ namespace YetaWF.Core.Endpoints {
                 TreeDef = treeModel,
                 Data = ds,
             };
-            return await PartialView.RenderPartialView(context, "TreePartialDataView", module, pvData, treePartial, "application/json");
+            return await PartialView.RenderPartialView(context, "TreePartialDataView", module, pvData, treePartial, "application/json", PureContent: true);
         }
     }
 }

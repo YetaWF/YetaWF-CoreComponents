@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using YetaWF.Core.Components;
 using YetaWF.Core.DataProvider;
 using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Identity;
@@ -32,6 +33,8 @@ namespace YetaWF.Core.Modules {
 
         protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
         protected static bool HaveManager { get { return YetaWFManager.HaveManager; } }
+
+        public virtual bool JSONModule {  get { return false; } }//$$$ eventually remove
 
         // MODULE INFO
         // MODULE INFO
@@ -543,22 +546,71 @@ namespace YetaWF.Core.Modules {
             return await skinImg.FindIcon_PackageAsync(iconName, Package.GetCurrentPackage(this));
         }
 
-        // RENDERING
-        // RENDERING
-        // RENDERING
+        // DIRECT RENDERING
+        // DIRECT RENDERING
+        // DIRECT RENDERING
 
         /// <summary>
-        /// Render module in view mode, overriding edit mode.
+        /// Renders the module contents (without container) based on the provided model.
+        /// </summary>
+        /// <param name="model">The data model.</param>
+        /// <returns>A <cref="ActionInfo"/> containing HTML and success information.</returns>
+        public async Task<ActionInfo> RenderAsync(object model) {
+
+            Type moduleType = GetType();
+            string action = ModuleDefinition2.MethodRenderModuleAsync;
+            MethodInfo? mi = moduleType.GetMethod(action, BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public);
+            if (mi == null)
+                throw new InternalError($"Method {action} not found on module {moduleType.FullName}");
+            // check if the action is authorized by checking the module's authorization
+            string? level = null;
+            PermissionAttribute? permAttr = (PermissionAttribute?)Attribute.GetCustomAttribute(mi, typeof(PermissionAttribute));
+            if (permAttr != null)
+                level = permAttr.Level;
+
+            if (!IsAuthorized(level)) {
+                //if (Manager.IsPostRequest) {
+                //    filterContext.Result = new UnauthorizedResult();
+                //} else {
+                // We get here if an action is attempted that the user is not authorized for
+                // we could attempt to capture and redirect to user login, whatevz
+                return new ActionInfo { HTML = string.Empty, Failed = false };
+            }
+
+            string? viewName = DefaultViewName;
+            if (string.IsNullOrWhiteSpace(viewName)) {
+                viewName = ModuleName;
+                viewName = MakeFullViewName(viewName, AreaName);
+            }
+            YHtmlHelper htmlHelper = new YHtmlHelper(new Microsoft.AspNetCore.Mvc.ActionContext(), (this as ModuleDefinition2)?.ModelState);//$$$$$ remove this garbage
+            string html = await htmlHelper.ForViewAsync(viewName, this, model);
+
+            return new ActionInfo { HTML = html, Failed = false };
+        }
+
+        protected static string MakeFullViewName(string? viewName, string area) {
+            if (string.IsNullOrWhiteSpace(viewName))
+                throw new InternalError("Missing view name");
+            viewName = area + "_" + viewName;
+            return viewName;
+        }
+
+        // CONTROLLER RENDERING
+        // CONTROLLER RENDERING
+        // CONTROLLER RENDERING
+
+        /// <summary>
+        /// Renders a module including container in view mode, overriding edit mode.
         /// </summary>
         /// <param name="htmlHelper">An instance of the HtmlHelper class.</param>
         /// <param name="Args">Optional parameters passed to the action rendering the module.</param>
-        /// <returns></returns>
+        /// <returns>Returns HTML.</returns>
         public async Task<string> RenderModuleViewAsync(YHtmlHelper htmlHelper, object? Args = null) {
 
             bool oldEditMode = Manager.EditMode;
             try {
                 Manager.EditMode = false;
-                return await RenderModuleAsync(htmlHelper, Args);
+                return await RenderModuleWithContainerAsync(htmlHelper, Args);
             } catch (Exception) {
                 throw;
             } finally {
@@ -566,7 +618,13 @@ namespace YetaWF.Core.Modules {
             }
         }
 
-        public async Task<string> RenderModuleAsync(YHtmlHelper htmlHelper, object? Args = null) {
+        /// <summary>
+        /// Renders a module including container.
+        /// </summary>
+        /// <param name="htmlHelper">An instance of the HtmlHelper class.</param>
+        /// <param name="Args">Optional parameters passed to the action rendering the module.</param>
+        /// <returns>Returns HTML.</returns>
+        public async Task<string> RenderModuleWithContainerAsync(YHtmlHelper htmlHelper, object? Args = null) {
 
             if (!Visible && !Manager.EditMode) return string.Empty;
 
@@ -680,7 +738,6 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
         /// <summary>
         /// Ajax invoked modules - used to render REFERENCED modules during ajax calls
         /// </summary>
-
         public async Task<string> RenderReferencedModule_AjaxAsync(YHtmlHelper htmlHelper) {
             // execute action
             ModuleDefinition? oldMod = Manager.CurrentModule;

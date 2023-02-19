@@ -1,8 +1,6 @@
 ﻿/* Copyright © 2023 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using Newtonsoft.Json;
-using System;
-using System.ComponentModel.DataAnnotations;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Models {
@@ -21,13 +19,6 @@ namespace YetaWF.Core.Models {
 
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
-        public static string? GetPropertyCaption(ValidationContext validationContext) {
-            object instance = validationContext.ObjectInstance;
-            Type type = validationContext.ObjectType;
-            string propertyName = validationContext.DisplayName;
-            PropertyData propData = ObjectSupport.GetPropertyData(type, propertyName);
-            return propData.GetCaption(instance);
-        }
         public static string GetDependentPropertyName(string propertyName) {
             if (!string.IsNullOrWhiteSpace(Manager.NestedComponentPrefix))
                 return Manager.NestedComponentPrefix + "." + propertyName;

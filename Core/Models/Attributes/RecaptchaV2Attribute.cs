@@ -43,7 +43,7 @@ namespace YetaWF.Core.Models.Attributes {
             RecaptchaV2Data? rc = value as RecaptchaV2Data;
             if (rc == null || !rc.VerifyPresence) return ValidationResult.Success;
 
-            string? response = request.Form["g-recaptcha-response"];
+            string? response = request.Form["g-recaptcha-response"];//$$$$ needs fixing
             if (string.IsNullOrWhiteSpace(response))
                 return new ValidationResult(ErrorMessage);
 

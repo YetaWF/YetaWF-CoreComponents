@@ -13,7 +13,6 @@ namespace YetaWF.Core.Packages {
 
         private List<string> PackageNames = new List<string> {
             //"Softelvdm.IVR",
-            "YetaWF.AddThis",
             "YetaWF.Backups",
             "YetaWF.Basics",
             "YetaWF.Blog",
