@@ -15,7 +15,7 @@ namespace YetaWF.Core.Addons {
 
         // Forms support
         public const string CssFormPartial = "yform-partial";
-        public const string CssFormAjax = "yform-ajax";
+        public const string CssForm = "yform";
         public const string CssFormNoSubmit = "yform-nosubmit";// added to individual fields or <form> tag to suppress submission
         public const string CssFormNoSubmitContents = "yform-nosubmitcontents";// added to divs to suppress submission of contained fields (usually grids)
         public const string CssFormCancel = "yform-cancel"; // used for cancel button
@@ -47,7 +47,7 @@ namespace YetaWF.Core.Addons {
             // Css used which is global to YetaWF (not implementation specific)
 
             scripts.AddConfigOption("Forms", "CssFormPartial", CssFormPartial);
-            scripts.AddConfigOption("Forms", "CssFormAjax", CssFormAjax);
+            scripts.AddConfigOption("Forms", "CssForm", CssForm);
             scripts.AddConfigOption("Forms", "CssFormNoSubmit", CssFormNoSubmit);
             scripts.AddConfigOption("Forms", "CssFormNoSubmitContents", CssFormNoSubmitContents);
             scripts.AddConfigOption("Forms", "CssFormCancel", CssFormCancel);

@@ -161,7 +161,7 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
         }
 
         [Category("About"), Caption("Summary"), Description("The module description", Order = -100)]
-        [UIHint("MultiString80"), StringLength(MaxDescription), ReadOnly]
+        [UIHint("MultiString80"), ReadOnly]
         [Data_DontSave]
         public MultiString Description { get; set; }
 

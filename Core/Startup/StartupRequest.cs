@@ -115,9 +115,9 @@ namespace YetaWF.Core.Support {
                 if (!manager.HasSuperUserRole) { // if superuser, don't log off (we could be creating a new site)
                     // A somewhat naive way to log a user off, but it's working well and also handles 3rd party logins correctly.
                     // Since this is only used during site development, it's not critical
-                    string? logoffUrl = WebConfigHelper.GetValue<string?>("MvcApplication", "LogoffUrl");
+                    string? logoffUrl = WebConfigHelper.GetValue<string?>("Application", "LogoffUrl");
                     if (string.IsNullOrWhiteSpace(logoffUrl))
-                        throw new InternalError("MvcApplication LogoffUrl not defined in web.cofig/appsettings.json - this is required to switch between sites so we can log off the site-specific currently logged in user");
+                        throw new InternalError("Application LogoffUrl not defined in web.cofig/appsettings.json - this is required to switch between sites so we can log off the site-specific currently logged in user");
                     Uri newUri = new Uri("http://" + host);// new site to display
                     logoffUrl += Utility.UrlEncodeArgs(newUri.ToString());
                     Logging.AddLog("302 Found - {0}", logoffUrl).Truncate(100);

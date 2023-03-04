@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using YetaWF.Core.Addons;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
@@ -223,7 +224,7 @@ namespace YetaWF.Core.Components {
         public async Task<string> FormButtonsAsync(FormButton[] buttons, string CssClass = "t_detailsbuttons") {
             HtmlBuilder hb = new HtmlBuilder();
             if (ModuleBase.ShowFormButtons || Manager.EditMode) {
-                hb.Append("<div class='{0} {1}'>", CssClass, Globals.CssModuleNoPrint);
+                hb.Append($"<div class='{CssClass} {Globals.CssModuleNoPrint} {Forms.CssFormNoSubmitContents}'>");
                 foreach (FormButton button in buttons) {
                     hb.Append(await button.RenderAsync());
                 }

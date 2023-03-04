@@ -23,6 +23,9 @@ namespace YetaWF.Core.Endpoints.Support {
 
         public bool IsValid {
             get {
+#if DEBUG
+                var list = (from v in ModelStateDictionary.Values where !v.Valid select v).ToList();
+#endif
                 return !(from v in ModelStateDictionary.Values where !v.Valid select v).Any();
             }
         }
@@ -49,6 +52,9 @@ namespace YetaWF.Core.Endpoints.Support {
                 if (key.StartsWith(prefix))
                     ModelStateDictionary.Remove(key);
             }
+        }
+        public void Clear() {
+            ModelStateDictionary = new Dictionary<string, PropertyState>();
         }
 
         public Task ValidateModel(object model, string? templateName, int? templateAction, string? templateExtraData) {

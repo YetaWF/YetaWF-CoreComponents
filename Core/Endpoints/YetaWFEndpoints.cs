@@ -147,7 +147,7 @@ namespace YetaWF.Core.Endpoints {
                 "if (!$YetaWF.ContentHandling.setContent($YetaWF.parseUrl({0}), true))" +
                     "window.location.assign({0});",
                     url, (string.IsNullOrWhiteSpace(ExtraJavascript) ? "" : ExtraJavascript));
-            return Results.Text(sb.ToString(), "application/json");
+            return Results.Json(sb.ToString());
         }
 
         public static string AddUrlPayload(string url, bool SetCurrentEditMode, string? ExtraData) {

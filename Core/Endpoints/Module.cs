@@ -25,13 +25,44 @@ namespace YetaWF.Core.Endpoints {
     public class ModuleEndpoints : YetaWFEndpoints {
 
         public const string Update = "Update";
+        public const string DynamicProperty = "Dynamic";
+
+        public static JsonSerializerOptions DeserializeOptions {
+            get {
+                if (_deserializeOptions == null) {
+                    _deserializeOptions = new JsonSerializerOptions();
+                    _deserializeOptions.Converters.Add(new EnumNullableJsonConverter());
+                    _deserializeOptions.Converters.Add(new EnumJsonConverter());
+                    _deserializeOptions.Converters.Add(new IntNullableJsonConverter());
+                    _deserializeOptions.Converters.Add(new IntJsonConverter());
+                    _deserializeOptions.Converters.Add(new LongNullableJsonConverter());
+                    _deserializeOptions.Converters.Add(new LongJsonConverter());
+                    _deserializeOptions.Converters.Add(new DecimalNullableJsonConverter());
+                    _deserializeOptions.Converters.Add(new DecimalJsonConverter());
+                    _deserializeOptions.Converters.Add(new MultiStringJsonConverter());
+                    _deserializeOptions.Converters.Add(new BoolNullableJsonConverter());
+                    _deserializeOptions.Converters.Add(new BoolJsonConverter());
+                    _deserializeOptions.Converters.Add(new DateTimeNullableJsonConverter());
+                    _deserializeOptions.Converters.Add(new DateTimeJsonConverter());
+                    _deserializeOptions.Converters.Add(new TimeOfDayNullableJsonConverter());
+                    _deserializeOptions.Converters.Add(new TimeOfDayJsonConverter());
+                    _deserializeOptions.Converters.Add(new TimeSpanNullableJsonConverter());
+                    _deserializeOptions.Converters.Add(new TimeSpanJsonConverter());
+                    _deserializeOptions.Converters.Add(new GuidNullableJsonConverter());
+                    _deserializeOptions.Converters.Add(new GuidJsonConverter());
+                }
+                return _deserializeOptions;
+            }
+        }
+        private static JsonSerializerOptions? _deserializeOptions = null;
 
         public static void RegisterEndpoints(IEndpointRouteBuilder endpoints, Package package, string areaName) {
 
             RouteGroupBuilder group = endpoints.MapGroup(GetPackageApiRoute(package, typeof(ModuleEndpoints)));
 
-            group.MapPost($"Update/{{ModuleGuid}}", async (HttpContext context, [FromBody] ModuleSubmitData dataIn, [FromRoute] Guid moduleGuid) => {
-                return await UpdateAsync(context, dataIn, moduleGuid);
+            group.MapPost($"Update/{{ModuleGuid}}", async (HttpContext context,
+                    [FromBody] ModuleSubmitData dataIn, [FromRoute] Guid moduleGuid, [FromQuery] string? action) => {
+                return await UpdateAsync(context, dataIn, moduleGuid, action);
             });
         }
 
@@ -84,7 +115,7 @@ namespace YetaWF.Core.Endpoints {
         /// <param name="context">The HttpContext.</param>
         /// <param name="dataIn">Describes the data requested.</param>
         /// <returns></returns>
-        private static async Task<IResult> UpdateAsync(HttpContext context, ModuleSubmitData dataIn, Guid moduleGuid) {
+        private static async Task<IResult> UpdateAsync(HttpContext context, ModuleSubmitData dataIn, Guid moduleGuid, string? action) {
 
             // save environmental data
             Manager.UniqueIdCounters = dataIn.UniqueIdCounters;
@@ -100,34 +131,26 @@ namespace YetaWF.Core.Endpoints {
             Manager.PageControlShown = dataIn.__Pagectl;
 
             // Find the module action
-            string actionUpdate = ModuleDefinition2.MethodUpdateModuleAsync;
+            string actionUpdate;
+            if (action != null) 
+                actionUpdate = $"Update{action}Async";
+            else
+                actionUpdate = ModuleDefinition2.MethodUpdateModuleAsync;
+
             Type moduleType = module.GetType();
             MethodInfo? miAsync = moduleType.GetMethod(actionUpdate);
             if (miAsync == null)
                 throw new InternalError($"{moduleType.FullName} doesn't have a method named {actionUpdate}");
             ParameterInfo[] parms = miAsync.GetParameters();
-            if (parms.Length != 1)
+            if (parms.Length == 1) {
+                ; // default, pass the model
+            } else if (parms.Length == 2) {
+                if (parms[1].Name != DynamicProperty) throw new InternalError($"{moduleType.FullName} has a method named {actionUpdate} which accepts 2 parameters but the second parameter is not named {DynamicProperty}");
+            } else
                 throw new InternalError($"{moduleType.FullName} doesn't have a method named {actionUpdate} which accepts 1 model parameter");
 
-            var deserializeOptions = new JsonSerializerOptions();
-            deserializeOptions.Converters.Add(new EnumNullableJsonConverter());
-            deserializeOptions.Converters.Add(new EnumJsonConverter());
-            deserializeOptions.Converters.Add(new IntNullableJsonConverter());
-            deserializeOptions.Converters.Add(new IntJsonConverter());
-            deserializeOptions.Converters.Add(new LongNullableJsonConverter());
-            deserializeOptions.Converters.Add(new LongJsonConverter());
-            deserializeOptions.Converters.Add(new DecimalNullableJsonConverter());
-            deserializeOptions.Converters.Add(new DecimalJsonConverter());
-            deserializeOptions.Converters.Add(new MultiStringJsonConverter());
-            deserializeOptions.Converters.Add(new BoolNullableJsonConverter());
-            deserializeOptions.Converters.Add(new BoolJsonConverter());
-            deserializeOptions.Converters.Add(new TimeOfDayNullableJsonConverter());
-            deserializeOptions.Converters.Add(new TimeOfDayJsonConverter());
-            deserializeOptions.Converters.Add(new TimeSpanNullableJsonConverter());
-            deserializeOptions.Converters.Add(new TimeSpanJsonConverter());
-
             ParameterInfo parm = parms[0];
-            object? model = JsonSerializer.Deserialize(dataIn.Model.ToString()!, parm.ParameterType, deserializeOptions);
+            object? model = JsonSerializer.Deserialize(dataIn.Model.ToString()!, parm.ParameterType, DeserializeOptions);
             if (model is null)
                 throw new InternalError($"Model data missing for module {moduleType.FullName} method {actionUpdate}");
 
@@ -158,7 +181,14 @@ namespace YetaWF.Core.Endpoints {
 
             await module2.ModelState.ValidateModel(model, dataIn.__TemplateName, dataIn.__TemplateAction, dataIn.__TemplateExtraData);
 
-            Task<IResult> methStringTask = (Task<IResult>)miAsync.Invoke(module, new object?[] { model })!;
+            Task<IResult> methStringTask;
+            if (parms.Length == 2) {
+                string dynamicString = ((JsonElement)dataIn.Model).GetProperty(DynamicProperty).ToString();
+                methStringTask = (Task<IResult>)miAsync.Invoke(module, new object?[] { model, dynamicString })!;
+            } else {
+                methStringTask = (Task<IResult>)miAsync.Invoke(module, new object?[] { model })!;
+            }
+
             return await methStringTask;
         }
     }

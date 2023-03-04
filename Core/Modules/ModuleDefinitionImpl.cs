@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using YetaWF.Core.Components;
 using YetaWF.Core.DataProvider;
 using YetaWF.Core.DataProvider.Attributes;
+using YetaWF.Core.Endpoints.Support;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Log;
@@ -560,13 +561,16 @@ namespace YetaWF.Core.Modules {
         public async Task<ActionInfo> RenderAsync(object model, string? ViewName = null, bool UseAreaViewName = true) {
 
             if (string.IsNullOrEmpty(ViewName)) {
-                ViewName = DefaultViewName;
+                if (!string.IsNullOrEmpty(DefaultViewName)) {
+                    ViewName = DefaultViewName;
+                    UseAreaViewName = false;
+                }
             }
-            if (string.IsNullOrWhiteSpace(ViewName)) {
+            if (string.IsNullOrWhiteSpace(ViewName))
                 ViewName = ModuleName;
-                if (UseAreaViewName)
-                    ViewName = MakeFullViewName(ViewName, AreaName);
-            }
+            if (UseAreaViewName)
+                ViewName = MakeFullViewName(ViewName, AreaName);
+
             YHtmlHelper htmlHelper = new YHtmlHelper(new Microsoft.AspNetCore.Mvc.ActionContext(), (this as ModuleDefinition2)?.ModelState);//$$$$$ remove this garbage
             string html = await htmlHelper.ForViewAsync(ViewName, this, model);
 
@@ -1034,6 +1038,11 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
         // VALIDATION
         // VALIDATION
 
-        public virtual void CustomValidation(ModelStateDictionary modelState, string modelPrefix) { }
+        /// <summary>
+        /// Custom module settings validation used during Module Settings Edit/Save.
+        /// </summary>
+        /// <param name="modelState"></param>
+        /// <param name="modelPrefix"></param>
+        public virtual void CustomValidation(ModelState modelState, string modelPrefix) { }
     }
 }

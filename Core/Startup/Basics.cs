@@ -32,7 +32,6 @@ namespace YetaWF.Core.Addons {
         public const string CssConfirm = "data-confirm";
         public const string CssPleaseWait = "data-pleasewait";
         public const string CssDontAddToOriginList = "data-no-origin";
-        public const string CssAddModuleContext = "data-module-context";
         public const string CookieDoneCssAttr = "data-cookie-done";
         public const string CssSaveReturnUrl = "data-save-return";
         public const string CssOuterWindow = "data-outerwindow";
@@ -44,7 +43,7 @@ namespace YetaWF.Core.Addons {
         public const string CookieDone = "xfercomplete-cookie";
 
         // used on url to select specific module
-        public const string ModuleGuid = "__ModuleGuid";
+        public const string ModuleGuid = "__ModuleGuid";//$$$$
 
         // templates
         public const string TemplateName = "__TemplateName";
@@ -115,7 +114,6 @@ namespace YetaWF.Core.Addons {
             scripts.AddConfigOption("Basics", "CssConfirm", CssConfirm);
             scripts.AddConfigOption("Basics", "CssPleaseWait", CssPleaseWait);
             scripts.AddConfigOption("Basics", "CssDontAddToOriginList", CssDontAddToOriginList);
-            scripts.AddConfigOption("Basics", "CssAddModuleContext", CssAddModuleContext);
             scripts.AddConfigOption("Basics", "CssAttrDataSpecialEdit", CssAttrDataSpecialEdit);
             scripts.AddConfigOption("Basics", "CssAttrActionButton", CssAttrActionButton);
             scripts.AddConfigOption("Basics", "ModuleGuid", ModuleGuid);// ModuleGuid for form

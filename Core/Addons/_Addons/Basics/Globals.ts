@@ -120,7 +120,6 @@ namespace YetaWF {
         CssConfirm: string;
         CssPleaseWait: string;
         CssDontAddToOriginList: string;
-        CssAddModuleContext: string;
         CssAttrDataSpecialEdit: string;
         CssAttrActionButton: string;
         ModuleGuid: string;

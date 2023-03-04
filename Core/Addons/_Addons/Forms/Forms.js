@@ -180,19 +180,20 @@ var YetaWF;
                         __InPopup: $YetaWF.isInPopup(),
                     };
                     // add extra data
+                    if (extraData) {
+                        if (extraData[YConfigs.Basics.Link_SubmitIsApply] != null) {
+                            formData.__Apply = extraData[YConfigs.Basics.Link_SubmitIsApply];
+                            delete model[YConfigs.Basics.Link_SubmitIsApply];
+                        }
+                        if (extraData[YConfigs.Basics.Link_SubmitIsReload] != null) {
+                            formData.__Reload = extraData[YConfigs.Basics.Link_SubmitIsReload];
+                            delete model[YConfigs.Basics.Link_SubmitIsReload];
+                        }
+                    }
                     if (extraData)
-                        formData = Object.assign(formData, extraData);
-                    // if (extraData) {
-                    //     if (extraData[YConfigs.Basics.Link_SubmitIsApply] != null) {
-                    //         formData.__Apply = extraData[YConfigs.Basics.Link_SubmitIsApply];
-                    //         delete model[YConfigs.Basics.Link_SubmitIsApply];
-                    //     }
-                    //     if (extraData[YConfigs.Basics.Link_SubmitIsReload] != null) {
-                    //         formData.__Reload = extraData[YConfigs.Basics.Link_SubmitIsReload];
-                    //         delete model[YConfigs.Basics.Link_SubmitIsReload];
-                    //     }
-                    // }
-                    $YetaWF.postJSON(uri, null, formData, function (success, responseText) {
+                        uri.addSearchSimpleObject(extraData);
+                    var formJson = $YetaWF.Forms.getJSONInfo(form);
+                    $YetaWF.postJSON(uri, formJson, null, formData, function (success, responseText) {
                         if (success) {
                             if (responseText) {
                                 var partForm = $YetaWF.getElement1BySelectorCond("." + YConfigs.Forms.CssFormPartial, [form]);
@@ -216,6 +217,7 @@ var YetaWF;
                     });
                 }
                 else {
+                    //$$$$ REMOVE
                     // serialize the form
                     var formData = this.serializeForm(form);
                     // add extra data
@@ -392,32 +394,31 @@ var YetaWF;
             return info;
         };
         // get RequestVerificationToken and ModuleGuid (usually for ajax requests)
-        Forms.prototype.getJSONInfo = function (tagInForm) {
+        Forms.prototype.getJSONInfo = function (tagInForm, uniqueIdInfo) {
             var req = null;
-            var form = null;
-            if (!form) {
-                // get token from form containing the tag
-                form = this.getFormCond(tagInForm);
+            var mod = YetaWF.ModuleBase.getModuleDivFromTag(tagInForm);
+            var moduleGuid = mod.getAttribute("data-moduleguid");
+            var form = this.getInnerForm(mod);
+            var formPartial = $YetaWF.elementClosestCond(tagInForm, YConfigs.Forms.CssForm);
+            if (formPartial && !req) {
+                var reqVerElem = $YetaWF.getElement1BySelectorCond("input[name='".concat(YConfigs.Forms.RequestVerificationToken, "']"), [formPartial]);
+                if (reqVerElem)
+                    req = reqVerElem.value;
             }
-            if (!form) {
-                // get token from module, then form containing the tag
-                var mod = YetaWF.ModuleBase.getModuleDivFromTagCond(tagInForm);
-                if (mod)
-                    form = this.getInnerFormCond(mod);
+            if (form && !req) {
+                var reqVerElem = $YetaWF.getElement1BySelectorCond("input[name='".concat(YConfigs.Forms.RequestVerificationToken, "']"), [form]);
+                if (reqVerElem)
+                    req = reqVerElem.value;
             }
-            if (!form)
-                throw "Can't locate form";
-            var reqVerElem = $YetaWF.getElement1BySelectorCond("input[name='".concat(YConfigs.Forms.RequestVerificationToken, "']"), [form]);
-            if (reqVerElem)
-                req = reqVerElem.value;
             if (!req || req.length === 0)
                 throw "Can't locate " + YConfigs.Forms.RequestVerificationToken; /*DEBUG*/
-            var guid = $YetaWF.getElement1BySelector("input[name='".concat(YConfigs.Basics.ModuleGuid, "']"), [form]).value;
-            if (!guid || guid.length === 0)
-                throw "Can't locate " + YConfigs.Basics.ModuleGuid; /*DEBUG*/
-            var info = {};
-            info[YConfigs.Forms.RequestVerificationToken] = req;
-            info[YConfigs.Basics.ModuleGuid] = guid;
+            if (!moduleGuid || moduleGuid.length === 0)
+                throw "Can't locate module guid"; /*DEBUG*/
+            var info = {
+                ModuleGuid: moduleGuid,
+                RequestVerificationToken: req,
+                UniqueIdCounters: uniqueIdInfo,
+            };
             return info;
         };
         // Submit/apply on change/keydown
@@ -540,7 +541,7 @@ var YetaWF;
                 return false;
             });
             // Submit the form when a submit button is clicked
-            $YetaWF.registerEventHandlerBody("submit", "form." + YConfigs.Forms.CssFormAjax, function (ev) {
+            $YetaWF.registerEventHandlerBody("submit", "form." + YConfigs.Forms.CssForm, function (ev) {
                 var form = _this.getForm(ev.target);
                 if ($YetaWF.elementHasClass(form, YConfigs.Forms.CssFormNoSubmit))
                     return false;

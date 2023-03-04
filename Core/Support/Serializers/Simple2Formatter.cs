@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using YetaWF.Core.DataProvider.Attributes;
+using YetaWF.Core.Log;
 using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Support;
@@ -429,10 +430,10 @@ namespace YetaWF.Core.Serializers {
             object? objVal = null;
             PropertyInfo? pi = (from PropertyInfo p in propInfos where p.Name == propName select p).FirstOrDefault();
             if (pi == null) {
-                //Logging.AddLog("Element found for non-existent property {0}", propName);
-                //throw new InternalError("Element found for non-existent property {0}", propName);
+                Logging.AddLog("Element found for non-existent property {0}", propName);
+                throw new InternalError("Element found for non-existent property {0}", propName);
                 // This is OK as it can happen when data models change
-                return null;
+                // return null;
             }
 
             if (input == "V") {

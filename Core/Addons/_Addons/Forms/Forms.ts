@@ -93,7 +93,7 @@ namespace YetaWF {
         // Css used which is global to YetaWF (not implementation specific)
 
         CssFormPartial: string;
-        CssFormAjax: string;
+        CssForm: string;
         CssFormNoSubmit: string;
         CssFormNoValidate: string;
         CssFormNoSubmitContents: string;
@@ -134,6 +134,11 @@ namespace YetaWF {
         UniqueIdCounters: UniqueIdInfo;
         ModuleGuid: string;
         QS: string;
+    }
+    export interface FormInfoJSON {
+        RequestVerificationToken: string;
+        ModuleGuid: string;
+        UniqueIdCounters?: UniqueIdInfo;
     }
 
     export enum PanelAction {
@@ -343,20 +348,23 @@ namespace YetaWF {
                         __Pagectl: YVolatile.Basics.PageControlVisible,
                         __InPopup: $YetaWF.isInPopup(),
                     };
+                    
                     // add extra data
+                    if (extraData) {
+                        if (extraData[YConfigs.Basics.Link_SubmitIsApply] != null) {
+                            formData.__Apply = extraData[YConfigs.Basics.Link_SubmitIsApply];
+                            delete model[YConfigs.Basics.Link_SubmitIsApply];
+                        }
+                        if (extraData[YConfigs.Basics.Link_SubmitIsReload] != null) {
+                            formData.__Reload = extraData[YConfigs.Basics.Link_SubmitIsReload];
+                            delete model[YConfigs.Basics.Link_SubmitIsReload];
+                        }
+                    }
                     if (extraData)
-                        formData = Object.assign(formData, extraData);
-                    // if (extraData) {
-                    //     if (extraData[YConfigs.Basics.Link_SubmitIsApply] != null) {
-                    //         formData.__Apply = extraData[YConfigs.Basics.Link_SubmitIsApply];
-                    //         delete model[YConfigs.Basics.Link_SubmitIsApply];
-                    //     }
-                    //     if (extraData[YConfigs.Basics.Link_SubmitIsReload] != null) {
-                    //         formData.__Reload = extraData[YConfigs.Basics.Link_SubmitIsReload];
-                    //         delete model[YConfigs.Basics.Link_SubmitIsReload];
-                    //     }
-                    // }
-                    $YetaWF.postJSON(uri, null, formData, (success: boolean, responseText: string): void => {
+                        uri.addSearchSimpleObject(extraData);
+
+                    const formJson = $YetaWF.Forms.getJSONInfo(form);
+                    $YetaWF.postJSON(uri, formJson, null, formData, (success: boolean, responseText: string): void => {
                         if (success) {
                             if (responseText) {
                                 let partForm = $YetaWF.getElement1BySelectorCond("." + YConfigs.Forms.CssFormPartial, [form]);
@@ -379,6 +387,7 @@ namespace YetaWF {
                     });
 
                 } else {
+                    //$$$$ REMOVE
                     // serialize the form
                     let formData = this.serializeForm(form);
                     // add extra data
@@ -550,29 +559,29 @@ namespace YetaWF {
             return info;
         }
         // get RequestVerificationToken and ModuleGuid (usually for ajax requests)
-        public getJSONInfo(tagInForm: HTMLElement) : any {
+        public getJSONInfo(tagInForm: HTMLElement, uniqueIdInfo?: UniqueIdInfo) : FormInfoJSON {
             let req: string|null = null;
-            let form: HTMLFormElement|null = null;
-            if (!form) {
-                // get token from form containing the tag
-                form = this.getFormCond(tagInForm);
+            const mod = YetaWF.ModuleBase.getModuleDivFromTag(tagInForm);
+            const moduleGuid = mod.getAttribute("data-moduleguid");
+            const form = this.getInnerForm(mod);
+            const formPartial = $YetaWF.elementClosestCond(tagInForm, YConfigs.Forms.CssForm);
+            if (formPartial && !req) {
+                const reqVerElem = $YetaWF.getElement1BySelectorCond(`input[name='${YConfigs.Forms.RequestVerificationToken}']`, [formPartial]) as HTMLInputElement|null;            
+                if (reqVerElem)
+                    req = reqVerElem.value;
             }
-            if (!form) {
-                // get token from module, then form containing the tag
-                let mod = YetaWF.ModuleBase.getModuleDivFromTagCond(tagInForm);
-                if (mod)
-                    form = this.getInnerFormCond(mod);
+            if (form && !req) {
+                const reqVerElem = $YetaWF.getElement1BySelectorCond(`input[name='${YConfigs.Forms.RequestVerificationToken}']`, [form]) as HTMLInputElement|null;            
+                if (reqVerElem)
+                    req = reqVerElem.value;
             }
-            if (!form) throw "Can't locate form";
-            const reqVerElem = $YetaWF.getElement1BySelectorCond(`input[name='${YConfigs.Forms.RequestVerificationToken}']`, [form]) as HTMLInputElement|null;            
-            if (reqVerElem)
-                req = reqVerElem.value;
             if (!req || req.length === 0) throw "Can't locate " + YConfigs.Forms.RequestVerificationToken;/*DEBUG*/
-            let guid = ($YetaWF.getElement1BySelector(`input[name='${YConfigs.Basics.ModuleGuid}']`, [form]) as HTMLInputElement).value;
-            if (!guid || guid.length === 0) throw "Can't locate " + YConfigs.Basics.ModuleGuid;/*DEBUG*/
-            let info: any = {};
-            info[YConfigs.Forms.RequestVerificationToken] = req;
-            info[YConfigs.Basics.ModuleGuid] = guid;
+            if (!moduleGuid || moduleGuid.length === 0) throw "Can't locate module guid";/*DEBUG*/
+            const info: FormInfoJSON = {
+                ModuleGuid: moduleGuid,
+                RequestVerificationToken: req,
+                UniqueIdCounters: uniqueIdInfo,
+            };
             return info;
         }
 
@@ -704,7 +713,7 @@ namespace YetaWF {
 
             // Submit the form when a submit button is clicked
 
-            $YetaWF.registerEventHandlerBody("submit", "form." + YConfigs.Forms.CssFormAjax, (ev: Event) : boolean => {
+            $YetaWF.registerEventHandlerBody("submit", "form." + YConfigs.Forms.CssForm, (ev: Event) : boolean => {
                 let form = this.getForm(ev.target as HTMLElement);
                 if ($YetaWF.elementHasClass(form, YConfigs.Forms.CssFormNoSubmit)) return false;
                 this.submit(form, true);

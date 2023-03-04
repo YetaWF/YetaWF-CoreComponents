@@ -1,6 +1,7 @@
 ﻿/* Copyright © 2023 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Components;
@@ -8,6 +9,7 @@ using YetaWF.Core.Endpoints;
 using YetaWF.Core.Endpoints.Support;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models.Attributes;
+using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Modules {
@@ -38,16 +40,19 @@ namespace YetaWF.Core.Modules {
         }
         private ModelState? _modelState = null;
 
-        protected async Task<IResult> PartialViewAsync(object? model = null, ScriptBuilder? Script = null) {
+        protected async Task<IResult> PartialViewAsync(object? model = null, ScriptBuilder? Script = null, string? ViewName = null) {
             // Find view name
-            string viewName;
-            if (!string.IsNullOrWhiteSpace(DefaultViewName))
-                viewName = DefaultViewName;
-            else
-                viewName = MakeFullViewName(ModuleName, AreaName);
-            viewName += YetaWFViewExtender.PartialSuffix;
+            if (string.IsNullOrEmpty(ViewName)) {
+                if (!string.IsNullOrWhiteSpace(DefaultViewName))
+                    ViewName = DefaultViewName;
+                else
+                    ViewName = MakeFullViewName(ModuleName, AreaName);
+            } else {
+                ViewName = MakeFullViewName(ViewName, AreaName);
+            }
+            ViewName += YetaWFViewExtender.PartialSuffix;
 
-            return await YetaWF.Core.Endpoints.PartialView.RenderPartialView(Manager.CurrentContext, viewName, this, null, model, "application/html", Script: Script);
+            return await YetaWF.Core.Endpoints.PartialView.RenderPartialView(Manager.CurrentContext, ViewName, this, null, model, "application/html", Script: Script);
         }
 
         /// <summary>
@@ -403,6 +408,20 @@ $YetaWF.message({popupText}, {popupTitle}, function() {{
                 }
             }
             return Results.Json($"{Basics.AjaxJavascriptReturn}{sb.ToString()}");
+        }
+
+        /// <summary>
+        /// Redirects to the specified URL, aborting page rendering.
+        /// </summary>
+        /// <param name="url">The URL where the page is redirected.</param>
+        /// <returns>An ActionInfo to be returned by the controller.</returns>
+        /// <remarks>
+        /// The Redirect method can be used for GET within content rendering.
+        /// </remarks>
+        protected ActionInfo RedirectToUrl(string url) {
+            Manager.CurrentResponse.StatusCode = StatusCodes.Status307TemporaryRedirect;
+            Manager.CurrentResponse.Headers.Add("Location", url);
+            return ActionInfo.Empty;
         }
     }
 }

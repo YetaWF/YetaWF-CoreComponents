@@ -31,8 +31,8 @@ var YetaWF;
                         if (!urlTrack)
                             throw "data-track not defined"; /*DEBUG*/
                         var uri_1 = $YetaWF.parseUrl(urlTrack);
-                        uri_1.addFormInfo(f);
-                        $YetaWF.postJSONIgnore(uri_1, { Url: url }, null);
+                        var formJson = $YetaWF.Forms.getJSONInfo(anchor);
+                        $YetaWF.postJSONIgnore(uri_1, formJson, { Url: url }, null);
                     }
                 }
                 var uri = $YetaWF.parseUrl(url);
@@ -42,13 +42,6 @@ var YetaWF;
                 uri.removeSearch(YConfigs.Basics.Link_PageControl);
                 if (YVolatile.Basics.PageControlVisible)
                     uri.addSearch(YConfigs.Basics.Link_PageControl, "y");
-                // add our module context info (if requested)
-                if (anchor.getAttribute(YConfigs.Basics.CssAddModuleContext) != null) {
-                    if (!uri.hasSearch(YConfigs.Basics.ModuleGuid)) {
-                        var guid = $YetaWF.getModuleGuidFromTag(anchor);
-                        uri.addSearch(YConfigs.Basics.ModuleGuid, guid);
-                    }
-                }
                 // first try to handle this as a link to the outer window (only used in a popup)
                 if ($YetaWF.PopupsAvailable()) {
                     if ($YetaWF.Popups.handleOuterWindow(anchor))
@@ -183,7 +176,8 @@ var YetaWF;
         };
         Anchors.prototype.postLink = function (url, anchorOwner, tag, cookieToReturn) {
             this.waitForCookie(cookieToReturn);
-            $YetaWF.postJSON($YetaWF.parseUrl(url), $YetaWF.Forms.getJSONInfo(tag), null, function (success, data) { }, anchorOwner || undefined);
+            var formJson = $YetaWF.Forms.getJSONInfo(tag);
+            $YetaWF.postJSON($YetaWF.parseUrl(url), formJson, null, null, function (success, data) { }, anchorOwner || undefined);
         };
         return Anchors;
     }());

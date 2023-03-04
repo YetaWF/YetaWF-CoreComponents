@@ -639,6 +639,7 @@ namespace YetaWF {
          * @param callback The callback to call when the POST response is available. Errors are automatically handled.
          * @param tagInModule The optional tag in a module to refresh when AjaxJavascriptReloadModuleParts is returned.
          */
+        //$$$$ REMOVE
         public send(method: string, url: string, data: any, callback: (success: boolean, data: any) => void, tagInModule?: HTMLElement): void {
             this.setLoading(true);
             let request: XMLHttpRequest = new XMLHttpRequest();
@@ -649,27 +650,27 @@ namespace YetaWF {
             request.send(data);
         }
 
-        /** POST form data to the specified URL, expecting a JSON response. Errors are automatically handled. The callback is called once the POST response is available.
-         * @param url The URL used for the POST request.
-         * @param data The data to send as form data with the POST request.
-         * @param callback The callback to call when the POST response is available. Errors are automatically handled.
-         * @param tagInModule The optional tag in a module to refresh when AjaxJavascriptReloadModuleParts is returned.
-         */
-        public post(url: string, data: any, callback: (success: boolean, data: any) => void, tagInModule?: HTMLElement): void {
-            this.setLoading(true);
-            let request: XMLHttpRequest = new XMLHttpRequest();
-            request.open("POST", url, true);
-            request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-            $YetaWF.handleReadyStateChange(request, callback, tagInModule);
-            request.send(data);
-        }
+        // /** POST form data to the specified URL, expecting a JSON response. Errors are automatically handled. The callback is called once the POST response is available.
+        //  * @param url The URL used for the POST request.
+        //  * @param data The data to send as form data with the POST request.
+        //  * @param callback The callback to call when the POST response is available. Errors are automatically handled.
+        //  * @param tagInModule The optional tag in a module to refresh when AjaxJavascriptReloadModuleParts is returned.
+        //  */
+        // public post(url: string, data: any, callback: (success: boolean, data: any) => void, tagInModule?: HTMLElement): void {
+        //     this.setLoading(true);
+        //     let request: XMLHttpRequest = new XMLHttpRequest();
+        //     request.open("POST", url, true);
+        //     request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        //     $YetaWF.handleReadyStateChange(request, callback, tagInModule);
+        //     request.send(data);
+        // }
         /** POST JSON data to the specified URL, ignoring any response.
          * @param url The URL used for the POST request.
          * @param query The optional query data sent as query string.
          * @param data The optional data to send as JSON data with the POST request.
          */
-        public postJSONIgnore(uri: Url, query: any, data: any): void {
-            const request = this.getPostRequest(uri, query, data);
+        public postJSONIgnore(uri: Url, formJson: FormInfoJSON, query: any, data: any): void {
+            const request = this.getPostRequest(uri, formJson, query, data);
             request.send(JSON.stringify(data));
             this.setLoading(false);
         }
@@ -680,34 +681,21 @@ namespace YetaWF {
          * @param callback The callback to call when the POST response is available. Errors are automatically handled.
          * @param tagInModule The optional tag in a module to refresh when AjaxJavascriptReloadModuleParts is returned.
          */
-        public postJSON(uri: Url, query: any, data: any, callback: (success: boolean, data: any) => void, tagInModule?: HTMLElement): void {
-            const request = this.getPostRequest(uri, query, data);
+        public postJSON(uri: Url, formJson: FormInfoJSON, query: any, data: any, callback: (success: boolean, data: any) => void, tagInModule?: HTMLElement): void {
+            const request = this.getPostRequest(uri, formJson, query, data);
             $YetaWF.handleReadyStateChange(request, callback, tagInModule);
             request.send(JSON.stringify(data));
         }
-        private getPostRequest(uri: Url, query: any, data: any): XMLHttpRequest {
+        private getPostRequest(uri: Url, formJson: FormInfoJSON, query: any, data: any): XMLHttpRequest {
             this.setLoading(true);
-            if (query && query[YConfigs.Basics.ModuleGuid]) {
-                if (!uri.hasSearch(YConfigs.Basics.ModuleGuid))
-                    uri.addSearch(YConfigs.Basics.ModuleGuid, query[YConfigs.Basics.ModuleGuid])
-                delete query[YConfigs.Basics.ModuleGuid];
-            }
-            let token: string|null = null;
-            if (!token && query && query[YConfigs.Forms.RequestVerificationToken]) {
-                token = query[YConfigs.Forms.RequestVerificationToken];
-                delete query[YConfigs.Forms.RequestVerificationToken];
-            }
-            if (!token && data && data[YConfigs.Forms.RequestVerificationToken]) {
-                token = data[YConfigs.Forms.RequestVerificationToken];
-                delete data[YConfigs.Forms.RequestVerificationToken];
-            }
-            if (query) 
-                uri.addSearchSimpleObject(query);
+            if (!query) query = {};
+            query[YConfigs.Basics.ModuleGuid] = formJson.ModuleGuid;
+            if (formJson.UniqueIdCounters)
+                query[YConfigs.Forms.UniqueIdCounters] = formJson.UniqueIdCounters;
             const request: XMLHttpRequest = new XMLHttpRequest();
             request.open("POST", uri.toUrl(), true);
             request.setRequestHeader("Content-Type", "application/json");
-            if (token)
-                request.setRequestHeader("RequestVerificationToken", token);
+            request.setRequestHeader("RequestVerificationToken", formJson.RequestVerificationToken);
             return request;
         }
 

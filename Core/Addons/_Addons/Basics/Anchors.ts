@@ -34,8 +34,8 @@ namespace YetaWF {
                         if (!urlTrack) throw "data-track not defined";/*DEBUG*/
 
                         let uri = $YetaWF.parseUrl(urlTrack);
-                        uri.addFormInfo(f);
-                        $YetaWF.postJSONIgnore(uri, { Url: url }, null);
+                        const formJson = $YetaWF.Forms.getJSONInfo(anchor);
+                        $YetaWF.postJSONIgnore(uri, formJson, { Url: url }, null);
                     }
                 }
 
@@ -46,14 +46,6 @@ namespace YetaWF {
                 uri.removeSearch(YConfigs.Basics.Link_PageControl);
                 if (YVolatile.Basics.PageControlVisible)
                     uri.addSearch(YConfigs.Basics.Link_PageControl, "y");
-
-                // add our module context info (if requested)
-                if (anchor.getAttribute(YConfigs.Basics.CssAddModuleContext) != null) {
-                    if (!uri.hasSearch(YConfigs.Basics.ModuleGuid)) {
-                        let guid = $YetaWF.getModuleGuidFromTag(anchor);
-                        uri.addSearch(YConfigs.Basics.ModuleGuid, guid);
-                    }
-                }
 
                 // first try to handle this as a link to the outer window (only used in a popup)
                 if ($YetaWF.PopupsAvailable()) {
@@ -195,7 +187,8 @@ namespace YetaWF {
         }
         private postLink(url: string, anchorOwner: HTMLElement | null, tag: HTMLElement, cookieToReturn: number | null) : void {
             this.waitForCookie(cookieToReturn);
-            $YetaWF.postJSON($YetaWF.parseUrl(url), $YetaWF.Forms.getJSONInfo(tag), null, (success: boolean, data: any) : void => { }, anchorOwner || undefined);
+            const formJson = $YetaWF.Forms.getJSONInfo(tag);
+            $YetaWF.postJSON($YetaWF.parseUrl(url), formJson, null, null, (success: boolean, data: any) : void => { }, anchorOwner || undefined);
         }
     }
 

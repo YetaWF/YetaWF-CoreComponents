@@ -1,5 +1,6 @@
 ﻿/* Copyright © 2023 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using System;
 using YetaWF.Core.Localize;
 
 namespace YetaWF.Core.Components {
@@ -16,6 +17,7 @@ namespace YetaWF.Core.Components {
         public string SelectButtonText { get; set; }
         public string SelectButtonTooltip { get; set; }
         public string DropFilesText { get; set; }
+        [Obsolete("Don't use SerializeForm, we send too much data")]
         public bool SerializeForm { get; set; }// serialize all form data when uploading a file
 
         public string SaveURL { get; set; } = null!;
