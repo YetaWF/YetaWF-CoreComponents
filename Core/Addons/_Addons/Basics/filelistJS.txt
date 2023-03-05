@@ -6,4 +6,5 @@ Basics.ts
 ComponentBase.ts
 ModuleBase.ts
 Url.ts
+Utility.ts
 Debugging.ts,notdeployed

@@ -55,7 +55,7 @@ namespace YetaWF.Core.WebAPIStartup {
                 // AreaConvention to simplify Area discovery (using IControllerModelConvention)
                 options.Conventions.Add(new AreaConventionAttribute());
             })
-            .AddNewtonsoftJson()
+            //.AddNewtonsoftJson() //$$$$$
             .ConfigureApplicationPartManager((partManager) => { YetaWFApplicationPartManager.AddAssemblies(partManager); });
 
 #if !DEBUG

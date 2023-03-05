@@ -43,7 +43,7 @@ namespace YetaWF.Core.Modules {
                         // move to other panes
                         List<ModuleAction> subMenu = await GetMoveToOtherPanesAsync(page, modServices);
                         if (subMenu.Count > 0) {
-                            ModuleAction action = new ModuleAction(null) { MenuText = __ResStr("mmMoveTo", "Move To"), SubMenu = new Serializers.SerializableList<ModuleAction>(subMenu) };
+                            ModuleAction action = new ModuleAction() { MenuText = __ResStr("mmMoveTo", "Move To"), SubMenu = new Serializers.SerializableList<ModuleAction>(subMenu) };
                             bool allDisabled = (from s in subMenu where s.Enabled == false select s).Count() == subMenu.Count;
                             if (!allDisabled)
                                 moduleMenu.New(action, location);
@@ -52,7 +52,7 @@ namespace YetaWF.Core.Modules {
                         // move within pane
                         subMenu = await GetMoveWithinPaneAsync(page, modServices);
                         if (subMenu.Count > 0) {
-                            ModuleAction action = new ModuleAction(null) { MenuText = __ResStr("mmMove", "Move"), SubMenu = new Serializers.SerializableList<ModuleAction>(subMenu) };
+                            ModuleAction action = new ModuleAction() { MenuText = __ResStr("mmMove", "Move"), SubMenu = new Serializers.SerializableList<ModuleAction>(subMenu) };
                             bool allDisabled = (from s in subMenu where s.Enabled == false select s).Count() == subMenu.Count;
                             if (!allDisabled)
                                 moduleMenu.New(action, location);

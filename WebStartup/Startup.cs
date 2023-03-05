@@ -262,9 +262,9 @@ public partial class Startup {
             options.Conventions.Add(new AreaConventionAttribute());
 
         })
-        .AddNewtonsoftJson((options) => {
-            options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
-        })
+        //.AddNewtonsoftJson((options) => { //$$$$$
+        //    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+        //})
         .ConfigureApplicationPartManager((partManager) => { YetaWFApplicationPartManager.AddAssemblies(partManager); });
 
         builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options => { // Minimal API serialization

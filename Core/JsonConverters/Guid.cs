@@ -5,6 +5,8 @@ using System.Text.Json.Serialization;
 namespace YetaWF.Core.JsonConverters {
 
     public class GuidNullableJsonConverter : JsonConverter<Guid?> {
+        
+        public override bool HandleNull => true;
 
         public override Guid? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
             if (reader.TokenType == JsonTokenType.Null) {

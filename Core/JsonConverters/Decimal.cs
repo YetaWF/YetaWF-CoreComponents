@@ -6,6 +6,8 @@ namespace YetaWF.Core.JsonConverters {
 
     public class DecimalNullableJsonConverter : JsonConverter<decimal?> {
 
+        public override bool HandleNull => true;
+
         public override decimal? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
             if (reader.TokenType == JsonTokenType.Null) {
                 return null;

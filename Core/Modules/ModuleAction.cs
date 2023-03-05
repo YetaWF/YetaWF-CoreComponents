@@ -151,10 +151,6 @@ namespace YetaWF.Core.Modules {
             PageSecurity = PageDefinition.PageSecurityType.Any;
         }
 
-        public ModuleAction(ModuleDefinition? owningModule) : this() {
-            //OwningModule = owningModule;
-        }
-
         public MenuEntryType EntryType {
             get {
                 if (Separator) return MenuEntryType.Separator;
@@ -267,6 +263,7 @@ namespace YetaWF.Core.Modules {
 
         public bool DontCheckAuthorization { get; set; }// don't check whether user is authorized (always show) - this will force a login/register when used
 
+        //$$$$REMOVE
         //public Guid GetOwningModuleGuid() {
         //    if (OwningModuleGuid == Guid.Empty) {
         //        if (OwningModule == null)

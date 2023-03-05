@@ -6,6 +6,8 @@ namespace YetaWF.Core.JsonConverters {
 
     public class TimeSpanNullableJsonConverter : JsonConverter<TimeSpan?> {
 
+        public override bool HandleNull => true;
+
         public override TimeSpan? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
             if (reader.TokenType == JsonTokenType.Null) {
                 return null;

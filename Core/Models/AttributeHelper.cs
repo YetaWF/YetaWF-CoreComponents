@@ -1,6 +1,6 @@
 ﻿/* Copyright © 2023 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Models {

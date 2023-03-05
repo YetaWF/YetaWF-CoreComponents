@@ -1,16 +1,15 @@
 ﻿/* Copyright © 2023 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Dynamic.Core.CustomTypeProviders;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 using YetaWF.Core.DataProvider;
 using YetaWF.Core.Extensions;
+using YetaWF.Core.JsonConverters;
 using YetaWF.Core.Language;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Support;
@@ -351,42 +350,6 @@ namespace YetaWF.Core.Models {
             //else if (destinationType == typeof(EditorDefinition))
             //    return new EditorDefinition((MultiString)value);
             return base.ConvertTo(context, culture, value, destinationType);
-        }
-    }
-
-    public class MultiStringJsonConverter : JsonConverter<MultiString> {
-        public override MultiString? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
-            var dictionary = new MultiString();
-            if (reader.TokenType != JsonTokenType.StartArray) throw new JsonException();
-            while (reader.Read()) {
-                if (reader.TokenType == JsonTokenType.EndArray)
-                    return dictionary;
-                if (reader.TokenType != JsonTokenType.StartObject) throw new JsonException();
-                while (reader.Read()) {
-                    if (reader.TokenType == JsonTokenType.EndObject)
-                        break;
-                    // Get the key.
-                    if (reader.TokenType != JsonTokenType.PropertyName) throw new JsonException();
-                    string key = reader.GetString() ?? throw new JsonException();
-                    // Get the value.
-                    if (!reader.Read()) throw new JsonException();
-                    string? value = reader.GetString() ?? throw new JsonException();
-                    // Add to dictionary.
-                    dictionary.Remove(key);// en-us is already installed by default, so remove all to avoid dups
-                    dictionary.Add(key, value);
-                }
-            }
-            throw new JsonException();
-        }
-
-        public override void Write(Utf8JsonWriter writer, MultiString ms, JsonSerializerOptions options) {
-            writer.WriteStartObject();
-            var _valueConverter = (JsonConverter<MultiString>)options.GetConverter(typeof(MultiString));
-            foreach ((string key, string value) in ms) {
-                writer.WritePropertyName(key);
-                writer.WritePropertyName(value);
-            }
-            writer.WriteEndObject();
         }
     }
 }

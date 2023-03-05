@@ -6,6 +6,8 @@ namespace YetaWF.Core.JsonConverters {
 
     public class IntNullableJsonConverter : JsonConverter<int?> {
 
+        public override bool HandleNull => true;
+
         public override int? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
             if (reader.TokenType == JsonTokenType.Null) {
                 return null;

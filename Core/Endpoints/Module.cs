@@ -9,8 +9,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
-using YetaWF.Core.JsonConverters;
-using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Packages;
@@ -26,35 +24,6 @@ namespace YetaWF.Core.Endpoints {
 
         public const string Update = "Update";
         public const string DynamicProperty = "Dynamic";
-
-        public static JsonSerializerOptions DeserializeOptions {
-            get {
-                if (_deserializeOptions == null) {
-                    _deserializeOptions = new JsonSerializerOptions();
-                    _deserializeOptions.Converters.Add(new EnumNullableJsonConverter());
-                    _deserializeOptions.Converters.Add(new EnumJsonConverter());
-                    _deserializeOptions.Converters.Add(new IntNullableJsonConverter());
-                    _deserializeOptions.Converters.Add(new IntJsonConverter());
-                    _deserializeOptions.Converters.Add(new LongNullableJsonConverter());
-                    _deserializeOptions.Converters.Add(new LongJsonConverter());
-                    _deserializeOptions.Converters.Add(new DecimalNullableJsonConverter());
-                    _deserializeOptions.Converters.Add(new DecimalJsonConverter());
-                    _deserializeOptions.Converters.Add(new MultiStringJsonConverter());
-                    _deserializeOptions.Converters.Add(new BoolNullableJsonConverter());
-                    _deserializeOptions.Converters.Add(new BoolJsonConverter());
-                    _deserializeOptions.Converters.Add(new DateTimeNullableJsonConverter());
-                    _deserializeOptions.Converters.Add(new DateTimeJsonConverter());
-                    _deserializeOptions.Converters.Add(new TimeOfDayNullableJsonConverter());
-                    _deserializeOptions.Converters.Add(new TimeOfDayJsonConverter());
-                    _deserializeOptions.Converters.Add(new TimeSpanNullableJsonConverter());
-                    _deserializeOptions.Converters.Add(new TimeSpanJsonConverter());
-                    _deserializeOptions.Converters.Add(new GuidNullableJsonConverter());
-                    _deserializeOptions.Converters.Add(new GuidJsonConverter());
-                }
-                return _deserializeOptions;
-            }
-        }
-        private static JsonSerializerOptions? _deserializeOptions = null;
 
         public static void RegisterEndpoints(IEndpointRouteBuilder endpoints, Package package, string areaName) {
 
@@ -150,7 +119,7 @@ namespace YetaWF.Core.Endpoints {
                 throw new InternalError($"{moduleType.FullName} doesn't have a method named {actionUpdate} which accepts 1 model parameter");
 
             ParameterInfo parm = parms[0];
-            object? model = JsonSerializer.Deserialize(dataIn.Model.ToString()!, parm.ParameterType, DeserializeOptions);
+            object? model = Utility.JsonDeserialize(dataIn.Model.ToString()!, parm.ParameterType);
             if (model is null)
                 throw new InternalError($"Model data missing for module {moduleType.FullName} method {actionUpdate}");
 

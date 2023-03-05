@@ -6,6 +6,8 @@ namespace YetaWF.Core.JsonConverters {
 
     public class DateTimeNullableJsonConverter : JsonConverter<DateTime?> {
 
+        public override bool HandleNull => true;
+
         public override DateTime? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
             if (reader.TokenType == JsonTokenType.Null) {
                 return null;
@@ -14,7 +16,7 @@ namespace YetaWF.Core.JsonConverters {
                 if (string.IsNullOrEmpty(s)) return null;
                 if (!DateTime.TryParse(s, out DateTime result))
                     throw new JsonException($"Expected DateTime value: {s}");
-                return result;
+                return result.ToUniversalTime();
             } else throw new JsonException();
         }
 
@@ -33,7 +35,7 @@ namespace YetaWF.Core.JsonConverters {
                 var s = reader.GetString();
                 if (!DateTime.TryParse(s, out DateTime result))
                     throw new JsonException($"Expected DateTime value: {s}");
-                return result;
+                return result.ToUniversalTime();
             } else throw new JsonException();
         }
 

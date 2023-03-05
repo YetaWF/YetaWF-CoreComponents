@@ -512,6 +512,7 @@ var YetaWF;
             query[YConfigs.Basics.ModuleGuid] = formJson.ModuleGuid;
             if (formJson.UniqueIdCounters)
                 query[YConfigs.Forms.UniqueIdCounters] = formJson.UniqueIdCounters;
+            uri.addSearchSimpleObject(query);
             var request = new XMLHttpRequest();
             request.open("POST", uri.toUrl(), true);
             request.setRequestHeader("Content-Type", "application/json");

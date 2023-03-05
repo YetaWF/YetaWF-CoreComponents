@@ -30,9 +30,8 @@ namespace YetaWF.Core.Support {
             if (!File.Exists(settingsFile)) // use local file system as we need this during initialization
                 throw new InternalError("Mime settings not defined - file {0} not found", settingsFile);
             SettingsFile = settingsFile;
-            dynamic settings = Utility.JsonDeserialize(File.ReadAllText(SettingsFile)); // use local file system as we need this during initialization
+            List<MimeEntry> settings = Utility.JsonDeserialize<List<MimeEntry>>(File.ReadAllText(SettingsFile)); // use local file system as we need this during initialization
 
-            dynamic mimeSection = settings["MimeSection"];
             List<MimeEntry> list = new List<MimeEntry> {
                 // add required extensions (see FileExtensionContentTypeProvider.cs for complete list supported by .net core, but limited here)
                 new MimeEntry { Extensions = ".js", Type = "application/javascript" },
@@ -49,11 +48,7 @@ namespace YetaWF.Core.Support {
                 new MimeEntry { Extensions = ".ico", Type = "image/x-icon" } // favicon
             };
 
-            // add specified extensions
-            foreach (var t in mimeSection["MimeTypes"]) {
-                string e = t.Extensions ?? "";
-                list.Add(new MimeEntry { Extensions = e.ToLower(), Type = t.Type ?? "", Dynamic = t });
-            }
+            list.AddRange(settings);
 
             CachedEntries = list;
             return Task.CompletedTask;

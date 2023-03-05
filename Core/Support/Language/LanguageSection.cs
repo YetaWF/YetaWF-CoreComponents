@@ -38,19 +38,9 @@ namespace YetaWF.Core.Language {
                 };
                 return Task.CompletedTask;
             } else {
-                dynamic settings = Utility.JsonDeserialize(File.ReadAllText(settingsFile)); // use local file system as we need this during initialization
-                Languages = GetLanguages(settings);
+                Languages = Utility.JsonDeserialize<LanguageEntryElementCollection>(File.ReadAllText(settingsFile)); // use local file system as we need this during initialization
                 return Task.CompletedTask;
             }
-        }
-
-        private static LanguageEntryElementCollection GetLanguages(dynamic settings) {
-            dynamic LanguageSection = settings["LanguageSection"];
-            LanguageEntryElementCollection list = new LanguageEntryElementCollection();
-            foreach (var t in LanguageSection["Languages"]) {
-                list.Add(new LanguageEntryElement { Id = (string)t["Id"], ShortName = (string)t["ShortName"], Description = (string)t["Description"] });
-            }
-            return list;
         }
     }
 }

@@ -29,7 +29,7 @@ internal static class StartupRequest {
 
                         Logging.AddLog($"{nameof(StartYetaWF)} starting");
 
-                        YetaWFManager manager = YetaWFManager.MakeInitialThreadInstance(new SiteDefinition() { SiteDomain = "__STARTUP" }, null, app.ApplicationServices); // while loading packages we need a manager
+                        YetaWFManager manager = YetaWFManager.MakeInitialThreadInstance(new SiteDefinition() { SiteDomain = "__STARTUP" }, null, app!.ApplicationServices); // while loading packages we need a manager
                         YetaWFManager.Syncify(async () => {
                             // External data providers
                             ExternalDataProviders.RegisterExternalDataProviders();
