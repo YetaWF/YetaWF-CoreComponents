@@ -9,45 +9,44 @@ using System.Linq;
 using System.Xml.Linq;
 using YetaWF.Core.Support;
 
-namespace YetaWF2.Support {
+namespace YetaWF2.Support;
 
-    public class DataProtectionKeyRepository : IXmlRepository {
+public class DataProtectionKeyRepository : IXmlRepository {
 
-        public IReadOnlyCollection<XElement> GetAllElements() {
-            string? s = WebConfigHelper.GetValue<string?>("DataProtection", "List", Package: false);
-            if (s == null) return new List<XElement>();
-            return Utility.JsonDeserializeNewtonsoft<List<XElement>>(s);
-        }
-
-        public void StoreElement(XElement element, string friendlyName) {
-            List<XElement> list = new List<XElement>(GetAllElements());
-            XElement? elem = (from l in list where l.Name == friendlyName select l).FirstOrDefault();
-            if (elem != null)
-                list.Remove(elem);
-            list.Add(element);
-
-            string s = Utility.JsonSerializeNewtonsoft(list);
-            WebConfigHelper.SetValue<string>("DataProtection", "List", s, false);
-            WebConfigHelper.SaveAsync().Wait();// oh well
-        }
+    public IReadOnlyCollection<XElement> GetAllElements() {
+        string? s = WebConfigHelper.GetValue<string?>("DataProtection", "List", Package: false);
+        if (s == null) return new List<XElement>();
+        return Utility.JsonDeserializeNewtonsoft<List<XElement>>(s);
     }
 
-    public static class DataProtectionKeyExtensions {
-        public static IDataProtectionBuilder PersistKeysToAppSettings(this IDataProtectionBuilder builder, IServiceCollection? services = null) {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
-            return builder.Use(ServiceDescriptor.Scoped<IXmlRepository, DataProtectionKeyRepository>());
-        }
-        public static IDataProtectionBuilder Use(this IDataProtectionBuilder builder, ServiceDescriptor descriptor) {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
-            if (descriptor == null) throw new ArgumentNullException(nameof(descriptor));
+    public void StoreElement(XElement element, string friendlyName) {
+        List<XElement> list = new List<XElement>(GetAllElements());
+        XElement? elem = (from l in list where l.Name == friendlyName select l).FirstOrDefault();
+        if (elem != null)
+            list.Remove(elem);
+        list.Add(element);
 
-            for (int i = builder.Services.Count - 1; i >= 0; i--) {
-                if (builder.Services[i]?.ServiceType == descriptor.ServiceType)
-                    builder.Services.RemoveAt(i);
-            }
-            builder.Services.Add(descriptor);
-            return builder;
+        string s = Utility.JsonSerializeNewtonsoft(list);
+        WebConfigHelper.SetValue<string>("DataProtection", "List", s, false);
+        WebConfigHelper.SaveAsync().Wait();// oh well
+    }
+}
+
+public static class DataProtectionKeyExtensions {
+    public static IDataProtectionBuilder PersistKeysToAppSettings(this IDataProtectionBuilder builder, IServiceCollection? services = null) {
+        if (builder == null) throw new ArgumentNullException(nameof(builder));
+        return builder.Use(ServiceDescriptor.Scoped<IXmlRepository, DataProtectionKeyRepository>());
+    }
+    public static IDataProtectionBuilder Use(this IDataProtectionBuilder builder, ServiceDescriptor descriptor) {
+        if (builder == null) throw new ArgumentNullException(nameof(builder));
+        if (descriptor == null) throw new ArgumentNullException(nameof(descriptor));
+
+        for (int i = builder.Services.Count - 1; i >= 0; i--) {
+            if (builder.Services[i]?.ServiceType == descriptor.ServiceType)
+                builder.Services.RemoveAt(i);
         }
+        builder.Services.Add(descriptor);
+        return builder;
     }
 }
 

@@ -47,21 +47,8 @@ namespace YetaWF.Core.Endpoints {
         }
 
         public static async Task<ModuleDefinition> GetModuleAsync(Guid? moduleGuid = null) {
-            ModuleDefinition? mod = null;
-            if (moduleGuid is null) {
-                string? s = null;
-                if (Manager.IsGetRequest) {
-                    s = Manager.RequestQueryString[Basics.ModuleGuid];
-                } else if (Manager.IsPostRequest) {
-                    s = Manager.RequestForm[Basics.ModuleGuid];
-                    if (string.IsNullOrWhiteSpace(s))
-                        s = Manager.RequestQueryString[Basics.ModuleGuid];
-                }
-                if (!string.IsNullOrWhiteSpace(s))
-                    moduleGuid = new Guid(s);
-            }
             if (moduleGuid is null) throw new InternalError("No module Guid available");
-            mod = await ModuleDefinition.LoadAsync((Guid)moduleGuid);
+            ModuleDefinition? mod = await ModuleDefinition.LoadAsync((Guid)moduleGuid);
             return mod ?? throw new InternalError("No ModuleDefinition available");
         }
         public static async Task<TMod> GetModuleAsync<TMod>(Guid? moduleGuid = null) where TMod: ModuleDefinition {

@@ -560,21 +560,26 @@ namespace YetaWF.Core.Modules {
         /// <returns>A <cref="ActionInfo"/> containing HTML and success information.</returns>
         public async Task<ActionInfo> RenderAsync(object model, string? ViewName = null, bool UseAreaViewName = true) {
 
-            if (string.IsNullOrEmpty(ViewName)) {
-                if (!string.IsNullOrEmpty(DefaultViewName)) {
-                    ViewName = DefaultViewName;
-                    UseAreaViewName = false;
-                }
-            }
-            if (string.IsNullOrWhiteSpace(ViewName))
-                ViewName = ModuleName;
-            if (UseAreaViewName)
-                ViewName = MakeFullViewName(ViewName, AreaName);
+            ViewName = EvaluateViewName(ViewName, UseAreaViewName);
 
             YHtmlHelper htmlHelper = new YHtmlHelper(new Microsoft.AspNetCore.Mvc.ActionContext(), (this as ModuleDefinition2)?.ModelState);//$$$$$ remove this garbage
             string html = await htmlHelper.ForViewAsync(ViewName, this, model);
 
             return new ActionInfo { HTML = html, Failed = false };
+        }
+
+        protected string EvaluateViewName(string? viewName = null, bool useAreaViewName = true) {
+            if (string.IsNullOrEmpty(viewName)) {
+                if (!string.IsNullOrEmpty(DefaultViewName)) {
+                    viewName = DefaultViewName;
+                    useAreaViewName = false;
+                }
+            }
+            if (string.IsNullOrWhiteSpace(viewName))
+                viewName = ModuleName;
+            if (useAreaViewName)
+                viewName = MakeFullViewName(viewName, AreaName);
+            return viewName;
         }
 
         protected static string MakeFullViewName(string? viewName, string area) {

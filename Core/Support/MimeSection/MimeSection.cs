@@ -1,4 +1,4 @@
-﻿/* Copyright © 2023 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
+﻿/* Copyright © 2022 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
 using System.Collections.Generic;
@@ -30,32 +30,37 @@ namespace YetaWF.Core.Support {
             if (!File.Exists(settingsFile)) // use local file system as we need this during initialization
                 throw new InternalError("Mime settings not defined - file {0} not found", settingsFile);
             SettingsFile = settingsFile;
-            List<MimeEntry> settings = Utility.JsonDeserialize<List<MimeEntry>>(File.ReadAllText(SettingsFile)); // use local file system as we need this during initialization
+            dynamic settings = Utility.JsonDeserializeNewtonsoft(File.ReadAllText(SettingsFile)); // use local file system as we need this during initialization
 
-            List<MimeEntry> list = new List<MimeEntry> {
-                // add required extensions (see FileExtensionContentTypeProvider.cs for complete list supported by .net core, but limited here)
-                new MimeEntry { Extensions = ".js", Type = "application/javascript" },
-                new MimeEntry { Extensions = ".css", Type = "text/css" },
-                new MimeEntry { Extensions = ".gif", Type = "image/gif" },
-                new MimeEntry { Extensions = ".png", Type = "image/png" },
-                new MimeEntry { Extensions = ".jpe;.jpeg;.jpg", Type = "image/jpeg" },
-                new MimeEntry { Extensions = ".webp;.webp-gen", Type = "image/webp" },
-                new MimeEntry { Extensions = ".svg;.svgz", Type = "image/svg+xml" },
-                new MimeEntry { Extensions = ".htm;.html", Type = "text/html" },
-                new MimeEntry { Extensions = ".map", Type = "text/plain" },
-                new MimeEntry { Extensions = ".xml", Type = "text/xml" }, // sitemap
-                new MimeEntry { Extensions = ".txt", Type = "text/plain" }, // robots
-                new MimeEntry { Extensions = ".ico", Type = "image/x-icon" } // favicon
-            };
+            dynamic mimeSection = settings["MimeSection"];
+            List<MimeEntry> list = new List<MimeEntry>();
 
-            list.AddRange(settings);
+            // add required extensions (see FileExtensionContentTypeProvider.cs for complete list supported by .net core, but limited here)
+            list.Add(new MimeEntry { Extensions = ".js", Type = "application/javascript" });
+            list.Add(new MimeEntry { Extensions = ".css", Type = "text/css" });
+            list.Add(new MimeEntry { Extensions = ".gif", Type = "image/gif" });
+            list.Add(new MimeEntry { Extensions = ".png", Type = "image/png" });
+            list.Add(new MimeEntry { Extensions = ".jpe;.jpeg;.jpg", Type = "image/jpeg" });
+            list.Add(new MimeEntry { Extensions = ".webp;.webp-gen", Type = "image/webp" });
+            list.Add(new MimeEntry { Extensions = ".svg;.svgz", Type = "image/svg+xml" });
+            list.Add(new MimeEntry { Extensions = ".htm;.html", Type = "text/html" });
+            list.Add(new MimeEntry { Extensions = ".map", Type = "text/plain" });
+            list.Add(new MimeEntry { Extensions = ".xml", Type = "text/xml" }); // sitemap
+            list.Add(new MimeEntry { Extensions = ".txt", Type = "text/plain" }); // robots
+            list.Add(new MimeEntry { Extensions = ".ico", Type = "image/x-icon" }); // favicon
+
+            // add specified extensions
+            foreach (var t in mimeSection["MimeTypes"]) {
+                string e = t.Extensions ?? "";
+                list.Add(new MimeEntry { Extensions = e.ToLower(), Type = t.Type ?? "", Dynamic = t });
+            }
 
             CachedEntries = list;
             return Task.CompletedTask;
         }
 
         private static string SettingsFile = null!;
-        private static List<MimeEntry>? CachedEntries;
+        public static List<MimeEntry>? CachedEntries;
 
         public List<MimeEntry>? GetMimeTypes() {
             return CachedEntries;

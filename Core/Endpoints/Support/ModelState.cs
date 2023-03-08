@@ -65,6 +65,7 @@ namespace YetaWF.Core.Endpoints.Support {
             if (model == null) return;
 
             Dictionary<string, MethodInfo> preMeths = YetaWFComponentBaseStartup.GetComponentsWithControllerPreprocessAction();
+            NullabilityInfoContext _nullabilityContext = new NullabilityInfoContext();
 
             Type modelType = model.GetType();
             List<PropertyData> props = ObjectSupport.GetPropertyData(modelType);
@@ -73,8 +74,10 @@ namespace YetaWF.Core.Endpoints.Support {
                 PropertyInfo pi = prop.PropInfo;
                 if (!pi.CanRead || !pi.CanWrite) continue;
 
-                bool valid = true;
                 object? o = prop.GetPropertyValue<object?>(model);
+
+                // Process all Trim attributes
+                bool valid = true;
                 bool trim = false;
                 if (hasTrim) {
                     trim = FixTrim(prop, ref o);
@@ -87,6 +90,17 @@ namespace YetaWF.Core.Endpoints.Support {
                     if (@case)
                         pi.SetValue(model, o);
                 }
+
+                // Convert empty string to null (if the property is nullable).
+                if (o != null && pi.PropertyType == typeof(string)) {
+                    var nullabilityInfo = _nullabilityContext.Create(pi);
+                    if (nullabilityInfo.WriteState == NullabilityState.Nullable || nullabilityInfo.WriteState == NullabilityState.Unknown) {
+                        string? s = (string?)o;
+                        if (string.IsNullOrEmpty(s))
+                            pi.SetValue(model, null);
+                    }
+                }
+
                 //$$$ FixDataAsync
 
                 var caption = prop.GetCaption(model);

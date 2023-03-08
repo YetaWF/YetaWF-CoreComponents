@@ -1,6 +1,7 @@
 ﻿/* Copyright © 2023 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
+using System.Text.Json.Serialization;
 using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Serializers;
 
@@ -10,6 +11,7 @@ namespace YetaWF.Core.Components {
 
         public const int DaysInWeek = 7;
 
+        [JsonIgnore]
         public SerializableList<DayTimeRange> Days { get; set; }
 
         [Data_DontSave]
@@ -27,14 +29,14 @@ namespace YetaWF.Core.Components {
         [Data_DontSave]
         public DayTimeRange Sundays { get { return Days[(int)DayOfWeek.Sunday]; } set { Days[(int)DayOfWeek.Sunday] = value; } }
 
-        [Data_DontSave]
+        [Data_DontSave, JsonIgnore]
         public string? AdditionalFieldCaption { get; set; }
-        [Data_DontSave]
+        [Data_DontSave, JsonIgnore]
         public string? AdditionalFieldDescription { get; set; }
 
-        [Data_DontSave]
+        [Data_DontSave, JsonIgnore]
         public string? ClosedFieldCaption { get; set; }
-        [Data_DontSave]
+        [Data_DontSave, JsonIgnore]
         public string? ClosedFieldDescription { get; set; }
 
         public WeeklyHours() {

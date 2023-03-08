@@ -10,6 +10,7 @@ using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System.Text.Encodings.Web;
 
+//$$$remove
 namespace YetaWF.Core.Views {
     public class YetaWFDefaultHtmlGenerator : DefaultHtmlGenerator {
 

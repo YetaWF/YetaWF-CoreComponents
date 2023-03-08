@@ -8,6 +8,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
+using YetaWF.Core.Endpoints;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Support;
@@ -47,7 +48,7 @@ namespace YetaWF.Core.Pages {
             // Check direct module invocation (for now)
             {
                 Type moduleType = module.GetType();
-                MethodInfo? miAsync = moduleType.GetMethod(ModuleDefinition2.MethodRenderModuleAsync, new Type[] { });
+                MethodInfo? miAsync = moduleType.GetMethod(ModuleDefinition2.MethodRenderModuleAsync);
                 if (miAsync != null) {
 
                     //$$$$ resource authorize attribute
@@ -64,7 +65,7 @@ namespace YetaWF.Core.Pages {
                         return ActionInfo.Empty;
                     }
                     // we use the module and the action to invoke direct rendering
-                    Task<ActionInfo> result = (Task<ActionInfo>)miAsync.Invoke(module, null)!;
+                    Task<ActionInfo> result = ModuleEndpoints.InvokeRenderMethod<ActionInfo>(module, null, miAsync, miAsync.GetParameters(), null);
                     info = await result;
                     return info;
                 }

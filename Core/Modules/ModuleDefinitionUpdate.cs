@@ -1,7 +1,6 @@
 ﻿/* Copyright © 2023 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Components;
@@ -40,17 +39,10 @@ namespace YetaWF.Core.Modules {
         }
         private ModelState? _modelState = null;
 
-        protected async Task<IResult> PartialViewAsync(object? model = null, ScriptBuilder? Script = null, string? ViewName = null) {
-            // Find view name
-            if (string.IsNullOrEmpty(ViewName)) {
-                if (!string.IsNullOrWhiteSpace(DefaultViewName))
-                    ViewName = DefaultViewName;
-                else
-                    ViewName = MakeFullViewName(ModuleName, AreaName);
-            } else {
-                ViewName = MakeFullViewName(ViewName, AreaName);
-            }
-            ViewName += YetaWFViewExtender.PartialSuffix;
+        protected async Task<IResult> PartialViewAsync(object? model = null, ScriptBuilder? Script = null, string? ViewName = null, bool UseAreaViewName = true) {
+
+            ViewName = EvaluateViewName(ViewName, UseAreaViewName);
+            ViewName += YetaWFViewExtender.PartialSuffix;//$$$$
 
             return await YetaWF.Core.Endpoints.PartialView.RenderPartialView(Manager.CurrentContext, ViewName, this, null, model, "application/html", Script: Script);
         }
@@ -152,7 +144,8 @@ namespace YetaWF.Core.Modules {
                 string? NextPage = null, bool PreserveOriginList = false, string? ExtraData = null,
                 string? PreSaveJavaScript = null, string? PostSaveJavaScript = null, bool ForceRedirect = false, string? PopupOptions = null, bool ForceApply = false,
                 bool? PageChanged = null,
-                bool ForcePopup = false) {
+                bool ForcePopup = false, 
+                string? ViewName = null, bool UseAreaViewName = true) {
 
             ScriptBuilder sb = new ScriptBuilder();
 
@@ -403,7 +396,7 @@ $YetaWF.message({popupText}, {popupTitle}, function() {{
                             sb.Append($@"$YetaWF.message({popupText}, {popupTitle}, function() {{ {PostSaveJavaScript} }}, {PopupOptions});");
                         } else
                             sb.Append(PostSaveJavaScript);
-                        return await PartialViewAsync(model, Script: sb);
+                        return await PartialViewAsync(model, Script: sb, ViewName: ViewName, UseAreaViewName: UseAreaViewName);
                     }
                 }
             }
@@ -422,6 +415,19 @@ $YetaWF.message({popupText}, {popupTitle}, function() {{
             Manager.CurrentResponse.StatusCode = StatusCodes.Status307TemporaryRedirect;
             Manager.CurrentResponse.Headers.Add("Location", url);
             return ActionInfo.Empty;
+        }
+
+        /// <summary>
+        /// A result that results in a 403 Not Authorized exception.
+        /// </summary>
+        /// <param name="message">The message text to be shown on an error page (GET requests only) along with the 403 exception.</param>
+        protected async Task<ActionInfo> UnauthorizedAsync(string? message = null) {
+
+            message ??= __ResStr("notAuth", "Not Authorized");
+
+            if (!Manager.IsPostRequest) throw new InternalError($"{nameof(UnauthorizedAsync)} is only supported for GET requests");
+            Manager.CurrentResponse.StatusCode = StatusCodes.Status403Forbidden;
+            return await RenderAsync(message, ViewName: "ShowMessage", UseAreaViewName: false);
         }
     }
 }

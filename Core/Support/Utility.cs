@@ -8,10 +8,12 @@ using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NodeDeserializers;
 using YetaWF.Core.JsonConverters;
+using YetaWF.Core.Models;
 using YetaWF.Core.Packages;
 
 namespace YetaWF.Core.Support {
@@ -142,8 +144,9 @@ namespace YetaWF.Core.Support {
         /// <param name="value">The object to serialize.</param>
         /// <param name="Indented">Defines whether indentation is used in the generated JSON string.</param>
         /// <returns>Returns the serialized object as a JSON string.</returns>
-        public static string JsonSerialize(object? value, bool Indented = false) {
-            return JsonSerializer.Serialize(value, Indented ? _JsonSettingsIndented : _JsonSettings);
+        public static string JsonSerialize(object? value, JsonSerializerOptions? opts = null) {
+            if (opts == null) opts = _JsonSettings;
+            return JsonSerializer.Serialize(value, opts);
         }
         /// <summary>
         /// Deserializes a JSON string to an object.
@@ -177,7 +180,65 @@ namespace YetaWF.Core.Support {
             if (o == null) throw new InternalError("No object");
             return o;
         }
-        private static JsonSerializerOptions _JsonSettingsIndented {
+
+        /// <summary>
+        /// A JSON contract resolver so only properties with Get and Set accessors are serialized.
+        /// </summary>
+        private class PropertyGetSetContractResolver : DefaultJsonTypeInfoResolver {
+
+            /// <inheritdoc/>
+            public override JsonTypeInfo GetTypeInfo(Type type, JsonSerializerOptions options) {
+                JsonTypeInfo typeInfo = base.GetTypeInfo(type, options);
+                if (typeInfo.Kind == JsonTypeInfoKind.Object) {
+                    if (type != typeof(object)) {
+                        List<string> propList = new List<string>();
+                        List<PropertyData> props = ObjectSupport.GetPropertyData(type);
+                        foreach (PropertyData prop in props) {
+                            if (prop.Name.StartsWith("__") || (prop.PropInfo.CanRead && prop.PropInfo.CanWrite)) {
+                                propList.Add(prop.Name);
+                            }
+                        }
+                        foreach (JsonPropertyInfo property in typeInfo.Properties) {
+                            if (!propList.Contains(property.Name))
+                                property.ShouldSerialize = (obj, value) => false;
+                        }
+                    }
+                }
+                return typeInfo;
+            }
+        }
+
+        /// <summary>
+        /// A JSON contract resolver so only properties with Get and Set accessors and UIHint are serialized.
+        /// </summary>
+        public class PropertyGetSetUIHintContractResolver : DefaultJsonTypeInfoResolver {
+
+            /// <inheritdoc/>
+            public override JsonTypeInfo GetTypeInfo(Type type, JsonSerializerOptions options) {
+                JsonTypeInfo typeInfo = base.GetTypeInfo(type, options);
+                if (typeInfo.Kind == JsonTypeInfoKind.Object) {
+                    if (type != typeof(object)) {
+                        List<string> propList = new List<string>();
+                        List<PropertyData> props = ObjectSupport.GetPropertyData(type);
+                        foreach (PropertyData prop in props) {
+                            if (prop.Name.StartsWith("__") || (prop.PropInfo.CanRead && prop.PropInfo.CanWrite && !string.IsNullOrWhiteSpace(prop.UIHint))) {
+                                propList.Add(prop.Name);
+                            }
+                        }
+                        foreach (JsonPropertyInfo property in typeInfo.Properties) {
+                            if (!propList.Contains(property.Name))
+                                property.ShouldSerialize = (obj, value) => false;
+                        }
+                    }
+                }
+                return typeInfo;
+            }
+        }
+
+        /// <summary>
+        /// JSON settings used to de/serialize an object. Indented.
+        /// </summary>
+        public static JsonSerializerOptions _JsonSettingsIndented {
             get {
                 if (__jsonSettingsIndented == null) {
                     __jsonSettingsIndented = new JsonSerializerOptions {
@@ -191,7 +252,10 @@ namespace YetaWF.Core.Support {
         }
         private static JsonSerializerOptions? __jsonSettingsIndented = null!;
 
-        private static JsonSerializerOptions _JsonSettings {
+        /// <summary>
+        /// JSON settings used to de/serialize an object.
+        /// </summary>
+        public static JsonSerializerOptions _JsonSettings {
             get {
                 if (__jsonSettings == null) {
                     __jsonSettings = new JsonSerializerOptions {
@@ -205,25 +269,71 @@ namespace YetaWF.Core.Support {
         }
         private static JsonSerializerOptions? __jsonSettings = null!;
 
-        private static void AddConverters(IList<JsonConverter> converters) {
-            converters.Add(new EnumNullableJsonConverter());
+        /// <summary>
+        /// JSON settings used to de/serialize only properties with Get and Set accessors.
+        /// </summary>
+        public static JsonSerializerOptions _JsonSettingsGetSet {
+            get {
+                if (__jsonSettingsGetSet == null) {
+                    __jsonSettingsGetSet = new JsonSerializerOptions {
+                        WriteIndented = false,
+                        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.Never,
+                    };
+                    AddConverters(__jsonSettingsGetSet.Converters);
+                }
+                return __jsonSettingsGetSet;
+            }
+        }
+        private static JsonSerializerOptions? __jsonSettingsGetSet = null!;
+
+        /// <summary>
+        /// JSON settings used to de/serialize only properties with Get and Set accessors. Indented.
+        /// </summary>
+        public static JsonSerializerOptions _JsonSettingsGetSetIndented {
+            get {
+                if (__jsonSettingsGetSetIndented == null) {
+                    __jsonSettingsGetSetIndented = new JsonSerializerOptions {
+                        WriteIndented = true,
+                        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.Never,
+                    };
+                    AddConverters(__jsonSettingsGetSetIndented.Converters);
+                }
+                return __jsonSettingsGetSetIndented;
+            }
+        }
+        private static JsonSerializerOptions? __jsonSettingsGetSetIndented = null!;
+
+        /// <summary>
+        /// JSON settings used to de/serialize only properties with Get and Set accessors and UIHint.
+        /// </summary>
+        public static JsonSerializerOptions _JsonSettingsGetSetUIHint {
+            get {
+                if (__jsonSettingsGetSetUIHint == null) {
+                    __jsonSettingsGetSetUIHint = new JsonSerializerOptions {
+                        WriteIndented = false,
+                        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.Never,
+                    };
+                    AddConverters(__jsonSettingsGetSetUIHint.Converters);
+                }
+                return __jsonSettingsGetSetUIHint;
+            }
+        }
+        private static JsonSerializerOptions? __jsonSettingsGetSetUIHint = null!;
+
+        /// <summary>
+        /// Adds the available JSON converters.
+        /// </summary>
+        /// <param name="converters"></param>
+        public static void AddConverters(IList<JsonConverter> converters) {
             converters.Add(new EnumJsonConverter());
-            converters.Add(new IntNullableJsonConverter());
             converters.Add(new IntJsonConverter());
-            converters.Add(new LongNullableJsonConverter());
             converters.Add(new LongJsonConverter());
-            converters.Add(new DecimalNullableJsonConverter());
             converters.Add(new DecimalJsonConverter());
             converters.Add(new MultiStringJsonConverter());
-            converters.Add(new BoolNullableJsonConverter());
             converters.Add(new BoolJsonConverter());
-            converters.Add(new DateTimeNullableJsonConverter());
             converters.Add(new DateTimeJsonConverter());
-            converters.Add(new TimeOfDayNullableJsonConverter());
             converters.Add(new TimeOfDayJsonConverter());
-            converters.Add(new TimeSpanNullableJsonConverter());
             converters.Add(new TimeSpanJsonConverter());
-            converters.Add(new GuidNullableJsonConverter());
             converters.Add(new GuidJsonConverter());
         }
 
@@ -236,6 +346,17 @@ namespace YetaWF.Core.Support {
         /// <returns>Returns the serialized object as a JSON string.</returns>
         public static string JsonSerializeNewtonsoft(object? value, bool Indented = false) {
             return Newtonsoft.Json.JsonConvert.SerializeObject(value, Indented ? _JsonSettingsIndentedNewtonsoft : _JsonSettingsNewtonsoft);
+        }
+        /// <summary>
+        /// Deserializes a JSON string to an object using Newtonsoft.
+        /// Only use when both serializing and deserializing can be performed using Newtonsoft.
+        /// </summary>
+        /// <param name="value">The JSON string.</param>
+        /// <returns>Returns the object.</returns>
+        public static object JsonDeserializeNewtonsoft(string value) {
+            object? o = Newtonsoft.Json.JsonConvert.DeserializeObject(value, _JsonSettingsNewtonsoft);
+            if (o == null) throw new InternalError("No object");
+            return o;
         }
         /// <summary>
         /// Deserializes a JSON string to an object using Newtonsoft.
@@ -262,77 +383,6 @@ namespace YetaWF.Core.Support {
 
             Formatting = Newtonsoft.Json.Formatting.Indented,
         };
-
-
-        ///// <summary>
-        ///// A JSON contract resolver so only properties with Get and Set accessors and UIHint are serialized.
-        ///// </summary>
-        //public class PropertyGetSetUIHintContractResolver : DefaultContractResolver {
-
-        //    /// <summary>
-        //    /// Constructor.
-        //    /// </summary>
-        //    public PropertyGetSetUIHintContractResolver() { }
-
-        //    /// <inheritdoc/>
-        //    protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization) {
-        //        IList<JsonProperty> properties = base.CreateProperties(type, memberSerialization);
-        //        if (type != typeof(object)) {
-        //            List<string> propList = new List<string>();
-        //            List<PropertyData> props = ObjectSupport.GetPropertyData(type);
-        //            foreach (PropertyData prop in props) {
-        //                if (prop.Name.StartsWith("__") || (prop.PropInfo.CanRead && prop.PropInfo.CanWrite && !string.IsNullOrWhiteSpace(prop.UIHint))) {
-        //                    propList.Add(prop.Name);
-        //                }
-        //            }
-        //            properties = (from p in properties where propList.Contains(p.PropertyName!) select p).ToList();
-        //        }
-        //        return properties;
-        //    }
-        //}
-        ///// <summary>
-        ///// JSON settings used to de/serialize only properties with Get and Set accessors and UIHint.
-        ///// </summary>
-        //public static JsonSerializerSettings JsonSettingsGetSetUIHint { get; } = 
-        //    new JsonSerializerSettings {
-        //        ContractResolver = new Utility.PropertyGetSetContractResolver(),
-        //        Formatting = Formatting.None,
-        //    };
-
-        ///// <summary>
-        ///// A JSON contract resolver so only properties with Get and Set accessors are serialized.
-        ///// </summary>
-        //public class PropertyGetSetContractResolver : DefaultContractResolver {
-
-        //    /// <summary>
-        //    /// Constructor.
-        //    /// </summary>
-        //    public PropertyGetSetContractResolver() { }
-
-        //    /// <inheritdoc/>
-        //    protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization) {
-        //        IList<JsonProperty> properties = base.CreateProperties(type, memberSerialization);
-        //        if (type != typeof(object)) {
-        //            List<string> propList = new List<string>();
-        //            List<PropertyData> props = ObjectSupport.GetPropertyData(type);
-        //            foreach (PropertyData prop in props) {
-        //                if (prop.Name.StartsWith("__") || (prop.PropInfo.CanRead && prop.PropInfo.CanWrite)) {
-        //                    propList.Add(prop.Name);
-        //                }
-        //            }
-        //            properties = (from p in properties where propList.Contains(p.PropertyName!) select p).ToList();
-        //        }
-        //        return properties;
-        //    }
-        //}
-        ///// <summary>
-        ///// JSON settings used to de/serialize only properties with Get and Set accessors.
-        ///// </summary>
-        //public static JsonSerializerSettings JsonSettingsGetSet { get; } = 
-        //    new JsonSerializerSettings {
-        //        ContractResolver = new Utility.PropertyGetSetContractResolver(),
-        //        Formatting = Formatting.None,
-        //    };
 
         /// <summary>
         /// Encodes a string for use with JavaScript. The returned string must be surrounded by quotes.

@@ -1,6 +1,7 @@
 ﻿/* Copyright © 2023 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System;
+using System.Text.Json.Serialization;
 using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Support;
 
@@ -39,22 +40,22 @@ namespace YetaWF.Core.Components {
         /// <summary>
         /// The caption for the "Closed" checkbox. If not specified, a default is provided.
         /// </summary>
-        [Data_DontSave]
+        [Data_DontSave, JsonIgnore]
         public string? ClosedFieldCaption { get; set; }
         /// <summary>
         /// The description (tooltip) for the "Closed" checkbox. If not specified, a default is provided.
         /// </summary>
-        [Data_DontSave]
+        [Data_DontSave, JsonIgnore]
         public string? ClosedFieldDescription { get; set; }
         /// <summary>
         /// The caption for the "Additional" checkbox. If not specified, a default is provided.
         /// </summary>
-        [Data_DontSave]
+        [Data_DontSave, JsonIgnore]
         public string? AdditionalFieldCaption { get; set; }
         /// <summary>
         /// The description (tooltip) for the "Additional" checkbox. If not specified, a default is provided.
         /// </summary>
-        [Data_DontSave]
+        [Data_DontSave, JsonIgnore]
         public string? AdditionalFieldDescription { get; set; }
 
         /// <summary>

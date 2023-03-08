@@ -271,6 +271,7 @@ public partial class Startup {
             options.SerializerOptions.PropertyNamingPolicy = null;
             options.SerializerOptions.PropertyNameCaseInsensitive = true;
             options.SerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+            Utility.AddConverters(options.SerializerOptions.Converters);
         });
 
         // We don't need a view engine

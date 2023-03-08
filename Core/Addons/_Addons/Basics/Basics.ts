@@ -690,10 +690,12 @@ namespace YetaWF {
             this.setLoading(true);
             if (!query) query = {};
             query[YConfigs.Basics.ModuleGuid] = formJson.ModuleGuid;
-            if (formJson.UniqueIdCounters)
-                query[YConfigs.Forms.UniqueIdCounters] = formJson.UniqueIdCounters;
+            // if (formJson.UniqueIdCounters)
+            //     query[YConfigs.Forms.UniqueIdCounters] = formJson.UniqueIdCounters;
             uri.addSearchSimpleObject(query);
+
             const request: XMLHttpRequest = new XMLHttpRequest();
+            console.log(`------------> ${uri.toUrl()}`);
             request.open("POST", uri.toUrl(), true);
             request.setRequestHeader("Content-Type", "application/json");
             request.setRequestHeader("RequestVerificationToken", formJson.RequestVerificationToken);

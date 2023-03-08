@@ -174,7 +174,7 @@ namespace YetaWF.Core.Support {
             //}
         }
         public async Task SaveAsync() {
-            string s = Utility.JsonSerialize(Settings, Indented: true);
+            string s = Utility.JsonSerialize(Settings, Utility._JsonSettingsIndented);
             if (YetaWFManager.IsSync())
                 File.WriteAllText(SettingsFile, s);
             else

@@ -110,14 +110,10 @@ namespace YetaWF.Core.Endpoints {
             MethodInfo? miAsync = moduleType.GetMethod(actionUpdate);
             if (miAsync == null)
                 throw new InternalError($"{moduleType.FullName} doesn't have a method named {actionUpdate}");
-            ParameterInfo[] parms = miAsync.GetParameters();
-            if (parms.Length == 1) {
-                ; // default, pass the model
-            } else if (parms.Length == 2) {
-                if (parms[1].Name != DynamicProperty) throw new InternalError($"{moduleType.FullName} has a method named {actionUpdate} which accepts 2 parameters but the second parameter is not named {DynamicProperty}");
-            } else
-                throw new InternalError($"{moduleType.FullName} doesn't have a method named {actionUpdate} which accepts 1 model parameter");
 
+            ParameterInfo[] parms = miAsync.GetParameters();
+            if (parms.Length <= 0)
+                throw new InternalError($"{moduleType.FullName} doesn't have a method named {actionUpdate} which accepts at least 1 model parameter");
             ParameterInfo parm = parms[0];
             object? model = Utility.JsonDeserialize(dataIn.Model.ToString()!, parm.ParameterType);
             if (model is null)
@@ -150,15 +146,39 @@ namespace YetaWF.Core.Endpoints {
 
             await module2.ModelState.ValidateModel(model, dataIn.__TemplateName, dataIn.__TemplateAction, dataIn.__TemplateExtraData);
 
-            Task<IResult> methStringTask;
-            if (parms.Length == 2) {
-                string dynamicString = ((JsonElement)dataIn.Model).GetProperty(DynamicProperty).ToString();
-                methStringTask = (Task<IResult>)miAsync.Invoke(module, new object?[] { model, dynamicString })!;
-            } else {
-                methStringTask = (Task<IResult>)miAsync.Invoke(module, new object?[] { model })!;
-            }
+            return await InvokeRenderMethod<IResult>(module2, model, miAsync, parms, dataIn);
+        }
 
-            return await methStringTask;
+        /// <summary>
+        /// Invoke module's render method. Use query string arguments to provide required arguments.
+        /// </summary>
+        internal static Task<T> InvokeRenderMethod<T>(ModuleDefinition module, object? model, MethodInfo miAsync, ParameterInfo[] parms, ModuleSubmitData? dataIn = null) {
+
+            List<object?> parmList = new List<object?>();
+            int parmIndex = 0;
+            if (model != null) {
+                parmList.Add(model);
+                parmIndex = 1;// continue with next parameter
+            }
+            for (; parmIndex < parms.Length; parmIndex++) {
+                ParameterInfo parm = parms[parmIndex];
+                string name = parm.Name ?? throw new InternalError($"Parameter {parmIndex} doesn't have a name");
+                if (name == DynamicProperty && dataIn != null) {
+                    string dynamicString = ((JsonElement)dataIn.Model).GetProperty(DynamicProperty).ToString();
+                    parmList.Add(dynamicString);
+                } else {
+                    // get parameter values from query string
+                    string? val = Manager.RequestQueryString[name];
+                    if (val == null) {
+                        parmList.Add(null);
+                    } else {
+                        // convert to requested type
+                        object? o = Convert.ChangeType(val, parm.ParameterType);
+                        parmList.Add(o);
+                    }
+                }
+            }
+            return (Task<T>)miAsync.Invoke(module, parmList.ToArray())!;
         }
     }
 }
