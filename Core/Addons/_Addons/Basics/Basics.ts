@@ -488,8 +488,7 @@ namespace YetaWF {
                 if (top)
                     uri.addSearch(YConfigs.Basics.Link_ScrollTop, top.toString());
             }
-            uri.removeSearch("!rand");
-            uri.addSearch("!rand", ((new Date()).getTime()).toString());// cache buster
+            uri.replaceSearch("!rand", ((new Date()).getTime()).toString());// cache buster
 
             if (this.ContentHandling.setContent(uri, true) !== SetContentResult.NotContent)
                 return;
@@ -695,7 +694,6 @@ namespace YetaWF {
             uri.addSearchSimpleObject(query);
 
             const request: XMLHttpRequest = new XMLHttpRequest();
-            console.log(`------------> ${uri.toUrl()}`);
             request.open("POST", uri.toUrl(), true);
             request.setRequestHeader("Content-Type", "application/json");
             request.setRequestHeader("RequestVerificationToken", formJson.RequestVerificationToken);

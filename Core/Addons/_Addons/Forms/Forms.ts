@@ -494,7 +494,7 @@ namespace YetaWF {
                     let uri = $YetaWF.parseUrl(origin.Url);
                     uri.removeSearch(YConfigs.Basics.Link_OriginList);
                     if (originList.length > 0)
-                        uri.addSearch(YConfigs.Basics.Link_OriginList, JSON.stringify(originList));
+                        uri.replaceSearch(YConfigs.Basics.Link_OriginList, JSON.stringify(originList));
                     $YetaWF.ContentHandling.setNewUri(uri);
                 } else {
                     // we don't know where to return so just close the browser
@@ -558,24 +558,28 @@ namespace YetaWF {
             };
             return info;
         }
-        // get RequestVerificationToken and ModuleGuid (usually for ajax requests)
+        // get RequestVerificationToken and ModuleGuid
         public getJSONInfo(tagInForm: HTMLElement, uniqueIdInfo?: UniqueIdInfo) : FormInfoJSON {
             let req: string|null = null;
             const mod = YetaWF.ModuleBase.getModuleDivFromTag(tagInForm);
             const moduleGuid = mod.getAttribute("data-moduleguid");
-            const form = this.getInnerForm(mod);
-            const formPartial = $YetaWF.elementClosestCond(tagInForm, YConfigs.Forms.CssForm);
-            if (formPartial && !req) {
-                const reqVerElem = $YetaWF.getElement1BySelectorCond(`input[name='${YConfigs.Forms.RequestVerificationToken}']`, [formPartial]) as HTMLInputElement|null;            
-                if (reqVerElem)
-                    req = reqVerElem.value;
+            const form = this.getInnerFormCond(mod);
+            if (form) {
+                const formPartial = $YetaWF.elementClosestCond(tagInForm, YConfigs.Forms.CssForm);
+                if (formPartial && !req) {
+                    const reqVerElem = $YetaWF.getElement1BySelectorCond(`input[name='${YConfigs.Forms.RequestVerificationToken}']`, [formPartial]) as HTMLInputElement|null;            
+                    if (reqVerElem)
+                        req = reqVerElem.value;
+                }
+                if (form && !req) {
+                    const reqVerElem = $YetaWF.getElement1BySelectorCond(`input[name='${YConfigs.Forms.RequestVerificationToken}']`, [form]) as HTMLInputElement|null;            
+                    if (reqVerElem)
+                        req = reqVerElem.value;
+                }
+                if (!req || req.length === 0) throw "Can't locate " + YConfigs.Forms.RequestVerificationToken;/*DEBUG*/
+            } else {
+                req = mod.getAttribute("data-reqvertoken") || "";
             }
-            if (form && !req) {
-                const reqVerElem = $YetaWF.getElement1BySelectorCond(`input[name='${YConfigs.Forms.RequestVerificationToken}']`, [form]) as HTMLInputElement|null;            
-                if (reqVerElem)
-                    req = reqVerElem.value;
-            }
-            if (!req || req.length === 0) throw "Can't locate " + YConfigs.Forms.RequestVerificationToken;/*DEBUG*/
             if (!moduleGuid || moduleGuid.length === 0) throw "Can't locate module guid";/*DEBUG*/
             const info: FormInfoJSON = {
                 ModuleGuid: moduleGuid,

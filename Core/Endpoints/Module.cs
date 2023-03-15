@@ -173,7 +173,12 @@ namespace YetaWF.Core.Endpoints {
                         parmList.Add(null);
                     } else {
                         // convert to requested type
-                        object? o = Convert.ChangeType(val, parm.ParameterType);
+                        object? o;
+                        if (parm.ParameterType == typeof(Guid)) {
+                            o = new Guid(val);
+                        } else {
+                            o = Convert.ChangeType(val, parm.ParameterType);
+                        }
                         parmList.Add(o);
                     }
                 }

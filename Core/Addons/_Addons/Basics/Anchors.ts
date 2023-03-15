@@ -45,7 +45,7 @@ namespace YetaWF {
                 // add status/visibility of page control module
                 uri.removeSearch(YConfigs.Basics.Link_PageControl);
                 if (YVolatile.Basics.PageControlVisible)
-                    uri.addSearch(YConfigs.Basics.Link_PageControl, "y");
+                    uri.replaceSearch(YConfigs.Basics.Link_PageControl, "y");
 
                 // first try to handle this as a link to the outer window (only used in a popup)
                 if ($YetaWF.PopupsAvailable()) {
@@ -78,10 +78,14 @@ namespace YetaWF {
                         // now update url (where we're going with originlist)
                         uri.removeSearch(YConfigs.Basics.Link_OriginList);
                         if (originList.length > 0)
-                            uri.addSearch(YConfigs.Basics.Link_OriginList, JSON.stringify(originList));
+                            uri.replaceSearch(YConfigs.Basics.Link_OriginList, JSON.stringify(originList));
                     }
                     target = "_self";
                 }
+
+                // add originating module guid
+                const formJson = $YetaWF.Forms.getJSONInfo(anchor);
+                uri.replaceSearch(YConfigs.Basics.ModuleGuid, formJson.ModuleGuid);
 
                 anchor.href = uri.toUrl(); // update original href in case default handling takes place
 
@@ -90,8 +94,7 @@ namespace YetaWF {
 
                 if (anchor.getAttribute(YConfigs.Basics.CookieDoneCssAttr) != null) {
                     cookieToReturn = (new Date()).getTime();
-                    uri.removeSearch(YConfigs.Basics.CookieToReturn);
-                    uri.addSearch(YConfigs.Basics.CookieToReturn, JSON.stringify(cookieToReturn));
+                    uri.replaceSearch(YConfigs.Basics.CookieToReturn, JSON.stringify(cookieToReturn));
                 }
                 if (anchor.getAttribute(YConfigs.Basics.PostAttr) != null)
                     post = true;
@@ -166,8 +169,7 @@ namespace YetaWF {
                         // remove noise from requested url
                         // build the new requested url
                         let uriBase = $YetaWF.parseUrl(window.location.href);
-                        uriBase.removeSearch("!ContentUrl");
-                        uriBase.addSearch("!ContentUrl", contentUrl);
+                        uriBase.replaceSearch("!ContentUrl", contentUrl);
                         inplace = { TargetTag: contentTarget, FromPane: contentPane, PageUrl: uriBase.toUrl(), ContentUrl: contentUrl };
                     }
                     if ($YetaWF.elementHasClass(anchor, "yIgnorePageChanged"))

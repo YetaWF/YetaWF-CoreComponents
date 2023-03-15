@@ -89,7 +89,7 @@ namespace YetaWF.Core.Endpoints {
         /// </summary>
         /// <param name="PopupText">The optional text of the popup message to be displayed. If not specified, no popup will be shown.</param>
         /// <param name="PopupTitle">The optional title of the popup message to be displayed. If not specified, the default is "Success".</param>
-        /// <param name="Reload">The method with which the current page or module is processed, i.e., by reloading the page or module.</param>
+        /// <param name="reload">The method with which the current page or module is processed, i.e., by reloading the page or module.</param>
         protected static IResult Reload(ReloadEnum reload = ReloadEnum.Page, string ? PopupText = null, string? PopupTitle = null, bool ForcePopup = false) {
             return Results.Json(reload switch {
                 ReloadEnum.Module => Reload(Basics.AjaxJavascriptReloadModule,
@@ -120,7 +120,7 @@ namespace YetaWF.Core.Endpoints {
             }
         }
 
-        protected static IResult Redirect(string url, bool SetCurrentEditMode = false, string? ExtraJavascript = null) {
+        protected static IResult Redirect(string url, bool SetCurrentEditMode = false, string? ExtraJavascript = null, bool ForceFullPage = false) {
             if (!Manager.IsPostRequest) throw new InternalError("Redirect only available for POST requests");
             url = AddUrlPayload(url, SetCurrentEditMode, null);
 
@@ -128,12 +128,19 @@ namespace YetaWF.Core.Endpoints {
             sb.Append(Basics.AjaxJavascriptReturn);
 
             url = Utility.JsonSerialize(url);
-            sb.Append(
-                "$YetaWF.setLoading();" +
-                "{1}" +
-                "if (!$YetaWF.ContentHandling.setContent($YetaWF.parseUrl({0}), true))" +
-                    "window.location.assign({0});",
-                    url, (string.IsNullOrWhiteSpace(ExtraJavascript) ? "" : ExtraJavascript));
+            if (!ForceFullPage) {
+                sb.Append(
+                    "$YetaWF.setLoading();" +
+                    "{1}" +
+                    "if (!$YetaWF.ContentHandling.setContent($YetaWF.parseUrl({0}), true))" +
+                        "window.location.assign({0});",
+                        url, (string.IsNullOrWhiteSpace(ExtraJavascript) ? "" : ExtraJavascript));
+            } else {
+                sb.Append(
+                    "$YetaWF.setLoading();" +
+                    $"{ExtraJavascript}" +
+                    $"window.location.assign({url});");
+            }
             return Results.Json(sb.ToString());
         }
 

@@ -86,10 +86,14 @@ var YetaWF;
         Url.prototype.addSearch = function (key, value) {
             this.QSEntries.push({ key: key, keyLower: key.toLowerCase(), value: value == null ? "" : value.toString() });
         };
+        Url.prototype.replaceSearch = function (key, value) {
+            this.removeSearch(key);
+            this.addSearch(key, value);
+        };
         Url.prototype.addSearchSimpleObject = function (obj) {
             for (var key in obj) {
                 if (obj.hasOwnProperty(key)) {
-                    this.addSearch(key, obj[key]);
+                    this.replaceSearch(key, obj[key]);
                 }
             }
         };
@@ -101,7 +105,7 @@ var YetaWF;
                     if (parts.length % 2 === 0) {
                         var len = parts.length;
                         for (var i = 0; i < len; i += 2) {
-                            this.addSearch(decodeURIComponent(parts[i]), decodeURIComponent(parts[i + 1]));
+                            this.replaceSearch(decodeURIComponent(parts[i]), decodeURIComponent(parts[i + 1]));
                         }
                     }
                 }
@@ -109,8 +113,8 @@ var YetaWF;
         };
         Url.prototype.addFormInfo = function (tag) {
             var formInfo = $YetaWF.Forms.getFormInfo(tag);
-            this.addSearch(YConfigs.Forms.RequestVerificationToken, formInfo.RequestVerificationToken);
-            this.addSearch(YConfigs.Basics.ModuleGuid, formInfo.ModuleGuid);
+            this.replaceSearch(YConfigs.Forms.RequestVerificationToken, formInfo.RequestVerificationToken);
+            this.replaceSearch(YConfigs.Basics.ModuleGuid, formInfo.ModuleGuid);
         };
         Url.prototype.removeSearch = function (key) {
             key = key.toLowerCase();

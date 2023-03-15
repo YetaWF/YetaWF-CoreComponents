@@ -31,8 +31,8 @@ var YetaWF;
                         if (!urlTrack)
                             throw "data-track not defined"; /*DEBUG*/
                         var uri_1 = $YetaWF.parseUrl(urlTrack);
-                        var formJson = $YetaWF.Forms.getJSONInfo(anchor);
-                        $YetaWF.postJSONIgnore(uri_1, formJson, { Url: url }, null);
+                        var formJson_1 = $YetaWF.Forms.getJSONInfo(anchor);
+                        $YetaWF.postJSONIgnore(uri_1, formJson_1, { Url: url }, null);
                     }
                 }
                 var uri = $YetaWF.parseUrl(url);
@@ -41,7 +41,7 @@ var YetaWF;
                 // add status/visibility of page control module
                 uri.removeSearch(YConfigs.Basics.Link_PageControl);
                 if (YVolatile.Basics.PageControlVisible)
-                    uri.addSearch(YConfigs.Basics.Link_PageControl, "y");
+                    uri.replaceSearch(YConfigs.Basics.Link_PageControl, "y");
                 // first try to handle this as a link to the outer window (only used in a popup)
                 if ($YetaWF.PopupsAvailable()) {
                     if ($YetaWF.Popups.handleOuterWindow(anchor))
@@ -68,17 +68,19 @@ var YetaWF;
                         // now update url (where we're going with originlist)
                         uri.removeSearch(YConfigs.Basics.Link_OriginList);
                         if (originList.length > 0)
-                            uri.addSearch(YConfigs.Basics.Link_OriginList, JSON.stringify(originList));
+                            uri.replaceSearch(YConfigs.Basics.Link_OriginList, JSON.stringify(originList));
                     }
                     target = "_self";
                 }
+                // add originating module guid
+                var formJson = $YetaWF.Forms.getJSONInfo(anchor);
+                uri.replaceSearch(YConfigs.Basics.ModuleGuid, formJson.ModuleGuid);
                 anchor.href = uri.toUrl(); // update original href in case default handling takes place
                 var cookieToReturn = null;
                 var post = false;
                 if (anchor.getAttribute(YConfigs.Basics.CookieDoneCssAttr) != null) {
                     cookieToReturn = (new Date()).getTime();
-                    uri.removeSearch(YConfigs.Basics.CookieToReturn);
-                    uri.addSearch(YConfigs.Basics.CookieToReturn, JSON.stringify(cookieToReturn));
+                    uri.replaceSearch(YConfigs.Basics.CookieToReturn, JSON.stringify(cookieToReturn));
                 }
                 if (anchor.getAttribute(YConfigs.Basics.PostAttr) != null)
                     post = true;
@@ -156,8 +158,7 @@ var YetaWF;
                         // remove noise from requested url
                         // build the new requested url
                         var uriBase = $YetaWF.parseUrl(window.location.href);
-                        uriBase.removeSearch("!ContentUrl");
-                        uriBase.addSearch("!ContentUrl", contentUrl);
+                        uriBase.replaceSearch("!ContentUrl", contentUrl);
                         inplace = { TargetTag: contentTarget, FromPane: contentPane, PageUrl: uriBase.toUrl(), ContentUrl: contentUrl };
                     }
                     if ($YetaWF.elementHasClass(anchor, "yIgnorePageChanged"))

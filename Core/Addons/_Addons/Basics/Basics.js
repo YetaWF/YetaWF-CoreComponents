@@ -317,8 +317,7 @@ var YetaWF;
                 if (top_1)
                     uri.addSearch(YConfigs.Basics.Link_ScrollTop, top_1.toString());
             }
-            uri.removeSearch("!rand");
-            uri.addSearch("!rand", ((new Date()).getTime()).toString()); // cache buster
+            uri.replaceSearch("!rand", ((new Date()).getTime()).toString()); // cache buster
             if (this.ContentHandling.setContent(uri, true) !== YetaWF.SetContentResult.NotContent)
                 return;
             if (keepPosition) {
@@ -514,7 +513,6 @@ var YetaWF;
             //     query[YConfigs.Forms.UniqueIdCounters] = formJson.UniqueIdCounters;
             uri.addSearchSimpleObject(query);
             var request = new XMLHttpRequest();
-            console.log("------------> ".concat(uri.toUrl()));
             request.open("POST", uri.toUrl(), true);
             request.setRequestHeader("Content-Type", "application/json");
             request.setRequestHeader("RequestVerificationToken", formJson.RequestVerificationToken);

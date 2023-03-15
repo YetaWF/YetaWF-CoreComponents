@@ -87,10 +87,14 @@ namespace YetaWF {
         public addSearch(key: string, value: string | number | null): void {
             this.QSEntries.push({ key: key, keyLower: key.toLowerCase(), value: value == null ? "" : value.toString() });
         }
+        public replaceSearch(key: string, value: string | number | null): void {
+            this.removeSearch(key);
+            this.addSearch(key, value);
+        }
         public addSearchSimpleObject(obj: any): void {
             for (const key in obj) {
                 if (obj.hasOwnProperty(key)) {
-                    this.addSearch(key, obj[key]);
+                    this.replaceSearch(key, obj[key]);
                 }
             }
         }
@@ -102,7 +106,7 @@ namespace YetaWF {
                     if (parts.length % 2 === 0) {
                         let len = parts.length;
                         for (let i = 0 ; i < len ; i += 2) {
-                            this.addSearch(decodeURIComponent(parts[i]), decodeURIComponent(parts[i+1]));
+                            this.replaceSearch(decodeURIComponent(parts[i]), decodeURIComponent(parts[i+1]));
                         }
                     }
                 }
@@ -111,8 +115,8 @@ namespace YetaWF {
 
         public addFormInfo(tag: HTMLElement): void {
             let formInfo = $YetaWF.Forms.getFormInfo(tag);
-            this.addSearch(YConfigs.Forms.RequestVerificationToken, formInfo.RequestVerificationToken);
-            this.addSearch(YConfigs.Basics.ModuleGuid, formInfo.ModuleGuid);
+            this.replaceSearch(YConfigs.Forms.RequestVerificationToken, formInfo.RequestVerificationToken);
+            this.replaceSearch(YConfigs.Basics.ModuleGuid, formInfo.ModuleGuid);
         }
         public removeSearch(key: string): void {
             key = key.toLowerCase();

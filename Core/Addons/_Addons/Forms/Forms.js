@@ -326,7 +326,7 @@ var YetaWF;
                     var uri = $YetaWF.parseUrl(origin_1.Url);
                     uri.removeSearch(YConfigs.Basics.Link_OriginList);
                     if (originList.length > 0)
-                        uri.addSearch(YConfigs.Basics.Link_OriginList, JSON.stringify(originList));
+                        uri.replaceSearch(YConfigs.Basics.Link_OriginList, JSON.stringify(originList));
                     $YetaWF.ContentHandling.setNewUri(uri);
                 }
                 else {
@@ -393,25 +393,30 @@ var YetaWF;
             };
             return info;
         };
-        // get RequestVerificationToken and ModuleGuid (usually for ajax requests)
+        // get RequestVerificationToken and ModuleGuid
         Forms.prototype.getJSONInfo = function (tagInForm, uniqueIdInfo) {
             var req = null;
             var mod = YetaWF.ModuleBase.getModuleDivFromTag(tagInForm);
             var moduleGuid = mod.getAttribute("data-moduleguid");
-            var form = this.getInnerForm(mod);
-            var formPartial = $YetaWF.elementClosestCond(tagInForm, YConfigs.Forms.CssForm);
-            if (formPartial && !req) {
-                var reqVerElem = $YetaWF.getElement1BySelectorCond("input[name='".concat(YConfigs.Forms.RequestVerificationToken, "']"), [formPartial]);
-                if (reqVerElem)
-                    req = reqVerElem.value;
+            var form = this.getInnerFormCond(mod);
+            if (form) {
+                var formPartial = $YetaWF.elementClosestCond(tagInForm, YConfigs.Forms.CssForm);
+                if (formPartial && !req) {
+                    var reqVerElem = $YetaWF.getElement1BySelectorCond("input[name='".concat(YConfigs.Forms.RequestVerificationToken, "']"), [formPartial]);
+                    if (reqVerElem)
+                        req = reqVerElem.value;
+                }
+                if (form && !req) {
+                    var reqVerElem = $YetaWF.getElement1BySelectorCond("input[name='".concat(YConfigs.Forms.RequestVerificationToken, "']"), [form]);
+                    if (reqVerElem)
+                        req = reqVerElem.value;
+                }
+                if (!req || req.length === 0)
+                    throw "Can't locate " + YConfigs.Forms.RequestVerificationToken; /*DEBUG*/
             }
-            if (form && !req) {
-                var reqVerElem = $YetaWF.getElement1BySelectorCond("input[name='".concat(YConfigs.Forms.RequestVerificationToken, "']"), [form]);
-                if (reqVerElem)
-                    req = reqVerElem.value;
+            else {
+                req = mod.getAttribute("data-reqvertoken") || "";
             }
-            if (!req || req.length === 0)
-                throw "Can't locate " + YConfigs.Forms.RequestVerificationToken; /*DEBUG*/
             if (!moduleGuid || moduleGuid.length === 0)
                 throw "Can't locate module guid"; /*DEBUG*/
             var info = {
