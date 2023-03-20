@@ -38,7 +38,7 @@ namespace YetaWF.Core.Components {
         /// </summary>
         private static readonly Dictionary<string, Type> Pages = new Dictionary<string, Type>();
         /// <summary>
-        /// Dictionary of components that have a controller preprocessor action.
+        /// Dictionary of components that have a preprocessor action.
         /// </summary>
         private static readonly Dictionary<string, MethodInfo> ComponentsWithTemplatePreprocessAction = new Dictionary<string, MethodInfo>();
 
@@ -77,7 +77,7 @@ namespace YetaWF.Core.Components {
                         break;
                 }
 
-                // check if the component has a controller preprocessor action
+                // check if the component has a preprocessor action
                 // Invoke RenderAsync
                 MethodInfo? meth = component.GetType().GetMethod(TEMPLATEPREPROCESSMETHOD, BindingFlags.Static| BindingFlags.Public);
                 if (meth != null) {
@@ -139,8 +139,8 @@ namespace YetaWF.Core.Components {
         /// <returns>Returns a dictionary of available pages.</returns>
         public static Dictionary<string, Type> GetPages() { return Pages; }
         /// <summary>
-        /// Returns a dictionary of components that have a controller preprocessor action.
+        /// Returns a dictionary of components that have a preprocessor action.
         /// </summary>
-        public static Dictionary<string, MethodInfo> GetComponentsWithControllerPreprocessAction() { return ComponentsWithTemplatePreprocessAction; }
+        public static Dictionary<string, MethodInfo> GetComponentsWithTemplatePreprocessAction() { return ComponentsWithTemplatePreprocessAction; }
     }
 }

@@ -62,6 +62,10 @@ namespace YetaWF.Core.Endpoints {
         /// </summary>
         protected enum ReloadEnum {
             /// <summary>
+            /// Nothing is reloaded.
+            /// </summary>
+            Nothing = 0,
+            /// <summary>
             /// The entire page is reloaded.
             /// </summary>
             Page = 1,
@@ -80,8 +84,11 @@ namespace YetaWF.Core.Endpoints {
         /// </summary>
         /// <param name="PopupText">The text of the popup message to be displayed.</param>
         /// <param name="PopupTitle">The optional title of the popup message to be displayed. If not specified, the default is "Success".</param>
-        protected static IResult Done(string PopupText, string? PopupTitle = null, bool ForcePopup = false) {
-            return Results.Json(Reload(string.Empty, "$YetaWF.message({0}, {1});", PopupText, PopupTitle, ForcePopup));
+        protected static IResult Done(string? PopupText = null, string? PopupTitle = null, bool ForcePopup = false) {
+            if (string.IsNullOrWhiteSpace(PopupText))
+                return Results.Json(Reload(string.Empty, string.Empty, null, null, ForcePopup));
+            else
+                return Results.Json(Reload(string.Empty, "$YetaWF.message({0}, {1});", PopupText, PopupTitle, ForcePopup));
         }
 
         /// <summary>
@@ -107,6 +114,7 @@ namespace YetaWF.Core.Endpoints {
             ScriptBuilder sb = new ScriptBuilder();
             if (string.IsNullOrWhiteSpace(popupText)) {
                 // we don't want a message or an alert
+                sb.Append(Basics.AjaxJavascriptReturn);
                 sb.Append(prepend);
                 return sb.ToString();
             } else {

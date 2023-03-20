@@ -1,11 +1,11 @@
 ﻿/* Copyright © 2023 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using System.Text.Json.Serialization;
-using YetaWF.Core.Controllers;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Support;
+using YetaWF.Modules.ComponentsHTML.Endpoints;
 using static YetaWF.Core.Models.Attributes.ExprAttribute;
 
 namespace YetaWF.Core.SendEmail {
@@ -72,7 +72,7 @@ namespace YetaWF.Core.SendEmail {
                 if (!manager.HaveUser) return null;
                 string userName = manager.UserEmail!;
                 return new ModuleAction {
-                    Url = Utility.UrlFor(typeof(SMTPEmailController), nameof(SMTPEmailController.SendTestEmail)),
+                    Url = Utility.UrlFor(typeof(SMTPServerEndpoints), SMTPServerEndpoints.SendTestEmail),
                     LinkText = this.__ResStr("send", "Send"),
                     Category = ModuleAction.ActionCategoryEnum.Update,
                     ConfirmationText = this.__ResStr("confirmSend", "Are you sure you want to send a test email to {0} using the provided server information?", userName),

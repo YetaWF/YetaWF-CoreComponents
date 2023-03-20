@@ -64,7 +64,7 @@ namespace YetaWF.Core.Endpoints.Support {
         private async Task EvaluateModel(object? model, string prefix, bool hasTrim, bool hasCase, string? templateName, int? templateAction, string? templateExtraData) {
             if (model == null) return;
 
-            Dictionary<string, MethodInfo> preMeths = YetaWFComponentBaseStartup.GetComponentsWithControllerPreprocessAction();
+            Dictionary<string, MethodInfo> preMeths = YetaWFComponentBaseStartup.GetComponentsWithTemplatePreprocessAction();
             NullabilityInfoContext _nullabilityContext = new NullabilityInfoContext();
 
             Type modelType = model.GetType();

@@ -26,6 +26,7 @@ using YetaWF.Core.Identity;
 using YetaWF.Core.Language;
 using YetaWF.Core.Log;
 using YetaWF.Core.Models.Attributes;
+using YetaWF.Core.PackageSupport;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.Middleware;
@@ -38,6 +39,9 @@ using YetaWF2.Support;
 
 namespace YetaWF.Core.WebStartup;
 
+/// <summary>
+/// This class is used by web application during startup to initialize packages and perform startup processing.
+/// </summary>
 public partial class Startup {
 
     /// <summary>

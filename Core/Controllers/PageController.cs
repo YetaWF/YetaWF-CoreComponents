@@ -15,7 +15,8 @@ using YetaWF.Core.Site;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.UrlHistory;
 
-namespace YetaWF.Core.Controllers {
+namespace YetaWF.Core.Controllers
+{
 
     /// <summary>
     /// Controller for all full page requests within YetaWF.

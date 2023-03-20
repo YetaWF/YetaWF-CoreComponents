@@ -19,7 +19,8 @@ using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.UrlHistory;
 
-namespace YetaWF.Core.Endpoints {
+namespace YetaWF.Core.Endpoints
+{
 
     /// <summary>
     /// Endpoint for all page requests within YetaWF that only need the content rendered (used client-side to replace module content only).
