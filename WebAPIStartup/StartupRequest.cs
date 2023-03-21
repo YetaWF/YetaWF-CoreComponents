@@ -60,7 +60,7 @@ public static class StartupRequest {
     /// <summary>
     /// First time YetaWF API service startup processing.
     /// </summary>
-    public static void StartYetaWF(this IApplicationBuilder app) {
+    internal static void StartYetaWF(this IApplicationBuilder app) {
 
         if (!YetaWF.Core.Support.Startup.Started) {
 

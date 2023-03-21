@@ -20,6 +20,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using YetaWF.Core.Controllers;
 using YetaWF.Core.HttpHandler;
 using YetaWF.Core.Identity;
@@ -90,9 +91,8 @@ public partial class Startup {
 
         var builder = WebApplication.CreateBuilder(new WebApplicationOptions {
             Args = args,
-            //$$ ApplicationName = typeof(Program).Assembly.FullName,
+            ApplicationName = Assembly.GetExecutingAssembly().FullName,
             ContentRootPath = currPath,
-            //$$ EnvironmentName = Environments.Staging,
             WebRootPath = "wwwroot"
         });
 
@@ -123,16 +123,12 @@ public partial class Startup {
                 kestrelOptions.Limits.MaxRequestBodySize = null;
             else
                 kestrelOptions.Limits.MaxRequestBodySize = maxReq;
-            //#if !DEBUG //$$$
+#if !DEBUG
             kestrelOptions.AllowSynchronousIO = true;
-            //#endif
+#endif
         });
         builder.WebHost.UseIIS();
-        builder.WebHost.UseIISIntegration();//$$iisOptions => {
-        //#if !DEBUG //$$$
-        //###                iisOptions.AllowSynchronousIO = true;
-        //#endif
-        //            });
+        builder.WebHost.UseIISIntegration();
         builder.WebHost.CaptureStartupErrors(true);
         builder.WebHost.UseSetting(WebHostDefaults.DetailedErrorsKey, "true");
 
@@ -147,6 +143,12 @@ public partial class Startup {
 
 
         // Services
+
+        builder.Services.Configure<IISServerOptions>(iisOptions => {
+#if !DEBUG
+            iisOptions.AllowSynchronousIO = true;
+#endif
+        });
 
         builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
@@ -266,9 +268,6 @@ public partial class Startup {
             options.Conventions.Add(new AreaConventionAttribute());
 
         })
-        //.AddNewtonsoftJson((options) => { //$$$$$
-        //    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
-        //})
         .ConfigureApplicationPartManager((partManager) => { YetaWFApplicationPartManager.AddAssemblies(partManager); });
 
         builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options => { // Minimal API serialization
@@ -295,6 +294,8 @@ public partial class Startup {
         YetaWF.Core.SignalR.ConfigureServices(builder.Services);
 
         builder.Services.AddLetsEncrypt();
+
+
 
         // Pipeline
 

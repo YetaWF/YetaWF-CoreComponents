@@ -12,7 +12,7 @@ using YetaWF.Core.Support;
 namespace YetaWF.Core.WebAPIStartup;
 
 /// <summary>
-/// The class implementing a YetaWF API service .
+/// The class implementing a YetaWF API service.
 /// </summary>
 public class StartupAPI {
 

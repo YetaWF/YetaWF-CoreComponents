@@ -53,7 +53,6 @@ public class Startup {
             // AreaConvention to simplify Area discovery (using IControllerModelConvention)
             options.Conventions.Add(new AreaConventionAttribute());
         })
-        //.AddNewtonsoftJson() //$$$$$
         .ConfigureApplicationPartManager((partManager) => { YetaWFApplicationPartManager.AddAssemblies(partManager); });
 
 #if !DEBUG
