@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
@@ -21,7 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using YetaWF.Core.Controllers;
+using YetaWF.Core.Endpoints;
 using YetaWF.Core.HttpHandler;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Language;
@@ -32,7 +31,6 @@ using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 using YetaWF.Core.Support.Middleware;
 using YetaWF.Core.Support.Services;
-using YetaWF.Core.Views;
 using YetaWF2.LetsEncrypt;
 using YetaWF2.Logger;
 using YetaWF2.Middleware;
@@ -239,36 +237,21 @@ public partial class Startup {
         IdentityCreator.Setup(builder.Services);
         IdentityCreator.SetupLoginProviders(builder.Services);
 
-        // We need to replace the default Html Generator because it adds id= to every tag despite not explicitly requested, which is dumb and can cause duplicate ids (not
-        // permitted  in w3c validation). Why would MVC6 start adding ids to tags when they're not requested. If they're not requested, does the caller really need or use them???
-        builder.Services.AddSingleton(typeof(IHtmlGenerator), typeof(YetaWFDefaultHtmlGenerator));
-
-        builder.Services.AddControllers(options => {
-            // Add a string model binder provider.
-            // The built in simple type model binder converts spaces to null. Or if ConvertEmptyStringToNull is set to true an empty string remains an empty string, instead of null.
-            // This restores "" -> null and "   " -> "   " which is not an option with the built in binder. This behavior was used on ASP.NET 4 and I want to keep it.
-            // I'm not about that retesting life.
-            options.ModelBinderProviders.Insert(0, new YetaWFStringModelBinderProvider());
-        });
-
         // Add framework services.
         builder.Services.AddMvc((options) => {
             // we have to remove the SaveTempDataAttribute filter, otherwise our ActionHelper.Action extension
             // doesn't work as the filter sets httpContext.Items[someobject] to signal that the action has completed.
             // obviously this doesn't work if there are multiple actions (which there always are).
             // YetaWF doesn't use tempdata so this is useless anyway. And this SaveTempDataAttribute seems borked...
-            options.Filters.Remove(new Microsoft.AspNetCore.Mvc.ViewFeatures.SaveTempDataAttribute());
+            //options.Filters.Remove(new Microsoft.AspNetCore.Mvc.ViewFeatures.SaveTempDataAttribute());
             // We need to roll our own support for AdditionalMetadataAttribute, IMetadataAware
-            options.ModelMetadataDetailsProviders.Add(new AdditionalMetadataProvider());
+            //options.ModelMetadataDetailsProviders.Add(new AdditionalMetadataProvider());
 
             // Error handling for controllers, not used, we handle action errors instead so this is not needed
             // options.Filters.Add(new ControllerExceptionFilterAttribute()); // controller exception filter, not used
 
-            // AreaConvention to simplify Area discovery (using IControllerModelConvention)
-            options.Conventions.Add(new AreaConventionAttribute());
-
         })
-        .ConfigureApplicationPartManager((partManager) => { YetaWFApplicationPartManager.AddAssemblies(partManager); });
+        .ConfigureApplicationPartManager(YetaWFApplicationPartManager.AddAssemblies);
 
         builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options => { // Minimal API serialization
             options.SerializerOptions.PropertyNamingPolicy = null;
@@ -423,7 +406,7 @@ public partial class Startup {
         app.UseLetsEncrypt();
 
         app.Use(async (context, next) => {
-            await YetaWFController.SetupEnvironmentInfoAsync();
+            await PageContentEndpoints.SetupEnvironmentInfoAsync();
             await next();
         });
 

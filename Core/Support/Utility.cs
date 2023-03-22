@@ -535,23 +535,20 @@ namespace YetaWF.Core.Support {
         }
 
         /// <summary>
-        /// Returns a URL with query string, given a type implementing a controller or endpoint, and an action name.
+        /// Returns a URL with query string, given a type implementing an endpoint, and an action name.
         /// </summary>
-        /// <param name="type">The type of the controller or endpoint.</param>
-        /// <param name="actionName">The action name implemented by the controller or endpoint.</param>
+        /// <param name="type">The type of the endpoint.</param>
+        /// <param name="actionName">The action name implemented by the endpoint.</param>
         /// <param name="args">An optional array of arguments that are translated to query string parameters.</param>
         /// <returns>A formatted URL for the current site (without scheme or domain).</returns>
         public static string UrlFor(Type type, string actionName, object? args = null) {
             string name;
             string prefix;
-            if (type.Name.EndsWith("Controller")) {
-                name = type.Name.Substring(0, type.Name.Length - "Controller".Length);
-                prefix = string.Empty;
-            } else if (type.Name.EndsWith("Endpoints")) {
+            if (type.Name.EndsWith("Endpoints")) {
                 name = type.Name.Substring(0, type.Name.Length - "Endpoints".Length);
                 prefix = Globals.ApiPrefix;
             } else
-                throw new InternalError("Type {0} is not a controller or endpoint", type.FullName);
+                throw new InternalError("Type {0} is not an endpoint", type.FullName);
             Package? package = Package.TryGetPackageFromAssembly(type.Assembly);
             if (package == null)
                 throw new InternalError("Type {0} is not part of a package", type.FullName);
@@ -560,10 +557,10 @@ namespace YetaWF.Core.Support {
             return query.ToUrl(url);
         }
         /// <summary>
-        /// Returns a URL with query string, given a type implementing a controller or endpoint, and an action name.
+        /// Returns a URL with query string, given a type implementing an endpoint, and an action name.
         /// </summary>
-        /// <typeparam name="T">The type of the class implementing the controller or endpoint.</typeparam>
-        /// <param name="actionName">The action name implemented by the controller or endpoint.</param>
+        /// <typeparam name="T">The type of the class implementing the endpoint.</typeparam>
+        /// <param name="actionName">The action name implemented by the endpoint.</param>
         /// <param name="args">An optional array of arguments that are translated to query string parameters.</param>
         /// <returns>A formatted URL for the current site (without scheme or domain).</returns>
         public static string UrlFor<T>(string actionName, object? args = null) {

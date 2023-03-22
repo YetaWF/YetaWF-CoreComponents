@@ -9,7 +9,7 @@ using YetaWF.Core.Support.Zip;
 namespace YetaWF.Core.Endpoints;
 
 /// <summary>
-/// Used to return a ZIP file from a controller or endpoint.
+/// Used to return a ZIP file from an endpoint.
 /// </summary>
 /// <remarks>
 /// This action result works in conjunction with JavaScript in Basics.ts returning a cookie indicating the file is available.

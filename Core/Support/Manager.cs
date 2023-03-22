@@ -41,7 +41,7 @@ namespace YetaWF.Core.Support {
     /// Important items such as logged on user, global information, etc. is accessible through this instance.
     ///
     /// The instance can be retrieved using the static property YetaWFManager.Manager (YetaWF.Core.Support.YetaWFManager.Manager).
-    /// Controllers, modules and components and many others provide an accessor in their base classes.
+    /// Endpoints, modules and components and many others provide an accessor in their base classes.
     ///
     /// I can hear the Dependency Injection crowd moaning that this is not a good pattern. Sometimes getting things done is more
     /// important than technical perfection, which ultimately doesn't make the result any better, or user friendly.
@@ -732,29 +732,29 @@ namespace YetaWF.Core.Support {
             }
         }
 
-        // GetUrlArg and TryGetUrlArg is used to retrieve optional Url args (outside of a Controller) added to a page using AddUrlArg, so one module can add args for other modules on the same page
+        // GetUrlArg and TryGetUrlArg is used to retrieve optional Url args (outside of an endpoint) added to a page using AddUrlArg, so one module can add args for other modules on the same page
 
         /// <summary>
-        /// Used to retrieve URL query string arguments (outside of a controller).
+        /// Used to retrieve URL query string arguments (outside of an endpoint).
         /// </summary>
         /// <typeparam name="TYPE">The expected return value type.</typeparam>
         /// <param name="arg">The name of the query string argument.</param>
         /// <returns>Returns the query string argument. If the argument is not available, an exception occurs.</returns>
-        /// <remarks>This would not be used in a controller as these have access to all arguments via their parameter list. This is typically only used in a module action that is dynamically added by a module.</remarks>
+        /// <remarks>This would not be used in a endpoint as these have access to all arguments via their parameter list. This is typically only used in a module action that is dynamically added by a module.</remarks>
         public TYPE GetUrlArg<TYPE>(string arg) {
             if (!TryGetUrlArg<TYPE>(arg, out TYPE? val))
                 throw new InternalError(this.__ResStr("invUrlArg", "{0} URL argument invalid or missing", arg));
             return val;
         }
         /// <summary>
-        /// Used to retrieve URL query string arguments (outside of a controller).
+        /// Used to retrieve URL query string arguments (outside of an endpoint).
         /// </summary>
         /// <typeparam name="TYPE">The expected return value type.</typeparam>
         /// <param name="arg">The name of the query string argument.</param>
         /// <param name="val">Returns the query string argument. If the argument is not available, the type's default value is returned.</param>
         /// <param name="dflt">An optional value, which is returned if the argument is not available.</param>
         /// <returns>true if the argument was found, false otherwise.</returns>
-        /// <remarks>This would not be used in a controller as these have access to all arguments via their parameter list. This is typically only used in a module action that is dynamically added by a module.</remarks>
+        /// <remarks>This would not be used in an endpoint as these have access to all arguments via their parameter list. This is typically only used in a module action that is dynamically added by a module.</remarks>
         public bool TryGetUrlArg<TYPE>(string arg, [NotNullWhen(true)] out TYPE? val, TYPE? dflt = default) {
             val = dflt;
             string? v;
@@ -915,9 +915,9 @@ namespace YetaWF.Core.Support {
         }
         private StaticPageManager? _staticPageManager = null;
 
-        // CONTROLLER/VIEW SUPPORT
-        // CONTROLLER/VIEW SUPPORT
-        // CONTROLLER/VIEW SUPPORT
+        // VIEW SUPPORT
+        // VIEW SUPPORT
+        // VIEW SUPPORT
 
         /// <summary>
         /// Returns a unique HTML id.

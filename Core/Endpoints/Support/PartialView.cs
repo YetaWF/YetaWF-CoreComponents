@@ -99,9 +99,6 @@ namespace YetaWF.Core.Endpoints {
 
             HttpResponse response = context.Response;
 
-            // if the controller specified a content type, only return the exact response
-            // if the controller didn't specify a content type and the content type is text/html, add all the other goodies
-
             Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentSite.ReferencedModules);
 
             //$$$ if (Manager.CurrentPage != null) Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentPage.ReferencedModules);

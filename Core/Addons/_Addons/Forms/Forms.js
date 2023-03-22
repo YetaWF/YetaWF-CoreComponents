@@ -137,7 +137,6 @@ var YetaWF;
         Forms.prototype.submitExplicit = function (form, method, action, saveReturn, useValidation, extraData, customEventData) {
             var _this = this;
             console.log("====> submitExplicit");
-            var jsonSubmit = $YetaWF.getAttributeCond(form, "data-json-submit"); //$$$$
             $YetaWF.pageChanged = false; // suppress navigate error
             var divs = $YetaWF.getElementsBySelector("div." + this.DATACLASS);
             for (var _i = 0, divs_1 = divs; _i < divs_1.length; _i++) {
@@ -162,112 +161,58 @@ var YetaWF;
                     if (originList.length > 5) // only keep the last 5 urls
                         originList = originList.slice(originList.length - 5);
                 }
-                if (jsonSubmit != null) {
-                    if (method.toLowerCase() === "get")
-                        throw "FORM GET not supported";
-                    // eslint-disable
-                    debugger;
-                    var uri = $YetaWF.parseUrl(action);
-                    // serialize the form
-                    var model = this.serializeFormObject(form);
-                    var formData = {
-                        Model: model,
-                        __Apply: false,
-                        __Reload: false,
-                        __OriginList: originList,
-                        UniqueIdCounters: YVolatile.Basics.UniqueIdCounters,
-                        __Pagectl: YVolatile.Basics.PageControlVisible,
-                        __InPopup: $YetaWF.isInPopup(),
-                    };
-                    // add extra data
-                    if (extraData) {
-                        if (extraData[YConfigs.Basics.Link_SubmitIsApply] != null) {
-                            formData.__Apply = extraData[YConfigs.Basics.Link_SubmitIsApply];
-                            delete model[YConfigs.Basics.Link_SubmitIsApply];
-                        }
-                        if (extraData[YConfigs.Basics.Link_SubmitIsReload] != null) {
-                            formData.__Reload = extraData[YConfigs.Basics.Link_SubmitIsReload];
-                            delete model[YConfigs.Basics.Link_SubmitIsReload];
-                        }
+                if (method.toLowerCase() === "get")
+                    throw "FORM GET not supported";
+                // eslint-disable
+                debugger;
+                var uri = $YetaWF.parseUrl(action);
+                // serialize the form
+                var model = this.serializeFormObject(form);
+                var formData = {
+                    Model: model,
+                    __Apply: false,
+                    __Reload: false,
+                    __OriginList: originList,
+                    UniqueIdCounters: YVolatile.Basics.UniqueIdCounters,
+                    __Pagectl: YVolatile.Basics.PageControlVisible,
+                    __InPopup: $YetaWF.isInPopup(),
+                };
+                // add extra data
+                if (extraData) {
+                    if (extraData[YConfigs.Basics.Link_SubmitIsApply] != null) {
+                        formData.__Apply = extraData[YConfigs.Basics.Link_SubmitIsApply];
+                        delete model[YConfigs.Basics.Link_SubmitIsApply];
                     }
-                    if (extraData)
-                        uri.addSearchSimpleObject(extraData);
-                    var formJson = $YetaWF.Forms.getJSONInfo(form);
-                    $YetaWF.postJSON(uri, formJson, null, formData, function (success, responseText) {
-                        if (success) {
-                            if (responseText) {
-                                var partForm = $YetaWF.getElement1BySelectorCond("." + YConfigs.Forms.CssFormPartial, [form]);
-                                if (partForm) {
-                                    // clean up everything that's about to be removed
-                                    $YetaWF.processClearDiv(partForm);
-                                    // preserve the original css classes on the partial form (PartialFormCss)
-                                    var cls = partForm.className;
-                                    $YetaWF.setMixedOuterHTML(partForm, responseText);
-                                    partForm = $YetaWF.getElement1BySelectorCond("." + YConfigs.Forms.CssFormPartial, [form]);
-                                    if (partForm)
-                                        partForm.className = cls;
-                                }
-                            }
-                            $YetaWF.sendCustomEvent(form, Forms.EVENTPOSTSUBMIT, { success: !_this.hasErrors(form), form: form, customEventData: customEventData, response: responseText });
-                            $YetaWF.setFocus([form]);
-                        }
-                        else {
-                            $YetaWF.sendCustomEvent(form, Forms.EVENTPOSTSUBMIT, { success: false, form: form, customEventData: customEventData, });
-                        }
-                    });
-                }
-                else {
-                    //$$$$ REMOVE
-                    // serialize the form
-                    var formData = this.serializeForm(form);
-                    // add extra data
-                    if (extraData) {
-                        for (var _a = 0, extraData_1 = extraData; _a < extraData_1.length; _a++) {
-                            var entry = extraData_1[_a];
-                            var key = entry.key;
-                            if (key === YConfigs.Basics.Link_SubmitIsApply)
-                                formData += "&".concat(encodeURIComponent(entry.key), "=").concat(entry.value ? "y" : "n");
-                            else if (key === YConfigs.Basics.Link_SubmitIsReload)
-                                formData += "&".concat(encodeURIComponent(entry.key), "=").concat(entry.value ? "y" : "n");
-                            else
-                                formData += "&".concat(encodeURIComponent(entry.key), "=").concat(encodeURIComponent(entry.value));
-                        }
+                    if (extraData[YConfigs.Basics.Link_SubmitIsReload] != null) {
+                        formData.__Reload = extraData[YConfigs.Basics.Link_SubmitIsReload];
+                        delete model[YConfigs.Basics.Link_SubmitIsReload];
                     }
-                    // add the origin list in case we need to navigate back
-                    formData = formData + "&" + YConfigs.Basics.Link_OriginList + "=" + encodeURIComponent(JSON.stringify(originList));
-                    // add uniqueidcounters
-                    formData = formData + "&" + YConfigs.Forms.UniqueIdCounters + "=" + encodeURIComponent(JSON.stringify(YVolatile.Basics.UniqueIdCounters));
-                    // add the status of the Pagecontrol
-                    if (YVolatile.Basics.PageControlVisible)
-                        formData = formData + "&" + YConfigs.Basics.Link_PageControl + "=y";
-                    // add if we're in a popup
-                    if ($YetaWF.isInPopup())
-                        formData = formData + "&" + YConfigs.Basics.Link_InPopup + "=y";
-                    if (method.toLowerCase() === "get")
-                        action = "".concat(action, "?").concat(formData);
-                    $YetaWF.send(method, action, formData, function (success, responseText) {
-                        if (success) {
-                            if (responseText) {
-                                var partForm = $YetaWF.getElement1BySelectorCond("." + YConfigs.Forms.CssFormPartial, [form]);
-                                if (partForm) {
-                                    // clean up everything that's about to be removed
-                                    $YetaWF.processClearDiv(partForm);
-                                    // preserve the original css classes on the partial form (PartialFormCss)
-                                    var cls = partForm.className;
-                                    $YetaWF.setMixedOuterHTML(partForm, responseText);
-                                    partForm = $YetaWF.getElement1BySelectorCond("." + YConfigs.Forms.CssFormPartial, [form]);
-                                    if (partForm)
-                                        partForm.className = cls;
-                                }
-                            }
-                            $YetaWF.sendCustomEvent(form, Forms.EVENTPOSTSUBMIT, { success: !_this.hasErrors(form), form: form, customEventData: customEventData, response: responseText });
-                            $YetaWF.setFocus([form]);
-                        }
-                        else {
-                            $YetaWF.sendCustomEvent(form, Forms.EVENTPOSTSUBMIT, { success: false, form: form, customEventData: customEventData, });
-                        }
-                    });
                 }
+                if (extraData)
+                    uri.addSearchSimpleObject(extraData);
+                var formJson = $YetaWF.Forms.getJSONInfo(form);
+                $YetaWF.postJSON(uri, formJson, null, formData, function (success, responseText) {
+                    if (success) {
+                        if (responseText) {
+                            var partForm = $YetaWF.getElement1BySelectorCond("." + YConfigs.Forms.CssFormPartial, [form]);
+                            if (partForm) {
+                                // clean up everything that's about to be removed
+                                $YetaWF.processClearDiv(partForm);
+                                // preserve the original css classes on the partial form (PartialFormCss)
+                                var cls = partForm.className;
+                                $YetaWF.setMixedOuterHTML(partForm, responseText);
+                                partForm = $YetaWF.getElement1BySelectorCond("." + YConfigs.Forms.CssFormPartial, [form]);
+                                if (partForm)
+                                    partForm.className = cls;
+                            }
+                        }
+                        $YetaWF.sendCustomEvent(form, Forms.EVENTPOSTSUBMIT, { success: !_this.hasErrors(form), form: form, customEventData: customEventData, response: responseText });
+                        $YetaWF.setFocus([form]);
+                    }
+                    else {
+                        $YetaWF.sendCustomEvent(form, Forms.EVENTPOSTSUBMIT, { success: false, form: form, customEventData: customEventData, });
+                    }
+                });
             }
             else {
                 // find the first field in each tab control that has an input validation error and activate that tab
@@ -280,8 +225,8 @@ var YetaWF;
                 $YetaWF.sendCustomEvent(form, Forms.EVENTPOSTSUBMIT, { success: false, form: form, customEventData: customEventData, });
             }
             divs = $YetaWF.getElementsBySelector("div." + this.DATACLASS);
-            for (var _b = 0, divs_2 = divs; _b < divs_2.length; _b++) {
-                var div = divs_2[_b];
+            for (var _a = 0, divs_2 = divs; _a < divs_2.length; _a++) {
+                var div = divs_2[_a];
                 $YetaWF.removeElement(div);
             }
         };

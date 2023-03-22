@@ -138,7 +138,7 @@ namespace YetaWF.Core.Modules {
         /// <param name="ForceApply">Force handling as Apply.</param>
         /// <param name="ExtraData">Additional data added to URL as _extraData argument. Length should be minimal, otherwise URL and Referer header may grow too large.</param>
         /// <param name="ForcePopup">The message is shown as a popup even if toasts are enabled.</param>
-        /// <returns>An ActionResult to be returned by the controller.</returns>
+        /// <returns>An IResult to be returned by the endpoint.</returns>
         protected async Task<IResult> FormProcessedAsync(object? model, string? popupText = null, string? popupTitle = null,
                 OnCloseEnum OnClose = OnCloseEnum.Return, OnPopupCloseEnum OnPopupClose = OnPopupCloseEnum.ReloadParentPage, OnApplyEnum OnApply = OnApplyEnum.ReloadModule,
                 string? NextPage = null, bool PreserveOriginList = false, string? ExtraData = null,
@@ -407,7 +407,7 @@ $YetaWF.message({popupText}, {popupTitle}, function() {{
         /// Redirects to the specified URL, aborting page rendering.
         /// </summary>
         /// <param name="url">The URL where the page is redirected.</param>
-        /// <returns>An ActionInfo to be returned by the controller.</returns>
+        /// <returns>An ActionInfo to be returned by the endpoint.</returns>
         /// <remarks>
         /// The Redirect method can be used for GET within content rendering.
         /// </remarks>

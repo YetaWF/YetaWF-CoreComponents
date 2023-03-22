@@ -12,12 +12,12 @@ namespace YetaWF.Core.Identity {
 
     /// <summary>
     /// Used to define protected named resources.
-    /// Protected resources can be used to restrict access to controllers based on user permissions.
+    /// Protected resources can be used to restrict access to endpoints based on user permissions.
     ///
     /// The ResourceAttribute is typically used in a package's AssemblyInfo.cs file to define all named resources the package implements.
     /// These are collected during application startup by the AuthorizationResourceDataProvider.InitializeApplicationStartupAsync method.
     ///
-    /// The ResourceAuthorizeAttribute is used with controllers to protect by a named resource.
+    /// The ResourceAuthorizeAttribute is used with endpoints to protect by a named resource.
     /// Resource authorization is provided using Admin > Identity > Resources (standard YetaWF site).
     /// The AuthorizationDataProvider class is used to maintain authorization settings for roles and users.
     /// </summary>
@@ -71,11 +71,9 @@ namespace YetaWF.Core.Identity {
     }
 
     /// <summary>
-    /// Used with controller methods which must be authorized for access.
+    /// Used with endpoints which must be authorized for access.
     /// The ResourceAuthorize attribute must use a protected named resource (defined using ResourceAttribute).
     /// When the method is invoked, validation occurs to insure the user is authorized to access the protected name resource.
-    ///
-    /// This can be used for any type of controller, including plain MVC controllers, without ModuleGuid (i.e., no associated module).
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public class ResourceAuthorizeAttribute : AuthorizeAttribute {

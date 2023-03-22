@@ -1,7 +1,6 @@
 ﻿/* Copyright © 2023 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,7 +13,6 @@ using YetaWF.Core.DataProvider.Attributes;
 using YetaWF.Core.Endpoints.Support;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Localize;
-using YetaWF.Core.Log;
 using YetaWF.Core.Models;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Packages;
@@ -210,7 +208,7 @@ namespace YetaWF.Core.Modules {
                 if (string.IsNullOrEmpty(_Action)) {
                     string action = ClassName;
                     if (!action.EndsWith(Globals.ModuleClassSuffix)) {
-                        if (GetType() == typeof(ModuleDefinition)) // don't throw an error for the base class (this happens during model binding before invoking controller action, it's unclear why MVC would retrieve read/only properties)
+                        if (GetType() == typeof(ModuleDefinition)) // don't throw an error for the base class
                             return string.Empty;
                         throw new InternalError("Module {0} is using an invalid class name - should end in \"...{1}\".", action, Globals.ModuleClassSuffix);
                     }
@@ -222,9 +220,9 @@ namespace YetaWF.Core.Modules {
         private string? _Action { get; set; }
 
         //[Category("Variables")]
-        //[Description("The MVC controller invoking this module")]
+        //[Description("The endpoint invoking this module")]
         //[Caption("Controller")]
-        public string Controller {
+        public string Endpoints {
             get {
                 return GetType().Name;
             }
@@ -475,7 +473,7 @@ namespace YetaWF.Core.Modules {
                     return null;
             }
             if (string.IsNullOrWhiteSpace(action.Url))
-                action.Url = $"/{AreaName}/{Controller}/{name}";
+                action.Url = $"/{AreaName}/{Endpoints}/{name}";
             return action;
         }
 
@@ -506,7 +504,7 @@ namespace YetaWF.Core.Modules {
             }
             foreach (ModuleAction action in actions) {
                 if (string.IsNullOrWhiteSpace(action.Url))
-                    action.Url = $"/{AreaName}/{Controller}/{name}";
+                    action.Url = $"/{AreaName}/{Endpoints}/{name}";
             }
             return actions;
         }
@@ -537,7 +535,7 @@ namespace YetaWF.Core.Modules {
                 }
                 if (action != null) {
                     if (string.IsNullOrWhiteSpace(action.Url))
-                        action.Url = $"/{AreaName}/{Controller}/{name}";
+                        action.Url = $"/{AreaName}/{Endpoints}/{name}";
                     moduleActions.Add(action);
                 }
             }
@@ -597,9 +595,9 @@ namespace YetaWF.Core.Modules {
             Manager.CurrentResponse.StatusCode = StatusCodes.Status404NotFound;
         }
 
-        // CONTROLLER RENDERING
-        // CONTROLLER RENDERING
-        // CONTROLLER RENDERING
+        // RENDERING
+        // RENDERING
+        // RENDERING
 
         /// <summary>
         /// Renders a module including container in view mode, overriding edit mode.
@@ -655,7 +653,7 @@ namespace YetaWF.Core.Modules {
 
             ActionInfo info;
             try {
-                info = await htmlHelper.ActionAsync(this, Action, Controller, AreaName, parameters: Args);
+                info = await htmlHelper.RenderActionAsync(this, parameters: Args);
                 // module script initialization
                 if (!info.Failed && !string.IsNullOrWhiteSpace(info.HTML)) {
                     if (await Manager.AddOnManager.TryAddAddOnNamedAsync(AreaName, ClassName)) // add supporting files
@@ -745,7 +743,7 @@ $"document.body.setAttribute('data-pagecss', '{tempCss}');"// remember so we can
             ModuleDefinition? oldMod = Manager.CurrentModule;
             Manager.CurrentModule = this;
 
-            ActionInfo info = await htmlHelper.ActionAsync(this, Action, Controller, AreaName);
+            ActionInfo info = await htmlHelper.RenderActionAsync(this);
             Manager.CurrentModule = oldMod;
             if (string.IsNullOrEmpty(info.HTML) && !Manager.EditMode)
                 return string.Empty; // if the module contents are empty, we bail

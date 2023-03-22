@@ -7,7 +7,7 @@ var YetaWF_Core;
         }
         PanelModuleHandler.saveExpandCollapseStatus = function (guid, expanded) {
             // send save request, we don't care about the response
-            var uri = $YetaWF.parseUrl("/YetaWF_Core/PanelModuleSaveSettings/SaveExpandCollapse");
+            var uri = $YetaWF.parseUrl("".concat(YConfigs.Basics.ApiPrefix, "/YetaWF_Core/PanelModuleSaveSettings/SaveExpandCollapse")); //$$$$Url
             uri.addSearch("ModuleGuid", guid);
             uri.addSearch("Expanded", expanded.toString());
             var request = new XMLHttpRequest();

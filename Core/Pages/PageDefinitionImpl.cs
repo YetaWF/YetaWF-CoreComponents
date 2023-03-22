@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using YetaWF.Core.Controllers;
 using YetaWF.Core.Endpoints;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Identity;
@@ -519,7 +518,7 @@ namespace YetaWF.Core.Pages {
                     return;
                 }
 
-                paneHtml = PageViewResult.ProcessInlineScripts(paneHtml);
+                paneHtml = PageEndpoints.ProcessInlineScripts(paneHtml);
                 PageProcessing pageProc = new PageProcessing(Manager);
                 paneHtml = pageProc.PostProcessContentHtml(paneHtml);
                 if (!string.IsNullOrWhiteSpace(paneHtml)) {

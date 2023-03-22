@@ -5,7 +5,7 @@ namespace YetaWF_Core {
     export class PanelModuleHandler {
         public static saveExpandCollapseStatus(guid: string, expanded: boolean) : void {
             // send save request, we don't care about the response
-            let uri = $YetaWF.parseUrl("/YetaWF_Core/PanelModuleSaveSettings/SaveExpandCollapse");
+            let uri = $YetaWF.parseUrl(`${YConfigs.Basics.ApiPrefix}/YetaWF_Core/PanelModuleSaveSettings/SaveExpandCollapse`);//$$$$Url
             uri.addSearch("ModuleGuid", guid);
             uri.addSearch("Expanded", expanded.toString());
 

@@ -51,8 +51,8 @@ namespace YetaWF.Core.PackageSupport
                     if (prop is null) throw new InternalError($"CurrentPackage property not found on area type {type.FullName}");
                     prop.SetValue(null, package);
                     // Register area
-                    if (endpoints != null)
-                        RegisterArea(package, endpoints);
+                    //if (endpoints != null)
+                    //    RegisterArea(package, endpoints);
                 }
                 catch (Exception exc)
                 {
@@ -85,15 +85,15 @@ namespace YetaWF.Core.PackageSupport
             Logging.AddLog($"Processing {nameof(RegisterPackages)} Ended");
         }
 
-        /// <summary>
-        /// Used internally to register area routes.
-        /// </summary>
-        private static void RegisterArea(Package package, IEndpointRouteBuilder endpoints)
-        {
-            string areaName = package.AreaName;
-            Logging.AddLog("Found area {0}", areaName);
-            endpoints.MapAreaControllerRoute(areaName, areaName, areaName + "/{controller}/{action}/{*whatevz}");
-        }
+        ///// <summary>
+        ///// Used internally to register area routes.
+        ///// </summary>
+        //private static void RegisterArea(Package package, IEndpointRouteBuilder endpoints)
+        //{
+        //    string areaName = package.AreaName;
+        //    Logging.AddLog("Found area {0}", areaName);
+        //    endpoints.MapAreaControllerRoute(areaName, areaName, areaName + "/{controller}/{action}/{*whatevz}");
+        //}
 
         private static List<Type> GetEndpointRegistrationTypes()
         {

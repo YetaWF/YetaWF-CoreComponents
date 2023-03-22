@@ -49,11 +49,8 @@ public class Startup {
                 Assemblies.Load(asm);
         }
 
-        services.AddMvc((options) => {
-            // AreaConvention to simplify Area discovery (using IControllerModelConvention)
-            options.Conventions.Add(new AreaConventionAttribute());
-        })
-        .ConfigureApplicationPartManager((partManager) => { YetaWFApplicationPartManager.AddAssemblies(partManager); });
+        services.AddMvc((options) => { })
+            .ConfigureApplicationPartManager((partManager) => { YetaWFApplicationPartManager.AddAssemblies(partManager); });
 
 #if !DEBUG
         // in release builds we allow sync I/O - Simply can't be sure that all sync I/O has been corrected in development
