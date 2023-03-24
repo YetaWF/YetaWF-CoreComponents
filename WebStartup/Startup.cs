@@ -238,20 +238,8 @@ public partial class Startup {
         IdentityCreator.SetupLoginProviders(builder.Services);
 
         // Add framework services.
-        builder.Services.AddMvc((options) => {
-            // we have to remove the SaveTempDataAttribute filter, otherwise our ActionHelper.Action extension
-            // doesn't work as the filter sets httpContext.Items[someobject] to signal that the action has completed.
-            // obviously this doesn't work if there are multiple actions (which there always are).
-            // YetaWF doesn't use tempdata so this is useless anyway. And this SaveTempDataAttribute seems borked...
-            //options.Filters.Remove(new Microsoft.AspNetCore.Mvc.ViewFeatures.SaveTempDataAttribute());
-            // We need to roll our own support for AdditionalMetadataAttribute, IMetadataAware
-            //options.ModelMetadataDetailsProviders.Add(new AdditionalMetadataProvider());
-
-            // Error handling for controllers, not used, we handle action errors instead so this is not needed
-            // options.Filters.Add(new ControllerExceptionFilterAttribute()); // controller exception filter, not used
-
-        })
-        .ConfigureApplicationPartManager(YetaWFApplicationPartManager.AddAssemblies);
+        builder.Services.AddMvcCore()
+            .ConfigureApplicationPartManager(YetaWFApplicationPartManager.AddAssemblies);
 
         builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options => { // Minimal API serialization
             options.SerializerOptions.PropertyNamingPolicy = null;
@@ -416,9 +404,6 @@ public partial class Startup {
         AreaRegistrationBase.RegisterPackages(app);
 
         YetaWF.Core.SignalR.ConfigureHubs(app);
-
-        Logging.AddLog("Adding catchall route");
-        app.MapAreaControllerRoute(name: "Page", areaName: "YetaWF_Core", pattern: "{**path}", defaults: new { controller = "Page", action = "Show" });
 
         app.StartYetaWF();
 

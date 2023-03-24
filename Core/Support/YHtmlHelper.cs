@@ -13,12 +13,9 @@ namespace YetaWF.Core.Support {
     /// </summary>
     public class YHtmlHelper {
 
-        public ActionContext ActionContext { get; private set; }
-        public RouteData RouteData { get { return ActionContext.RouteData; } }
         public ModelState ModelState { get; private set; }
 
-        public YHtmlHelper(ActionContext actionContext, ModelState? modelState) {
-            ActionContext = actionContext;
+        public YHtmlHelper(ModelState? modelState) {
             ModelState = modelState ?? new ModelState();
         }
     }

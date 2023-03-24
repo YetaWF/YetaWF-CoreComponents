@@ -35,8 +35,6 @@ namespace YetaWF.Core.Modules {
         protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
         protected static bool HaveManager { get { return YetaWFManager.HaveManager; } }
 
-        public virtual bool JSONModule {  get { return false; } }//$$$ eventually remove
-
         // MODULE INFO
         // MODULE INFO
         // MODULE INFO
@@ -196,9 +194,9 @@ namespace YetaWF.Core.Modules {
             }
         }
 
-        // MODULE ACTION/CONTROLLER/AREA
-        // MODULE ACTION/CONTROLLER/AREA
-        // MODULE ACTION/CONTROLLER/AREA
+        // MODULE ACTION/ENDPOINTS/AREA
+        // MODULE ACTION/ENDPOINTS/AREA
+        // MODULE ACTION/ENDPOINTS/AREA
 
         //[Description("The MVC action invoking this module")]
         //[Caption("Action")]
@@ -220,8 +218,8 @@ namespace YetaWF.Core.Modules {
         private string? _Action { get; set; }
 
         //[Category("Variables")]
-        //[Description("The endpoint invoking this module")]
-        //[Caption("Controller")]
+        //[Description("The endpoints class for this module")]
+        //[Caption("Endpoint")]
         public string Endpoints {
             get {
                 return GetType().Name;
@@ -560,7 +558,7 @@ namespace YetaWF.Core.Modules {
 
             ViewName = EvaluateViewName(ViewName, UseAreaViewName);
 
-            YHtmlHelper htmlHelper = new YHtmlHelper(new Microsoft.AspNetCore.Mvc.ActionContext(), (this as ModuleDefinition2)?.ModelState);//$$$$$ remove this garbage
+            YHtmlHelper htmlHelper = new YHtmlHelper(this.ModelState);
             string html = await htmlHelper.ForViewAsync(ViewName, this, model);
 
             return new ActionInfo { HTML = html, Failed = false };

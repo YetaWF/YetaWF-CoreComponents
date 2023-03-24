@@ -576,7 +576,7 @@ public class PageEndpoints : YetaWFEndpoints {
         await YetaWFCoreRendering.Render.AddSkinAddOnsAsync();
         await Manager.AddOnManager.AddAddOnNamedAsync("YetaWF_Core", "SkinBasics");
 
-        YHtmlHelper htmlHelper = new YHtmlHelper(new Microsoft.AspNetCore.Mvc.ActionContext(), null);//$$$$$ remove this garbage
+        YHtmlHelper htmlHelper = new YHtmlHelper(null);
         string pageHtml = await htmlHelper.ForPageAsync(pageViewName);
 
         Manager.ScriptManager.AddLast("$YetaWF", "$YetaWF.initPage();");// end of page, initialization - this is the first thing that runs

@@ -70,7 +70,7 @@ namespace YetaWF_Core_Debugging {
         private Done: string[] = [];
         private Running: boolean = false;
 
-        // Anchors withing parent elements with any of these CSS classes are not checked
+        // Anchors within parent elements with any of these CSS classes are not checked
         private IgnoredParentElements: string[] = [
             "Softelvdm_Documentation", // documentation pages
             "yt_grid", // actions in grids

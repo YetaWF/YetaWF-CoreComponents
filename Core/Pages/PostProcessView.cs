@@ -12,7 +12,7 @@ namespace YetaWF.Core.Views {
 
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
-        internal static async Task<string> ProcessAsync(YHtmlHelper htmlHelper, ModuleDefinition module, string viewHtml, bool UsePartialFormCss = true) {
+        internal static async Task<string> ProcessAsync(YHtmlHelper htmlHelper, ModuleDefinition? module, string viewHtml, bool UsePartialFormCss = true) {
 
             viewHtml = await YetaWFCoreRendering.Render.RenderViewAsync(htmlHelper, module, viewHtml, UsePartialFormCss);
 

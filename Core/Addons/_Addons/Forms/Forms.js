@@ -79,12 +79,6 @@ var YetaWF;
             YetaWF_FormsImpl.showErrors(elem);
         };
         /**
-         * Serializes the form and returns a name/value pairs array
-         */
-        Forms.prototype.serializeFormArray = function (form) {
-            return YetaWF_FormsImpl.serializeFormArray(form);
-        };
-        /**
          * Serializes the form and returns an object
          */
         Forms.prototype.serializeFormObject = function (form) {
@@ -120,23 +114,20 @@ var YetaWF;
             var method = form.getAttribute("method");
             if (!method)
                 return; // no method, don't submit
-            var saveReturn = form.getAttribute(YConfigs.Basics.CssSaveReturnUrl) !== null; // form says we need to save the return address on submit
-            this.submitExplicit(form, method, form.action, saveReturn, useValidation, extraData, customEventData);
+            this.submitExplicit(form, method, form.action, useValidation, extraData, customEventData);
         };
         /**
          * Submit a form.
          * @param form The form being submitted.
          * @param method The method used to submit the form (typically post)
          * @param action The action URL used to submit the form.
-         * @param saveReturn Defines whether the return URL is saved on submit.
          * @param useValidation Defines whether validation is performed before submission.
          * @param extraData Optional additional form data submitted.
          * @param customEventData
          * @returns Optional event information sent with EVENTPRESUBMIT/EVENTPOSTSUBMIT events as event.detail.customEventData.
          */
-        Forms.prototype.submitExplicit = function (form, method, action, saveReturn, useValidation, extraData, customEventData) {
+        Forms.prototype.submitExplicit = function (form, method, action, useValidation, extraData, customEventData) {
             var _this = this;
-            console.log("====> submitExplicit");
             $YetaWF.pageChanged = false; // suppress navigate error
             var divs = $YetaWF.getElementsBySelector("div." + this.DATACLASS);
             for (var _i = 0, divs_1 = divs; _i < divs_1.length; _i++) {
@@ -151,20 +142,16 @@ var YetaWF;
             if (!useValidation || formValid) {
                 // calculate origin list in case we need to navigate back
                 var originList = YVolatile.Basics.OriginList;
-                if (saveReturn) {
-                    var currUri = $YetaWF.parseUrl(window.location.href);
-                    currUri.removeSearch(YConfigs.Basics.Link_OriginList); // remove originlist from current URL
-                    currUri.removeSearch(YConfigs.Basics.Link_InPopup); // remove popup info from current URL
-                    originList = YVolatile.Basics.OriginList.slice(0); // copy saved originlist
-                    var newOrigin = { Url: currUri.toUrl(), EditMode: YVolatile.Basics.EditModeActive, InPopup: $YetaWF.isInPopup() };
-                    originList.push(newOrigin);
-                    if (originList.length > 5) // only keep the last 5 urls
-                        originList = originList.slice(originList.length - 5);
-                }
+                var currUri = $YetaWF.parseUrl(window.location.href);
+                currUri.removeSearch(YConfigs.Basics.Link_OriginList); // remove originlist from current URL
+                currUri.removeSearch(YConfigs.Basics.Link_InPopup); // remove popup info from current URL
+                originList = YVolatile.Basics.OriginList.slice(0); // copy saved originlist
+                var newOrigin = { Url: currUri.toUrl(), EditMode: YVolatile.Basics.EditModeActive, InPopup: $YetaWF.isInPopup() };
+                originList.push(newOrigin);
+                if (originList.length > 5) // only keep the last 5 urls
+                    originList = originList.slice(originList.length - 5);
                 if (method.toLowerCase() === "get")
                     throw "FORM GET not supported";
-                // eslint-disable
-                debugger;
                 var uri = $YetaWF.parseUrl(action);
                 // serialize the form
                 var model = this.serializeFormObject(form);
@@ -243,17 +230,6 @@ var YetaWF;
                 extraData[YConfigs.Basics.TemplateExtraData] = templateExtraData; //$$$$
             this.submit(form, useValidation, extraData);
         };
-        Forms.prototype.serializeForm = function (form) {
-            var pairs = this.serializeFormArray(form);
-            var formData = "";
-            for (var _i = 0, pairs_1 = pairs; _i < pairs_1.length; _i++) {
-                var entry = pairs_1[_i];
-                if (formData !== "")
-                    formData += "&";
-                formData += encodeURIComponent(entry.name) + "=" + encodeURIComponent(entry.value);
-            }
-            return formData;
-        };
         // Cancel
         /**
          * Cancels the current form (Cancel button handling).
@@ -314,29 +290,6 @@ var YetaWF;
         };
         Forms.prototype.getInnerFormCond = function (tag) {
             return $YetaWF.getElement1BySelectorCond("form", [tag]);
-        };
-        // get RequestVerificationToken, UniqueIdCounters and ModuleGuid in query string format (usually for ajax requests)
-        Forms.prototype.getFormInfo = function (tag, addAmpersand) {
-            var form = this.getForm(tag);
-            var req = $YetaWF.getElement1BySelector("input[name='".concat(YConfigs.Forms.RequestVerificationToken, "']"), [form]).value;
-            if (!req || req.length === 0)
-                throw "Can't locate " + YConfigs.Forms.RequestVerificationToken; /*DEBUG*/
-            var guid = $YetaWF.getElement1BySelector("input[name='".concat(YConfigs.Basics.ModuleGuid, "']"), [form]).value;
-            if (!guid || guid.length === 0)
-                throw "Can't locate " + YConfigs.Basics.ModuleGuid; /*DEBUG*/
-            var qs = "";
-            if (addAmpersand !== false)
-                qs += "&";
-            qs += YConfigs.Forms.RequestVerificationToken + "=" + encodeURIComponent(req) +
-                "&" + YConfigs.Forms.UniqueIdCounters + "=" + JSON.stringify(YVolatile.Basics.UniqueIdCounters) +
-                "&" + YConfigs.Basics.ModuleGuid + "=" + encodeURIComponent(guid);
-            var info = {
-                RequestVerificationToken: req,
-                UniqueIdCounters: YVolatile.Basics.UniqueIdCounters,
-                ModuleGuid: guid,
-                QS: qs
-            };
-            return info;
         };
         // get RequestVerificationToken and ModuleGuid
         Forms.prototype.getJSONInfo = function (tagInForm, uniqueIdInfo) {

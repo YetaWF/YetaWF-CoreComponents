@@ -163,7 +163,7 @@ var YetaWF;
             request.setRequestHeader("X-HTTP-Method-Override", "GET"); // server has to think this is a GET request so all actions that are invoked actually work
             request.setRequestHeader("X-Requested-With", "XMLHttpRequest");
             request.onreadystatechange = function (ev) {
-                if (request.readyState === 4 /*DONE*/) {
+                if (request.readyState === XMLHttpRequest.DONE) {
                     $YetaWF.setLoading(false);
                     if (request.status === 200) {
                         var result = JSON.parse(request.responseText);
@@ -414,7 +414,7 @@ var YetaWF;
                 request.setRequestHeader("X-HTTP-Method-Override", "GET"); // server has to think this is a GET request so all actions that are invoked actually work
                 request.setRequestHeader("X-Requested-With", "XMLHttpRequest");
                 request.onreadystatechange = function (ev) {
-                    if (request.readyState === 4 /*DONE*/) {
+                    if (request.readyState === XMLHttpRequest.DONE) {
                         $YetaWF.setLoading(false);
                         if (request.status === 200) {
                             resolve(JSON.parse(request.responseText));

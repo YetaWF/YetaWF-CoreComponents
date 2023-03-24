@@ -18,9 +18,9 @@ namespace YetaWF.Core.Pages {
 
             // Check direct module invocation (for now)
             Type moduleType = module.GetType();
-            MethodInfo? miAsync = moduleType.GetMethod(ModuleDefinition2.MethodRenderModuleAsync);
+            MethodInfo? miAsync = moduleType.GetMethod(ModuleDefinition.MethodRenderModuleAsync);
             if (miAsync == null)
-                throw new InternalError($"Method {ModuleDefinition2.MethodRenderModuleAsync} not found for module {module.FullClassName}");
+                throw new InternalError($"Method {ModuleDefinition.MethodRenderModuleAsync} not found for module {module.FullClassName}");
 
             //$$$$ resource authorize attribute
 

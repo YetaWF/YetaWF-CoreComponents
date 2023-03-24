@@ -483,7 +483,7 @@ public class PageContentEndpoints : YetaWFEndpoints {
                 Manager.ScriptManager.AddVolatileOption("Skin", "PopupCss", pageSkin.CSS);
             }
 
-            YHtmlHelper htmlHelper = new YHtmlHelper(new Microsoft.AspNetCore.Mvc.ActionContext(), null);//$$$$$ remove this garbage
+            YHtmlHelper htmlHelper = new YHtmlHelper(null);
             await Manager.CurrentPage.RenderPaneContentsAsync(htmlHelper, dataIn, cr);
 
             //Manager.PopCharSize();

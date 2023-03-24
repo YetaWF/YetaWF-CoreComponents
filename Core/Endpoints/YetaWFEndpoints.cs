@@ -112,15 +112,16 @@ namespace YetaWF.Core.Endpoints {
         }
         private static string Reload(string prepend, string javascript, string? popupText, string? popupTitle, bool ForcePopup = false) {
             ScriptBuilder sb = new ScriptBuilder();
+            if (!string.IsNullOrEmpty(prepend))
+                sb.Append(prepend);
+            else
+                sb.Append(Basics.AjaxJavascriptReturn);
             if (string.IsNullOrWhiteSpace(popupText)) {
                 // we don't want a message or an alert
-                sb.Append(Basics.AjaxJavascriptReturn);
-                sb.Append(prepend);
                 return sb.ToString();
             } else {
                 popupText = Utility.JsonSerialize(popupText);
                 popupTitle = Utility.JsonSerialize(popupTitle ?? __ResStr("completeTitle", "Success"));
-                sb.Append(Basics.AjaxJavascriptReturn);
                 if (ForcePopup)
                     sb.Append("YVolatile.Basics.ForcePopup = true;");
                 sb.Append(javascript, popupText, popupTitle);

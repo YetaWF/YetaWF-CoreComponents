@@ -111,11 +111,6 @@ var YetaWF;
                 }
             }
         };
-        Url.prototype.addFormInfo = function (tag) {
-            var formInfo = $YetaWF.Forms.getFormInfo(tag);
-            this.replaceSearch(YConfigs.Forms.RequestVerificationToken, formInfo.RequestVerificationToken);
-            this.replaceSearch(YConfigs.Basics.ModuleGuid, formInfo.ModuleGuid);
-        };
         Url.prototype.removeSearch = function (key) {
             key = key.toLowerCase();
             for (var i = this.QSEntries.length - 1; i >= 0; --i) {

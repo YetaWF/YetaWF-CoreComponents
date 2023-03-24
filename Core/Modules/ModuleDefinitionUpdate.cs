@@ -6,21 +6,18 @@ using YetaWF.Core.Addons;
 using YetaWF.Core.Components;
 using YetaWF.Core.Endpoints;
 using YetaWF.Core.Endpoints.Support;
-using YetaWF.Core.Localize;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Modules {
 
-    public abstract class ModuleDefinition2 : ModuleDefinition {//$$$$ eventually rename ModuleDefinition2
+    public partial class ModuleDefinition {
 
-        private static string __ResStr(string name, string defaultValue, params object?[] parms) { return ResourceAccess.GetResourceString(typeof(ModuleDefinition2), name, defaultValue, parms); }
+        /* private static string __ResStr(string name, string defaultValue, params object?[] parms) { return ResourceAccess.GetResourceString(typeof(ModuleDefinition), name, defaultValue, parms); } */
 
         public const string MethodRenderModuleAsync = "RenderModuleAsync";
         public const string MethodUpdateModuleAsync = "UpdateModuleAsync";
-
-        public override bool JSONModule { get { return true; } }//$$$ eventually remove
 
         [DontSave]
         public bool IsApply { get; set; }

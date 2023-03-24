@@ -55,7 +55,7 @@ var YetaWF_Core_Debugging;
             this.Remaining = [];
             this.Done = [];
             this.Running = false;
-            // Anchors withing parent elements with any of these CSS classes are not checked
+            // Anchors within parent elements with any of these CSS classes are not checked
             this.IgnoredParentElements = [
                 "Softelvdm_Documentation",
                 "yt_grid", // actions in grids

@@ -56,7 +56,7 @@ namespace YetaWF.Core.Endpoints {
             StringBuilder sb = new StringBuilder();
             using (StringWriter sw = new StringWriter(sb)) {
 
-                YHtmlHelper htmlHelper = new YHtmlHelper(new Microsoft.AspNetCore.Mvc.ActionContext(), (module as ModuleDefinition2)?.ModelState); //$$$$$$
+                YHtmlHelper htmlHelper = new YHtmlHelper(module?.ModelState);
                 bool inPartialView = Manager.InPartialView;//$$$ is this needed
                 Manager.InPartialView = true;
                 bool wantFocus = Manager.WantFocus;
@@ -95,14 +95,15 @@ namespace YetaWF.Core.Endpoints {
 
         private static readonly Regex reEndDiv = new Regex(@"</div>\s*$"); // very last div
 
-        private static async Task<string> PostRenderAsync(YHtmlHelper htmlHelper, HttpContext context, ModuleDefinition module, string viewHtml, ScriptBuilder? Script = null) {
+        private static async Task<string> PostRenderAsync(YHtmlHelper htmlHelper, HttpContext context, ModuleDefinition? module, string viewHtml, ScriptBuilder? Script = null) {
 
             HttpResponse response = context.Response;
 
             Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentSite.ReferencedModules);
 
             //$$$ if (Manager.CurrentPage != null) Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentPage.ReferencedModules);
-            Manager.AddOnManager.AddExplicitlyInvokedModules(module.ReferencedModules);
+            if (module != null)
+                Manager.AddOnManager.AddExplicitlyInvokedModules(module.ReferencedModules);
 
             //if (ForcePopup)
             //    viewHtml += "<script>YVolatile.Basics.ForcePopup=true;</script>";

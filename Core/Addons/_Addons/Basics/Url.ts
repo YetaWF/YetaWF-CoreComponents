@@ -112,12 +112,6 @@ namespace YetaWF {
                 }
             }
         }
-
-        public addFormInfo(tag: HTMLElement): void {
-            let formInfo = $YetaWF.Forms.getFormInfo(tag);
-            this.replaceSearch(YConfigs.Forms.RequestVerificationToken, formInfo.RequestVerificationToken);
-            this.replaceSearch(YConfigs.Basics.ModuleGuid, formInfo.ModuleGuid);
-        }
         public removeSearch(key: string): void {
             key = key.toLowerCase();
             for (let i = this.QSEntries.length - 1; i >= 0; --i) {

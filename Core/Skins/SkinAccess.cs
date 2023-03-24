@@ -14,6 +14,8 @@ using YetaWF.Core.Modules;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
+using YetaWF.Modules.ComponentsHTML.Endpoints;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace YetaWF.Core.Skins {
 
@@ -202,14 +204,16 @@ namespace YetaWF.Core.Skins {
             await Manager.AddOnManager.AddAddOnNamedAsync(AreaRegistration.CurrentPackage.AreaName, "PanelModule");
 
             string expCss = " t_expanded";
+            string expCollUrl = string.Empty;
             if (mod.CanMinimize) {
                 bool expanded = Manager.SessionSettings.GetModuleSettings(mod.ModuleGuid).GetValue<bool>("PanelExpanded", !mod.Minimized);
                 if (!expanded)
                     expCss = " t_collapsed";
+                expCollUrl = $" data-url='{Utility.UrlFor<PanelModuleSaveSettingsEndpoints>(PanelModuleSaveSettingsEndpoints.SaveExpandCollapse)}'";
             }
 
             hb.Append($@"
-<div id='{mod.ModuleHtmlId}' data-moduleguid='{mod.ModuleGuid.ToString()}' class='{css}{expCss}'>");
+<div id='{mod.ModuleHtmlId}' data-moduleguid='{mod.ModuleGuid.ToString()}' class='{css}{expCss}'{expCollUrl}>");
 
             if (!Manager.IsInPopup && mod.ShowModuleMenu) {
                 hb.Append(await YetaWFCoreRendering.Render.RenderModuleMenuAsync(mod));

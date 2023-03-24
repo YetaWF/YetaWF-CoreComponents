@@ -87,31 +87,21 @@ namespace YetaWF.Core.Modules {
 
                 string urlOnly;
                 QueryHelper query = QueryHelper.FromUrl(url, out urlOnly);
-                //if (NeedsModuleContext)//$$$$$$$$$$$$$$
-                //    query.Remove(Basics.ModuleGuid);
 
                 // add human readable args as URL segments
                 QueryHelper qh = QueryHelper.FromAnonymousObject(QueryArgsHR);
-                //if (NeedsModuleContext)//$$$$$$$$$$$$
-                //    qh.Remove(Basics.ModuleGuid);
                 urlOnly = qh.ToUrlHumanReadable(urlOnly);
 
                 // add query args
                 qh = QueryHelper.FromAnonymousObject(QueryArgs);
-                //if (NeedsModuleContext)//$$$$$$
-                //    qh.Remove(Basics.ModuleGuid);
                 urlOnly = qh.ToUrl(urlOnly);
 
                 // add query args dictionary
                 if (QueryArgsDict != null) {
-                    //if (NeedsModuleContext)//$$$$$$$$$$$
-                    //    QueryArgsDict.Remove(Basics.ModuleGuid);
                     urlOnly = QueryArgsDict.ToUrl(urlOnly);
                 }
 
                 // add module guid if needed
-                //if (NeedsModuleContext)//$$$$$$$$$$$$$$$$
-                //    query.Add(Basics.ModuleGuid, GetOwningModuleGuid().ToString());
                 url = query.ToUrl(urlOnly);
 
                 // schema and anchor

@@ -89,12 +89,9 @@ namespace YetaWF.Core.Endpoints {
             // save environmental data
             Manager.UniqueIdCounters = dataIn.UniqueIdCounters;
             ModuleDefinition module = await GetModuleAsync(moduleGuid);
-            ModuleDefinition2? module2 = module as ModuleDefinition2;
-            if (module2 is null)//$$$CHANGE
-                throw new InternalError("Invalid module type");
 
-            module2.IsApply = dataIn.__Apply;
-            module2.IsReload = dataIn.__Reload;
+            module.IsApply = dataIn.__Apply;
+            module.IsReload = dataIn.__Reload;
 
             Manager.IsInPopup = dataIn.__InPopup;
             Manager.PageControlShown = dataIn.__Pagectl;
@@ -104,7 +101,7 @@ namespace YetaWF.Core.Endpoints {
             if (action != null) 
                 actionUpdate = $"Update{action}Async";
             else
-                actionUpdate = ModuleDefinition2.MethodUpdateModuleAsync;
+                actionUpdate = ModuleDefinition.MethodUpdateModuleAsync;
 
             Type moduleType = module.GetType();
             MethodInfo? miAsync = moduleType.GetMethod(actionUpdate);
@@ -144,9 +141,9 @@ namespace YetaWF.Core.Endpoints {
                     throw new Error("This action is not available in Demo mode.");
             }
 
-            await module2.ModelState.ValidateModel(model, dataIn.__TemplateName, dataIn.__TemplateAction, dataIn.__TemplateExtraData);
+            await module.ModelState.ValidateModel(model, dataIn.__TemplateName, dataIn.__TemplateAction, dataIn.__TemplateExtraData);
 
-            return await InvokeRenderMethod<IResult>(module2, model, miAsync, parms, dataIn);
+            return await InvokeRenderMethod<IResult>(module, model, miAsync, parms, dataIn);
         }
 
         /// <summary>

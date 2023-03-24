@@ -452,36 +452,6 @@ var YetaWF;
                 return true;
             return str1 === str2;
         };
-        /** Send a GET/POST/... request to the specified URL, expecting a JSON response. Errors are automatically handled. The callback is called once the POST response is available.
-         * @param url The URL used for the POST request.
-         * @param data The data to send as form data with the POST request.
-         * @param callback The callback to call when the POST response is available. Errors are automatically handled.
-         * @param tagInModule The optional tag in a module to refresh when AjaxJavascriptReloadModuleParts is returned.
-         */
-        //$$$$ REMOVE
-        BasicsServices.prototype.send = function (method, url, data, callback, tagInModule) {
-            this.setLoading(true);
-            var request = new XMLHttpRequest();
-            request.open(method, url, true);
-            if (method.toLowerCase() === "post")
-                request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-            $YetaWF.handleReadyStateChange(request, callback, tagInModule);
-            request.send(data);
-        };
-        // /** POST form data to the specified URL, expecting a JSON response. Errors are automatically handled. The callback is called once the POST response is available.
-        //  * @param url The URL used for the POST request.
-        //  * @param data The data to send as form data with the POST request.
-        //  * @param callback The callback to call when the POST response is available. Errors are automatically handled.
-        //  * @param tagInModule The optional tag in a module to refresh when AjaxJavascriptReloadModuleParts is returned.
-        //  */
-        // public post(url: string, data: any, callback: (success: boolean, data: any) => void, tagInModule?: HTMLElement): void {
-        //     this.setLoading(true);
-        //     let request: XMLHttpRequest = new XMLHttpRequest();
-        //     request.open("POST", url, true);
-        //     request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-        //     $YetaWF.handleReadyStateChange(request, callback, tagInModule);
-        //     request.send(data);
-        // }
         /** POST JSON data to the specified URL, ignoring any response.
          * @param url The URL used for the POST request.
          * @param query The optional query data sent as query string.

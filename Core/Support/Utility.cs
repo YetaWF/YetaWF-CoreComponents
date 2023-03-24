@@ -331,7 +331,8 @@ namespace YetaWF.Core.Support {
             converters.Add(new DecimalJsonConverter());
             converters.Add(new MultiStringJsonConverter());
             converters.Add(new BoolJsonConverter());
-            converters.Add(new DateTimeJsonConverter());
+            converters.Add(new DateTimeNullableJsonConverter());
+            converters.Add(new DateTimeJsonConverter());            
             converters.Add(new TimeOfDayJsonConverter());
             converters.Add(new TimeSpanJsonConverter());
             converters.Add(new GuidJsonConverter());

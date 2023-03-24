@@ -53,10 +53,6 @@ namespace YetaWF {
          */
         isValid(form: HTMLFormElement): boolean;
         /**
-         * Serializes the form and returns a name/value pairs array
-         */
-        serializeFormArray(form: HTMLFormElement): NameValuePair[];
-        /**
          * Serializes the form and returns an object
          */
         serializeFormObject(form: HTMLFormElement): any;
@@ -128,12 +124,6 @@ namespace YetaWF {
         form: HTMLElement | null;   // form <div> to be processed
         callback: (entry: SubmitHandlerEntry) => string|null; // function to be called - the callback returns extra data appended to the submit url
         userdata: any;              // any data suitable to callback
-    }
-    export interface FormInfo {
-        RequestVerificationToken: string;
-        UniqueIdCounters: UniqueIdInfo;
-        ModuleGuid: string;
-        QS: string;
     }
     export interface FormInfoJSON {
         RequestVerificationToken: string;
@@ -233,12 +223,6 @@ namespace YetaWF {
             YetaWF_FormsImpl.showErrors(elem);
         }
         /**
-         * Serializes the form and returns a name/value pairs array
-         */
-        public serializeFormArray(form: HTMLFormElement): NameValuePair[] {
-            return YetaWF_FormsImpl.serializeFormArray(form);
-        }
-        /**
          * Serializes the form and returns an object
          */
         public serializeFormObject(form: HTMLFormElement): any {
@@ -278,8 +262,7 @@ namespace YetaWF {
         public submit(form: HTMLFormElement, useValidation: boolean, extraData?: any, customEventData?: any): void {
             let method = form.getAttribute("method");
             if (!method) return; // no method, don't submit
-            let saveReturn = form.getAttribute(YConfigs.Basics.CssSaveReturnUrl) !== null;// form says we need to save the return address on submit
-            this.submitExplicit(form, method, form.action, saveReturn, useValidation, extraData, customEventData);
+            this.submitExplicit(form, method, form.action, useValidation, extraData, customEventData);
         }
 
         /**
@@ -287,15 +270,12 @@ namespace YetaWF {
          * @param form The form being submitted.
          * @param method The method used to submit the form (typically post)
          * @param action The action URL used to submit the form.
-         * @param saveReturn Defines whether the return URL is saved on submit.
          * @param useValidation Defines whether validation is performed before submission.
          * @param extraData Optional additional form data submitted.
          * @param customEventData
          * @returns Optional event information sent with EVENTPRESUBMIT/EVENTPOSTSUBMIT events as event.detail.customEventData.
          */
-        public submitExplicit(form: HTMLFormElement, method: string, action: string, saveReturn: boolean, useValidation: boolean, extraData?: any, customEventData?: any): void  {
-
-            console.log("====> submitExplicit");
+        public submitExplicit(form: HTMLFormElement, method: string, action: string, useValidation: boolean, extraData?: any, customEventData?: any): void  {
 
             $YetaWF.pageChanged = false;// suppress navigate error
 
@@ -315,23 +295,17 @@ namespace YetaWF {
 
                 // calculate origin list in case we need to navigate back
                 let originList = YVolatile.Basics.OriginList;
-                if (saveReturn) {
-                    let currUri = $YetaWF.parseUrl(window.location.href);
-                    currUri.removeSearch(YConfigs.Basics.Link_OriginList);// remove originlist from current URL
-                    currUri.removeSearch(YConfigs.Basics.Link_InPopup);// remove popup info from current URL
-                    originList = YVolatile.Basics.OriginList.slice(0);// copy saved originlist
-                    const newOrigin = { Url: currUri.toUrl(), EditMode: YVolatile.Basics.EditModeActive, InPopup: $YetaWF.isInPopup() };
-                    originList.push(newOrigin);
-                    if (originList.length > 5)// only keep the last 5 urls
-                        originList = originList.slice(originList.length - 5);
-                }
-
+                let currUri = $YetaWF.parseUrl(window.location.href);
+                currUri.removeSearch(YConfigs.Basics.Link_OriginList);// remove originlist from current URL
+                currUri.removeSearch(YConfigs.Basics.Link_InPopup);// remove popup info from current URL
+                originList = YVolatile.Basics.OriginList.slice(0);// copy saved originlist
+                const newOrigin = { Url: currUri.toUrl(), EditMode: YVolatile.Basics.EditModeActive, InPopup: $YetaWF.isInPopup() };
+                originList.push(newOrigin);
+                if (originList.length > 5)// only keep the last 5 urls
+                    originList = originList.slice(originList.length - 5);
 
                 if (method.toLowerCase() === "get")
                     throw "FORM GET not supported";
-
-                // eslint-disable
-                debugger;
 
                 const uri = $YetaWF.parseUrl(action);
                 // serialize the form
@@ -410,17 +384,6 @@ namespace YetaWF {
             this.submit(form, useValidation, extraData);
         }
 
-        public serializeForm(form: HTMLFormElement): string {
-            let pairs = this.serializeFormArray(form);
-            let formData: string = "";
-            for (let entry of pairs) {
-                if (formData !== "")
-                    formData += "&";
-                formData += encodeURIComponent(entry.name) + "=" + encodeURIComponent(entry.value);
-            }
-            return formData;
-        }
-
         // Cancel
 
         /**
@@ -478,29 +441,6 @@ namespace YetaWF {
         }
         public getInnerFormCond(tag: HTMLElement): HTMLFormElement | null {
             return $YetaWF.getElement1BySelectorCond("form", [tag]) as HTMLFormElement | null;
-        }
-        // get RequestVerificationToken, UniqueIdCounters and ModuleGuid in query string format (usually for ajax requests)
-        public getFormInfo(tag: HTMLElement, addAmpersand?: boolean) : FormInfo {
-            let form = this.getForm(tag);
-            let req = ($YetaWF.getElement1BySelector(`input[name='${YConfigs.Forms.RequestVerificationToken}']`, [form]) as HTMLInputElement).value;
-            if (!req || req.length === 0) throw "Can't locate " + YConfigs.Forms.RequestVerificationToken;/*DEBUG*/
-            let guid = ($YetaWF.getElement1BySelector(`input[name='${YConfigs.Basics.ModuleGuid}']`, [form]) as HTMLInputElement).value;
-            if (!guid || guid.length === 0) throw "Can't locate " + YConfigs.Basics.ModuleGuid;/*DEBUG*/
-
-            let qs: string = "";
-            if (addAmpersand !== false)
-                qs += "&";
-            qs += YConfigs.Forms.RequestVerificationToken + "=" + encodeURIComponent(req) +
-                "&" + YConfigs.Forms.UniqueIdCounters + "=" + JSON.stringify(YVolatile.Basics.UniqueIdCounters) +
-                "&" + YConfigs.Basics.ModuleGuid + "=" + encodeURIComponent(guid);
-
-            let info: FormInfo = {
-                RequestVerificationToken: req,
-                UniqueIdCounters: YVolatile.Basics.UniqueIdCounters,
-                ModuleGuid: guid,
-                QS: qs
-            };
-            return info;
         }
         // get RequestVerificationToken and ModuleGuid
         public getJSONInfo(tagInForm: HTMLElement, uniqueIdInfo?: UniqueIdInfo) : FormInfoJSON {
