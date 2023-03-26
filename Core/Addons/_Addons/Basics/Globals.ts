@@ -26,12 +26,6 @@ namespace YetaWF {
         Top = 0,
         Bottom = 1,
     }
-
-    export interface OriginListEntry {
-        Url: string;
-        EditMode: boolean;
-        InPopup: boolean;
-    }
     export enum MessageTypeEnum {
         Popups = 0,
         ToastRight = 10,
@@ -49,7 +43,6 @@ namespace YetaWF {
         Language: string;
 
         // Page/Module Edit Control
-        OriginList: OriginListEntry[];
         EditModeActive: boolean;
         PageControlVisible: boolean;
         IsInPopup: boolean;
@@ -102,9 +95,9 @@ namespace YetaWF {
         DEBUGBUILD: boolean;
 
         ApiPrefix: string;          // API Prefix, internal API
-        Link_OriginList: string;    // chain of urls
         Link_InPopup: string;       // we're in a popup
         Link_ToPopup: string;       // we're going into a popup
+        Link_CurrentUrl: string;    // current Url
         Link_PageControl: string;   // show page control module
         Link_SubmitIsApply: string; // a submit button was clicked and should be handled as Apply
         Link_SubmitIsReload: string; // a submit button was clicked and should be handled as a form reload
@@ -119,7 +112,6 @@ namespace YetaWF {
         CssPopupLink: string;
         CssConfirm: string;
         CssPleaseWait: string;
-        CssDontAddToOriginList: string;
         CssAttrDataSpecialEdit: string;
         CssAttrActionButton: string;
         ModuleGuid: string;
@@ -144,8 +136,6 @@ namespace YetaWF {
         CookieToReturn: string;
         PostAttr: string;
         CssOuterWindow: string;
-
-        CssSaveReturnUrl: string;
 
         AjaxJavascriptReturn: string;
         AjaxJSONReturn: string;

@@ -137,8 +137,6 @@ namespace YetaWF.Core.Modules {
             AuthorizationIgnore = false;
             ConfirmationText = new MultiString();
             PleaseWaitText = new MultiString();
-            SaveReturnUrl = false;
-            AddToOriginList = true;
             DontFollow = false;
 
             Displayed = true;
@@ -211,8 +209,10 @@ namespace YetaWF.Core.Modules {
         [StringLength(MaxPleaseWaitText)]
         public MultiString PleaseWaitText { get; set; }
 
+        [DontSave, ReadOnly, Obsolete("Do not use!")]// THIS IS STRICTLY USED FOR SERIALIZATION - DO NOT ACCESS DIRECTLY
         public bool SaveReturnUrl { get; set; }
 
+        [DontSave, ReadOnly, Obsolete("Do not use!")]// THIS IS STRICTLY USED FOR SERIALIZATION - DO NOT ACCESS DIRECTLY
         public bool AddToOriginList { get; set; }
 
         [DontSave, ReadOnly, Obsolete("Do not use!")]// THIS IS STRICTLY USED FOR SERIALIZATION - DO NOT ACCESS DIRECTLY

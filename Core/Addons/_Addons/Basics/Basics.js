@@ -284,12 +284,20 @@ var YetaWF;
                 });
             }
         };
-        BasicsServices.prototype.setUrl = function (url) {
+        BasicsServices.prototype.pushUrl = function (url) {
+            url = this.cleanUrl(url);
             try {
                 var stateObj = {};
                 history.pushState(stateObj, "", url);
             }
             catch (err) { }
+        };
+        BasicsServices.prototype.cleanUrl = function (url) {
+            var uri = $YetaWF.parseUrl(url);
+            uri.removeSearch(YConfigs.Basics.Link_CurrentUrl);
+            uri.removeSearch(YConfigs.Basics.ModuleGuid);
+            uri.removeSearch("__rand");
+            return uri.toUrl();
         };
         BasicsServices.prototype.loadUrl = function (url) {
             var uri = $YetaWF.parseUrl(url);

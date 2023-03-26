@@ -28,6 +28,9 @@ namespace YetaWF.Core.Endpoints;
 public class PageEndpoints : YetaWFEndpoints {
 
     public static void RegisterEndpoints(IEndpointRouteBuilder endpoints, Package package, string areaName) {
+        endpoints.MapMethods("/", new List<string> { "GET", "HEAD" }, async (HttpContext context) => {
+            return await Show(context);
+        });
         endpoints.MapMethods("/{*rest}", new List<string> { "GET", "HEAD" }, async (HttpContext context, string rest) => {
             return await Show(context);
         });

@@ -147,7 +147,6 @@ namespace YetaWF_Core_Debugging {
         private stripUrl(href: string): string {
             let uri = new YetaWF.Url();
             uri.parse(href);
-            uri.removeSearch(YConfigs.Basics.Link_OriginList);
             uri.setHash(null);
             href = uri.toUrl();
             return href;

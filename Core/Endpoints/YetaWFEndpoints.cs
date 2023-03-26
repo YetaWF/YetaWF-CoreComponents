@@ -140,14 +140,12 @@ namespace YetaWF.Core.Endpoints {
             if (!ForceFullPage) {
                 sb.Append(
                     "$YetaWF.setLoading();" +
-                    "{1}" +
-                    "if (!$YetaWF.ContentHandling.setContent($YetaWF.parseUrl({0}), true))" +
-                        "window.location.assign({0});",
-                        url, (string.IsNullOrWhiteSpace(ExtraJavascript) ? "" : ExtraJavascript));
+                    (string.IsNullOrWhiteSpace(ExtraJavascript) ? "" : ExtraJavascript) +
+                    $"$YetaWF.loadUrl({url}, true);");
             } else {
                 sb.Append(
                     "$YetaWF.setLoading();" +
-                    $"{ExtraJavascript}" +
+                    ExtraJavascript +
                     $"window.location.assign({url});");
             }
             return Results.Json(sb.ToString());

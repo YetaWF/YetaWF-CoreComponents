@@ -451,16 +451,30 @@ namespace YetaWF {
 
         public suppressPopState: number = 0;
 
-        public setUrl(url: string): void {
+        public pushUrl(url: string): void {
+            url = this.cleanUrl(url);
             try {
                 let stateObj = {};
                 history.pushState(stateObj, "", url);
             } catch (err) { }
         }
+        private cleanUrl(url: string): string {
+            const uri = $YetaWF.parseUrl(url);
+            uri.removeSearch(YConfigs.Basics.Link_CurrentUrl);
+            uri.removeSearch(YConfigs.Basics.ModuleGuid);
+            uri.removeSearch("__rand");
+            return uri.toUrl();
+        }
 
-        public loadUrl(url: string): void {
+        /**
+         * Navigates to a new Url with content replacement (not a full page load). If content replacement
+         * is not possible, the page is loaded in full.
+         * @param url The page Url.
+         * @param contentCB An optional callback which is invoked after all content has been updated.
+         */
+        public loadUrl(url: string, contentCB?: (result: ContentResult|null) => void): void {
             let uri = $YetaWF.parseUrl(url);
-            let result = $YetaWF.ContentHandling.setContent(uri, true);
+            let result = $YetaWF.ContentHandling.setContent(uri, true, undefined, undefined, contentCB);
             if (result !== YetaWF.SetContentResult.ContentReplaced)
                 window.location.assign(url);
         }

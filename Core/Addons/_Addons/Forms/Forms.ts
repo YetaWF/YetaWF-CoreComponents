@@ -114,7 +114,6 @@ namespace YetaWF {
         Model: any;
         __Apply: boolean;
         __Reload: boolean;
-        __OriginList: OriginListEntry[];
         UniqueIdCounters: UniqueIdInfo;
         __Pagectl: boolean;
         __InPopup: boolean;
@@ -293,17 +292,6 @@ namespace YetaWF {
 
             if (!useValidation || formValid) {
 
-                // calculate origin list in case we need to navigate back
-                let originList = YVolatile.Basics.OriginList;
-                let currUri = $YetaWF.parseUrl(window.location.href);
-                currUri.removeSearch(YConfigs.Basics.Link_OriginList);// remove originlist from current URL
-                currUri.removeSearch(YConfigs.Basics.Link_InPopup);// remove popup info from current URL
-                originList = YVolatile.Basics.OriginList.slice(0);// copy saved originlist
-                const newOrigin = { Url: currUri.toUrl(), EditMode: YVolatile.Basics.EditModeActive, InPopup: $YetaWF.isInPopup() };
-                originList.push(newOrigin);
-                if (originList.length > 5)// only keep the last 5 urls
-                    originList = originList.slice(originList.length - 5);
-
                 if (method.toLowerCase() === "get")
                     throw "FORM GET not supported";
 
@@ -314,7 +302,6 @@ namespace YetaWF {
                     Model: model,
                     __Apply: false,
                     __Reload: false,
-                    __OriginList: originList,
                     UniqueIdCounters: YVolatile.Basics.UniqueIdCounters,
                     __Pagectl: YVolatile.Basics.PageControlVisible,
                     __InPopup: $YetaWF.isInPopup(),
@@ -390,19 +377,20 @@ namespace YetaWF {
          * Cancels the current form (Cancel button handling).
          */
         public cancel(): void {
+            this.goBack();
+        }
+
+        /**
+         * Returns to the previous page.
+         */
+        public goBack(): void {
             if ($YetaWF.isInPopup()) {
                 // we're in a popup, just close it
                 $YetaWF.closePopup();
             } else {
-                // go to the last entry in the origin list, pop that entry and pass it in the url
-                let originList = YVolatile.Basics.OriginList;
-                if (originList.length > 0) {
-                    let origin = originList.pop() as OriginListEntry;
-                    let uri = $YetaWF.parseUrl(origin.Url);
-                    uri.removeSearch(YConfigs.Basics.Link_OriginList);
-                    if (originList.length > 0)
-                        uri.replaceSearch(YConfigs.Basics.Link_OriginList, JSON.stringify(originList));
-                    $YetaWF.ContentHandling.setNewUri(uri);
+                const state = history.state;
+                if (state) {
+                    history.back();
                 } else {
                     // we don't know where to return so just close the browser
                     try {
@@ -445,26 +433,32 @@ namespace YetaWF {
         // get RequestVerificationToken and ModuleGuid
         public getJSONInfo(tagInForm: HTMLElement, uniqueIdInfo?: UniqueIdInfo) : FormInfoJSON {
             let req: string|null = null;
-            const mod = YetaWF.ModuleBase.getModuleDivFromTag(tagInForm);
-            const moduleGuid = mod.getAttribute("data-moduleguid");
-            const form = this.getInnerFormCond(mod);
-            if (form) {
-                const formPartial = $YetaWF.elementClosestCond(tagInForm, YConfigs.Forms.CssForm);
-                if (formPartial && !req) {
-                    const reqVerElem = $YetaWF.getElement1BySelectorCond(`input[name='${YConfigs.Forms.RequestVerificationToken}']`, [formPartial]) as HTMLInputElement|null;            
-                    if (reqVerElem)
-                        req = reqVerElem.value;
+            let moduleGuid: string|null = null;
+            const mod = YetaWF.ModuleBase.getModuleDivFromTagCond(tagInForm);
+            if (mod) {
+                moduleGuid = mod.getAttribute("data-moduleguid");
+                const form = this.getInnerFormCond(mod);
+                if (form) {
+                    const formPartial = $YetaWF.elementClosestCond(tagInForm, YConfigs.Forms.CssForm);
+                    if (formPartial && !req) {
+                        const reqVerElem = $YetaWF.getElement1BySelectorCond(`input[name='${YConfigs.Forms.RequestVerificationToken}']`, [formPartial]) as HTMLInputElement|null;            
+                        if (reqVerElem)
+                            req = reqVerElem.value;
+                    }
+                    if (form && !req) {
+                        const reqVerElem = $YetaWF.getElement1BySelectorCond(`input[name='${YConfigs.Forms.RequestVerificationToken}']`, [form]) as HTMLInputElement|null;            
+                        if (reqVerElem)
+                            req = reqVerElem.value;
+                    }
+                    if (!req || req.length === 0) throw "Can't locate " + YConfigs.Forms.RequestVerificationToken;/*DEBUG*/
+                } else {
+                    req = mod.getAttribute("data-reqvertoken") || "";
                 }
-                if (form && !req) {
-                    const reqVerElem = $YetaWF.getElement1BySelectorCond(`input[name='${YConfigs.Forms.RequestVerificationToken}']`, [form]) as HTMLInputElement|null;            
-                    if (reqVerElem)
-                        req = reqVerElem.value;
-                }
-                if (!req || req.length === 0) throw "Can't locate " + YConfigs.Forms.RequestVerificationToken;/*DEBUG*/
+                if (!moduleGuid || moduleGuid.length === 0) throw "Can't locate module guid";/*DEBUG*/
             } else {
-                req = mod.getAttribute("data-reqvertoken") || "";
+                moduleGuid = "";
+                req = "";
             }
-            if (!moduleGuid || moduleGuid.length === 0) throw "Can't locate module guid";/*DEBUG*/
             const info: FormInfoJSON = {
                 ModuleGuid: moduleGuid,
                 RequestVerificationToken: req,

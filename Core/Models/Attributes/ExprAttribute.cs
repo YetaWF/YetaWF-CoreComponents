@@ -270,62 +270,104 @@ namespace YetaWF.Core.Models.Attributes {
                 return false;
             }
         }
-        public static bool IsRequired(List<ExprAttribute> exprAttributes, object container) {
+        public static bool IsRequired(List<ExprAttribute> exprAttributes, object container, out bool found) {
+            found = false;
             foreach (ExprAttribute e in exprAttributes) {
-                if (e.IsRequiredAttribute && e.IsValid(container))
-                    return true;
-            }
-            return false;
-        }
-        public static bool IsSelectionRequired(List<ExprAttribute> exprAttributes, object container) {
-            foreach (ExprAttribute e in exprAttributes) {
-                if (e.IsSelectionRequiredAttribute && e.IsValid(container))
-                    return true;
-            }
-            return false;
-        }
-        public static bool IsSuppressed(List<ExprAttribute> exprAttributes, object container) {
-            foreach (ExprAttribute e in exprAttributes) {
-                if (e.IsSuppressAttribute && e.IsValid(container))
-                    return true;// suppress this as requested
-            }
-            return false;
-        }
-        public static bool IsProcessed(List<ExprAttribute> exprAttributes, object container) {
-            bool hasAttribute = false;
-            foreach (ExprAttribute e in exprAttributes) {
-                if (e.IsProcessAttribute) {
-                    hasAttribute = true;
-                    if (e.IsProcessValid(container))
+                if (e.IsRequiredAttribute) {
+                    found = true;
+                    if (e.IsRequiredValid(container))
                         return true;
                 }
             }
-            return !hasAttribute;
+            return false;
         }
-        public static bool IsHide(List<ExprAttribute> exprAttributes, object container) {
+        public static bool IsSelectionRequired(List<ExprAttribute> exprAttributes, object container, out bool found) {
+            found = false;
             foreach (ExprAttribute e in exprAttributes) {
-                if (e.IsHideAttribute) {
-                    if (e.IsHideValid(container))
+                if (e.IsSelectionRequiredAttribute) {
+                    found = true;
+                    if (e.IsSelectionRequiredValid(container))
+                        return true;
+                }
+            }
+            return false;
+        }
+        public static bool IsSuppressed(List<ExprAttribute> exprAttributes, object container, out bool found) {
+            found = false;
+            foreach (ExprAttribute e in exprAttributes) {
+                if (e.IsSuppressAttribute) {
+                    found = true;
+                    if (e.IsSuppressedValid(container))
                         return true;
                 }
             }
             return false;
         }
 
-        protected bool IsProcessValid(object? container) {
+        protected bool IsRequiredValid(object? container) {
+            if (container == null) return false;
+            foreach (Expr expr in ExprList) {
+                switch (Op) {
+                    case OpEnum.RequiredIf:
+                        return IsExprValid(expr, container);
+                    case OpEnum.RequiredIfNot:
+                        return !IsExprValid(expr, container);
+                    case OpEnum.RequiredIfSupplied:
+                        return IsExprSupplied(expr, container);
+                    case OpEnum.RequiredIfNotSupplied:
+                        return !IsExprSupplied(expr, container);
+                    default:
+                        throw new InternalError($"Unexpected Op value {Op}");
+                }
+            }
+            return true;// plain Required attribute
+        }
+        protected bool IsSelectionRequiredValid(object? container) {
+            if (container == null) return false;
+            foreach (Expr expr in ExprList) {
+                switch (Op) {
+                    case OpEnum.SelectionRequiredIf:
+                        return IsExprValid(expr, container);
+                    case OpEnum.SelectionRequiredIfNot:
+                        return !IsExprValid(expr, container);
+                    case OpEnum.SelectionRequiredIfSupplied:
+                        return IsExprSupplied(expr, container);
+                    case OpEnum.SelectionRequiredIfNotSupplied:
+                        return !IsExprSupplied(expr, container);
+                    default:
+                        throw new InternalError($"Unexpected Op value {Op}");
+                }
+            }
+            return true;// plain SelectionRequired attribute
+        }
+        protected bool IsProcessedValid(object? container) {
             if (container == null) return false;
             foreach (Expr expr in ExprList) {
                 switch (Op) {
                     case OpEnum.ProcessIf:
                     case OpEnum.ProcessIfSupplied:
-                        if (IsExprValid(expr, container))
-                            return true;
-                        break;
+                        return IsExprValid(expr, container);
                     case OpEnum.ProcessIfNot:
                     case OpEnum.ProcessIfNotSupplied:
-                        if (!IsExprValid(expr, container))
-                            return true;
-                        break;
+                        return !IsExprValid(expr, container);
+                    default:
+                        throw new InternalError($"Unexpected Op value {Op}");
+                }
+            }
+            return false;
+        }
+        protected bool IsSuppressedValid(object? value) {
+            if (value == null) return false;
+            foreach (Expr expr in ExprList) {
+                switch (Op) {
+                    case OpEnum.SuppressIfNot:
+                        return !IsExprValid(expr, value);
+                    case OpEnum.SuppressIf:
+                        return IsExprValid(expr, value);
+                    case OpEnum.SuppressIfNotSupplied:
+                        return !IsExprSupplied(expr, value);
+                    case OpEnum.SuppressIfSupplied:
+                        return IsExprSupplied(expr, value);
                     default:
                         throw new InternalError($"Unexpected Op value {Op}");
                 }
@@ -338,14 +380,10 @@ namespace YetaWF.Core.Models.Attributes {
                 switch (Op) {
                     case OpEnum.HideIf:
                     case OpEnum.HideIfSupplied:
-                        if (IsExprValid(expr, container))
-                            return true;
-                        break;
+                        return IsExprValid(expr, container);
                     case OpEnum.HideIfNot:
                     case OpEnum.HideIfNotSupplied:
-                        if (!IsExprValid(expr, container))
-                            return true;
-                        break;
+                        return !IsExprValid(expr, container);
                     default:
                         throw new InternalError($"Unexpected Op value {Op}");
                 }
@@ -353,52 +391,53 @@ namespace YetaWF.Core.Models.Attributes {
             return false;
         }
 
-        public override bool IsValid(object? value) {
-            if (value == null) return false;
-            foreach (Expr expr in ExprList) {
-                switch (Op) {
-                    case OpEnum.RequiredIf:
-                    case OpEnum.SelectionRequiredIf:
-                    case OpEnum.SuppressIfNot:
-                        if (!IsExprValid(expr, value))
-                            return true;
-                        break;
-                    case OpEnum.RequiredIfNot:
-                    case OpEnum.SelectionRequiredIfNot:
-                    case OpEnum.SuppressIf:
-                        if (IsExprValid(expr, value))
-                            return true;
-                        break;
-                    case OpEnum.RequiredIfSupplied:
-                    case OpEnum.SelectionRequiredIfSupplied:
-                    case OpEnum.SuppressIfNotSupplied:
-                        if (!IsExprSupplied(expr, value))
-                            return true;
-                        break;
-                    case OpEnum.RequiredIfNotSupplied:
-                    case OpEnum.SelectionRequiredIfNotSupplied:
-                    case OpEnum.SuppressIfSupplied:
-                        if (IsExprSupplied(expr, value))
-                            return true;
-                        break;
-                    case OpEnum.ProcessIf:
-                    case OpEnum.ProcessIfNot:
-                    case OpEnum.ProcessIfSupplied:
-                    case OpEnum.ProcessIfNotSupplied:
-                    case OpEnum.HideIf:
-                    case OpEnum.HideIfNot:
-                    case OpEnum.HideIfSupplied:
-                    case OpEnum.HideIfNotSupplied:
-                        break;
-                    default:
-                        throw new InternalError($"Unexpected Op value {Op}");
-                }
-            }
-            return false;
-        }
+        //public override bool IsValid(object? value) {
+        //    if (value == null) return false;
+        //    foreach (Expr expr in ExprList) {
+        //        switch (Op) {
+        //            case OpEnum.RequiredIf:
+        //            case OpEnum.SelectionRequiredIf:
+        //            case OpEnum.SuppressIfNot:
+        //                if (!IsExprValid(expr, value))
+        //                    return true;
+        //                break;
+        //            case OpEnum.RequiredIfNot:
+        //            case OpEnum.SelectionRequiredIfNot:
+        //            case OpEnum.SuppressIf:
+        //                if (IsExprValid(expr, value))
+        //                    return true;
+        //                break;
+        //            case OpEnum.RequiredIfSupplied:
+        //            case OpEnum.SelectionRequiredIfSupplied:
+        //            case OpEnum.SuppressIfNotSupplied:
+        //                if (!IsExprSupplied(expr, value))
+        //                    return true;
+        //                break;
+        //            case OpEnum.RequiredIfNotSupplied:
+        //            case OpEnum.SelectionRequiredIfNotSupplied:
+        //            case OpEnum.SuppressIfSupplied:
+        //                if (IsExprSupplied(expr, value))
+        //                    return true;
+        //                break;
+        //            case OpEnum.ProcessIf:
+        //            case OpEnum.ProcessIfNot:
+        //            case OpEnum.ProcessIfSupplied:
+        //            case OpEnum.ProcessIfNotSupplied:
+        //            case OpEnum.HideIf:
+        //            case OpEnum.HideIfNot:
+        //            case OpEnum.HideIfSupplied:
+        //            case OpEnum.HideIfNotSupplied:
+        //                break;
+        //            default:
+        //                throw new InternalError($"Unexpected Op value {Op}");
+        //        }
+        //    }
+        //    return false;
+        //}
+
         protected override ValidationResult? IsValid(object? value, ValidationContext context) {
-            if (IsValid(context.ObjectInstance))
-                return ValidationResult.Success;
+            //if (IsValid(context.ObjectInstance))
+            //    return ValidationResult.Success;
             switch (Op) {
                 case OpEnum.Required:
                 case OpEnum.RequiredIf:

@@ -46,6 +46,7 @@ namespace YetaWF {
                 uri.removeSearch(YConfigs.Basics.Link_PageControl);
                 if (YVolatile.Basics.PageControlVisible)
                     uri.replaceSearch(YConfigs.Basics.Link_PageControl, "y");
+                uri.replaceSearch(YConfigs.Basics.Link_CurrentUrl, window.document.location.href);
 
                 // first try to handle this as a link to the outer window (only used in a popup)
                 if ($YetaWF.PopupsAvailable()) {
@@ -58,30 +59,8 @@ namespace YetaWF {
 
                 // fix the url to include where we came from
                 let target = anchor.getAttribute("target");
-                if (!target || target === "" || target === "_self") {
-
-                    if (anchor.getAttribute(YConfigs.Basics.CssSaveReturnUrl) != null) {
-
-                        let originList = YVolatile.Basics.OriginList.slice(0);// copy saved originlist
-
-                        // add where we currently are so we can save it in case we need to return to this page
-                        let currUri = $YetaWF.parseUrl(window.location.href);
-                        currUri.removeSearch(YConfigs.Basics.Link_OriginList);// remove originlist from current URL
-                        currUri.removeSearch(YConfigs.Basics.Link_InPopup);// remove popup info from current URL
-
-                        if (anchor.getAttribute(YConfigs.Basics.CssDontAddToOriginList) == null) {
-                            let newOrigin = { Url: currUri.toUrl(), EditMode: YVolatile.Basics.EditModeActive, InPopup: $YetaWF.isInPopup() };
-                            originList.push(newOrigin);
-                            if (originList.length > 5)// only keep the last 5 urls
-                                originList = originList.slice(originList.length - 5);
-                        }
-                        // now update url (where we're going with originlist)
-                        uri.removeSearch(YConfigs.Basics.Link_OriginList);
-                        if (originList.length > 0)
-                            uri.replaceSearch(YConfigs.Basics.Link_OriginList, JSON.stringify(originList));
-                    }
+                if (!target || target === "" || target === "_self")
                     target = "_self";
-                }
 
                 // add originating module guid
                 const formJson = $YetaWF.Forms.getJSONInfo(anchor);
@@ -161,7 +140,6 @@ namespace YetaWF {
                     if (contentTarget) {
                         // get the requested Url
                         let origUri = $YetaWF.parseUrl(url);
-                        origUri.removeSearch(YConfigs.Basics.Link_OriginList);// remove originlist from current URL
                         origUri.removeSearch(YConfigs.Basics.Link_InPopup);// remove popup info from current URL
                         let contentUrl = origUri.getSearch("!ContentUrl");
                         if (!contentUrl)

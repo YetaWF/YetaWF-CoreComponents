@@ -152,25 +152,20 @@ namespace YetaWF.Core.Endpoints.Support {
             foreach (var prop in props) {
                 bool process = true;// overall whether we need to process this property
                 bool found = false;// found an enabling attribute
-                if (!found) {
-                    if (ExprAttribute.IsRequired(prop.ExprValidationAttributes, model)) {
-                        found = true;
-                        process = true;
-                    }
-                }
-                if (!found) {
-                    if (ExprAttribute.IsSelectionRequired(prop.ExprValidationAttributes, model)) {
-                        found = true;
-                        process = true;
-                    }
-                }
-                if (!found) {
-                    if (ExprAttribute.IsSuppressed(prop.ExprValidationAttributes, model)) {
-                        found = true;
-                        process = false;
-                    }
-                }
-                if (!process) {
+
+                if (!ExprAttribute.IsRequired(prop.ExprValidationAttributes, model, out bool f) && f)
+                    process = false;
+                if (f) found = f;
+
+                if (!ExprAttribute.IsSelectionRequired(prop.ExprValidationAttributes, model, out f) && f)
+                    process = false;
+                if (f) found = f;
+
+                if (ExprAttribute.IsSuppressed(prop.ExprValidationAttributes, model, out f) && f)
+                    process = false;
+                if (f) found = f;
+
+                if (found && !process) {
                     // we don't process this property
                     RemoveModelState(prefix + prop.Name);
                 }

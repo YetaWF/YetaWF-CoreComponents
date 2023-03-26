@@ -252,9 +252,9 @@ var YetaWF;
                     // Update the browser address bar with the new path
                     if (setState) {
                         if (inplace)
-                            $YetaWF.setUrl(inplace.PageUrl);
+                            $YetaWF.pushUrl(inplace.PageUrl);
                         else
-                            $YetaWF.setUrl(uri.toUrl());
+                            $YetaWF.pushUrl(uri.toUrl());
                     }
                     // remove all pane contents
                     if (inplace) {

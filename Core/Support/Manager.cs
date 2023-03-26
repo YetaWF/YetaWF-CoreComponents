@@ -679,27 +679,6 @@ namespace YetaWF.Core.Support {
         public List<Origin> OriginList { get; set; } = null!;
 
         /// <summary>
-        /// Returns the last entry of the OriginList without removing it.
-        /// </summary>
-        public Origin QueryReturnToUrl {
-            get {
-                if (OriginList == null || OriginList.Count == 0)
-                    return new Origin {
-                        Url = CurrentSite.HomePageUrl,
-                        EditMode = false,
-                        InPopup = false
-                    };
-                return OriginList.Last();
-            }
-        }
-
-        public bool HaveReturnToUrl {
-            get {
-                return OriginList != null && OriginList.Count > 0;
-            }
-        }
-
-        /// <summary>
         /// Returns the Url to return to, including origin list and other querystring parms.
         /// </summary>
         /// <remarks>The Return To Url also contains the remaining Origin List as a parameter.

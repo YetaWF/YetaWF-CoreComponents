@@ -31,11 +31,6 @@ namespace YetaWF.Core.Components {
         /// A button that submits the form.
         /// </summary>
         Apply = 4,
-        /// <summary>
-        /// A button that submits the form.
-        /// This button type is only shown if the page has a valid URL to return to.
-        /// </summary>
-        ConditionalSubmit = 5, /* Like Submit but is removed when we don't have a return url (must be used together with an apply button) */
     }
 
     /// <summary>

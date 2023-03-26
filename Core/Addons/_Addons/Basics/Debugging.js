@@ -128,7 +128,6 @@ var YetaWF_Core_Debugging;
         Links.prototype.stripUrl = function (href) {
             var uri = new YetaWF.Url();
             uri.parse(href);
-            uri.removeSearch(YConfigs.Basics.Link_OriginList);
             uri.setHash(null);
             href = uri.toUrl();
             return href;

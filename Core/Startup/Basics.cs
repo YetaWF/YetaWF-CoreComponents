@@ -31,9 +31,7 @@ public class Basics : IAddOnSupport {
     public const string CssLegend = "data-legend";
     public const string CssConfirm = "data-confirm";
     public const string CssPleaseWait = "data-pleasewait";
-    public const string CssDontAddToOriginList = "data-no-origin";
     public const string CookieDoneCssAttr = "data-cookie-done";
-    public const string CssSaveReturnUrl = "data-save-return";
     public const string CssOuterWindow = "data-outerwindow";
     public const string CssAttrDataSpecialEdit = "data-specialedit";
     public const string CssAttrActionButton = "data-button";
@@ -113,7 +111,6 @@ public class Basics : IAddOnSupport {
         scripts.AddConfigOption("Basics", "CssPopupLink", CssPopupLink);
         scripts.AddConfigOption("Basics", "CssConfirm", CssConfirm);
         scripts.AddConfigOption("Basics", "CssPleaseWait", CssPleaseWait);
-        scripts.AddConfigOption("Basics", "CssDontAddToOriginList", CssDontAddToOriginList);
         scripts.AddConfigOption("Basics", "CssAttrDataSpecialEdit", CssAttrDataSpecialEdit);
         scripts.AddConfigOption("Basics", "CssAttrActionButton", CssAttrActionButton);
         scripts.AddConfigOption("Basics", "ModuleGuid", ModuleGuid);// ModuleGuid for form
@@ -143,8 +140,6 @@ public class Basics : IAddOnSupport {
         scripts.AddConfigOption("Basics", "PostAttr", PostAttr);
         scripts.AddConfigOption("Basics", "CssOuterWindow", CssOuterWindow);
 
-        scripts.AddConfigOption("Basics", "CssSaveReturnUrl", CssSaveReturnUrl);
-
         scripts.AddConfigOption("Basics", "AjaxJavascriptReturn", AjaxJavascriptReturn);
         scripts.AddConfigOption("Basics", "AjaxJSONReturn", AjaxJSONReturn);
         scripts.AddConfigOption("Basics", "AjaxJavascriptReloadPage", AjaxJavascriptReloadPage);
@@ -156,6 +151,7 @@ public class Basics : IAddOnSupport {
         scripts.AddConfigOption("Basics", nameof(Globals.Link_OriginList), Globals.Link_OriginList); // chain of urls
         scripts.AddConfigOption("Basics", nameof(Globals.Link_InPopup), Globals.Link_InPopup); // we're in a popup
         scripts.AddConfigOption("Basics", nameof(Globals.Link_ToPopup), Globals.Link_ToPopup); // we're going into a popup
+        scripts.AddConfigOption("Basics", nameof(Globals.Link_CurrentUrl), Globals.Link_CurrentUrl); // the current url
         scripts.AddConfigOption("Basics", nameof(Globals.Link_PageControl), Globals.Link_PageControl); // show page control module
         scripts.AddConfigOption("Basics", nameof(Globals.Link_SubmitIsApply), Globals.Link_SubmitIsApply); // a submit button was clicked and should be handled as Apply
         scripts.AddConfigOption("Basics", nameof(Globals.Link_SubmitIsReload), Globals.Link_SubmitIsReload); // a submit button was clicked and should be handled as a form reload

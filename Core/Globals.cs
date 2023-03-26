@@ -61,9 +61,10 @@ namespace YetaWF.Core {
         public const string ApiPrefix = "/!api";// api prefix (built-in api)
         public const string PageUrl = "/!Page/";
         public const string ModuleUrl = "/!Mod/";
-        public const string Link_OriginList = nameof(Endpoints.ModuleEndpoints.ModuleSubmitData.__OriginList); // chain of urls
+        public const string Link_OriginList = nameof(Endpoints.ModuleEndpoints.ModuleSubmitData.__OriginList);//$$$ remove
         public const string Link_InPopup = nameof(Endpoints.ModuleEndpoints.ModuleSubmitData.__InPopup); // we're in a popup
         public const string Link_ToPopup = "!ToPopup"; // we're going into a popup
+        public const string Link_CurrentUrl = "__CurrentUrl";
         public const string Link_PageControl = nameof(Endpoints.ModuleEndpoints.ModuleSubmitData.__Pagectl); // show page control module
         public const string Link_SubmitIsApply = nameof(Endpoints.ModuleEndpoints.ModuleSubmitData.__Apply); // a submit button was clicked and should be handled as Apply
         public const string Link_SubmitIsReload = nameof(Endpoints.ModuleEndpoints.ModuleSubmitData.__Reload); // a submit button was clicked and should be handled as a form reload
