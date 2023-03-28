@@ -863,9 +863,9 @@ namespace YetaWF.Core.Packages {
         /// <summary>
         /// The .Net version for which this package was built.
         /// </summary>
-        public Utility.AspNetMvcVersion AspNetMvc {
+        public string AspNet {
             get {
-                return Utility.AspNetMvcVersion.MVC6;
+                return Utility.AspNet;
             }
         }
 

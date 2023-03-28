@@ -28,25 +28,11 @@ namespace YetaWF.Core.Support {
         // VERSION
 
         /// <summary>
-        /// Describes the MVC version.
+        /// Returns a value indicating which .NET version is used.
         /// </summary>
-        public enum AspNetMvcVersion {
-            /// <summary>
-            /// ASP.NET 4 with MVC 5 (no longer used or supported by YetaWF).
-            /// </summary>
-            MVC5 = 0,
-            /// <summary>
-            /// .NET with MVC (6).
-            /// </summary>
-            MVC6 = 6,
-        }
-
-        /// <summary>
-        /// Returns a value indicating which MVC version is used.
-        /// </summary>
-        public static AspNetMvcVersion AspNetMvc {
+        public static string AspNet {
             get {
-                return AspNetMvcVersion.MVC6;
+                return Globals.RUNTIMEVERSION;
             }
         }
         /// <summary>
@@ -54,15 +40,8 @@ namespace YetaWF.Core.Support {
         /// </summary>
         /// <param name="version"></param>
         /// <returns>A user-displayable name for the MVC version used.</returns>
-        public static string GetAspNetMvcName(AspNetMvcVersion version) {
-            switch (version) {
-                case AspNetMvcVersion.MVC5:
-                    return "MVC5";
-                case AspNetMvcVersion.MVC6:
-                    return $".NET {Globals.RUNTIMEVERSION} - MVC ";
-                default:
-                    return "(unknown)";
-            }
+        public static string GetAspNetName() {
+            return $".NET {Globals.RUNTIMEVERSION}";
         }
 
         // PATH

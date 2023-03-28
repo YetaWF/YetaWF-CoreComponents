@@ -103,8 +103,6 @@ namespace YetaWF.Core {
             Package package = AreaRegistration.CurrentPackage;
             await YetaWFManager.Manager.AddOnManager.AddAddOnNamedAsync(package.AreaName, "github.com.signalr.signalr");
             YetaWFManager.Manager.ScriptManager.AddConfigOption("SignalR", "Url", SignalRUrl);
-
-            YetaWFManager.Manager.ScriptManager.AddConfigOption("SignalR", "Version", "MVC6" );
         }
     }
 }

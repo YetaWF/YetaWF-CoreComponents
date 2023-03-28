@@ -201,8 +201,9 @@ namespace YetaWF.Core.Support {
                 } else if (loc == "Opsys") {
                     if (!string.IsNullOrWhiteSpace(var)) {
                         switch (var) {
-                            case "MVC":
-                                ret = Utility.GetAspNetMvcName(Utility.AspNetMvc);
+                            case "MVC":// obsolete
+                            case "NET":
+                                ret = Utility.GetAspNetName();
                                 return (encode) ? EncodeText(ret) : ret;
                             case "Name":
                                 ret = System.Runtime.InteropServices.RuntimeInformation.OSDescription;

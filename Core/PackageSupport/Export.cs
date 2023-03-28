@@ -109,7 +109,7 @@ namespace YetaWF.Core.Packages {
             serPackage.PackageName = this.Name;
             serPackage.PackageVersion = this.Version;
             serPackage.CoreVersion = YetaWF.Core.AreaRegistration.CurrentPackage.Version;
-            serPackage.AspNetMvcVersion = this.AspNetMvc;
+            serPackage.AspNetVersion = this.AspNet;
 
             return new YetaWFZipFile {
                 FileName = zipName,

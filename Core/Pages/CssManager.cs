@@ -36,18 +36,6 @@ namespace YetaWF.Core.Pages {
         private readonly List<CssEntry> _CssFiles = new List<CssEntry>(); // css files to include (already minified, etc.) using <link...> tags
 
         /// <summary>
-        /// Returns CSS classes which identify the MVC version provided by the <paramref name="version"/> parameter.
-        /// </summary>
-        /// <param name="version">The MVC version.</param>
-        /// <returns>Returns CSS classes.</returns>
-        public static string GetAspNetCss(Utility.AspNetMvcVersion version) {
-            return version switch {
-                Utility.AspNetMvcVersion.MVC5 => "yASPNET4 yMVC5",
-                Utility.AspNetMvcVersion.MVC6 => "yASPNETCore yMVC6",
-                _ => string.Empty,
-            };
-        }
-        /// <summary>
         /// Combines two strings containing CSS class(es).
         /// </summary>
         /// <param name="css1">A string containing 0, 1 or multiple space separated CSS classes. May be null.</param>

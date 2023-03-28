@@ -467,15 +467,8 @@ namespace YetaWF.Core.Packages {
 
                 // remove comments
                 lines = (from l in lines where !l.StartsWith("#") && !string.IsNullOrWhiteSpace(l) select l.Trim()).ToList();
-
-                // remove MVC5/MVC6 lines that don't match current version
-//#if MVC6
                 lines = (from l in lines where !l.StartsWith("MVC5 ") select l).ToList();
                 lines = (from l in lines select (l.StartsWith("MVC6 ") ? l.Substring(4) : l).Trim()).ToList();
-//#else
-//                lines = (from l in lines where !l.StartsWith("MVC6 ") select l).ToList();
-//                lines = (from l in lines select (l.StartsWith("MVC5 ") ? l.Substring(4) : l).Trim()).ToList();
-//#endif
                 // Find a Folder directive (1 only, others are ignored)
                 string? path = (from l in lines where l.StartsWith("Folder ") select l.Trim()).FirstOrDefault();
                 if (path != null) {
