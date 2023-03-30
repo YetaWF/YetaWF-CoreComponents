@@ -213,6 +213,7 @@ public class ImageHttpHandler {
                     DateTime lastMod = await FileSystem.FileSystemProvider.GetLastWriteTimeUtcAsync(filePath);
                     context.Response.Headers.Add("ETag", GetETag(filePath, lastMod));
                     context.Response.Headers.Add("Last-Modified", String.Format("{0:r}", lastMod));
+                    context.Response.Headers.Add("Expires", String.Format("{0:r}", DateTime.UtcNow.AddYears(1)));
                     YetaWFManager.SetStaticCacheInfo(context);
                     context.Response.ContentType = contentType;
                     string? ifNoneMatch = context.Request.Headers["If-None-Match"];
@@ -236,7 +237,8 @@ public class ImageHttpHandler {
 #endif
                     YetaWFManager.SetStaticCacheInfo(context);
                     context.Response.Headers.Add("ETag", GetETag(bytes));
-                    context.Response.Headers.Add("Last-Modified", String.Format("{0:r}", DateTime.Now.AddDays(-1)));/*can use local time*/
+                    context.Response.Headers.Add("Last-Modified", String.Format("{0:r}", DateTime.UtcNow));
+                    context.Response.Headers.Add("Expires", String.Format("{0:r}", DateTime.UtcNow.AddYears(1)));
                     context.Response.ContentType = contentType;
                     string? ifNoneMatch = context.Request.Headers["If-None-Match"];
                     if (ifNoneMatch == null || ifNoneMatch.TruncateStart("W/") != GetETag(bytes)) {

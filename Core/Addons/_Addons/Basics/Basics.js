@@ -299,9 +299,15 @@ var YetaWF;
             uri.removeSearch("__rand");
             return uri.toUrl();
         };
-        BasicsServices.prototype.loadUrl = function (url) {
+        /**
+         * Navigates to a new Url with content replacement (not a full page load). If content replacement
+         * is not possible, the page is loaded in full.
+         * @param url The page Url.
+         * @param contentCB An optional callback which is invoked after all content has been updated.
+         */
+        BasicsServices.prototype.loadUrl = function (url, contentCB) {
             var uri = $YetaWF.parseUrl(url);
-            var result = $YetaWF.ContentHandling.setContent(uri, true);
+            var result = $YetaWF.ContentHandling.setContent(uri, true, undefined, undefined, contentCB);
             if (result !== YetaWF.SetContentResult.ContentReplaced)
                 window.location.assign(url);
         };

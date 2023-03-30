@@ -1,5 +1,6 @@
 ﻿/* Copyright © 2023 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,7 +55,7 @@ namespace YetaWF.Core.Packages {
 
         private static async Task<bool> UpgradeOneTypeAsync(List<string> errorList, Type type, string lastSeenVersion) {
             bool success = true;
-            object instMod = Activator.CreateInstance(type) ! ;
+            object instMod = ActivatorUtilities.CreateInstance(YetaWFManager.Manager.ServiceProvider, type)!;
             using ((IDisposable)instMod) {
                 if (instMod as IInstallableModel2 != null) {
                     IInstallableModel2 model = (IInstallableModel2)instMod;
@@ -69,7 +70,7 @@ namespace YetaWF.Core.Packages {
 
         private static async Task<bool> InstallOneTypeAsync(List<string> errorList, Type type) {
             bool success = true;
-            object instMod = Activator.CreateInstance(type) ! ;
+            object instMod = ActivatorUtilities.CreateInstance(YetaWFManager.Manager.ServiceProvider, type) ! ;
             using ((IDisposable)instMod) {
                 IInstallableModel model = (IInstallableModel)instMod;
                 List<string> list = new List<string>();
@@ -87,7 +88,7 @@ namespace YetaWF.Core.Packages {
             // Uninstall all dataproviders
             List<Type> models = InstallableModels;
             foreach (Type type in models) {
-                object instMod = Activator.CreateInstance(type) ! ;
+                object instMod = ActivatorUtilities.CreateInstance(YetaWFManager.Manager.ServiceProvider, type)!;
                 using ((IDisposable)instMod) {
                     IInstallableModel model = (IInstallableModel)instMod;
                     List<string> list = new List<string>();
@@ -111,7 +112,7 @@ namespace YetaWF.Core.Packages {
             foreach (Package package in packages) {
                 List<Type> models = package.InstallableModels;
                 foreach (Type type in models) {
-                    object instMod = Activator.CreateInstance(type) ! ;
+                    object instMod = ActivatorUtilities.CreateInstance(YetaWFManager.Manager.ServiceProvider, type) ! ;
                     using ((IDisposable)instMod) {
                         IInstallableModel model = (IInstallableModel)instMod;
                         await model.AddSiteDataAsync();
@@ -125,7 +126,7 @@ namespace YetaWF.Core.Packages {
             foreach (Package package in packages) {
                 List<Type> models = package.InstallableModels;
                 foreach (Type type in models) {
-                    object instMod = Activator.CreateInstance(type) ! ;
+                    object instMod = ActivatorUtilities.CreateInstance(YetaWFManager.Manager.ServiceProvider, type) ! ;
                     using ((IDisposable)instMod) {
                         IInstallableModel model = (IInstallableModel)instMod;
                         await model.RemoveSiteDataAsync();

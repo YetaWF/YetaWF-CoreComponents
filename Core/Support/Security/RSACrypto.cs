@@ -4,9 +4,7 @@ using System;
 using System.Security.Cryptography;
 using System.Text;
 using YetaWF.Core.Support;
-#if NETCOREAPP
 using System.Xml;
-#endif
 
 namespace YetaWF.Core.Security {
     public static class RSACrypto {
@@ -17,13 +15,8 @@ namespace YetaWF.Core.Security {
         public static void MakeNewKeys(out string publicKey, out string privateKey) {
             using (RSACryptoServiceProvider rsa = new RSACryptoServiceProvider()) {
                 rsa.PersistKeyInCsp = false;
-#if NETCOREAPP
                 privateKey = rsa.TranslateToXmlString(true);
                 publicKey = rsa.TranslateToXmlString(false);
-#else
-                privateKey = rsa.ToXmlString(true);
-                publicKey = rsa.ToXmlString(false);
-#endif
             }
 #if DEBUG
             string Token = "User1Forever";
@@ -42,11 +35,7 @@ namespace YetaWF.Core.Security {
             try {
                 using (RSACryptoServiceProvider rsaProvider = new RSACryptoServiceProvider()) {
                     rsaProvider.PersistKeyInCsp = false;
-#if NETCOREAPP
                     rsaProvider.TranslateFromXmlString(publicKeyXml);
-#else
-                    rsaProvider.FromXmlString(publicKeyXml);
-#endif
                     byte[] plainBytes = Encoding.Unicode.GetBytes(plainText);
                     byte[] encryptedBytes = rsaProvider.Encrypt(plainBytes, false);
 
@@ -72,11 +61,7 @@ namespace YetaWF.Core.Security {
 
                 using (RSACryptoServiceProvider rsaProvider = new RSACryptoServiceProvider()) {
                     rsaProvider.PersistKeyInCsp = false;
-#if NETCOREAPP
                     rsaProvider.TranslateFromXmlString(privateKeyXml);
-#else
-                    rsaProvider.FromXmlString(privateKeyXml);
-#endif
                     byte[] plainBytes  = rsaProvider.Decrypt(encryptedBytes, false);
                     plainText = Encoding.Unicode.GetString(plainBytes);
                 }
@@ -84,7 +69,7 @@ namespace YetaWF.Core.Security {
                 throw new InternalError("Failure decrypting - {0}", ErrorHandling.FormatExceptionMessage(ex));
             }
         }
-#if NETCOREAPP
+
         // https://github.com/dotnet/corefx/issues/23686 fucking snowflakes
 
         public static void TranslateFromXmlString(this RSA rsa, string xmlString) {
@@ -124,8 +109,6 @@ namespace YetaWF.Core.Security {
                   parameters.InverseQ != null ? Convert.ToBase64String(parameters.InverseQ) : null,
                   parameters.D != null ? Convert.ToBase64String(parameters.D) : null);
         }
-#else
-#endif
     }
 }
 

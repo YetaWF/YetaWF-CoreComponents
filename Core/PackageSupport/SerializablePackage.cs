@@ -15,7 +15,7 @@ namespace YetaWF.Core.Packages {
         public string PackageVersion { get; set; } = null!;
         public PackageTypeEnum PackageType { get; set; }
         public string CoreVersion { get; set; } = null!;
-        public string AspNetVersion { get; set; }
+        public string AspNetVersion { get; set; } = null!;
 
         public SerializableList<SerializableFile> BinFiles { get; set; }
         public SerializableList<SerializableFile> AddOns { get; set; }
