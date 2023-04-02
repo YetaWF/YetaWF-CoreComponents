@@ -23,11 +23,7 @@ namespace YetaWF.Core.Endpoints {
         /// <returns>A formatted partial Url to access the API endpoint.</returns>
         /// <exception cref="InternalError"></exception>
         protected static string GetPackageApiRoute(Package package, Type type) {
-            string className = type.Name;
-            if (!className.EndsWith("Endpoints"))
-                throw new InternalError($"Class {className} is not an endpoint");
-            className = className.Substring(0, className.Length - "Endpoints".Length);
-            return $"{Globals.ApiPrefix}/{package.AreaName}/{className}/";
+            return $"{Globals.ApiPrefix}{GetPackageApplicationRoute(package, type)}";
         }
 
         /// <summary>
@@ -39,11 +35,38 @@ namespace YetaWF.Core.Endpoints {
         /// <returns>A formatted Url to access the API endpoint.</returns>
         /// <exception cref="InternalError"></exception>
         protected static string GetPackageApiEndpoint(Package package, Type type, string endpoint) {
+            return $"{Globals.ApiPrefix}{GetPackageApplicationEndpoint(package, type, endpoint)}";
+        }
+
+        /// <summary>
+        /// Format a partial application Url for a package, derived from the package and endpoint class.
+        /// </summary>
+        /// <param name="package">The package.</param>
+        /// <param name="type">The type of the class implementing the endpoint. The class name must end in "Endpoints".</param>
+        /// <returns>A formatted partial Url to access the API endpoint.</returns>
+        /// <exception cref="InternalError"></exception>
+        protected static string GetPackageApplicationRoute(Package package, Type type) {
             string className = type.Name;
             if (!className.EndsWith("Endpoints"))
                 throw new InternalError($"Class {className} is not an endpoint");
             className = className.Substring(0, className.Length - "Endpoints".Length);
-            return $"{Globals.ApiPrefix}/{package.AreaName}/{className}/{endpoint}";
+            return $"/{package.AreaName}/{className}/";
+        }
+
+        /// <summary>
+        /// Format an application Url for an enpoint, derived from the package, endpoint class and endpoint action.
+        /// </summary>
+        /// <param name="package">The package.</param>
+        /// <param name="type">The type of the class implementing the endpoint. The class name must end in "Endpoints".</param>
+        /// <param name="endpoint">The name of the endpoint action.</param>
+        /// <returns>A formatted Url to access the API endpoint.</returns>
+        /// <exception cref="InternalError"></exception>
+        protected static string GetPackageApplicationEndpoint(Package package, Type type, string endpoint) {
+            string className = type.Name;
+            if (!className.EndsWith("Endpoints"))
+                throw new InternalError($"Class {className} is not an endpoint");
+            className = className.Substring(0, className.Length - "Endpoints".Length);
+            return $"{package.AreaName}/{className}/{endpoint}";
         }
 
         public static async Task<ModuleDefinition> GetModuleAsync(Guid? moduleGuid = null) {
