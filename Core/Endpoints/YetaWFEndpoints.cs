@@ -66,7 +66,7 @@ namespace YetaWF.Core.Endpoints {
             if (!className.EndsWith("Endpoints"))
                 throw new InternalError($"Class {className} is not an endpoint");
             className = className.Substring(0, className.Length - "Endpoints".Length);
-            return $"{package.AreaName}/{className}/{endpoint}";
+            return $"/{package.AreaName}/{className}/{endpoint}";
         }
 
         public static async Task<ModuleDefinition> GetModuleAsync(Guid? moduleGuid = null) {
