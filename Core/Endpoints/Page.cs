@@ -7,7 +7,9 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using YetaWF.Core.Addons;
 using YetaWF.Core.Components;
+using YetaWF.Core.Endpoints.Filters;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Log;
@@ -31,6 +33,7 @@ public class PageEndpoints : YetaWFEndpoints {
         endpoints.MapMethods("/", new List<string> { "GET", "HEAD" }, async (HttpContext context) => {
             return await Show(context);
         });
+
         endpoints.MapMethods("/{*rest}", new List<string> { "GET", "HEAD" }, async (HttpContext context, string rest) => {
             return await Show(context);
         });
@@ -545,6 +548,8 @@ public class PageEndpoints : YetaWFEndpoints {
 
         Manager.ScriptManager.AddVolatileOption("Basics", "PageGuid", requestedPage.PageGuid);
         Manager.ScriptManager.AddVolatileOption("Basics", "TemporaryPage", requestedPage.Temporary);
+        Manager.ScriptManager.AddVolatileOption("Basics", Basics.AntiforgeryCookieToken, Manager.AntiforgeryCookieToken);
+        Manager.ScriptManager.AddVolatileOption("Basics", Basics.AntiforgeryRequestToken, Manager.AntiforgeryRequestToken);
 
         bool staticPage = false;
         if (YetaWFManager.Deployed)

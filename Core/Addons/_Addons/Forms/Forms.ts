@@ -84,7 +84,6 @@ namespace YetaWF {
 
         // Global form related items (not implementation specific)
         UniqueIdCounters: string;
-        RequestVerificationToken: string;
 
         // Css used which is global to YetaWF (not implementation specific)
 
@@ -125,7 +124,6 @@ namespace YetaWF {
         userdata: any;              // any data suitable to callback
     }
     export interface FormInfoJSON {
-        RequestVerificationToken: string;
         ModuleGuid: string;
         UniqueIdCounters?: UniqueIdInfo;
     }
@@ -430,38 +428,18 @@ namespace YetaWF {
         public getInnerFormCond(tag: HTMLElement): HTMLFormElement | null {
             return $YetaWF.getElement1BySelectorCond("form", [tag]) as HTMLFormElement | null;
         }
-        // get RequestVerificationToken and ModuleGuid
+        // get ModuleGuid
         public getJSONInfo(tagInForm: HTMLElement, uniqueIdInfo?: UniqueIdInfo) : FormInfoJSON {
-            let req: string|null = null;
             let moduleGuid: string|null = null;
-            const mod = YetaWF.ModuleBase.getModuleDivFromTagCond(tagInForm);
-            if (mod) {
-                moduleGuid = mod.getAttribute("data-moduleguid");
-                const form = this.getInnerFormCond(mod);
-                if (form) {
-                    const formPartial = $YetaWF.elementClosestCond(tagInForm, YConfigs.Forms.CssForm);
-                    if (formPartial && !req) {
-                        const reqVerElem = $YetaWF.getElement1BySelectorCond(`input[name='${YConfigs.Forms.RequestVerificationToken}']`, [formPartial]) as HTMLInputElement|null;            
-                        if (reqVerElem)
-                            req = reqVerElem.value;
-                    }
-                    if (form && !req) {
-                        const reqVerElem = $YetaWF.getElement1BySelectorCond(`input[name='${YConfigs.Forms.RequestVerificationToken}']`, [form]) as HTMLInputElement|null;            
-                        if (reqVerElem)
-                            req = reqVerElem.value;
-                    }
-                    if (!req || req.length === 0) throw "Can't locate " + YConfigs.Forms.RequestVerificationToken;/*DEBUG*/
-                } else {
-                    req = mod.getAttribute("data-reqvertoken") || "";
-                }
-                if (!moduleGuid || moduleGuid.length === 0) throw "Can't locate module guid";/*DEBUG*/
+            const elem = $YetaWF.elementClosestCond(tagInForm, `[${YConfigs.Basics.CssModuleGuid}]`);
+            if (elem) {
+                moduleGuid = elem.getAttribute(YConfigs.Basics.CssModuleGuid) || "";
             } else {
+                // we're not within a module or an element with an owning module
                 moduleGuid = "";
-                req = "";
             }
             const info: FormInfoJSON = {
                 ModuleGuid: moduleGuid,
-                RequestVerificationToken: req,
                 UniqueIdCounters: uniqueIdInfo,
             };
             return info;

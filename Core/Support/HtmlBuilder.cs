@@ -181,23 +181,6 @@ namespace YetaWF.Core.Support {
         }
 
         /// <summary>
-        /// Creates and returns an antiforgery token (HTML).
-        /// </summary>
-        /// <param name="htmlHelper">An instance of a YHtmlHelper.</param>
-        /// <returns>Returns an antiforgery token (HTML).</returns>
-        public static string AntiForgeryToken() {
-            if (YetaWFManager.Manager.AntiForgeryTokenHTML == null) {
-                IAntiforgery? antiForgery = (IAntiforgery?)YetaWFManager.Manager.ServiceProvider.GetService(typeof(IAntiforgery));
-                IHtmlContent ihtmlContent = antiForgery!.GetHtml(YetaWFManager.Manager.CurrentContext);
-                using (System.IO.StringWriter writer = new System.IO.StringWriter()) {
-                    ihtmlContent.WriteTo(writer, System.Text.Encodings.Web.HtmlEncoder.Default);
-                    YetaWFManager.Manager.AntiForgeryTokenHTML = writer.ToString();
-                }
-            }
-            return YetaWFManager.Manager.AntiForgeryTokenHTML;
-        }
-
-        /// <summary>
         /// Converts an anonymous object, a RouteValueDictionary or a Dictionary&lt;string, object&gt; object to a dictionary.
         /// </summary>
         /// <param name="htmlAttributes">An anonymous object, a RouteValueDictionary or a Dictionary&lt;string, object&gt; object.</param>

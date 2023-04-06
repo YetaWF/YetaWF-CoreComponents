@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
+using YetaWF.Core.Endpoints.Filters;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Packages;
@@ -32,7 +33,8 @@ namespace YetaWF.Core.Endpoints {
             group.MapPost($"Update/{{ModuleGuid}}", async (HttpContext context,
                     [FromBody] ModuleSubmitData dataIn, [FromRoute] Guid moduleGuid, [FromQuery] string? action) => {
                 return await UpdateAsync(context, dataIn, moduleGuid, action);
-            });
+            })
+                .AntiForgeryToken();
         }
 
         /// <summary>

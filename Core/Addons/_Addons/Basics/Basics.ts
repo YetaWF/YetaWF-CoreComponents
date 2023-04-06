@@ -676,10 +676,12 @@ namespace YetaWF {
             //     query[YConfigs.Forms.UniqueIdCounters] = formJson.UniqueIdCounters;
             uri.addSearchSimpleObject(query);
 
+            document.cookie = `${YConfigs.Basics.AntiforgeryCookieName}=${YVolatile.Basics.AntiforgeryCookieToken}`;
+
             const request: XMLHttpRequest = new XMLHttpRequest();
             request.open("POST", uri.toUrl(), true);
             request.setRequestHeader("Content-Type", "application/json");
-            request.setRequestHeader("RequestVerificationToken", formJson.RequestVerificationToken);
+            request.setRequestHeader(YConfigs.Basics.AntiforgeryRequestName, YVolatile.Basics.AntiforgeryRequestToken);
             return request;
         }
 

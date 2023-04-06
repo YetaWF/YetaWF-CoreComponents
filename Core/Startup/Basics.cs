@@ -33,6 +33,7 @@ public class Basics : IAddOnSupport {
     public const string CssPleaseWait = "data-pleasewait";
     public const string CookieDoneCssAttr = "data-cookie-done";
     public const string CssOuterWindow = "data-outerwindow";
+    public const string CssModuleGuid = "data-moduleguid";
     public const string CssAttrDataSpecialEdit = "data-specialedit";
     public const string CssAttrActionButton = "data-button";
     public const string CssExtraData = "data-extradata";
@@ -42,6 +43,8 @@ public class Basics : IAddOnSupport {
 
     // used on url to select specific module
     public const string ModuleGuid = "__ModuleGuid";//$$$$
+    public const string AntiforgeryCookieToken = "AntiforgeryCookieToken";
+    public const string AntiforgeryRequestToken = "AntiforgeryRequestToken";
 
     // templates
     public const string TemplateName = "__TemplateName";
@@ -76,6 +79,9 @@ public class Basics : IAddOnSupport {
         scripts.AddVolatileOption("Basics", "JSLocation", manager.CurrentSite.JSLocation == Site.JSLocationEnum.Top);
         scripts.AddVolatileOption("Basics", "CssLocation", manager.CurrentSite.CssLocation == Site.CssLocationEnum.Top);
         scripts.AddVolatileOption("Basics", "CacheVersion", YetaWFManager.CacheBuster);
+
+        scripts.AddConfigOption("Basics", "AntiforgeryCookieName", "__ReqVerToken_" + YetaWFManager.DefaultSiteName);
+        scripts.AddConfigOption("Basics", "AntiforgeryRequestName", "RequestVerificationToken");
 
         // User language
         scripts.AddVolatileOption("Basics", "Language", manager.GetUserLanguage());
@@ -139,6 +145,7 @@ public class Basics : IAddOnSupport {
         scripts.AddConfigOption("Basics", "CookieToReturn", CookieToReturn);
         scripts.AddConfigOption("Basics", "PostAttr", PostAttr);
         scripts.AddConfigOption("Basics", "CssOuterWindow", CssOuterWindow);
+        scripts.AddConfigOption("Basics", "CssModuleGuid", CssModuleGuid);
 
         scripts.AddConfigOption("Basics", "AjaxJavascriptReturn", AjaxJavascriptReturn);
         scripts.AddConfigOption("Basics", "AjaxJSONReturn", AjaxJSONReturn);

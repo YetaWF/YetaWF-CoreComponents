@@ -40,7 +40,6 @@ public class Forms : IAddOnSupport {
         scripts.AddLocalization("Forms", "FormErrors", this.__ResStr("FormErrors", ""));
 
         scripts.AddConfigOption("Forms", "UniqueIdCounters", UniqueIdCounters);
-        scripts.AddConfigOption("Forms", "RequestVerificationToken", "__RequestVerificationToken");
 
         // Validation (not implementation specific) used by validation attributes
 

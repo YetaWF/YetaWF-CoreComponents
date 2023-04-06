@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Routing;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using YetaWF.Core.Endpoints.Filters;
 using YetaWF.Core.Log;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Support;
@@ -22,7 +23,8 @@ namespace YetaWF.Core.Endpoints {
         public static void RegisterEndpoints(IEndpointRouteBuilder endpoints, Package package, string areaName) {
             endpoints.MapPost(GetPackageApiEndpoint(package, typeof(AddonContentEndpoints), nameof(Show)), async (HttpContext context, [FromBody] DataIn dataIn) => {
                 return await Show(context, dataIn);
-            });
+            })
+                .AntiForgeryToken();
         }
 
         public class AddonDescription {

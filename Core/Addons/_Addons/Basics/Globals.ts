@@ -39,6 +39,10 @@ namespace YetaWF {
         CssLocation: CssLocationEnum;
         CacheVersion: string;
 
+        // Antiforgery
+        AntiforgeryCookieToken: string;
+        AntiforgeryRequestToken: string;
+
         // User language
         Language: string;
 
@@ -93,6 +97,8 @@ namespace YetaWF {
     export interface IConfigsBasics {
 
         DEBUGBUILD: boolean;
+        AntiforgeryCookieName: string;
+        AntiforgeryRequestName: string;
 
         ApiPrefix: string;          // API Prefix, internal API
         Link_InPopup: string;       // we're in a popup
@@ -114,6 +120,7 @@ namespace YetaWF {
         CssPleaseWait: string;
         CssAttrDataSpecialEdit: string;
         CssAttrActionButton: string;
+        CssModuleGuid: string;
         ModuleGuid: string;
 
         TemplateName: string;
@@ -184,7 +191,6 @@ namespace YetaWF {
     export interface PartialViewData {
         __UniqueIdCounters: YetaWF.UniqueIdInfo,
         __ModuleGuid: string|null; // The module for which the partial view is rendered
-        __RequestVerificationToken: string;
     }
 
     // DATAPROVIDER

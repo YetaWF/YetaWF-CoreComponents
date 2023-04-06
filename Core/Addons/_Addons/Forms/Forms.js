@@ -280,42 +280,19 @@ var YetaWF;
         Forms.prototype.getInnerFormCond = function (tag) {
             return $YetaWF.getElement1BySelectorCond("form", [tag]);
         };
-        // get RequestVerificationToken and ModuleGuid
+        // get ModuleGuid
         Forms.prototype.getJSONInfo = function (tagInForm, uniqueIdInfo) {
-            var req = null;
             var moduleGuid = null;
-            var mod = YetaWF.ModuleBase.getModuleDivFromTagCond(tagInForm);
-            if (mod) {
-                moduleGuid = mod.getAttribute("data-moduleguid");
-                var form = this.getInnerFormCond(mod);
-                if (form) {
-                    var formPartial = $YetaWF.elementClosestCond(tagInForm, YConfigs.Forms.CssForm);
-                    if (formPartial && !req) {
-                        var reqVerElem = $YetaWF.getElement1BySelectorCond("input[name='".concat(YConfigs.Forms.RequestVerificationToken, "']"), [formPartial]);
-                        if (reqVerElem)
-                            req = reqVerElem.value;
-                    }
-                    if (form && !req) {
-                        var reqVerElem = $YetaWF.getElement1BySelectorCond("input[name='".concat(YConfigs.Forms.RequestVerificationToken, "']"), [form]);
-                        if (reqVerElem)
-                            req = reqVerElem.value;
-                    }
-                    if (!req || req.length === 0)
-                        throw "Can't locate " + YConfigs.Forms.RequestVerificationToken; /*DEBUG*/
-                }
-                else {
-                    req = mod.getAttribute("data-reqvertoken") || "";
-                }
-                if (!moduleGuid || moduleGuid.length === 0)
-                    throw "Can't locate module guid"; /*DEBUG*/
+            var elem = $YetaWF.elementClosestCond(tagInForm, "[".concat(YConfigs.Basics.CssModuleGuid, "]"));
+            if (elem) {
+                moduleGuid = elem.getAttribute(YConfigs.Basics.CssModuleGuid) || "";
             }
             else {
+                // we're not within a module or an element with an owning module
                 moduleGuid = "";
-                req = "";
             }
             var info = {
                 ModuleGuid: moduleGuid,
-                RequestVerificationToken: req,
                 UniqueIdCounters: uniqueIdInfo,
             };
             return info;

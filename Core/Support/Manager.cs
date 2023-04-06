@@ -1,5 +1,6 @@
 /* Copyright © 2023 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Http.Features;
@@ -1268,10 +1269,31 @@ namespace YetaWF.Core.Support {
         public bool InPartialView { get; set; }
 
         /// <summary>
-        /// Cache rendered HTML for anti-forgery token.
+        /// Value of the anti-forgery cookie token.
         /// </summary>
-        /// <remarks>I don't like this.</remarks>
-        public string? AntiForgeryTokenHTML { get; set; }
+        public string? AntiforgeryCookieToken {
+            get {
+                AntiforgeryTokenSet set = GetAntiForgeryTokenSet();
+                return set.CookieToken;
+            }
+        }
+        /// <summary>
+        /// Value of the anti-forgery request token.
+        /// </summary>
+        public string? AntiforgeryRequestToken {
+            get {
+                AntiforgeryTokenSet set = GetAntiForgeryTokenSet();
+                return set.RequestToken;
+            }
+        }
+        private AntiforgeryTokenSet GetAntiForgeryTokenSet() {
+            if (_antiForgeryTokenSet == null) {
+                IAntiforgery antiForgery = (IAntiforgery)(YetaWFManager.Manager.ServiceProvider.GetService(typeof(IAntiforgery)) ?? throw new InternalError("IAntiforgery service not available"));
+                _antiForgeryTokenSet = antiForgery.GetTokens(CurrentContext);
+            }
+            return _antiForgeryTokenSet;
+        }
+        private AntiforgeryTokenSet? _antiForgeryTokenSet = null;
 
         /// <summary>
         /// Defines whether non-site specific data is also imported when importing packages

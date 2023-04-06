@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Routing;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using YetaWF.Core.Addons;
+using YetaWF.Core.Endpoints.Filters;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Log;
@@ -28,7 +30,8 @@ public class PageContentEndpoints : YetaWFEndpoints {
     public static void RegisterEndpoints(IEndpointRouteBuilder endpoints, Package package, string areaName) {
         endpoints.MapPost(GetPackageApiEndpoint(package, typeof(PageContentEndpoints), nameof(Show)), async (HttpContext context, [FromBody] DataIn dataIn) => {
             return await Show(context, dataIn);
-        });
+        })
+            .AntiForgeryToken();
     }
 
     internal class PageContentData {
@@ -473,6 +476,10 @@ public class PageContentEndpoints : YetaWFEndpoints {
 
             Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentSite.ReferencedModules);
             Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentPage.ReferencedModules);
+
+            // only on page reloads: Manager.ScriptManager.AddVolatileOption("Basics", Basics.AntiforgeryCookieToken, Manager.AntiforgeryCookieToken);
+            if (!string.IsNullOrEmpty(Manager.AntiforgeryRequestToken))
+                Manager.ScriptManager.AddVolatileOption("Basics", Basics.AntiforgeryRequestToken, Manager.AntiforgeryRequestToken);
 
             // set popup info
             PageSkinEntry pageSkin = skinAccess.GetPageSkinEntry();

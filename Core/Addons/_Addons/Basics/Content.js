@@ -157,11 +157,13 @@ var YetaWF;
             data.KnownScripts = data.KnownScripts.concat(YVolatile.Basics.KnownScriptsDynamic || []); // known javascript files that were added by content pages
             data.KnownScripts = data.KnownScripts.concat(YVolatile.Basics.UnifiedScriptBundleFiles || []); // add known javascript files that were added via bundles
             $YetaWF.setLoading();
+            document.cookie = "".concat(YConfigs.Basics.AntiforgeryCookieName, "=").concat(YVolatile.Basics.AntiforgeryCookieToken);
             var request = new XMLHttpRequest();
             request.open("POST", "".concat(YConfigs.Basics.ApiPrefix, "/YetaWF_Core/PageContent/Show") + uri.getQuery(true), true);
             request.setRequestHeader("Content-Type", "application/json");
             request.setRequestHeader("X-HTTP-Method-Override", "GET"); // server has to think this is a GET request so all actions that are invoked actually work
             request.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+            request.setRequestHeader(YConfigs.Basics.AntiforgeryRequestName, YVolatile.Basics.AntiforgeryRequestToken);
             request.onreadystatechange = function (ev) {
                 if (request.readyState === XMLHttpRequest.DONE) {
                     $YetaWF.setLoading(false);
@@ -409,10 +411,12 @@ var YetaWF;
         Content.prototype.getAddonsData = function (url, data) {
             var p = new Promise(function (resolve, reject) {
                 var request = new XMLHttpRequest();
+                document.cookie = "".concat(YConfigs.Basics.AntiforgeryCookieName, "=").concat(YVolatile.Basics.AntiforgeryCookieToken);
                 request.open("POST", url, true);
                 request.setRequestHeader("Content-Type", "application/json");
                 request.setRequestHeader("X-HTTP-Method-Override", "GET"); // server has to think this is a GET request so all actions that are invoked actually work
                 request.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+                request.setRequestHeader(YConfigs.Basics.AntiforgeryRequestName, YVolatile.Basics.AntiforgeryRequestToken);
                 request.onreadystatechange = function (ev) {
                     if (request.readyState === XMLHttpRequest.DONE) {
                         $YetaWF.setLoading(false);

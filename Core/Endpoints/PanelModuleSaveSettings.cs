@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using System;
 using YetaWF.Core.Endpoints;
+using YetaWF.Core.Endpoints.Filters;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Packages;
 using YetaWF.Core.Support.Repository;
@@ -33,6 +34,7 @@ public class PanelModuleSaveSettingsEndpoints : YetaWFEndpoints {
             modSettings.SetValue<bool>("PanelExpanded", expanded);
             modSettings.Save();
             return Done();
-        });
+        })
+            .AntiForgeryToken();
     }
 }

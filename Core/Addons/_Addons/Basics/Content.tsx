@@ -231,11 +231,14 @@ namespace YetaWF {
 
             $YetaWF.setLoading();
 
+            document.cookie = `${YConfigs.Basics.AntiforgeryCookieName}=${YVolatile.Basics.AntiforgeryCookieToken}`;
+
             let request: XMLHttpRequest = new XMLHttpRequest();
             request.open("POST", `${YConfigs.Basics.ApiPrefix}/YetaWF_Core/PageContent/Show` + uri.getQuery(true), true);
             request.setRequestHeader("Content-Type", "application/json");
             request.setRequestHeader("X-HTTP-Method-Override", "GET");// server has to think this is a GET request so all actions that are invoked actually work
             request.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+            request.setRequestHeader(YConfigs.Basics.AntiforgeryRequestName, YVolatile.Basics.AntiforgeryRequestToken);
             request.onreadystatechange = (ev: Event) : any => {
                 if (request.readyState === XMLHttpRequest.DONE) {
                     $YetaWF.setLoading(false);
@@ -475,10 +478,13 @@ namespace YetaWF {
 
                 const request: XMLHttpRequest = new XMLHttpRequest();
 
+                document.cookie = `${YConfigs.Basics.AntiforgeryCookieName}=${YVolatile.Basics.AntiforgeryCookieToken}`;
+
                 request.open("POST", url, true);
                 request.setRequestHeader("Content-Type", "application/json");
                 request.setRequestHeader("X-HTTP-Method-Override", "GET");// server has to think this is a GET request so all actions that are invoked actually work
                 request.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+                request.setRequestHeader(YConfigs.Basics.AntiforgeryRequestName, YVolatile.Basics.AntiforgeryRequestToken);
                 request.onreadystatechange = (ev: Event): any => {
                     if (request.readyState === XMLHttpRequest.DONE) {
                         $YetaWF.setLoading(false);

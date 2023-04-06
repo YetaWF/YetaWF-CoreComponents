@@ -156,7 +156,7 @@ namespace YetaWF.Core.Skins {
         private async Task RenderStandardModuleAsync(ModuleDefinition mod, HtmlBuilder hb, string htmlContents, string css, bool showTitle = true) {
 
             hb.Append($@"
-<div id='{mod.ModuleHtmlId}' data-moduleguid='{mod.ModuleGuid.ToString()}' class='{css}'>");
+<div id='{mod.ModuleHtmlId}' {Basics.CssModuleGuid}='{mod.ModuleGuid.ToString()}' class='{css}'>");
 
             if (!Manager.IsInPopup && mod.ShowModuleMenu) {
                 hb.Append(await YetaWFCoreRendering.Render.RenderModuleMenuAsync(mod));
@@ -213,7 +213,7 @@ namespace YetaWF.Core.Skins {
             }
 
             hb.Append($@"
-<div id='{mod.ModuleHtmlId}' data-moduleguid='{mod.ModuleGuid.ToString()}' class='{css}{expCss}'{expCollUrl}>");
+<div id='{mod.ModuleHtmlId}' {Basics.CssModuleGuid}='{mod.ModuleGuid.ToString()}' class='{css}{expCss}'{expCollUrl}>");
 
             if (!Manager.IsInPopup && mod.ShowModuleMenu) {
                 hb.Append(await YetaWFCoreRendering.Render.RenderModuleMenuAsync(mod));
