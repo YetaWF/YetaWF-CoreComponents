@@ -40,7 +40,6 @@ namespace YetaWF {
         CacheVersion: string;
 
         // Antiforgery
-        AntiforgeryCookieToken: string;
         AntiforgeryRequestToken: string;
 
         // User language
@@ -97,8 +96,7 @@ namespace YetaWF {
     export interface IConfigsBasics {
 
         DEBUGBUILD: boolean;
-        AntiforgeryCookieName: string;
-        AntiforgeryRequestName: string;
+        AntiforgeryHeader: string;
 
         ApiPrefix: string;          // API Prefix, internal API
         Link_InPopup: string;       // we're in a popup
@@ -189,7 +187,7 @@ namespace YetaWF {
     // PARTIAL VIEW
 
     export interface PartialViewData {
-        __UniqueIdCounters: YetaWF.UniqueIdInfo,
+        __UniqueIdCounters: YetaWF.UniqueIdInfo;
         __ModuleGuid: string|null; // The module for which the partial view is rendered
     }
 

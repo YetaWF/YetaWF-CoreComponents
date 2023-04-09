@@ -43,7 +43,7 @@ public class Basics : IAddOnSupport {
 
     // used on url to select specific module
     public const string ModuleGuid = "__ModuleGuid";//$$$$
-    public const string AntiforgeryCookieToken = "AntiforgeryCookieToken";
+    public const string AntiforgeryHeader = "RequestVerificationToken";
     public const string AntiforgeryRequestToken = "AntiforgeryRequestToken";
 
     // templates
@@ -80,8 +80,7 @@ public class Basics : IAddOnSupport {
         scripts.AddVolatileOption("Basics", "CssLocation", manager.CurrentSite.CssLocation == Site.CssLocationEnum.Top);
         scripts.AddVolatileOption("Basics", "CacheVersion", YetaWFManager.CacheBuster);
 
-        scripts.AddConfigOption("Basics", "AntiforgeryCookieName", "__ReqVerToken_" + YetaWFManager.DefaultSiteName);
-        scripts.AddConfigOption("Basics", "AntiforgeryRequestName", "RequestVerificationToken");
+        scripts.AddConfigOption("Basics", nameof(AntiforgeryHeader), AntiforgeryHeader);
 
         // User language
         scripts.AddVolatileOption("Basics", "Language", manager.GetUserLanguage());

@@ -9,7 +9,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Components;
-using YetaWF.Core.Endpoints.Filters;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Log;
@@ -548,7 +547,6 @@ public class PageEndpoints : YetaWFEndpoints {
 
         Manager.ScriptManager.AddVolatileOption("Basics", "PageGuid", requestedPage.PageGuid);
         Manager.ScriptManager.AddVolatileOption("Basics", "TemporaryPage", requestedPage.Temporary);
-        Manager.ScriptManager.AddVolatileOption("Basics", Basics.AntiforgeryCookieToken, Manager.AntiforgeryCookieToken);
         Manager.ScriptManager.AddVolatileOption("Basics", Basics.AntiforgeryRequestToken, Manager.AntiforgeryRequestToken);
 
         bool staticPage = false;

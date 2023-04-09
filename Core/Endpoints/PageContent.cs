@@ -477,7 +477,6 @@ public class PageContentEndpoints : YetaWFEndpoints {
             Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentSite.ReferencedModules);
             Manager.AddOnManager.AddExplicitlyInvokedModules(Manager.CurrentPage.ReferencedModules);
 
-            // only on page reloads: Manager.ScriptManager.AddVolatileOption("Basics", Basics.AntiforgeryCookieToken, Manager.AntiforgeryCookieToken);
             if (!string.IsNullOrEmpty(Manager.AntiforgeryRequestToken))
                 Manager.ScriptManager.AddVolatileOption("Basics", Basics.AntiforgeryRequestToken, Manager.AntiforgeryRequestToken);
 

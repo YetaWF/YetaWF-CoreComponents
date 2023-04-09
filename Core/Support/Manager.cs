@@ -991,9 +991,6 @@ namespace YetaWF.Core.Support {
                     throw new InternalError("No HttpContext available");
                 return _HttpContext;
             }
-            set {
-                _HttpContext = value;
-            }
         }
 
         public bool HaveCurrentRequest {
@@ -1269,15 +1266,6 @@ namespace YetaWF.Core.Support {
         public bool InPartialView { get; set; }
 
         /// <summary>
-        /// Value of the anti-forgery cookie token.
-        /// </summary>
-        public string? AntiforgeryCookieToken {
-            get {
-                AntiforgeryTokenSet set = GetAntiForgeryTokenSet();
-                return set.CookieToken;
-            }
-        }
-        /// <summary>
         /// Value of the anti-forgery request token.
         /// </summary>
         public string? AntiforgeryRequestToken {
@@ -1289,7 +1277,7 @@ namespace YetaWF.Core.Support {
         private AntiforgeryTokenSet GetAntiForgeryTokenSet() {
             if (_antiForgeryTokenSet == null) {
                 IAntiforgery antiForgery = (IAntiforgery)(YetaWFManager.Manager.ServiceProvider.GetService(typeof(IAntiforgery)) ?? throw new InternalError("IAntiforgery service not available"));
-                _antiForgeryTokenSet = antiForgery.GetTokens(CurrentContext);
+                _antiForgeryTokenSet = antiForgery.GetAndStoreTokens(CurrentContext);
             }
             return _antiForgeryTokenSet;
         }

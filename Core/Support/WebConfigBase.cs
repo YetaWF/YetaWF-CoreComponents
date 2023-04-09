@@ -99,8 +99,9 @@ namespace YetaWF.Core.Support {
                             throw new InternalError($"The required entry {key} {(Package ? $"Application:P:{areaName}" : $"Application:{areaName}")} was not found in {SettingsFile}");
                         return dflt;
                     }
+                    string? v;
 #if DEBUG
-                    string? v = ((JsonElement)elem).GetPropertyValue($"{DEBUG_PREFIX}{key}");// try with debug prefix first
+                    v = ((JsonElement)elem).GetPropertyValue($"{DEBUG_PREFIX}{key}");// try with debug prefix first
                     if (v == null)
                         v = ((JsonElement)elem).GetPropertyValue(key);
 #else
@@ -116,6 +117,8 @@ namespace YetaWF.Core.Support {
                                 // could be a legit string
                                 val = Convert.ChangeType(v, t);
                             }
+                        } else if (t == typeof(Guid)) {
+                            val = new Guid(v);
                         } else {
                             val = Convert.ChangeType(v, t);
                         }

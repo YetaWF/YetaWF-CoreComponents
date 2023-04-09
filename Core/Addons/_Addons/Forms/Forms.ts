@@ -304,7 +304,7 @@ namespace YetaWF {
                     __Pagectl: YVolatile.Basics.PageControlVisible,
                     __InPopup: $YetaWF.isInPopup(),
                 };
-                
+
                 // add extra data
                 if (extraData) {
                     if (extraData[YConfigs.Basics.Link_SubmitIsApply] != null) {
@@ -491,14 +491,14 @@ namespace YetaWF {
             clearInterval(this.submitFormTimer);
             if (!this.submitForm) return;
             let extraData = {};
-            extraData[YConfigs.Basics.Link_SubmitIsApply] = true;            
+            extraData[YConfigs.Basics.Link_SubmitIsApply] = true;
             this.submit(this.submitForm, false, extraData);
         }
         private reloadFormOnChange(): void {
             clearInterval(this.submitFormTimer);
             if (!this.submitForm) return;
             let extraData = {};
-            extraData[YConfigs.Basics.Link_SubmitIsReload] = true;  
+            extraData[YConfigs.Basics.Link_SubmitIsReload] = true;
             this.submit(this.submitForm, false, extraData);
         }
 
@@ -566,7 +566,7 @@ namespace YetaWF {
             $YetaWF.registerEventHandlerBody("click", `form input[type="button"][${YConfigs.Forms.CssDataApplyButton}]`, (ev: MouseEvent) : boolean => {
                 let form = this.getForm(ev.target as HTMLElement);
                 let extraData = {};
-                extraData[YConfigs.Basics.Link_SubmitIsApply] = true; 
+                extraData[YConfigs.Basics.Link_SubmitIsApply] = true;
                 this.submit(form, true, extraData);
                 return false;
             });

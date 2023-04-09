@@ -179,6 +179,7 @@ public partial class Startup {
             opts.Cookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest;
             opts.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict;
             opts.SuppressXFrameOptionsHeader = true;
+            opts.HeaderName = "RequestVerificationToken";
         });
         // antiforgery filter for conditional antiforgery attribute
         builder.Services.AddSingleton<ConditionalAntiForgeryTokenFilter>();

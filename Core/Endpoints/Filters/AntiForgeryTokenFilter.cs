@@ -12,7 +12,7 @@ namespace YetaWF.Core.Endpoints.Filters {
         public static TBuilder AntiForgeryToken<TBuilder>(this TBuilder builder) where TBuilder : IEndpointConventionBuilder {
             builder.AddEndpointFilterFactory((filterFactoryContext, next) => {
                 return async invocationContext => {
-                    IAntiforgery antiforgery = filterFactoryContext.ApplicationServices.GetRequiredService<IAntiforgery>();
+                    IAntiforgery antiforgery = invocationContext.HttpContext.RequestServices.GetRequiredService<IAntiforgery>();
                     try {
                         await antiforgery.ValidateRequestAsync(invocationContext.HttpContext);
                     } catch (AntiforgeryValidationException) {
