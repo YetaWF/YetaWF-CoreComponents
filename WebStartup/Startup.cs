@@ -373,6 +373,25 @@ public partial class Startup {
                     YetaWFManager.SetStaticCacheInfo(context.Context);
                 }
             });
+            string addonsCustomFolder = Utility.UrlToPhysical(Globals.AddOnsCustomUrl);
+            if (Directory.Exists(addonsCustomFolder)) {
+                app.UseStaticFiles(new StaticFileOptions {
+                    FileProvider = new PhysicalFileProvider(addonsCustomFolder),
+                    ContentTypeProvider = provider,
+                    RequestPath = new PathString(Globals.AddOnsCustomUrl),
+                    OnPrepareResponse = (context) => {
+                        YetaWFManager.SetStaticCacheInfo(context.Context);
+                    }
+                });
+            }
+            app.UseStaticFiles(new StaticFileOptions {
+                FileProvider = new PhysicalFileProvider(Path.Combine(YetaWFManager.RootFolder, Globals.AddonsBundlesFolder)),
+                ContentTypeProvider = provider,
+                RequestPath = new PathString(Globals.AddonsBundlesUrl),
+                OnPrepareResponse = (context) => {
+                    YetaWFManager.SetStaticCacheInfo(context.Context);
+                }
+            });
         }
 
         app.UseSession();
