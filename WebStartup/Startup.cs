@@ -367,8 +367,16 @@ public partial class Startup {
             }
             app.UseStaticFiles(new StaticFileOptions {
                 FileProvider = new PhysicalFileProvider(Path.Combine(YetaWFManager.RootFolder, Globals.AddOnsFolder)),
-                ContentTypeProvider = provider,
                 RequestPath = new PathString(Globals.AddOnsUrl),
+                ContentTypeProvider = provider,
+                OnPrepareResponse = (context) => {
+                    YetaWFManager.SetStaticCacheInfo(context.Context);
+                }
+            });
+            app.UseStaticFiles(new StaticFileOptions {
+                FileProvider = new PhysicalFileProvider(Path.Combine(YetaWFManager.RootFolder, Globals.VaultFolder)),
+                RequestPath = $"/{Globals.VaultFolder}",
+                ContentTypeProvider = provider,
                 OnPrepareResponse = (context) => {
                     YetaWFManager.SetStaticCacheInfo(context.Context);
                 }

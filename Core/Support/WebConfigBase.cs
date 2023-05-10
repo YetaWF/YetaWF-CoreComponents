@@ -111,11 +111,13 @@ namespace YetaWF.Core.Support {
                         Type t = typeof(TYPE);
                         if (t.IsEnum && v.GetType() == typeof(string)) {
                             try {
+                                // try number first
                                 int enumVal = Convert.ToInt32(v);
                                 val = enumVal;
                             } catch (Exception) {
                                 // could be a legit string
-                                val = Convert.ChangeType(v, t);
+                                if (!Enum.TryParse(t, v, out val))
+                                    val = Convert.ChangeType(v, t);
                             }
                         } else if (t == typeof(Guid)) {
                             val = new Guid(v);

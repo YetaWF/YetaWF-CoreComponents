@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
+using YetaWF.Core.DataProvider;
 using YetaWF.Core.Endpoints.Filters;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Modules;
@@ -91,6 +92,7 @@ namespace YetaWF.Core.Endpoints {
             // save environmental data
             Manager.UniqueIdCounters = dataIn.UniqueIdCounters;
             ModuleDefinition module = await GetModuleAsync(moduleGuid);
+            module._dataIn = dataIn;
 
             module.IsApply = dataIn.__Apply;
             module.IsReload = dataIn.__Reload;
