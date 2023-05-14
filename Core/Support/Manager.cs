@@ -1486,7 +1486,7 @@ namespace YetaWF.Core.Support {
         public TimeZoneInfo GetTimeZoneInfo() {
             if (timeZoneInfo == null) {
                 // Timezones don't use the same ids between Windows and other environments (nothing is ever easy)
-                // We store Windows Id so we translate on non-windows environments
+                // We (historically) store a Windows Id so we translate on non-windows environments
                 string? tz = UserSettings.GetProperty<string>("TimeZone");
                 if (!string.IsNullOrWhiteSpace(tz)) {
                     if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows)) {

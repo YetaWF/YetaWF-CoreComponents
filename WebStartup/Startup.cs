@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
@@ -78,7 +79,7 @@ public partial class Startup {
                 // This is needed with Docker during first-time installs.
                 string maintInitFolder = Path.Combine(currPath, "wwwroot", "MaintenanceInit");
                 if (Directory.Exists(maintInitFolder)) { // this is optional
-                    string maintFolder = Path.Combine(currPath, "wwwroot", "Maintenance");
+                    string maintFolder = Path.Combine(currPath, "wwwroot", Globals.MaintenanceFolder);
                     System.Console.WriteLine($"Initializing {maintFolder}");
                     CopyMissingFiles(maintInitFolder, maintFolder);
                 }
@@ -333,7 +334,6 @@ public partial class Startup {
                 appBranch.UseMiddleware<WebpMiddleware>();
             });
 
-        // Set up custom content types for static files based on MimeSettings.json and location
         {
             // Serve any file from these locations
             app.UseStaticFiles(new StaticFileOptions {
@@ -347,24 +347,38 @@ public partial class Startup {
                 FileProvider = new PhysicalFileProvider(Path.Combine(YetaWFManager.RootFolder, @".well-known")),
                 RequestPath = new PathString("/.well-known")
             });
-
-            // Everything else in wwwroot is based on mimetype. Only mime types with Download=true can be downloaded.
-            FileExtensionContentTypeProvider provider = new FileExtensionContentTypeProvider(new Dictionary<string, string>());
-
-            MimeSection staticMimeSect = new MimeSection();
-            staticMimeSect.InitAsync(Path.Combine(Globals.DataFolder, MimeSection.MimeSettingsFile)).Wait();
-            List<MimeSection.MimeEntry>? mimeTypes = staticMimeSect.GetMimeTypes();
-            if (mimeTypes != null) {
-                foreach (MimeSection.MimeEntry entry in mimeTypes) {
-                    if (entry.Download && entry.Extensions != null) {
-                        string[] extensions = entry.Extensions.Split(new char[] { ';' });
-                        foreach (string extension in extensions) {
-                            if (!provider.Mappings.ContainsKey(extension.Trim()))
-                                provider.Mappings.Add(extension.Trim(), entry.Type);
-                        }
-                    }
+            app.UseStaticFiles(new StaticFileOptions {
+                FileProvider = new PhysicalFileProvider(Path.Combine(YetaWFManager.RootFolder, Globals.AddonsBundlesFolder)),
+                RequestPath = new PathString(Globals.AddonsBundlesUrl),
+                OnPrepareResponse = (context) => {
+                    YetaWFManager.SetStaticCacheInfo(context.Context);
                 }
+            });
+            app.UseStaticFiles(new StaticFileOptions {
+                FileProvider = new PhysicalFileProvider(Path.Combine(YetaWFManager.RootFolder, Globals.MaintenanceFolder)),
+                RequestPath = new PathString(Utility.PhysicalToUrl(Path.Combine(YetaWFManager.RootFolder, Globals.MaintenanceFolder))),
+                OnPrepareResponse = (context) => {
+                    YetaWFManager.SetStaticCacheInfo(context.Context);
+                }
+            });
+            string vaultFolder = Path.Combine(YetaWFManager.RootFolder, Globals.VaultFolder);
+            if (Directory.Exists(vaultFolder)) {
+                app.UseStaticFiles(new StaticFileOptions {
+                    FileProvider = new PhysicalFileProvider(vaultFolder),
+                    RequestPath = new PathString(Globals.VaultUrl),
+                    OnPrepareResponse = (context) => {
+                        YetaWFManager.SetStaticCacheInfo(context.Context);
+                    }
+                });
             }
+        }
+
+        {
+            // addons folders, serves *.js, *.css only
+            FileExtensionContentTypeProvider provider = new FileExtensionContentTypeProvider(new Dictionary<string, string>());
+            foreach ((string extension, string tp) in MimeSection.GetRequiredAddonsExtensions())
+                provider.Mappings.Add(extension, tp);
+
             app.UseStaticFiles(new StaticFileOptions {
                 FileProvider = new PhysicalFileProvider(Path.Combine(YetaWFManager.RootFolder, Globals.AddOnsFolder)),
                 ContentTypeProvider = provider,
@@ -384,14 +398,27 @@ public partial class Startup {
                     }
                 });
             }
-            app.UseStaticFiles(new StaticFileOptions {
-                FileProvider = new PhysicalFileProvider(Path.Combine(YetaWFManager.RootFolder, Globals.AddonsBundlesFolder)),
-                ContentTypeProvider = provider,
-                RequestPath = new PathString(Globals.AddonsBundlesUrl),
-                OnPrepareResponse = (context) => {
-                    YetaWFManager.SetStaticCacheInfo(context.Context);
+        }
+
+        {
+            // Set up custom content types for static files based on MimeSettings.json and location
+            // Everything else in wwwroot is based on mimetype. Only mime types with Download=true can be downloaded.
+            FileExtensionContentTypeProvider provider = new FileExtensionContentTypeProvider(new Dictionary<string, string>());
+
+            MimeSection staticMimeSect = new MimeSection();
+            staticMimeSect.InitAsync(Path.Combine(Globals.DataFolder, MimeSection.MimeSettingsFile)).Wait();
+            List<MimeSection.MimeEntry>? mimeTypes = staticMimeSect.GetMimeTypes();
+            if (mimeTypes != null) {
+                foreach (MimeSection.MimeEntry entry in mimeTypes) {
+                    if (entry.Download && entry.Extensions != null) {
+                        string[] extensions = entry.Extensions.Split(new char[] { ';' });
+                        foreach (string extension in extensions) {
+                            if (!provider.Mappings.ContainsKey(extension.Trim()))
+                                provider.Mappings.Add(extension.Trim(), entry.Type);
+                        }
+                    }
                 }
-            });
+            }
         }
 
         app.UseSession();

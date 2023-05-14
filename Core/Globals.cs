@@ -116,9 +116,10 @@ namespace YetaWF.Core {
         public const string NodeModulesFolder = "node_modules";
         public const string NodeModulesUrl = "/node_modules/";
 
+        public const string MaintenanceFolder = "Maintenance";
+
         // Module format strings
         public const string PermanentModuleNameFormat = "{0}.{1}";
-        public const string RVD_ModuleDefinition = "ModuleDefinition";
 
         // CSS classes
         // Pane
