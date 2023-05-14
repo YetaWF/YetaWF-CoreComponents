@@ -263,22 +263,22 @@ namespace YetaWF.Core.Upload {
 #else
         public async Task<byte[]?> GetImageBytesFromTempNameAsync(string name) {
             byte[] bytes;
-            (SixLabors.ImageSharp.Image? image, SixLabors.ImageSharp.Formats.IImageFormat? format) = await GetImageFromTempNameAsync(name);
+            SixLabors.ImageSharp.Image? image = await GetImageFromTempNameAsync(name);
             if (image == null) return null;
             using (image)
             using (MemoryStream ms = new MemoryStream()) {
                 SixLabors.ImageSharp.Formats.ImageFormatManager imageFormatManager = Configuration.Default.ImageFormatsManager;
-                await image.SaveAsync(ms, imageFormatManager.FindEncoder(format!));
+                await image.SaveAsync(ms, image.Metadata.DecodedImageFormat!);
                 bytes = ms.GetBuffer();
             }
             return bytes;
         }
-        private async Task<(SixLabors.ImageSharp.Image?, SixLabors.ImageSharp.Formats.IImageFormat?)> GetImageFromTempNameAsync(string name) {
+        private async Task<SixLabors.ImageSharp.Image?> GetImageFromTempNameAsync(string name) {
             string? fileName = await GetTempFilePathFromNameAsync(name);
-            if (string.IsNullOrWhiteSpace(fileName)) return (null, null);
+            if (string.IsNullOrWhiteSpace(fileName)) return null;
             byte[] bytes = await FileSystem.TempFileSystemProvider.ReadAllBytesAsync(fileName);
             using (MemoryStream ms = new MemoryStream(bytes)) {
-                return await SixLabors.ImageSharp.Image.LoadWithFormatAsync(ms);
+                return await SixLabors.ImageSharp.Image.LoadAsync(ms);
             }
         }
 #endif

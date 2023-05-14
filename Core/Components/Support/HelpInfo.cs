@@ -1,5 +1,6 @@
 /* Copyright © 2023 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 
+using System.Text.Json.Serialization;
 using YetaWF.Core.Packages;
 
 namespace YetaWF.Core.Components {
@@ -12,6 +13,7 @@ namespace YetaWF.Core.Components {
         /// <summary>
         /// The package owning the help file.
         /// </summary>
+        [JsonIgnore]
         public Package Package { get; set; } = null!;
         /// <summary>
         /// The name of the help file (without path or file extension.

@@ -49,10 +49,10 @@ namespace YetaWF.Core.Components {
         /// </summary>
         /// <param name="htmlHelper">The HtmlHelper instance.</param>
         /// <param name="module">The module being rendered in the view.</param>
-        /// <param name="viewHtml">The current view contents to be wrapped in the view.</param>
+        /// <param name="viewHtml">The current view contents to be wrapped in the partial form.</param>
         /// <param name="UsePartialFormCss">Defines whether the partial form CSS should be used.</param>
         /// <returns>Returns the complete view as HTML.</returns>
-        Task<string> RenderViewAsync(YHtmlHelper htmlHelper, ModuleDefinition? module, string viewHtml, bool UsePartialFormCss);
+        Task<string> RenderPartialFormAsync(YHtmlHelper htmlHelper, ModuleDefinition? module, string viewHtml, bool UsePartialFormCss);
 
         /// <summary>
         /// Renders module links.

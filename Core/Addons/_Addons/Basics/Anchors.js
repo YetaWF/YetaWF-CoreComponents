@@ -31,8 +31,8 @@ var YetaWF;
                         if (!urlTrack)
                             throw "data-track not defined"; /*DEBUG*/
                         var uri_1 = $YetaWF.parseUrl(urlTrack);
-                        var formJson_1 = $YetaWF.Forms.getJSONInfo(anchor);
-                        $YetaWF.postJSONIgnore(uri_1, formJson_1, { Url: url }, null);
+                        var formJson = $YetaWF.Forms.getJSONInfo(anchor);
+                        $YetaWF.postJSONIgnore(uri_1, formJson, { Url: url }, null);
                     }
                 }
                 var uri = $YetaWF.parseUrl(url);
@@ -56,8 +56,10 @@ var YetaWF;
                 if (!target || target === "" || target === "_self")
                     target = "_self";
                 // add originating module guid
-                var formJson = $YetaWF.Forms.getJSONInfo(anchor);
-                uri.replaceSearch(YConfigs.Basics.ModuleGuid, formJson.ModuleGuid);
+                if (!uri.hasSearch(YConfigs.Basics.ModuleGuid)) {
+                    var formJson = $YetaWF.Forms.getJSONInfo(anchor);
+                    uri.addSearch(YConfigs.Basics.ModuleGuid, formJson.ModuleGuid);
+                }
                 anchor.href = uri.toUrl(); // update original href in case default handling takes place
                 var cookieToReturn = null;
                 var post = false;

@@ -142,8 +142,8 @@ var YetaWF;
             }
             $YetaWF.sendCustomEvent(document.body, Forms.EVENTPRESUBMIT, { form: form, customEventData: customEventData, });
             var formValid = true;
-            //$$$$ if (useValidation)
-            //$$$$     formValid = this.validate(form);
+            if (useValidation)
+                formValid = this.validate(form);
             $YetaWF.closeOverlays();
             if (!useValidation || formValid) {
                 if (method.toLowerCase() === "get")

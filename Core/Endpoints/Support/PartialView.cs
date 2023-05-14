@@ -36,7 +36,8 @@ namespace YetaWF.Core.Endpoints {
         /// <param name="model">The model.</param>
         /// <param name="contentType">The content type.</param>
         /// <returns>Returns the HTML for the requested partial view.</returns>
-        public static async Task<IResult> RenderPartialView(HttpContext context, string viewName, ModuleDefinition? module, PartialViewData? pvData, object? model, string contentType, bool PureContent = false,
+        public static async Task<IResult> RenderPartialView(HttpContext context, string viewName, ModuleDefinition? module, PartialViewData? pvData, object? model, string contentType, 
+            bool PureContent = false, bool PartialForm = true,
             ScriptBuilder? Script = null) {
 
             if (pvData is null) {
@@ -71,7 +72,7 @@ namespace YetaWF.Core.Endpoints {
                 }
 
                 if (!PureContent)
-                    viewHtml = await PostRenderAsync(htmlHelper, context, module, viewHtml, Script);
+                    viewHtml = await PostRenderAsync(htmlHelper, context, module, viewHtml, Script, PartialForm);
             }
 #if DEBUG
             if (sb.Length > 0)
@@ -93,9 +94,10 @@ namespace YetaWF.Core.Endpoints {
             return mod;
         }
 
+        private static readonly Regex reStartDiv = new Regex(@"\s*<"); // first html
         private static readonly Regex reEndDiv = new Regex(@"</div>\s*$"); // very last div
 
-        private static async Task<string> PostRenderAsync(YHtmlHelper htmlHelper, HttpContext context, ModuleDefinition? module, string viewHtml, ScriptBuilder? Script = null) {
+        private static async Task<string> PostRenderAsync(YHtmlHelper htmlHelper, HttpContext context, ModuleDefinition? module, string viewHtml, ScriptBuilder? Script, bool PartialForm) {
 
             HttpResponse response = context.Response;
 
@@ -109,7 +111,7 @@ namespace YetaWF.Core.Endpoints {
             //    viewHtml += "<script>YVolatile.Basics.ForcePopup=true;</script>";
 
             viewHtml += (await htmlHelper.RenderReferencedModule_AjaxAsync()).ToString();
-            viewHtml = await PostProcessView.ProcessAsync(htmlHelper, module, viewHtml);
+            viewHtml = await PostProcessView.ProcessAsync(htmlHelper, module, viewHtml, PartialForm: PartialForm);
 
             if (Script != null)
                 Manager.ScriptManager.AddLastWhenReadyOnce(Script);
@@ -121,6 +123,7 @@ namespace YetaWF.Core.Endpoints {
             string js = await Manager.ScriptManager.RenderVolatileChangesAsync() ?? "";
             js += await Manager.ScriptManager.RenderAjaxAsync() ?? "";
 
+            viewHtml = reStartDiv.Replace(viewHtml, "<", 1);
             viewHtml = reEndDiv.Replace(viewHtml, js + "</div>", 1);
 
             // DEBUG: viewHtml is the complete response to the Ajax request

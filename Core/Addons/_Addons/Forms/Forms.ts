@@ -293,8 +293,8 @@ namespace YetaWF {
             $YetaWF.sendCustomEvent(document.body, Forms.EVENTPRESUBMIT, { form : form, customEventData: customEventData, });
 
             let formValid = true;
-            //$$$$ if (useValidation)
-            //$$$$     formValid = this.validate(form);
+            if (useValidation)
+                formValid = this.validate(form);
 
             $YetaWF.closeOverlays();
 

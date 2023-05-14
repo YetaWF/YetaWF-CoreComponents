@@ -194,7 +194,7 @@ public partial class Startup {
         string distProvider = WebConfigHelper.GetValue<string>("SessionState", "Provider", "", Package: false)!.ToLower();
         if (distProvider == "redis") {
             string config = WebConfigHelper.GetValue<string>("SessionState", "RedisConfig", "localhost:6379", Package: false)!;
-            builder.Services.AddDistributedRedisCache(o => {
+            builder.Services.AddStackExchangeRedisCache(o => {
                 o.Configuration = config;
             });
         } else if (distProvider == "sql") {

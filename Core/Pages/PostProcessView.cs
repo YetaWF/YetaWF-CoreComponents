@@ -12,9 +12,10 @@ namespace YetaWF.Core.Views {
 
         private static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
-        internal static async Task<string> ProcessAsync(YHtmlHelper htmlHelper, ModuleDefinition? module, string viewHtml, bool UsePartialFormCss = true) {
+        internal static async Task<string> ProcessAsync(YHtmlHelper htmlHelper, ModuleDefinition? module, string viewHtml, bool PartialForm =true, bool UsePartialFormCss = true) {
 
-            viewHtml = await YetaWFCoreRendering.Render.RenderViewAsync(htmlHelper, module, viewHtml, UsePartialFormCss);
+            if (PartialForm)
+                viewHtml = await YetaWFCoreRendering.Render.RenderPartialFormAsync(htmlHelper, module, viewHtml, UsePartialFormCss);
 
             Variables vars = new Variables(Manager) { DoubleEscape = true, CurlyBraces = !Manager.EditMode };
             viewHtml = vars.ReplaceModuleVariables(module, viewHtml);
