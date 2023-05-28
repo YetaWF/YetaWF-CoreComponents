@@ -237,7 +237,7 @@ namespace YetaWF.Core.Packages {
 
             List<Package> packages = GetAvailablePackages();
             List<string> usedFolders = (from p in packages select p.AddonsSourceFolder).ToList();
-            List<string> domains = await FileSystem.FileSystemProvider.GetDirectoriesAsync(Path.Combine(YetaWFManager.RootFolder, Globals.AddOnsFolder));
+            List<string> domains = await FileSystem.FileSystemProvider.GetDirectoriesAsync(Path.Combine(YetaWFManager.RootFolder, Globals.AddonsFolder));
             foreach (string domain in domains) {
                 List<string> definedFolders = await FileSystem.FileSystemProvider.GetDirectoriesAsync(domain);
                 foreach (string definedFolder in definedFolders) {

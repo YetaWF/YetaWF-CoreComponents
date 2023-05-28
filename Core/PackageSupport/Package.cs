@@ -709,7 +709,7 @@ namespace YetaWF.Core.Packages {
         /// </summary>
         public string AddonsSourceFolder {
             get {
-                return Path.Combine(YetaWFManager.RootFolder, Globals.AddOnsFolder, LanguageDomain, Product);
+                return Path.Combine(YetaWFManager.RootFolder, Globals.AddonsFolder, LanguageDomain, Product);
             }
         }
 
@@ -1043,12 +1043,12 @@ namespace YetaWF.Core.Packages {
         /// <param name="url"></param>
         /// <returns></returns>
         public static string GetCustomUrlFromUrl(string url) {
-            if (url.StartsWith(Globals.AddOnsUrl)) {
-                return AddOnsCustomUrl + YetaWFManager.Manager.CurrentSite.SiteDomain + url.Substring(Globals.AddOnsUrl.Length);
+            if (url.StartsWith(Globals.AddonsUrl)) {
+                return AddOnsCustomUrl + YetaWFManager.Manager.CurrentSite.SiteDomain + url.Substring(Globals.AddonsUrl.Length);
             } else if (url.StartsWith(Globals.NodeModulesUrl)) {
                 return AddOnsCustomUrl + YetaWFManager.Manager.CurrentSite.SiteDomain + url;
             }
-            throw new InternalError($"URL {url} doesn't start with {Globals.AddOnsUrl} or {Globals.NodeModulesUrl}");
+            throw new InternalError($"URL {url} doesn't start with {Globals.AddonsUrl} or {Globals.NodeModulesUrl}");
         }
     }
 }

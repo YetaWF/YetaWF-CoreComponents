@@ -96,11 +96,11 @@ namespace YetaWF.Core {
         public const string Role_Editor = "Editor"; // can edit ONE site
 
         // Addons
-        public const string AddOnsFolder = "Addons";
-        public const string AddOnsUrl = "/Addons";
-        public const string AddonsBundlesFolder = "AddonsBundles";
-        public const string AddonsBundlesUrl = "/AddonsBundles";
-        public const string AddOnsCustomUrl = "/AddonsCustom";
+        public const string AddonsFolder = "Addons";
+        public const string AddonsUrl = "/Addons";
+        public const string BundlesFolder = "Bundles";
+        public const string AddonsBundlesUrl = "/Addons/Bundles";
+        public const string AddonsCustomUrl = "/Addons/Custom";
         public const string Addons_TemplatesDirectoryName = "_Templates";
         public const string Addons_ModulesDirectoryName = "_Modules";
         public const string Addons_SkinsDirectoryName = "_Skins";

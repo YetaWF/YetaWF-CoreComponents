@@ -117,8 +117,8 @@ public class ImageHttpHandler {
 #if SYSTEM_DRAWING
                             img = System.Drawing.Image.FromStream(ms);
 #else
-                            (img, SixLabors.ImageSharp.Formats.IImageFormat imgFormat) = await SixLabors.ImageSharp.Image.LoadWithFormatAsync(ms);
-                            imgContentType = imgFormat.DefaultMimeType;
+                            img = await SixLabors.ImageSharp.Image.LoadAsync(ms);
+                            imgContentType = img.Metadata.DecodedImageFormat!.DefaultMimeType;
 #endif
                         }
                     }

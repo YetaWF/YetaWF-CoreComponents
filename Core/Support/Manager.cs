@@ -459,13 +459,13 @@ namespace YetaWF.Core.Support {
         /// The physical location (path) of the site's custom addons folder.
         /// </summary>
         /// <remarks>
-        /// An individual site's file data folder is located at ./Website/wwwroot/AddonsCustom/{..domainname..} on .NET.
+        /// An individual site's file data folder is located at ./Website/wwwroot/Addons/Custom/{..domainname..} on .NET.
         ///
         /// This folder is publicly accessible. It contains JavaScript and CSS files which are served as static files.
         /// </remarks>
         public string AddonsCustomSiteFolder {
             get {
-                return Path.Combine(Utility.UrlToPhysical(Globals.AddOnsCustomUrl), SiteDomain);
+                return Path.Combine(Utility.UrlToPhysical(Globals.AddonsCustomUrl), SiteDomain);
             }
         }
 
@@ -1536,8 +1536,8 @@ namespace YetaWF.Core.Support {
                             url.StartsWith(Globals.SiteFilesUrl) ||
                             url.StartsWith(Globals.VaultUrl) ||
                             url.StartsWith(Globals.VaultPrivateUrl) ||
-                            url.StartsWith(Globals.AddOnsUrl) ||
-                            url.StartsWith(Globals.AddOnsCustomUrl) ||
+                            url.StartsWith(Globals.AddonsUrl) ||
+                            url.StartsWith(Globals.AddonsCustomUrl) ||
                             url.StartsWith(Globals.AddonsBundlesUrl) ||
                             url.StartsWith("/FileHndlr.image")) {
                         // leave useAlt as is

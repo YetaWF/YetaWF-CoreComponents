@@ -154,7 +154,7 @@ namespace YetaWF.Core.Packages {
         /// </summary>
         private static string AddOnsFolder {
             get {
-                return Path.Combine(YetaWFManager.RootFolder, Globals.AddOnsFolder);
+                return Path.Combine(YetaWFManager.RootFolder, Globals.AddonsFolder);
             }
         }
         /// <summary>
@@ -162,7 +162,7 @@ namespace YetaWF.Core.Packages {
         /// </summary>
         public static string AddOnsUrl {
             get {
-                return Globals.AddOnsUrl + "/";
+                return Globals.AddonsUrl + "/";
             }
         }
         /// <summary>
@@ -170,7 +170,7 @@ namespace YetaWF.Core.Packages {
         /// </summary>
         public static string AddOnsCustomUrl {
             get {
-                return Globals.AddOnsCustomUrl + "/";
+                return Globals.AddonsCustomUrl + "/";
             }
         }
 
@@ -216,7 +216,7 @@ namespace YetaWF.Core.Packages {
                     if (await package.GetHasSourceAsync()) {
                         // Make a symlink to the source code for the addons of this package
                         // make sure it's symlink not regular folder (which can occur when upgrading from bin to source package)
-                        string to = Path.Combine(package.PackageSourceRoot, Globals.AddOnsFolder);
+                        string to = Path.Combine(package.PackageSourceRoot, Globals.AddonsFolder);
                         if (!await FileSystem.FileSystemProvider.DirectoryExistsAsync(addonsProductPath) || !await Package.IsPackageSymLinkAsync(addonsProductPath)) {
                             await FileSystem.FileSystemProvider.DeleteDirectoryAsync(addonsProductPath);
                             if (!await Package.CreatePackageSymLinkAsync(addonsProductPath, to))

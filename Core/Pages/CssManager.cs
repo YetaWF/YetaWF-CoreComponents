@@ -241,7 +241,7 @@ namespace YetaWF.Core.Pages {
                 return true;
             if (!fullUrl.EndsWith(".css"))
                 return true;
-            if (!fullUrl.ContainsIgnoreCase($"{Globals.AddOnsUrl}/") && !fullUrl.ContainsIgnoreCase($"{Globals.AddOnsCustomUrl}/"))
+            if (!fullUrl.ContainsIgnoreCase($"{Globals.AddonsUrl}/") && !fullUrl.ContainsIgnoreCase($"{Globals.AddonsCustomUrl}/"))
                 return true;
             string fullPath = Utility.UrlToPhysical(fullUrl);
             if (YetaWFManager.DiagnosticsMode) {

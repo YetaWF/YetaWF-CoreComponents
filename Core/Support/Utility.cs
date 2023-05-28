@@ -307,6 +307,7 @@ namespace YetaWF.Core.Support {
             converters.Add(new EnumJsonConverter());
             converters.Add(new IntJsonConverter());
             converters.Add(new LongJsonConverter());
+            converters.Add(new DecimalNullableJsonConverter());
             converters.Add(new DecimalJsonConverter());
             converters.Add(new MultiStringJsonConverter());
             converters.Add(new BoolJsonConverter());

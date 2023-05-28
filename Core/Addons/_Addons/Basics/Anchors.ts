@@ -63,8 +63,10 @@ namespace YetaWF {
                     target = "_self";
 
                 // add originating module guid
-                const formJson = $YetaWF.Forms.getJSONInfo(anchor);
-                uri.replaceSearch(YConfigs.Basics.ModuleGuid, formJson.ModuleGuid);
+                if (!uri.hasSearch(YConfigs.Basics.ModuleGuid)) {
+                    const formJson = $YetaWF.Forms.getJSONInfo(anchor);
+                    uri.addSearch(YConfigs.Basics.ModuleGuid, formJson.ModuleGuid);
+                }
 
                 anchor.href = uri.toUrl(); // update original href in case default handling takes place
 

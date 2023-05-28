@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Net.Http;
+using System.Text.Json.Serialization;
 using YetaWF.Core.Components;
 using YetaWF.Core.Localize;
 using YetaWF.Core.Log;
@@ -43,7 +44,11 @@ namespace YetaWF.Core.Models.Attributes {
             RecaptchaV2Data? rc = value as RecaptchaV2Data;
             if (rc == null || !rc.VerifyPresence) return ValidationResult.Success;
 
-            string? response = null;//$$$ request.Form["g-recaptcha-response"];//$$$$ needs fixing
+            string? response = null;
+            try {
+                dynamic d = validationContext.ObjectInstance;
+                response = d.g_recaptcha_response;
+            } catch (Exception) { }
             if (string.IsNullOrWhiteSpace(response))
                 return new ValidationResult(ErrorMessage);
 
@@ -60,8 +65,8 @@ namespace YetaWF.Core.Models.Attributes {
         }
 
         public class RecaptchaV2Response {
+            [JsonPropertyName("success")]
             public bool Success { get; set; }
-            public List<string>? ErrorCodes { get; set; }
         }
         private bool ValidateCaptcha(RecaptchaV2Config config, string response, string ipAddress) {
 

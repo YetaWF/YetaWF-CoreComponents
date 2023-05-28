@@ -238,12 +238,12 @@ namespace YetaWF.Core.Addons {
             }
 
             // try to find customization
-            url = string.Format("{0}/{1}/Custom.scss", Globals.AddOnsCustomUrl, Manager.CurrentSite.SiteDomain);
+            url = string.Format("{0}/{1}/Custom.scss", Globals.AddonsCustomUrl, Manager.CurrentSite.SiteDomain);
             if (await FileSystem.FileSystemProvider.FileExistsAsync(Utility.UrlToPhysical(url))) {
                 AddCache(skinCollection, url);
                 await Manager.CssManager.AddFileAsync(false, url);
             } else {
-                url = string.Format("{0}/{1}/Custom.css", Globals.AddOnsCustomUrl, Manager.CurrentSite.SiteDomain);
+                url = string.Format("{0}/{1}/Custom.css", Globals.AddonsCustomUrl, Manager.CurrentSite.SiteDomain);
                 if (await FileSystem.FileSystemProvider.FileExistsAsync(Utility.UrlToPhysical(url))) {
                     AddCache(skinCollection, url);
                     await Manager.CssManager.AddFileAsync(false, url);
@@ -252,12 +252,12 @@ namespace YetaWF.Core.Addons {
 
             string domainName, productName, skinName;
             Package.AddOnProduct.GetSkinComponents(skinCollection, out domainName, out productName, out skinName);
-            url = string.Format("{0}/{1}/{2}/{3}/{4}/{5}/Custom.scss", Globals.AddOnsCustomUrl, Manager.CurrentSite.SiteDomain, domainName, productName, Globals.Addons_SkinsDirectoryName, skinName);
+            url = string.Format("{0}/{1}/{2}/{3}/{4}/{5}/Custom.scss", Globals.AddonsCustomUrl, Manager.CurrentSite.SiteDomain, domainName, productName, Globals.Addons_SkinsDirectoryName, skinName);
             if (await FileSystem.FileSystemProvider.FileExistsAsync(Utility.UrlToPhysical(url))) {
                 AddCache(skinCollection, url);
                 await Manager.CssManager.AddFileAsync(false, url);
             } else {
-                url = string.Format("{0}/{1}/{2}/{3}/{4}/{5}/Custom.css", Globals.AddOnsCustomUrl, Manager.CurrentSite.SiteDomain, domainName, productName, Globals.Addons_SkinsDirectoryName, skinName);
+                url = string.Format("{0}/{1}/{2}/{3}/{4}/{5}/Custom.css", Globals.AddonsCustomUrl, Manager.CurrentSite.SiteDomain, domainName, productName, Globals.Addons_SkinsDirectoryName, skinName);
                 if (await FileSystem.FileSystemProvider.FileExistsAsync(Utility.UrlToPhysical(url))) {
                     AddCache(skinCollection, url);
                     await Manager.CssManager.AddFileAsync(false, url);

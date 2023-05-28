@@ -195,7 +195,7 @@ public partial class Startup {
         string distProvider = WebConfigHelper.GetValue<string>("SessionState", "Provider", "", Package: false)!.ToLower();
         if (distProvider == "redis") {
             string config = WebConfigHelper.GetValue<string>("SessionState", "RedisConfig", "localhost:6379", Package: false)!;
-            builder.Services.AddDistributedRedisCache(o => {
+            builder.Services.AddStackExchangeRedisCache(o => {
                 o.Configuration = config;
             });
         } else if (distProvider == "sql") {
@@ -348,56 +348,12 @@ public partial class Startup {
                 RequestPath = new PathString("/.well-known")
             });
             app.UseStaticFiles(new StaticFileOptions {
-                FileProvider = new PhysicalFileProvider(Path.Combine(YetaWFManager.RootFolder, Globals.AddonsBundlesFolder)),
-                RequestPath = new PathString(Globals.AddonsBundlesUrl),
-                OnPrepareResponse = (context) => {
-                    YetaWFManager.SetStaticCacheInfo(context.Context);
-                }
-            });
-            app.UseStaticFiles(new StaticFileOptions {
                 FileProvider = new PhysicalFileProvider(Path.Combine(YetaWFManager.RootFolder, Globals.MaintenanceFolder)),
                 RequestPath = new PathString(Utility.PhysicalToUrl(Path.Combine(YetaWFManager.RootFolder, Globals.MaintenanceFolder))),
                 OnPrepareResponse = (context) => {
                     YetaWFManager.SetStaticCacheInfo(context.Context);
                 }
             });
-            string vaultFolder = Path.Combine(YetaWFManager.RootFolder, Globals.VaultFolder);
-            if (Directory.Exists(vaultFolder)) {
-                app.UseStaticFiles(new StaticFileOptions {
-                    FileProvider = new PhysicalFileProvider(vaultFolder),
-                    RequestPath = new PathString(Globals.VaultUrl),
-                    OnPrepareResponse = (context) => {
-                        YetaWFManager.SetStaticCacheInfo(context.Context);
-                    }
-                });
-            }
-        }
-
-        {
-            // addons folders, serves *.js, *.css only
-            FileExtensionContentTypeProvider provider = new FileExtensionContentTypeProvider(new Dictionary<string, string>());
-            foreach ((string extension, string tp) in MimeSection.GetRequiredAddonsExtensions())
-                provider.Mappings.Add(extension, tp);
-
-            app.UseStaticFiles(new StaticFileOptions {
-                FileProvider = new PhysicalFileProvider(Path.Combine(YetaWFManager.RootFolder, Globals.AddOnsFolder)),
-                ContentTypeProvider = provider,
-                RequestPath = new PathString(Globals.AddOnsUrl),
-                OnPrepareResponse = (context) => {
-                    YetaWFManager.SetStaticCacheInfo(context.Context);
-                }
-            });
-            string addonsCustomFolder = Utility.UrlToPhysical(Globals.AddOnsCustomUrl);
-            if (Directory.Exists(addonsCustomFolder)) {
-                app.UseStaticFiles(new StaticFileOptions {
-                    FileProvider = new PhysicalFileProvider(addonsCustomFolder),
-                    ContentTypeProvider = provider,
-                    RequestPath = new PathString(Globals.AddOnsCustomUrl),
-                    OnPrepareResponse = (context) => {
-                        YetaWFManager.SetStaticCacheInfo(context.Context);
-                    }
-                });
-            }
         }
 
         {
@@ -418,6 +374,25 @@ public partial class Startup {
                         }
                     }
                 }
+            }
+            app.UseStaticFiles(new StaticFileOptions {
+                FileProvider = new PhysicalFileProvider(Path.Combine(YetaWFManager.RootFolder, Globals.AddonsFolder)),
+                RequestPath = new PathString(Globals.AddonsUrl),
+                ContentTypeProvider = provider,
+                OnPrepareResponse = (context) => {
+                    YetaWFManager.SetStaticCacheInfo(context.Context);
+                }
+            });
+            string vaultFolder = Path.Combine(YetaWFManager.RootFolder, Globals.VaultFolder);
+            if (Directory.Exists(vaultFolder)) {
+                app.UseStaticFiles(new StaticFileOptions {
+                    FileProvider = new PhysicalFileProvider(vaultFolder),
+                    RequestPath = $"/{Globals.VaultFolder}",
+                    ContentTypeProvider = provider,
+                    OnPrepareResponse = (context) => {
+                        YetaWFManager.SetStaticCacheInfo(context.Context);
+                    }
+                });
             }
         }
 

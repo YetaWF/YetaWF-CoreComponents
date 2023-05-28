@@ -261,10 +261,9 @@ namespace YetaWF.Core.DataProvider {
                         img.Save(file);
                     }
 #else
-                    (SixLabors.ImageSharp.Image img, SixLabors.ImageSharp.Formats.IImageFormat format) = await SixLabors.ImageSharp.Image.LoadWithFormatAsync(ms);
+                    SixLabors.ImageSharp.Image img = await SixLabors.ImageSharp.Image.LoadAsync(ms);
                     using (img) {
-                        SixLabors.ImageSharp.Formats.ImageFormatManager imageFormatManager = Configuration.Default.ImageFormatsManager;
-                        await img.SaveAsync(ms, imageFormatManager.FindEncoder(format));
+                        await img.SaveAsync(ms, img.Metadata.DecodedImageFormat!);
                     }
                     await FileSystem.FileSystemProvider.WriteAllBytesAsync(file, ms.GetBuffer());
 #endif

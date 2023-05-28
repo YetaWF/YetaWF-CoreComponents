@@ -152,12 +152,18 @@ namespace YetaWF.Core.Endpoints {
             }
         }
 
-        protected static IResult Redirect(string url, bool SetCurrentEditMode = false, string? ExtraJavascript = null, bool ForceFullPage = false) {
+        protected static IResult Redirect(string url, string? PopupText = null, string? PopupTitle = null, bool SetCurrentEditMode = false, string? ExtraJavascript = null, bool ForceFullPage = false) {
             if (!Manager.IsPostRequest) throw new InternalError("Redirect only available for POST requests");
             url = AddUrlPayload(url, SetCurrentEditMode, null);
 
             ScriptBuilder sb = new ScriptBuilder();
             sb.Append(Basics.AjaxJavascriptReturn);
+
+            if (!string.IsNullOrEmpty(PopupText)) {
+                PopupText = Utility.JsonSerialize(PopupText);
+                PopupTitle = Utility.JsonSerialize(PopupTitle ?? __ResStr("completeTitle", "Success"));
+                sb.Append("$YetaWF.message({0}, {1}, function() {{", PopupText, PopupTitle);
+            }
 
             url = Utility.JsonSerialize(url);
             if (!ForceFullPage) {
@@ -170,6 +176,10 @@ namespace YetaWF.Core.Endpoints {
                     "$YetaWF.setLoading();" +
                     ExtraJavascript +
                     $"window.location.assign({url});");
+            }
+
+            if (!string.IsNullOrEmpty(PopupText)) {
+                sb.Append(" }});");
             }
             return Results.Json(sb.ToString());
         }

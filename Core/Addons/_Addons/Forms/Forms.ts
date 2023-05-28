@@ -56,6 +56,10 @@ namespace YetaWF {
          * Serializes the form and returns an object
          */
         serializeFormObject(form: HTMLFormElement): any;
+        /**
+         * Serializes the form and returns a name/value pairs array
+         */
+        serializeFormArray(form: HTMLFormElement): NameValuePair[];
 
         /**
          * If there is a validation error in the specified tab control, the tab is activated.
@@ -125,7 +129,7 @@ namespace YetaWF {
     }
     export interface FormInfoJSON {
         ModuleGuid: string;
-        UniqueIdCounters?: UniqueIdInfo;
+        UniqueIdCounters: UniqueIdInfo;
     }
 
     export enum PanelAction {
@@ -226,6 +230,12 @@ namespace YetaWF {
             return YetaWF_FormsImpl.serializeFormObject(form);
         }
         /**
+         * Serializes the form and returns a name/value pairs array
+         */
+        serializeFormArray(form: HTMLFormElement): NameValuePair[] {
+            return YetaWF_FormsImpl.serializeFormArray(form);
+        }
+        /**
          * Validate all fields in the current form.
          */
         public validate(form: HTMLFormElement): boolean {
@@ -283,8 +293,8 @@ namespace YetaWF {
             $YetaWF.sendCustomEvent(document.body, Forms.EVENTPRESUBMIT, { form : form, customEventData: customEventData, });
 
             let formValid = true;
-            //$$$$ if (useValidation)
-            //$$$$     formValid = this.validate(form);
+            if (useValidation)
+                formValid = this.validate(form);
 
             $YetaWF.closeOverlays();
 
@@ -369,6 +379,17 @@ namespace YetaWF {
             this.submit(form, useValidation, extraData);
         }
 
+        public serializeForm(form: HTMLFormElement): string {
+            let pairs = this.serializeFormArray(form);
+            let formData: string = "";
+            for (let entry of pairs) {
+                if (formData !== "")
+                    formData += "&";
+                formData += encodeURIComponent(entry.name) + "=" + encodeURIComponent(entry.value);
+            }
+            return formData;
+        }
+
         // Cancel
 
         /**
@@ -440,7 +461,7 @@ namespace YetaWF {
             }
             const info: FormInfoJSON = {
                 ModuleGuid: moduleGuid,
-                UniqueIdCounters: uniqueIdInfo,
+                UniqueIdCounters: uniqueIdInfo || YVolatile.Basics.UniqueIdCounters,
             };
             return info;
         }

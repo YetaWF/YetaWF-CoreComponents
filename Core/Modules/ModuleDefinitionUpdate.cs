@@ -2,6 +2,7 @@
 
 using Microsoft.AspNetCore.Http;
 using System;
+using System.Text.Json;
 using System.Threading.Tasks;
 using YetaWF.Core.Addons;
 using YetaWF.Core.Components;
@@ -10,6 +11,7 @@ using YetaWF.Core.Endpoints.Support;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
+using static YetaWF.Core.Endpoints.ModuleEndpoints;
 
 namespace YetaWF.Core.Modules {
 
@@ -37,7 +39,28 @@ namespace YetaWF.Core.Modules {
         }
         private ModelState? _modelState = null;
 
-        protected async Task<IResult> PartialViewAsync(object? model = null, ScriptBuilder? Script = null, string? ViewName = null, bool UseAreaViewName = true) {
+        protected async Task<object?> GetObjectFromModelAsync(Type type, string? fieldPrefix = null) {
+            if (fieldPrefix?.Contains('.') ?? false)
+                throw new InternalError($"Nested objects are not supported - {fieldPrefix}");
+            object model;
+            if (fieldPrefix != null) {
+                JsonElement jsModel = (System.Text.Json.JsonElement)_dataIn.Model;
+                if (!jsModel.TryGetProperty(fieldPrefix, out JsonElement jsSubModel))
+                    return null;
+                model = Utility.JsonDeserialize(jsSubModel.ToString()!, type);
+            } else {
+                model = Utility.JsonDeserialize(_dataIn.Model.ToString()!, type);
+            }
+            await ModelState.EvaluateModel(model, fieldPrefix ?? string.Empty, true, true, _dataIn.__TemplateName, _dataIn.__TemplateAction, _dataIn.__TemplateExtraData);
+            return model;
+        }
+        protected async Task<T?> GetObjectFromModelAsync<T>(string? fieldPrefix = null) {
+            return (T?) await GetObjectFromModelAsync(typeof(T), fieldPrefix);
+        }
+        internal ModuleSubmitData _dataIn = null!;
+
+
+        public async Task<IResult> PartialViewAsync(object? model = null, ScriptBuilder? Script = null, string? ViewName = null, bool UseAreaViewName = true) {
 
             ViewName = EvaluateViewName(ViewName, UseAreaViewName);
             ViewName += YetaWFViewExtender.PartialSuffix;//$$$$

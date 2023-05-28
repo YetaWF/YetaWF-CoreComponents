@@ -61,8 +61,18 @@ namespace YetaWF.Core.Endpoints.Support {
             return EvaluateModel(model, string.Empty, true, true, templateName, templateAction, templateExtraData);
         }
 
-        private async Task EvaluateModel(object? model, string prefix, bool hasTrim, bool hasCase, string? templateName, int? templateAction, string? templateExtraData) {
+        public async Task EvaluateModel(object? model, string prefix, bool hasTrim, bool hasCase, string? templateName, int? templateAction, string? templateExtraData) {
             if (model == null) return;
+
+            // handle enumerable value
+            if (model is IEnumerable enumerable) {
+                int index = 0;
+                foreach (var item in enumerable) {
+                    await EvaluateModel(item, $"{prefix}[{index}].", hasTrim, hasCase, templateName, templateAction, templateExtraData);
+                    index++;
+                }
+                return;
+            }
 
             Dictionary<string, MethodInfo> preMeths = YetaWFComponentBaseStartup.GetComponentsWithTemplatePreprocessAction();
             NullabilityInfoContext _nullabilityContext = new NullabilityInfoContext();

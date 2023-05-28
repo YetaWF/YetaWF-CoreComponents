@@ -179,8 +179,6 @@ namespace YetaWF.Core.Packages {
         private async Task ParseSourceFilesAsync(string path) {
             string folder = Path.GetFileName(path);
             if (string.Compare(folder, "Addons", true) == 0) return;
-            if (string.Compare(folder, "AddonsBundles", true) == 0) return;
-            if (string.Compare(folder, "AddonsCustom", true) == 0) return;
             if (string.Compare(folder, "Properties", true) == 0) return;
             if (string.Compare(folder, "bin", true) == 0) return;
             if (string.Compare(folder, "Data", true) == 0) return;

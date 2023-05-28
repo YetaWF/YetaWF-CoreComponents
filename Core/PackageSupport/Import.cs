@@ -120,7 +120,7 @@ namespace YetaWF.Core.Packages
                     await FileSystem.FileSystemProvider.CreateDirectoryAsync(sourcePath);
                 }
 
-                string addonsPath = Path.Combine(YetaWFManager.RootFolder, Globals.AddOnsFolder, serPackage.PackageDomain, serPackage.PackageProduct);
+                string addonsPath = Path.Combine(YetaWFManager.RootFolder, Globals.AddonsFolder, serPackage.PackageDomain, serPackage.PackageProduct);
                 try {
                     await FileSystem.FileSystemProvider.DeleteDirectoryAsync(Path.Combine(addonsPath));
                 } catch (Exception exc) {

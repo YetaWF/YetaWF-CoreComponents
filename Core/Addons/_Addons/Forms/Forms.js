@@ -85,6 +85,12 @@ var YetaWF;
             return YetaWF_FormsImpl.serializeFormObject(form);
         };
         /**
+         * Serializes the form and returns a name/value pairs array
+         */
+        Forms.prototype.serializeFormArray = function (form) {
+            return YetaWF_FormsImpl.serializeFormArray(form);
+        };
+        /**
          * Validate all fields in the current form.
          */
         Forms.prototype.validate = function (form) {
@@ -136,8 +142,8 @@ var YetaWF;
             }
             $YetaWF.sendCustomEvent(document.body, Forms.EVENTPRESUBMIT, { form: form, customEventData: customEventData, });
             var formValid = true;
-            //$$$$ if (useValidation)
-            //$$$$     formValid = this.validate(form);
+            if (useValidation)
+                formValid = this.validate(form);
             $YetaWF.closeOverlays();
             if (!useValidation || formValid) {
                 if (method.toLowerCase() === "get")
@@ -219,6 +225,17 @@ var YetaWF;
                 extraData[YConfigs.Basics.TemplateExtraData] = templateExtraData; //$$$$
             this.submit(form, useValidation, extraData);
         };
+        Forms.prototype.serializeForm = function (form) {
+            var pairs = this.serializeFormArray(form);
+            var formData = "";
+            for (var _i = 0, pairs_1 = pairs; _i < pairs_1.length; _i++) {
+                var entry = pairs_1[_i];
+                if (formData !== "")
+                    formData += "&";
+                formData += encodeURIComponent(entry.name) + "=" + encodeURIComponent(entry.value);
+            }
+            return formData;
+        };
         // Cancel
         /**
          * Cancels the current form (Cancel button handling).
@@ -293,7 +310,7 @@ var YetaWF;
             }
             var info = {
                 ModuleGuid: moduleGuid,
-                UniqueIdCounters: uniqueIdInfo,
+                UniqueIdCounters: uniqueIdInfo || YVolatile.Basics.UniqueIdCounters,
             };
             return info;
         };
