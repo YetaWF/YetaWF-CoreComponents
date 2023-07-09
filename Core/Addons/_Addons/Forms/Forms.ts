@@ -328,6 +328,7 @@ namespace YetaWF {
                 }
                 if (extraData)
                     uri.addSearchSimpleObject(extraData);
+                uri.addSearch("__CurrentUrl", window.location.href);
 
                 const formJson = $YetaWF.Forms.getJSONInfo(form);
                 $YetaWF.postJSON(uri, formJson, null, formData, (success: boolean, responseText: string): void => {

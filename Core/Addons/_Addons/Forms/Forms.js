@@ -172,6 +172,7 @@ var YetaWF;
                 }
                 if (extraData)
                     uri.addSearchSimpleObject(extraData);
+                uri.addSearch("__CurrentUrl", window.location.href);
                 var formJson = $YetaWF.Forms.getJSONInfo(form);
                 $YetaWF.postJSON(uri, formJson, null, formData, function (success, responseText) {
                     if (success) {
