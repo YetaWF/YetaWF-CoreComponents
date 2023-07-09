@@ -50,7 +50,7 @@ public class Startup {
         }
 
         services.AddMvc((options) => { })
-            .ConfigureApplicationPartManager((partManager) => { YetaWFApplicationPartManager.AddAssemblies(partManager); });
+            .ConfigureApplicationPartManager(YetaWFApplicationPartManager.AddAssemblies);
 
 #if !DEBUG
         // in release builds we allow sync I/O - Simply can't be sure that all sync I/O has been corrected in development

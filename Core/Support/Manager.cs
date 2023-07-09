@@ -674,41 +674,14 @@ namespace YetaWF.Core.Support {
         }
 
         /// <summary>
-        /// Saved URL where we came from (e.g. used for return handling after Save).
-        /// TODO: This needs some rework.
-        /// </summary>
-        public List<Origin> OriginList { get; set; } = null!;
-
-        /// <summary>
         /// Returns the Url to return to, including origin list and other querystring parms.
         /// </summary>
         /// <remarks>The Return To Url also contains the remaining Origin List as a parameter.
         ///
         /// The Return To Url is removed from the saved Origin List. To preserve the Url, use QueryReturnToUrl instead.</remarks>
-        public string ReturnToUrl {
+        public string ReturnToUrl { //$$$REMOVE
             get {
-                if (OriginList == null) return CurrentSite.HomePageUrl;
-                List<Origin> originList = (from Origin l in OriginList select l).ToList<Origin>();// copy list
-                Origin entry;
-                if (originList.Count > 0) {
-                    entry = originList.Last();
-                } else {
-                    entry = new Origin {
-                        Url = CurrentSite.HomePageUrl,
-                        EditMode = false,
-                        InPopup = false
-                    };
-                    originList = new List<Origin>() { entry };
-                }
-                originList.RemoveAt(originList.Count - 1); // remove last entry
-                string url = entry.Url;
-                if (originList.Count > 0) {
-                    string urlOnly;
-                    QueryHelper qh = QueryHelper.FromUrl(url, out urlOnly);
-                    qh.Add(Globals.Link_OriginList, Utility.JsonSerialize(originList), Replace: true);
-                    url = qh.ToUrl(urlOnly);
-                }
-                return url;
+                return CurrentSite.HomePageUrl;
             }
         }
 

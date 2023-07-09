@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using YamlDotNet.Serialization;
 
@@ -28,7 +29,7 @@ namespace YetaWF.Core.Support {
             if (!File.Exists(settingsFile)) // use local file system as we need this during initialization
                 throw new InternalError("Settings file not found ({0})", settingsFile);
             SettingsFile = settingsFile;
-            Settings = (JsonElement)Utility.JsonDeserialize(File.ReadAllText(SettingsFile)); // use local file system as we need this during initialization
+            Settings = JsonNode.Parse(File.ReadAllText(SettingsFile)) ?? throw new InternalError("Settings file ({0}) could not be parsed", settingsFile); ; // use local file system as we need this during initialization
 
             Variables = new Dictionary<string, object>();
 
@@ -39,21 +40,25 @@ namespace YetaWF.Core.Support {
             }
 
             // Process Includes
-            if (Settings.TryGetProperty("Includes", out JsonElement vars)) {
-                foreach (JsonProperty prop in vars.EnumerateObject()) {
+            JsonNode? includes = Settings["Includes"];
+            if (includes != null) {
+                JsonElement elemIncludes = JsonSerializer.Deserialize<JsonElement>(includes);
+                foreach (JsonProperty prop in elemIncludes.EnumerateObject()) {
                     if (prop.Name == "Files") {
                         string? file = prop.Value.GetString();
                         if (file != null)
                             await ProcessIncludeAsync(settingsFile, file, Variables);
                     } else
-                        throw new InternalError($"Unexpected property {prop.Name}");
+                        throw new InternalError($"Unexpected property {prop.Name} in Includes section");
                 }
             }
 
             // Process Variables
-            Variables varSubst = new Variables(null, Variables);
-            if (Settings.TryGetProperty("Variables", out vars)) {
-                foreach (JsonProperty prop in vars.EnumerateObject()) {
+            JsonNode? variables = (JsonNode?)Settings["Variables"];
+            if (variables != null) {
+                JsonElement elemVars = JsonSerializer.Deserialize<JsonElement>(variables);
+                Variables varSubst = new Variables(null, Variables);
+                foreach (JsonProperty prop in elemVars.EnumerateObject()) {
                     string s = varSubst.ReplaceVariables(prop.Value.GetString());
                     Variables.Add(prop.Name, s);
                 }
@@ -71,7 +76,7 @@ namespace YetaWF.Core.Support {
         }
 
         private string SettingsFile = null!;
-        private JsonElement Settings;
+        private JsonNode Settings = null!;
 
         protected internal Dictionary<string, object> Variables = null!;
 
@@ -89,11 +94,9 @@ namespace YetaWF.Core.Support {
                     val = Convert.ChangeType(env, typeof(TYPE));
                 } else {
                     if (Package)
-                        elem = Settings.GetElementFromList("Application", "P", areaName);   
-                        // val = Settings["Application"]["P"][areaName];
+                        elem = Settings.GetElementFromList("Application", "P", areaName);
                     else
                         elem = Settings.GetElementFromList("Application", areaName);
-                        // val = Settings["Application"][areaName];
                     if (elem == null) {
                         if (Required)
                             throw new InternalError($"The required entry {key} {(Package ? $"Application:P:{areaName}" : $"Application:{areaName}")} was not found in {SettingsFile}");
@@ -139,14 +142,14 @@ namespace YetaWF.Core.Support {
             if (typeof(TYPE) == typeof(string)) {
                 if (string.IsNullOrWhiteSpace((string)val)) {
                     if (Required)
-                        throw new InternalError($"The required {(Package ? $"Application:Package:{areaName}" : $"Application:{areaName}")} was not found in {SettingsFile}");
+                        throw new InternalError($"The required {(Package ? $"Application:P:{areaName}" : $"Application:{areaName}")} was not found in {SettingsFile}");
                     return dflt;
                 } else {
                     Variables varSubst = new Variables(null, Variables);
                     string s = varSubst.ReplaceVariables((string)val);
                     if (string.IsNullOrWhiteSpace(s)) {
                         if (Required)
-                            throw new InternalError($"The required {(Package ? $"Application:Package:{areaName}" : $"Application:{areaName}")} was not found in {SettingsFile}");
+                            throw new InternalError($"The required {(Package ? $"Application:P:{areaName}" : $"Application:{areaName}")} was not found in {SettingsFile}");
                     }
                     return (TYPE)(object)s;
                 }
@@ -155,28 +158,16 @@ namespace YetaWF.Core.Support {
         }
 
         public void SetValue<TYPE>(string areaName, string key, TYPE? value, bool Package = true) {
-            //JObject? jObj;
-            //if (Package)
-            //    jObj = (JObject?)Settings["Application"]["P"];
-            //else
-            //    jObj = (JObject?)Settings["Application"];
-            //if (jObj == null) throw new InternalError($"No entry found for Application:P or Application");
-            //JObject? jArea = (JObject?)jObj[areaName];
-            //if (jArea == null) {
-            //    jObj.Add(areaName, new JObject());
-            //    jArea = (JObject?)jObj[areaName];
-            //}
-            //if (jArea == null) throw new InternalError($"No entry found for {areaName}");
-            //JToken? jKey = jArea[key];
-            //if (jKey == null) {
-            //    if (value != null)
-            //        jArea.Add(key, JToken.FromObject(value));
-            //} else {
-            //    if (value != null)
-            //        jArea[key] = JToken.FromObject(value);
-            //    else
-            //        jArea[key] = null;
-            //}
+            JsonNode sectionNode;
+            if (Package)
+                sectionNode = Settings["Application"]?["P"] ?? throw new InternalError("Application:P section not found");
+            else
+                sectionNode = Settings["Application"] ?? throw new InternalError("Application section not found");
+            JsonNode? areaNode = sectionNode[areaName];
+            if (areaNode == null) {
+                areaNode = sectionNode[areaName] = new JsonObject();
+            }
+            areaNode[key] = value?.ToString();
         }
         public async Task SaveAsync() {
             string s = Utility.JsonSerialize(Settings, Utility._JsonSettingsIndented);
@@ -188,14 +179,17 @@ namespace YetaWF.Core.Support {
     }
 
     public static class JsonElementExtender {
-        public static JsonElement? GetElementFromList(this JsonElement el, params string[] names) {
+
+        public static JsonElement? GetElementFromList(this JsonNode node, params string[] names) {
             foreach (var name in names) {
-                if (!el.TryGetProperty(name, out JsonElement childElem))
-                    return null;
-                el = childElem;
+                JsonNode? childNode = node[name];
+                if (childNode == null) return null;
+                node = childNode;
             }
-            return el;
+            JsonElement elem = JsonSerializer.Deserialize<JsonElement>(node);
+            return elem;
         }
+
         public static string? GetPropertyValue(this JsonElement el, string name) {
             if (!el.TryGetProperty(name, out var prop))
                 return null;

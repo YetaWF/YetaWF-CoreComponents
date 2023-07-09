@@ -104,7 +104,6 @@ public class Basics : IAddOnSupport {
         scripts.AddLocalization("Basics", "OpenNewWindowTT", this.__ResStr("openNewWindowTT", "Click to visit this page on {0} (opens a new window)"));
 
         // Page/Module Edit Control
-        scripts.AddVolatileOption("Basics", "OriginList", manager.OriginList ?? new List<Origin>());
         scripts.AddVolatileOption("Basics", "EditModeActive", manager.EditMode);
         scripts.AddVolatileOption("Basics", "PageControlVisible", manager.PageControlShown);
         scripts.AddVolatileOption("Basics", "IsInPopup", manager.IsInPopup);
@@ -154,7 +153,6 @@ public class Basics : IAddOnSupport {
         scripts.AddLocalization("Basics", "IncorrectServerResp", this.__ResStr("IncorrectServerResp", "Incorrect server response: Expecting a javascript return"));
 
         scripts.AddConfigOption("Basics", nameof(Globals.ApiPrefix), Globals.ApiPrefix); // API prefix (internal API)
-        scripts.AddConfigOption("Basics", nameof(Globals.Link_OriginList), Globals.Link_OriginList); // chain of urls
         scripts.AddConfigOption("Basics", nameof(Globals.Link_InPopup), Globals.Link_InPopup); // we're in a popup
         scripts.AddConfigOption("Basics", nameof(Globals.Link_ToPopup), Globals.Link_ToPopup); // we're going into a popup
         scripts.AddConfigOption("Basics", nameof(Globals.Link_CurrentUrl), Globals.Link_CurrentUrl); // the current url

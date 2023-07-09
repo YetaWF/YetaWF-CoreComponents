@@ -152,36 +152,39 @@ namespace YetaWF.Core.Endpoints {
             }
         }
 
-        protected static IResult Redirect(string url, string? PopupText = null, string? PopupTitle = null, bool SetCurrentEditMode = false, string? ExtraJavascript = null, bool ForceFullPage = false) {
-            if (!Manager.IsPostRequest) throw new InternalError("Redirect only available for POST requests");
-            url = AddUrlPayload(url, SetCurrentEditMode, null);
+        public static IResult Redirect(string url, string? PopupText = null, string? PopupTitle = null, bool SetCurrentEditMode = false, string? ExtraJavascript = null, bool ForceFullPage = false) {
+            if (Manager.IsPostRequest) {
+                url = AddUrlPayload(url, SetCurrentEditMode, null);
 
-            ScriptBuilder sb = new ScriptBuilder();
-            sb.Append(Basics.AjaxJavascriptReturn);
+                ScriptBuilder sb = new ScriptBuilder();
+                sb.Append(Basics.AjaxJavascriptReturn);
 
-            if (!string.IsNullOrEmpty(PopupText)) {
-                PopupText = Utility.JsonSerialize(PopupText);
-                PopupTitle = Utility.JsonSerialize(PopupTitle ?? __ResStr("completeTitle", "Success"));
-                sb.Append("$YetaWF.message({0}, {1}, function() {{", PopupText, PopupTitle);
-            }
+                if (!string.IsNullOrEmpty(PopupText)) {
+                    PopupText = Utility.JsonSerialize(PopupText);
+                    PopupTitle = Utility.JsonSerialize(PopupTitle ?? __ResStr("completeTitle", "Success"));
+                    sb.Append("$YetaWF.message({0}, {1}, function() {{", PopupText, PopupTitle);
+                }
 
-            url = Utility.JsonSerialize(url);
-            if (!ForceFullPage) {
-                sb.Append(
-                    "$YetaWF.setLoading();" +
-                    (string.IsNullOrWhiteSpace(ExtraJavascript) ? "" : ExtraJavascript) +
-                    $"$YetaWF.loadUrl({url}, true);");
+                url = Utility.JsonSerialize(url);
+                if (!ForceFullPage) {
+                    sb.Append(
+                        "$YetaWF.setLoading();" +
+                        (string.IsNullOrWhiteSpace(ExtraJavascript) ? "" : ExtraJavascript) +
+                        $"$YetaWF.loadUrl({url});");
+                } else {
+                    sb.Append(
+                        "$YetaWF.setLoading();" +
+                        ExtraJavascript +
+                        $"window.location.assign({url});");
+                }
+
+                if (!string.IsNullOrEmpty(PopupText)) {
+                    sb.Append(" }});");
+                }
+                return Results.Json(sb.ToString());
             } else {
-                sb.Append(
-                    "$YetaWF.setLoading();" +
-                    ExtraJavascript +
-                    $"window.location.assign({url});");
+                return Results.Redirect(url);
             }
-
-            if (!string.IsNullOrEmpty(PopupText)) {
-                sb.Append(" }});");
-            }
-            return Results.Json(sb.ToString());
         }
 
         public static string AddUrlPayload(string url, bool SetCurrentEditMode, string? ExtraData) {

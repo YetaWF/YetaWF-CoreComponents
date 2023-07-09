@@ -697,9 +697,9 @@ namespace YetaWF.Core.Pages {
 
             // hreflang - google
 
-            // <link rel="alternate" href="http://example.com/" hreflang = "x-default" />
+            // <link rel="alternate" href="http://example.com/" hreflang = "x-default">
             string canonUrl = Utility.HAE(EvaluatedCanonicalUrl);
-            hb.Append("<link rel='alternate' href='{0}' hreflang='x-default' />", canonUrl);
+            hb.Append("<link rel='alternate' href='{0}' hreflang='x-default'>", canonUrl);
             if (string.IsNullOrWhiteSpace(LanguageId)) {
                 // page in multiple languages
                 // build all alternate pages with language specific url arg
@@ -710,21 +710,21 @@ namespace YetaWF.Core.Pages {
                 }
             } else {
                 // Single language page
-                hb.Append("<link rel='alternate' href='{0}' hreflang='{1}' />", canonUrl, pageLanguage);
+                hb.Append("<link rel='alternate' href='{0}' hreflang='{1}'>", canonUrl, pageLanguage);
             }
 
             // meta - bing
             // not used as it's obsolete in html5
-            //hb.Append("<meta http-equiv='content-language' content='{0}' />", pageLanguage);
+            //hb.Append("<meta http-equiv='content-language' content='{0}'>", pageLanguage);
             return hb.ToString();
         }
 
         private string GetLanguageUrl(string canonUrl, string pageLanguage) {
             string sep = canonUrl.Contains('?') ? "&amp;" : "?";
             if (pageLanguage == MultiString.DefaultLanguage)
-                return string.Format("<link rel='alternate' href='{0}' hreflang='{1}' />", canonUrl, pageLanguage);
+                return string.Format("<link rel='alternate' href='{0}' hreflang='{1}'>", canonUrl, pageLanguage);
             else
-                return string.Format("<link rel='alternate' href='{0}{1}{2}={3}' hreflang='{4}' />", canonUrl, sep, Globals.Link_Language, pageLanguage, pageLanguage);
+                return string.Format("<link rel='alternate' href='{0}{1}{2}={3}' hreflang='{4}'>", canonUrl, sep, Globals.Link_Language, pageLanguage, pageLanguage);
         }
 
         // When adding new properties, make sure to update EditablePage in PageEditModule so we can actually edit/view the property

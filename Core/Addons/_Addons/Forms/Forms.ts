@@ -300,8 +300,8 @@ namespace YetaWF {
 
             if (!useValidation || formValid) {
 
-                if (method.toLowerCase() === "get")
-                    throw "FORM GET not supported";
+                if (method.toLowerCase() !== "post")
+                    throw `FORM ${method} not supported`;
 
                 const uri = $YetaWF.parseUrl(action);
                 // serialize the form

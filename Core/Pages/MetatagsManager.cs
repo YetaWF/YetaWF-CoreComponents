@@ -31,7 +31,7 @@ namespace YetaWF.Core.Pages {
         public void AddMetatag(string type, string content) {
             if (_tags.Contains(type))
                 return;
-            string tag = string.Format("<meta name='{0}' content='{1}'/>", Utility.HAE(type), Utility.HAE(content));
+            string tag = string.Format("<meta name='{0}' content='{1}'>", Utility.HAE(type), Utility.HAE(content));
             _tags.Add(tag);
         }
         /// <summary>
@@ -50,7 +50,7 @@ namespace YetaWF.Core.Pages {
             if (_tags.Contains(type))
                 throw new InternalError($"Metatag name={type} has already been added for this page.");
             content = vars.ReplaceVariables(content);// variable substitution
-            string tag = string.Format("<meta name='{0}' content='{1}'/>", Utility.HAE(type), Utility.HAE(content));
+            string tag = string.Format("<meta name='{0}' content='{1}'>", Utility.HAE(type), Utility.HAE(content));
             _tags.Add(tag);
         }
 

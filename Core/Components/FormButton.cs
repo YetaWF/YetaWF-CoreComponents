@@ -2,6 +2,7 @@
 
 using System.Threading.Tasks;
 using YetaWF.Core.Modules;
+using YetaWF.Core.Pages;
 
 namespace YetaWF.Core.Components {
 
@@ -69,7 +70,7 @@ namespace YetaWF.Core.Components {
         /// <summary>
         /// The module action invoked by the button. May be null.
         /// </summary>
-        public ModuleAction? Action { get; private set; }
+        public ModuleAction? Action { get; set; }
         /// <summary>
         /// Defines the appearance of the button.
         /// </summary>
@@ -97,6 +98,7 @@ namespace YetaWF.Core.Components {
             if (ButtonType == ButtonTypeEnum.Empty)
                 return string.Empty;
             if (Action != null) {
+                Action.CssClass = CssManager.CombineCss(CssClass, "y_buttonform");
                 return RenderAs switch {
                     ModuleAction.RenderModeEnum.ButtonIcon => await Action.RenderAsButtonIconAsync(),
                     ModuleAction.RenderModeEnum.ButtonOnly => await Action.RenderAsButtonOnlyAsync(),

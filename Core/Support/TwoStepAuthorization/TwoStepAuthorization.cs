@@ -29,7 +29,7 @@ namespace YetaWF.Core.Support.TwoStepAuthorization {
         /// <param name="userName">The user name of the user logging in.</param>
         /// <param name="email">The email address of the user logging in.</param>
         /// <returns>A ModuleAction which shows a form to enter two-step authorization info.</returns>
-        Task<ModuleAction> GetLoginActionAsync(int userId, string userName, string email);
+        Task<ModuleAction> GetLoginActionAsync();
         /// <summary>
         /// Returns a ModuleAction to set up two-step authorization for the current user.
         /// </summary>
@@ -81,7 +81,7 @@ namespace YetaWF.Core.Support.TwoStepAuthorization {
             }
             return null;
         }
-        public async Task<ModuleAction?> GetLoginActionAsync(List<string> enabledTwoStepAuthentications, int userId, string userName, string email) {
+        public async Task<ModuleAction?> GetLoginActionAsync(List<string> enabledTwoStepAuthentications) {
             List<ITwoStepAuth> list = await GetTwoStepAuthProcessorsAsync();
             List<string> procs = (from p in list select p.Name).ToList();
             procs = procs.Intersect(enabledTwoStepAuthentications).ToList();
@@ -89,14 +89,14 @@ namespace YetaWF.Core.Support.TwoStepAuthorization {
                 return null;
             if (procs.Count > 1) {
                 // show select desired two-step method
-                return Resource.ResourceAccess.GetSelectTwoStepAction(userId, userName, email);
+                return Resource.ResourceAccess.GetSelectTwoStepAction();
             } else {
                 // call two-step method
                 string procName = procs.First();
                 ITwoStepAuth? auth = await GetTwoStepAuthProcessorByNameAsync(procs.First());
                 if (auth == null)
                     throw new InternalError("TwoStepAuthorization provider {0} not found", procName);
-                return await auth.GetLoginActionAsync(userId, userName, email);
+                return await auth.GetLoginActionAsync();
             }
         }
         public async Task<bool> VerifyTwoStepAutheticationDoneAsync(int userId) {

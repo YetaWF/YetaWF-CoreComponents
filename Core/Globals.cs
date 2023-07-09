@@ -61,7 +61,6 @@ namespace YetaWF.Core {
         public const string ApiPrefix = "/!api";// api prefix (built-in api)
         public const string PageUrl = "/!Page/";
         public const string ModuleUrl = "/!Mod/";
-        public const string Link_OriginList = nameof(Endpoints.ModuleEndpoints.ModuleSubmitData.__OriginList);//$$$ remove
         public const string Link_InPopup = nameof(Endpoints.ModuleEndpoints.ModuleSubmitData.__InPopup); // we're in a popup
         public const string Link_ToPopup = "!ToPopup"; // we're going into a popup
         public const string Link_CurrentUrl = "__CurrentUrl";

@@ -256,11 +256,9 @@ public class PageEndpoints : YetaWFEndpoints {
         if (Manager.Need2FA) {
             if (Manager.Need2FARedirect) {
                 Logging.AddLog("Two-step authentication setup required");
-                ModuleAction action2FA = await Resource.ResourceAccess.GetForceTwoStepActionSetupAsync(null);
+                ModuleAction action2FA = await Resource.ResourceAccess.GetForceTwoStepActionSetupAsync(null, uri.ToString());
                 Manager.Need2FARedirect = false;
-                Manager.OriginList.Add(new Origin() { Url = uri.ToString() });// where to go after setup
-                Manager.OriginList.Add(new Origin() { Url = action2FA.GetCompleteUrl() }); // setup
-                return Results.Redirect(Manager.ReturnToUrl);
+                return Results.Redirect(action2FA.GetCompleteUrl());
             }
             Resource.ResourceAccess.ShowNeed2FA();
         }
@@ -269,7 +267,7 @@ public class PageEndpoints : YetaWFEndpoints {
         }
 
         if (pageFound != null) {
-            switch (await CanProcessAsDesignedPageAsync(pageFound, uri.LocalPath, uri.Query)) {
+            switch (await CanProcessAsDesignedPageAsync(pageFound, uri)) {
                 case ProcessingStatus.Complete:
                     return Results.Empty;
                 case ProcessingStatus.Page:
@@ -379,7 +377,7 @@ public class PageEndpoints : YetaWFEndpoints {
             Success = false,
         };
     }
-    private static async Task<ProcessingStatus> CanProcessAsDesignedPageAsync(PageDefinition page, string url, string queryString) {
+    private static async Task<ProcessingStatus> CanProcessAsDesignedPageAsync(PageDefinition page, Uri uri) {
         // request for a designed page
         if (!PageContentEndpoints.GetTempEditMode()) { // only redirect if we're not editing
             if (!string.IsNullOrWhiteSpace(page.RedirectToPageUrl)) {
@@ -387,7 +385,7 @@ public class PageEndpoints : YetaWFEndpoints {
                     PageDefinition? redirectPage = await PageDefinition.LoadFromUrlAsync(page.RedirectToPageUrl);
                     if (redirectPage != null) {
                         if (string.IsNullOrWhiteSpace(redirectPage.RedirectToPageUrl)) {
-                            string redirUrl = Manager.CurrentSite.MakeUrl(page.RedirectToPageUrl + queryString);
+                            string redirUrl = Manager.CurrentSite.MakeUrl(page.RedirectToPageUrl + uri.Query);
                             Logging.AddLog("302 Found - Redirect to {0}", redirUrl).Truncate(100);
                             Manager.CurrentResponse.StatusCode = StatusCodes.Status302Found;
                             Manager.CurrentResponse.Headers.Add("Location", redirUrl);
@@ -403,7 +401,7 @@ public class PageEndpoints : YetaWFEndpoints {
                 }
             }
         }
-        if ((Manager.HaveUser || Manager.CurrentSite.AllowAnonymousUsers || string.Compare(url, Manager.CurrentSite.LoginUrl, true) == 0) && page.IsAuthorized_View()) {
+        if ((Manager.HaveUser || Manager.CurrentSite.AllowAnonymousUsers || string.Compare(uri.LocalPath, Manager.CurrentSite.LoginUrl, true) == 0) && page.IsAuthorized_View()) {
             // if the requested page is for desktop but we're on a mobile device, find the correct page to display
             if (!PageContentEndpoints.GetTempEditMode()) { // only redirect if we're not editing
                 if (Manager.ActiveDevice == YetaWFManager.DeviceSelected.Mobile && !string.IsNullOrWhiteSpace(page.MobilePageUrl)) {
@@ -412,7 +410,7 @@ public class PageEndpoints : YetaWFEndpoints {
                         if (string.IsNullOrWhiteSpace(mobilePage.MobilePageUrl)) {
                             string redirUrl = page.MobilePageUrl;
                             if (redirUrl.StartsWith("/"))
-                                redirUrl = Manager.CurrentSite.MakeUrl(redirUrl + queryString);
+                                redirUrl = Manager.CurrentSite.MakeUrl(redirUrl + uri.Query);
                             Logging.AddLog("302 Found - {0}", redirUrl).Truncate(100);
                             Manager.CurrentResponse.StatusCode = StatusCodes.Status302Found;
                             Manager.CurrentResponse.Headers.Add("Location", redirUrl);
@@ -490,13 +488,10 @@ public class PageEndpoints : YetaWFEndpoints {
         } else {
             // Send to login page with redirect (IF NOT LOGGED IN)
             if (!Manager.HaveUser) {
-                Manager.OriginList.Clear();
-                Manager.OriginList.Add(new Origin() { Url = url + queryString });
-                string loginUrl;
-                QueryHelper qh = QueryHelper.FromUrl(Manager.CurrentSite.LoginUrl, out loginUrl);
+                QueryHelper qh = QueryHelper.FromUrl(Manager.CurrentSite.LoginUrl, out string loginUrl);
                 qh.Add("__f", "true");// add __f=true to login url so we get a 401
-                Manager.OriginList.Add(new Origin() { Url = qh.ToUrl(loginUrl) });
-                string retUrl = Manager.ReturnToUrl;
+                qh.Add("returnUrl", uri.ToString());
+                string retUrl = qh.ToUrl(loginUrl);
                 Logging.AddLog("Redirect - {0}", retUrl);
                 Manager.CurrentResponse.Redirect(retUrl);
                 return ProcessingStatus.Complete;

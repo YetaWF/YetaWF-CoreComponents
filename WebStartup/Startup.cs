@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
@@ -183,7 +182,7 @@ public partial class Startup {
             opts.HeaderName = "RequestVerificationToken";
         });
         // antiforgery filter for conditional antiforgery attribute
-        builder.Services.AddSingleton<ConditionalAntiForgeryTokenFilter>();
+        builder.Services.AddSingleton<ConditionalAntiForgeryTokenFilter>();//$$$remove?
 
         builder.Services.AddMemoryCache((o) => {
             o.TrackStatistics = WebConfigHelper.GetValue<bool>("MemoryCache", "TrackStatistics", true, Package: false);
@@ -234,6 +233,7 @@ public partial class Startup {
                 policyBuilder.Requirements.Add(new ResourceAuthorizeRequirement());
             });
         });
+
 
         // load assembly and initialize identity services
         IdentityCreator.Setup(builder.Services);

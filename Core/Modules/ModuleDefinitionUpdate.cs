@@ -292,7 +292,7 @@ namespace YetaWF.Core.Modules {
                     if (string.IsNullOrWhiteSpace(popupText)) {
                         sb.Append($@"
 $YetaWF.setLoading();
-window.parent.$YetaWF.loadUrl({url}, true, null, null, function (res) {{ {PostSaveJavaScript} }});");
+window.parent.$YetaWF.loadUrl({url}, function (res) {{ {PostSaveJavaScript} }});");
 
                     } else {
                         sb.Append($@"
@@ -306,13 +306,13 @@ $YetaWF.message({popupText}, {popupTitle}, function() {{
                     if (string.IsNullOrWhiteSpace(popupText)) {
                         sb.Append($@"
 $YetaWF.setLoading();
-$YetaWF.loadUrl({url}, true, null, null, function (res) {{ {PostSaveJavaScript} }});");
+$YetaWF.loadUrl({url}, function (res) {{ {PostSaveJavaScript} }});");
                     } else {
                         sb.Append($@"
 {(ForcePopup ? "YVolatile.Basics.ForcePopup = true;" : null)}
 $YetaWF.message({popupText}, {popupTitle}, function() {{
     $YetaWF.setLoading();
-    $YetaWF.loadUrl({url}, true, null, null, function (res) {{ {PostSaveJavaScript} }});
+    $YetaWF.loadUrl({url}, function (res) {{ {PostSaveJavaScript} }});
 }});");
                     }
                 }
@@ -442,12 +442,24 @@ $YetaWF.closePopup(false);");
         /// <param name="url">The URL where the page is redirected.</param>
         /// <returns>An ActionInfo to be returned by the endpoint.</returns>
         /// <remarks>
-        /// The Redirect method can be used for GET within content rendering.
+        /// The Redirect method can be used for GET requests within content rendering.
         /// </remarks>
-        protected ActionInfo RedirectToUrl(string url) {
+        protected ActionInfo RedirectActionInfo(string url) {
             Manager.CurrentResponse.StatusCode = StatusCodes.Status307TemporaryRedirect;
             Manager.CurrentResponse.Headers.Add("Location", url);
             return ActionInfo.Empty;
+        }
+
+        /// <summary>
+        /// Redirects to the specified URL, aborting page rendering.
+        /// </summary>
+        /// <param name="url">The URL where the page is redirected.</param>
+        /// <returns>An IResult to be returned by the endpoint.</returns>
+        /// <remarks>
+        /// The Redirect method can be used for POST requests within content rendering.
+        /// </remarks>
+        protected IResult Redirect(string url, string? PopupText = null, string? PopupTitle = null, bool SetCurrentEditMode = false, string? ExtraJavascript = null, bool ForceFullPage = false) {
+            return YetaWFEndpoints.Redirect(url, PopupText: PopupText, PopupTitle: PopupTitle, SetCurrentEditMode: SetCurrentEditMode, ExtraJavascript: ExtraJavascript, ForceFullPage: ForceFullPage);
         }
 
         /// <summary>

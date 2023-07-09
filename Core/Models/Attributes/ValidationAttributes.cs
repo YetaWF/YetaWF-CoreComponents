@@ -115,16 +115,16 @@ namespace YetaWF.Core.Models.Attributes {
             ) { }
     }
 
-    //sample: <meta name="google-site-verification" content="flC7VM4WGUt7vWo8iiP2-EQ60L4jC44BVOTjpPmH0hg" />
+    //sample: <meta name="google-site-verification" content="flC7VM4WGUt7vWo8iiP2-EQ60L4jC44BVOTjpPmH0hg">
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class GoogleVerificationExpressionAttribute : RegexValidationBaseAttribute {
 
         private static string __ResStr(string name, string defaultValue, params object?[] parms) { return ResourceAccess.GetResourceString(typeof(Resources), name, defaultValue, parms); }
 
-        public GoogleVerificationExpressionAttribute() : base(@"^(\s*<meta\s+name=""google\-site\-verification""\s+content=\""[^\""]+?\""\s*/>\s*)+$",
-                __ResStr("errInvMeta", "The meta tag is invalid - It should be in the format <meta name=\"google-site-verification\" content=\"....your-code....\" />"),
-                __ResStr("errInvMeta2", "The meta tag is invalid (field '{0}') - It should be in the format <meta name=\"google-site-verification\" content=\"....your-code....\" />"),
-                __ResStr("errInvMeta3", "The meta tag '{0}' is invalid - It should be in the format <meta name=\"google-site-verification\" content=\"....your-code....\" />")
+        public GoogleVerificationExpressionAttribute() : base(@"^(\s*<meta\s+name=""google\-site\-verification""\s+content=\""[^\""]+?\""\s*>\s*)+$",
+                __ResStr("errInvMeta", "The meta tag is invalid - It should be in the format <meta name=\"google-site-verification\" content=\"....your-code....\">"),
+                __ResStr("errInvMeta2", "The meta tag is invalid (field '{0}') - It should be in the format <meta name=\"google-site-verification\" content=\"....your-code....\">"),
+                __ResStr("errInvMeta3", "The meta tag '{0}' is invalid - It should be in the format <meta name=\"google-site-verification\" content=\"....your-code....\">")
             ) { }
     }
 }

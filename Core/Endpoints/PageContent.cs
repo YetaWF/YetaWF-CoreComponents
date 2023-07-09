@@ -236,7 +236,7 @@ public class PageContentEndpoints : YetaWFEndpoints {
         string? lang = Manager.CurrentRequest.Query[Globals.Link_Language];
         if (dataIn.CacheVersion != YetaWFManager.CacheBuster || !string.IsNullOrWhiteSpace(lang)) {
             // If the cache version doesn't match, client is using an "old" site which was restarted, so we need to redirect to reload the entire page
-            // !yLang= is only used in <link rel='alternate' href='{0}' hreflang='{1}' /> to indicate multi-language support for pages, so we just redirect to that page
+            // !yLang= is only used in <link rel='alternate' href='{0}' hreflang='{1}'> to indicate multi-language support for pages, so we just redirect to that page
             // we need the entire page, content is not sufficient
             PageContentData cr = new PageContentData();
             if (dataIn.CacheFailUrl != null)
@@ -310,12 +310,10 @@ public class PageContentEndpoints : YetaWFEndpoints {
         if (Manager.Need2FA) {
             if (Manager.Need2FARedirect) {
                 Logging.AddLog("Two-step authentication setup required");
-                ModuleAction action2FA = await Resource.ResourceAccess.GetForceTwoStepActionSetupAsync(null);
+                ModuleAction action2FA = await Resource.ResourceAccess.GetForceTwoStepActionSetupAsync(null, uri.ToString());
                 Manager.Need2FARedirect = false;
-                Manager.OriginList.Add(new Origin() { Url = uri.ToString() });// where to go after setup
-                Manager.OriginList.Add(new Origin() { Url = action2FA.GetCompleteUrl() }); // setup
                 PageContentData cr = new PageContentData();
-                string returnUrl = Manager.ReturnToUrl;
+                string returnUrl = action2FA.GetCompleteUrl();
                 if (returnUrl.StartsWith("/"))
                     cr.RedirectContent = returnUrl;
                 else
@@ -427,12 +425,10 @@ public class PageContentEndpoints : YetaWFEndpoints {
         } else {
             // Send to login page with redirect (IF NOT LOGGED IN)
             if (!Manager.HaveUser) {
-                Manager.OriginList.Clear();
-                Manager.OriginList.Add(new Origin() { Url = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString) });
                 QueryHelper qh = QueryHelper.FromUrl(Manager.CurrentSite.LoginUrl, out string loginUrl);
                 qh.Add("__f", "true");// add __f=true to login url so we get a 401
-                Manager.OriginList.Add(new Origin() { Url = qh.ToUrl(loginUrl) });
-                string retUrl = Manager.ReturnToUrl;
+                qh.Add("returnUrl", QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString));
+                string retUrl = qh.ToUrl(loginUrl);
                 Logging.AddLog("Redirect - {0}", retUrl);
                 if (retUrl.StartsWith("/"))
                     cr.RedirectContent = retUrl;
@@ -497,8 +493,6 @@ public class PageContentEndpoints : YetaWFEndpoints {
             if (Manager.UniqueIdCounters.IsTracked)
                 Manager.ScriptManager.AddVolatileOption("Basics", "UniqueIdCounters", Manager.UniqueIdCounters);
 
-            Manager.ScriptManager.AddVolatileOption("Basics", "OriginList", Manager.OriginList ?? new List<Origin>());
-
             Manager.ScriptManager.AddVolatileOption("Basics", "PageGuid", Manager.CurrentPage.PageGuid);
             Manager.ScriptManager.AddVolatileOption("Basics", "TemporaryPage", Manager.CurrentPage.Temporary);
             ModuleDefinitionExtensions.AddVolatileOptionsUniqueModuleAddOns();
@@ -532,7 +526,6 @@ public class PageContentEndpoints : YetaWFEndpoints {
 
         if (!Manager.LocalizationSupportEnabled) {// this only needs to be done once, so we gate on LocalizationSupportEnabled
             Manager.IsInPopup = InPopup();
-            Manager.OriginList = GetOriginList();
             Manager.PageControlShown = PageControlShown();
 
             // determine user identity - authentication provider updates Manager with user information
@@ -575,28 +568,5 @@ public class PageContentEndpoints : YetaWFEndpoints {
                 return true;
         } catch (Exception) { }
         return false;
-    }
-    internal static List<Origin> GetOriginList() {
-
-        // Get info where we came from for return handling. We append the originlist when we
-        // use links within our site. (We don't use UrlReferrer or the browser's history).
-        // We're saving the origin list so we can return there once a form is completed (saved)
-        // Because it relies on our own information it only works if we're navigating within our site.
-        // If the user enters a direct Url or we can't determine where we're coming from, we usually use
-        // the home page to return to.
-        string? originList = null;
-        try {
-            originList = Manager.RequestForm[Globals.Link_OriginList];
-            if (originList == null)
-                originList = Manager.RequestQueryString[Globals.Link_OriginList];
-        } catch (Exception) { }
-        if (!string.IsNullOrWhiteSpace(originList)) {
-            try {
-                return Utility.JsonDeserialize<List<Origin>>(originList);
-            } catch (Exception) {
-                throw new InternalError("Invalid Url arguments");
-            }
-        } else
-            return new List<Origin>();
     }
 }

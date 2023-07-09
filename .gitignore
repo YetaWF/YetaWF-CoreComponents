@@ -88,3 +88,4 @@ Core/bin/
 *.map
 
 Core/node_modules
+*.user

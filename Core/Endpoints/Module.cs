@@ -59,10 +59,6 @@ namespace YetaWF.Core.Endpoints {
             public bool __Reload { get; set; }
 
             /// <summary>
-            /// Navigation history.
-            /// </summary>
-            public List<Origin> __OriginList { get; set; } = new List<Origin>();
-            /// <summary>
             /// The unique id prefix counter used by the current page. This value is used to prevent collisions when generating unique HTML tag ids.
             /// </summary>
             public YetaWFManager.UniqueIdInfo UniqueIdCounters { get; set; } = null!;
@@ -147,13 +143,13 @@ namespace YetaWF.Core.Endpoints {
 
             await module.ModelState.ValidateModel(model, dataIn.__TemplateName, dataIn.__TemplateAction, dataIn.__TemplateExtraData);
 
-            return await InvokeRenderMethod<IResult>(module, model, miAsync, parms, dataIn);
+            return await InvokeRenderMethod<IResult>(module, model, miAsync, parms, dataIn.Model);
         }
 
         /// <summary>
         /// Invoke module's render method. Use query string arguments to provide required arguments.
         /// </summary>
-        internal static Task<T> InvokeRenderMethod<T>(ModuleDefinition module, object? model, MethodInfo miAsync, ParameterInfo[] parms, ModuleSubmitData? dataIn = null) {
+        internal static Task<T> InvokeRenderMethod<T>(ModuleDefinition module, object? model, MethodInfo miAsync, ParameterInfo[] parms, object? dataInModel = null) {
 
             List<object?> parmList = new List<object?>();
             int parmIndex = 0;
@@ -164,8 +160,8 @@ namespace YetaWF.Core.Endpoints {
             for (; parmIndex < parms.Length; parmIndex++) {
                 ParameterInfo parm = parms[parmIndex];
                 string name = parm.Name ?? throw new InternalError($"Parameter {parmIndex} doesn't have a name");
-                if (name == DynamicProperty && dataIn != null) {
-                    string dynamicString = ((JsonElement)dataIn.Model).GetProperty(DynamicProperty).ToString();
+                if (name == DynamicProperty && dataInModel != null) {
+                    string dynamicString = ((JsonElement)dataInModel).GetProperty(DynamicProperty).ToString();
                     parmList.Add(dynamicString);
                 } else {
                     // get parameter values from query string

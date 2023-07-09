@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using YetaWF.Core.Components;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Modules;
+using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Identity {
 
@@ -187,8 +188,8 @@ namespace YetaWF.Core.Identity {
         int GetEditorRoleId();
         int GetRoleId(string roleName);
 
-        ModuleAction GetSelectTwoStepAction(int userId, string userName, string email);
-        Task<ModuleAction> GetForceTwoStepActionSetupAsync(string? url);
+        ModuleAction GetSelectTwoStepAction();
+        Task<ModuleAction> GetForceTwoStepActionSetupAsync(string? url, string? returnUrl);
         void ShowNeed2FA();
 
         void ShowNeedNewPassword();
@@ -196,6 +197,8 @@ namespace YetaWF.Core.Identity {
         Task AddEnabledTwoStepAuthenticationAsync(int userId, string auth);
         Task RemoveEnabledTwoStepAuthenticationAsync(int userId, string auth);
         Task<bool> HasEnabledTwoStepAuthenticationAsync(int userId, string auth);
+        Task<int> GetTwoStepUserAsync();
+        Task ClearTwoStepUserAsync();
         Task AddTwoStepLoginFailureAsync();
         Task<bool> GetTwoStepLoginFailuresExceededAsync();
         Task<bool> VerifyTwoStepAuthenticationRecoveryCodeAsync(int userId, string code);
@@ -252,7 +255,7 @@ namespace YetaWF.Core.Identity {
             throw new NotImplementedException();
         }
 
-        public Task<ModuleAction> GetForceTwoStepActionSetupAsync(string? url) {
+        public Task<ModuleAction> GetForceTwoStepActionSetupAsync(string? url, string? returnUrl) {
             throw new NotImplementedException();
         }
 
@@ -260,7 +263,7 @@ namespace YetaWF.Core.Identity {
             throw new NotImplementedException();
         }
 
-        public ModuleAction GetSelectTwoStepAction(int userId, string userName, string email) {
+        public ModuleAction GetSelectTwoStepAction() {
             throw new NotImplementedException();
         }
 
@@ -381,6 +384,14 @@ namespace YetaWF.Core.Identity {
         }
 
         public Task ShutTheBackDoorAsync() {
+            throw new NotImplementedException();
+        }
+
+        public Task<int> GetTwoStepUserAsync() {
+            throw new NotImplementedException();
+        }
+
+        public Task ClearTwoStepUserAsync() {
             throw new NotImplementedException();
         }
     }

@@ -146,8 +146,8 @@ var YetaWF;
                 formValid = this.validate(form);
             $YetaWF.closeOverlays();
             if (!useValidation || formValid) {
-                if (method.toLowerCase() === "get")
-                    throw "FORM GET not supported";
+                if (method.toLowerCase() !== "post")
+                    throw "FORM ".concat(method, " not supported");
                 var uri = $YetaWF.parseUrl(action);
                 // serialize the form
                 var model = this.serializeFormObject(form);
