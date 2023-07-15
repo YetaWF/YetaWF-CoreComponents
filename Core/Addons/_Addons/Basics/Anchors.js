@@ -56,9 +56,9 @@ var YetaWF;
                 if (!target || target === "" || target === "_self")
                     target = "_self";
                 // add originating module guid
-                if (!uri.hasSearch(YConfigs.Basics.ModuleGuid)) {
+                if (!uri.hasSearch("__ModuleGuid")) {
                     var formJson = $YetaWF.Forms.getJSONInfo(anchor);
-                    uri.addSearch(YConfigs.Basics.ModuleGuid, formJson.ModuleGuid);
+                    uri.addSearch("__ModuleGuid", formJson.ModuleGuid);
                 }
                 anchor.href = uri.toUrl(); // update original href in case default handling takes place
                 var cookieToReturn = null;

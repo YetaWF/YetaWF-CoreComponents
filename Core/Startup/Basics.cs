@@ -42,7 +42,6 @@ public class Basics : IAddOnSupport {
     public const string CookieDone = "xfercomplete-cookie";
 
     // used on url to select specific module
-    public const string ModuleGuid = "__ModuleGuid";//$$$$
     public const string AntiforgeryHeader = "RequestVerificationToken";
     public const string AntiforgeryRequestToken = "AntiforgeryRequestToken";
 
@@ -117,7 +116,6 @@ public class Basics : IAddOnSupport {
         scripts.AddConfigOption("Basics", "CssPleaseWait", CssPleaseWait);
         scripts.AddConfigOption("Basics", "CssAttrDataSpecialEdit", CssAttrDataSpecialEdit);
         scripts.AddConfigOption("Basics", "CssAttrActionButton", CssAttrActionButton);
-        scripts.AddConfigOption("Basics", "ModuleGuid", ModuleGuid);// ModuleGuid for form
 
         // volatile css
         // add classes that don't use tooltips

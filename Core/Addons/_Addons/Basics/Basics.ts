@@ -461,7 +461,7 @@ namespace YetaWF {
         private cleanUrl(url: string): string {
             const uri = $YetaWF.parseUrl(url);
             uri.removeSearch(YConfigs.Basics.Link_CurrentUrl);
-            uri.removeSearch(YConfigs.Basics.ModuleGuid);
+            uri.removeSearch("__ModuleGuid");
             uri.removeSearch("__rand");
             return uri.toUrl();
         }
@@ -671,7 +671,7 @@ namespace YetaWF {
         private getPostRequest(uri: Url, formJson: FormInfoJSON, query: any, data: any): XMLHttpRequest {
             this.setLoading(true);
             if (!query) query = {};
-            query[YConfigs.Basics.ModuleGuid] = formJson.ModuleGuid;
+            query["__ModuleGuid"] = formJson.ModuleGuid;
             // if (formJson.UniqueIdCounters)
             //     query[YConfigs.Forms.UniqueIdCounters] = formJson.UniqueIdCounters;
             uri.addSearchSimpleObject(query);
