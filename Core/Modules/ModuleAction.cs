@@ -263,18 +263,8 @@ namespace YetaWF.Core.Modules {
 
         public bool DontCheckAuthorization { get; set; }// don't check whether user is authorized (always show) - this will force a login/register when used
 
-        //$$$$REMOVE
-        //public Guid GetOwningModuleGuid() {
-        //    if (OwningModuleGuid == Guid.Empty) {
-        //        if (OwningModule == null)
-        //            throw new InternalError("Need OwningModule");
-        //        OwningModuleGuid = OwningModule.ModuleGuid;
-        //    }
-        //    return OwningModuleGuid;
-        //}
         [DontSave, ReadOnly, Obsolete("Do not use!")]// THIS IS STRICTLY USED FOR SERIALIZATION - DO NOT ACCESS DIRECTLY
         public Guid OwningModuleGuid { get; set; }
-        //private ModuleDefinition? OwningModule { get; set; }
 
         [Obsolete("Discontinued - preserve property so deserializing existing data doesn't fail")]
         // Discontinued: we have to use "items" because kendo treeview doesn't let us to use a different variable name - we're no longer using kendo treeview

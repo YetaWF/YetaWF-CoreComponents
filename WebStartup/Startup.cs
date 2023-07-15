@@ -181,8 +181,6 @@ public partial class Startup {
             opts.SuppressXFrameOptionsHeader = true;
             opts.HeaderName = "RequestVerificationToken";
         });
-        // antiforgery filter for conditional antiforgery attribute
-        builder.Services.AddSingleton<ConditionalAntiForgeryTokenFilter>();//$$$remove?
 
         builder.Services.AddMemoryCache((o) => {
             o.TrackStatistics = WebConfigHelper.GetValue<bool>("MemoryCache", "TrackStatistics", true, Package: false);

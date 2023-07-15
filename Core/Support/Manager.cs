@@ -678,7 +678,7 @@ namespace YetaWF.Core.Support {
         /// </summary>
         /// <remarks>The Return To Url also contains the remaining Origin List as a parameter.
         ///
-        /// The Return To Url is removed from the saved Origin List. To preserve the Url, use QueryReturnToUrl instead.</remarks>
+        /// The Return To Url is removed from the saved Origin List.</remarks>
         public string ReturnToUrl { //$$$REMOVE
             get {
                 return CurrentSite.HomePageUrl;

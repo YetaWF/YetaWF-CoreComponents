@@ -45,6 +45,6 @@ public class SMTPServerEndpoints : YetaWFEndpoints {
             string msg = __ResStr("emailSent", "A test email has just been sent to {0}", Manager.UserEmail);
             return Results.Text($"{Basics.AjaxJavascriptReturn}$YetaWF.message('{Utility.JserEncode(msg)}');", "application/json");
         })
-            .ResourceAuthorize(CoreInfo.Resource_UploadImages);
+            .ResourceAuthorize(CoreInfo.Resource_SMTPServer_SendTestEmail);
     }
 }

@@ -57,11 +57,11 @@ namespace YetaWF.Core.Endpoints {
             StringBuilder sb = new StringBuilder();
             using (StringWriter sw = new StringWriter(sb)) {
 
-                YHtmlHelper htmlHelper = new YHtmlHelper(module?.ModelState);
-                bool inPartialView = Manager.InPartialView;//$$$ is this needed
+                YHtmlHelper htmlHelper = new YHtmlHelper(module.ModelState);
+                bool inPartialView = Manager.InPartialView;
                 Manager.InPartialView = true;
                 bool wantFocus = Manager.WantFocus;
-                Manager.WantFocus = false;//$$$ Module.WantFocus;
+                Manager.WantFocus = module.WantFocus;
                 try {
                     viewHtml = await htmlHelper.ForViewAsync(viewName, Manager.CurrentModule, model);
                 } catch (Exception) {

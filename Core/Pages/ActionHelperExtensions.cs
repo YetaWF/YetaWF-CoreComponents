@@ -4,6 +4,8 @@ using System;
 using System.Reflection;
 using System.Threading.Tasks;
 using YetaWF.Core.Endpoints;
+using YetaWF.Core.Identity;
+using YetaWF.Core.Localize;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Support;
@@ -11,6 +13,8 @@ using YetaWF.Core.Support;
 namespace YetaWF.Core.Pages {
 
     internal static class ActionHelperExtensions {
+
+        private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(ActionHelperExtensions), name, defaultValue, parms); }
 
         public static async Task<ActionInfo> RenderActionAsync(this YHtmlHelper htmlHelper, ModuleDefinition module, object? parameters = null) {
 
@@ -22,7 +26,12 @@ namespace YetaWF.Core.Pages {
             if (miAsync == null)
                 throw new InternalError($"Method {ModuleDefinition.MethodRenderModuleAsync} not found for module {module.FullClassName}");
 
-            //$$$$ resource authorize attribute
+            // verify resource authorize attribute
+            ResourceAuthorizeAttribute? resAttr = (ResourceAuthorizeAttribute?)Attribute.GetCustomAttribute(miAsync, typeof(ResourceAuthorizeAttribute));
+            if (resAttr != null) {
+                if (!await Resource.ResourceAccess.IsResourceAuthorizedAsync(resAttr.Name))
+                    throw new Error(__ResStr("notAuth", "Not Authorized"));
+            }
 
             // check if the action is authorized by checking the module's authorization
             string? level = null;

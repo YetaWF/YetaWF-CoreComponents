@@ -9,13 +9,14 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
-using YetaWF.Core.DataProvider;
 using YetaWF.Core.Endpoints.Filters;
+using YetaWF.Core.Identity;
+using YetaWF.Core.Localize;
 using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Packages;
+using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
-using YetaWF.Core.Support.UrlHistory;
 
 namespace YetaWF.Core.Endpoints {
 
@@ -26,6 +27,9 @@ namespace YetaWF.Core.Endpoints {
 
         public const string Update = "Update";
         public const string DynamicProperty = "Dynamic";
+
+        private static string __ResStr(string name, string defaultValue, params object[] parms) { return ResourceAccess.GetResourceString(typeof(ModuleEndpoints), name, defaultValue, parms); }
+
 
         public static void RegisterEndpoints(IEndpointRouteBuilder endpoints, Package package, string areaName) {
 
@@ -116,7 +120,12 @@ namespace YetaWF.Core.Endpoints {
             if (model is null)
                 throw new InternalError($"Model data missing for module {moduleType.FullName} method {actionUpdate}");
 
-            //$$$$ resource authorize attribute
+            // verify resource authorize attribute
+            ResourceAuthorizeAttribute? resAttr = (ResourceAuthorizeAttribute?)Attribute.GetCustomAttribute(miAsync, typeof(ResourceAuthorizeAttribute));
+            if (resAttr != null) {
+                if (!await Resource.ResourceAccess.IsResourceAuthorizedAsync(resAttr.Name))
+                    throw new Error(__ResStr("notAuth", "Not Authorized"));
+            }
 
             // Authorization
             string? level = null;
