@@ -253,8 +253,7 @@ var YetaWF;
                 $YetaWF.closePopup();
             }
             else {
-                var state = history.state;
-                if (state) {
+                if (history.length > 0) {
                     history.back();
                 }
                 else {

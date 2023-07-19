@@ -408,8 +408,7 @@ namespace YetaWF {
                 // we're in a popup, just close it
                 $YetaWF.closePopup();
             } else {
-                const state = history.state;
-                if (state) {
+                if (history.length > 0) {
                     history.back();
                 } else {
                     // we don't know where to return so just close the browser
