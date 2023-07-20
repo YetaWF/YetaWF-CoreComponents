@@ -96,6 +96,7 @@ namespace YetaWF.Core.Support.Zip {
         public async Task SaveAsync(Stream stream) {
             // add all files
             using (ZipOutputStream zipStream = new ZipOutputStream(stream)) {
+                zipStream.IsStreamOwner = false;
                 foreach (YetaWFZipEntry entry in this.Entries) {
                     if (entry.Data != null)
                         WriteData(zipStream, entry.Data, entry.RelativeName);
@@ -103,6 +104,7 @@ namespace YetaWF.Core.Support.Zip {
                         await WriteFileAsync(zipStream, entry.AbsoluteFileName, entry.RelativeName);
                 }
             }
+            stream.Position = 0;
         }
 
         private void WriteData(ZipOutputStream zipStream, string data, string relativeName) {
