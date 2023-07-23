@@ -1496,7 +1496,7 @@ var YetaWF;
             }
         };
         // Animation
-        BasicsServices.prototype.animateHeight = function (div, show, animationTimeMs, animationEnd) {
+        BasicsServices.prototype.animateHeight = function (div, show, animationEnd) {
             if (show) {
                 if (div.style.height && div.style.height !== "0px")
                     return; // already shown
@@ -1511,17 +1511,48 @@ var YetaWF;
                 div.style.height = "".concat(rect.height, "px"); // set calculated height which runs animation
             }
             else {
+                if (animationEnd == undefined)
+                    throw new Error("Missing animationEnd callback for element ".concat(div.outerHTML));
                 if (div.style.display === "none")
                     return; // already hidden
                 var rect = div.getBoundingClientRect();
                 div.style.height = "".concat(rect.height, "px"); // set height in case it's not there yet
-                console.log(div.offsetHeight); // force redraw
+                this.forceRedraw(div);
                 div.style.height = "0px"; // set height to 0 which runs css animation
-                setTimeout(function () {
-                    if (animationEnd)
-                        animationEnd();
-                }, animationTimeMs || 400); //match css duration
+                if (animationEnd)
+                    this.transitionEnd(div, animationEnd);
             }
+        };
+        BasicsServices.prototype.forceRedraw = function (div) {
+            console.log(div.offsetHeight); // force redraw
+        };
+        BasicsServices.prototype.transitionEnd = function (div, animationEnd) {
+            var styles = window.getComputedStyle(div);
+            // console.log(`Transition off -> ${styles.transition}`);
+            // console.log(`Duration off -> ${styles.transitionDuration}`);
+            // calculate the max. duration length
+            var duration = 0;
+            var parts = styles.transitionDuration.split(",");
+            for (var _i = 0, parts_1 = parts; _i < parts_1.length; _i++) {
+                var part = parts_1[_i];
+                var d = part.trim().toLowerCase();
+                var mul = 1000;
+                if (d.endsWith("ms")) {
+                    mul = 1;
+                    d = d.substring(0, d.length - 2);
+                }
+                else if (d.endsWith("s")) {
+                    d = d.substring(0, d.length - 1);
+                }
+                else
+                    throw new Error("Unexpected duration unit in ".concat(d));
+                var n = Number(d) * mul;
+                duration = n > duration ? n : duration;
+            }
+            // console.log(`Max Animation off -> ${duration}`);
+            setTimeout(function () {
+                animationEnd();
+            }, duration);
         };
         BasicsServices.prototype.init = function () {
             var _this = this;

@@ -26,7 +26,7 @@ namespace YetaWF_Core {
         if ($YetaWF.elementHasClass(mod, "t_expanded")) {
             // collapse
             PanelModuleHandler.saveExpandCollapseStatus(url, expElem, false);
-            $YetaWF.animateHeight(contents, false, 500, (): void => {
+            $YetaWF.animateHeight(contents, false, (): void => {
                 $YetaWF.elementRemoveClasses(mod!, ["t_expanded", "t_collapsed"]);
                 $YetaWF.elementAddClass(mod!, "t_collapsed");
             });

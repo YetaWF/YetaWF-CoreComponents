@@ -1669,9 +1669,10 @@ namespace YetaWF {
 
         // Animation
 
-        public animateHeight(div: HTMLElement, show: boolean, animationTimeMs?: number, animationEnd?: ()=> void): void {
+        public animateHeight(div: HTMLElement, show: boolean, animationEnd?: ()=> void): void {
             if (show) {
                 if (div.style.height && div.style.height !== "0px") return; // already shown
+
                 // show the item growing height from 0 to its maximum height
                 div.style.height = "";// remove the height
                 div.style.display = "";// show the level so we can calculate height
@@ -1682,15 +1683,48 @@ namespace YetaWF {
                 console.log(div.offsetHeight);// force redraw
                 div.style.height = `${rect.height}px`;// set calculated height which runs animation
             } else {
+                if (animationEnd == undefined) throw new Error(`Missing animationEnd callback for element ${div.outerHTML}`);
                 if (div.style.display === "none") return;// already hidden
+
                 const rect = div.getBoundingClientRect();
                 div.style.height = `${rect.height}px`;// set height in case it's not there yet
-                console.log(div.offsetHeight);// force redraw
+                this.forceRedraw(div);
                 div.style.height = "0px";// set height to 0 which runs css animation
-                setTimeout((): void => { // easier than animationend event
-                    if (animationEnd) animationEnd();
-                }, animationTimeMs || 400);//match css duration
+
+                if (animationEnd) this.transitionEnd(div, animationEnd);
             }
+        }
+
+        public forceRedraw(div: HTMLElement): void {
+            console.log(div.offsetHeight);// force redraw
+        }
+
+        public transitionEnd(div: HTMLElement, animationEnd: () => void) {
+            const styles = window.getComputedStyle(div)
+            // console.log(`Transition off -> ${styles.transition}`);
+            // console.log(`Duration off -> ${styles.transitionDuration}`);
+
+            // calculate the max. duration length
+            let duration = 0;
+            const parts = styles.transitionDuration.split(",");
+            for (const part of parts) {
+                let d = part.trim().toLowerCase();
+                let mul = 1000;
+                if (d.endsWith("ms")) {
+                    mul = 1;
+                    d = d.substring(0, d.length-2);
+                } else if (d.endsWith("s")) {
+                    d = d.substring(0, d.length-1);
+                } else
+                    throw new Error(`Unexpected duration unit in ${d}`);
+                const n = Number(d) * mul;
+                duration = n > duration ? n : duration;
+            }
+            // console.log(`Max Animation off -> ${duration}`);
+
+            setTimeout((): void => { // easier than animationend event
+                animationEnd();
+            }, duration);
         }
 
         public init(): void {
