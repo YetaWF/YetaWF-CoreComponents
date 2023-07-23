@@ -289,6 +289,9 @@ select.t_native { // native select (not DropDownList)
         background: var(--body-bg);
         color: var(--body-clr);
         padding: 1em;
+
+        transition: height .5s, padding .5s ease-in;
+        overflow:hidden;
     }
 }
 

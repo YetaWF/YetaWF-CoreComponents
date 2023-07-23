@@ -25,7 +25,6 @@ using YetaWF.Core.HttpHandler;
 using YetaWF.Core.Identity;
 using YetaWF.Core.Language;
 using YetaWF.Core.Log;
-using YetaWF.Core.Models.Attributes;
 using YetaWF.Core.PackageSupport;
 using YetaWF.Core.Pages;
 using YetaWF.Core.Support;
@@ -153,7 +152,9 @@ public partial class Startup {
         builder.Services.AddRouting();
         builder.Services.AddHealthChecks();
 
+#if !DEBUG
         builder.Services.AddResponseCompression();
+#endif
 
         builder.Services.Configure<KeyManagementOptions>(options => {
             options.XmlRepository = new DataProtectionKeyRepository();
@@ -289,8 +290,9 @@ public partial class Startup {
             Logging.AddLog($"URL rewrite failed - {ErrorHandling.FormatExceptionMessage(exc)}");
         }
 
+#if !DEBUG
         app.UseResponseCompression();
-
+#endif
         // Error handler for ajax/post exceptions - returns special text with errors for display client side
         // This must appear after more generic error handlers (like UseDeveloperExceptionPage)
         app.UseMiddleware(typeof(ErrorHandlingMiddleware));

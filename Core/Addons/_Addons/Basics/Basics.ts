@@ -1667,6 +1667,32 @@ namespace YetaWF {
             }
         }
 
+        // Animation
+
+        public animateHeight(div: HTMLElement, show: boolean, animationTimeMs?: number, animationEnd?: ()=> void): void {
+            if (show) {
+                if (div.style.height && div.style.height !== "0px") return; // already shown
+                // show the item growing height from 0 to its maximum height
+                div.style.height = "";// remove the height
+                div.style.display = "";// show the level so we can calculate height
+                const rect = div.getBoundingClientRect();
+                div.style.display = "none";// hide
+                div.style.height = "0px";// hide the soon visible div
+                div.style.display = "";// show it now (height 0)
+                console.log(div.offsetHeight);// force redraw
+                div.style.height = `${rect.height}px`;// set calculated height which runs animation
+            } else {
+                if (div.style.display === "none") return;// already hidden
+                const rect = div.getBoundingClientRect();
+                div.style.height = `${rect.height}px`;// set height in case it's not there yet
+                console.log(div.offsetHeight);// force redraw
+                div.style.height = "0px";// set height to 0 which runs css animation
+                setTimeout((): void => { // easier than animationend event
+                    if (animationEnd) animationEnd();
+                }, animationTimeMs || 400);//match css duration
+            }
+        }
+
         public init(): void {
 
             this.AnchorHandling.init();

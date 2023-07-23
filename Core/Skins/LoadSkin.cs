@@ -79,8 +79,6 @@ namespace YetaWF.Core.Skins {
                 if ((from s in info.ModuleSkins where s.CSS == p select s).FirstOrDefault() == null)
                     throw new InternalError($"{fileName} Skin collection {info.Name} has no {p} module");
             }
-
-            
             return info;
         }
 

@@ -56,6 +56,7 @@ namespace YetaWF.Core.Skins {
         public string? PartialFormCss { get; set; }
         public int MinWidthForPopups { get; set; }
         public int MinWidthForCondense { get; set; }
+        public string? CaretIcons { get; set; }
         [System.ComponentModel.DataAnnotations.Required]
         public PageSkinList PageSkins { get; set; }
         [System.ComponentModel.DataAnnotations.Required]
@@ -67,6 +68,7 @@ namespace YetaWF.Core.Skins {
             PageSkins = new PageSkinList();
             PopupSkins = new PageSkinList();
             ModuleSkins = new ModuleSkinList();
+            CaretIcons = "caret";
         }
     }
 

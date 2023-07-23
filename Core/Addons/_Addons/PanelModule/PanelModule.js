@@ -29,9 +29,12 @@ var YetaWF_Core;
         if (!url)
             return true;
         if ($YetaWF.elementHasClass(mod, "t_expanded")) {
-            $YetaWF.elementRemoveClasses(mod, ["t_expanded", "t_collapsed"]);
-            $YetaWF.elementAddClass(mod, "t_collapsed");
+            // collapse
             PanelModuleHandler.saveExpandCollapseStatus(url, expElem, false);
+            $YetaWF.animateHeight(contents, false, 500, function () {
+                $YetaWF.elementRemoveClasses(mod, ["t_expanded", "t_collapsed"]);
+                $YetaWF.elementAddClass(mod, "t_collapsed");
+            });
             return false;
         }
         else if ($YetaWF.elementHasClass(mod, "t_collapsed")) {
@@ -39,6 +42,7 @@ var YetaWF_Core;
             $YetaWF.elementAddClass(mod, "t_expanded");
             $YetaWF.sendActivateDivEvent([contents]); // init any controls that just became visible
             PanelModuleHandler.saveExpandCollapseStatus(url, expElem, true);
+            $YetaWF.animateHeight(contents, true);
             return false;
         }
         return true;

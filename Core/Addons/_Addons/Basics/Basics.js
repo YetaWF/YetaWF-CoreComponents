@@ -1495,6 +1495,34 @@ var YetaWF;
                 sub.style.left = "".concat(left_1, "px");
             }
         };
+        // Animation
+        BasicsServices.prototype.animateHeight = function (div, show, animationTimeMs, animationEnd) {
+            if (show) {
+                if (div.style.height && div.style.height !== "0px")
+                    return; // already shown
+                // show the item growing height from 0 to its maximum height
+                div.style.height = ""; // remove the height
+                div.style.display = ""; // show the level so we can calculate height
+                var rect = div.getBoundingClientRect();
+                div.style.display = "none"; // hide
+                div.style.height = "0px"; // hide the soon visible div
+                div.style.display = ""; // show it now (height 0)
+                console.log(div.offsetHeight); // force redraw
+                div.style.height = "".concat(rect.height, "px"); // set calculated height which runs animation
+            }
+            else {
+                if (div.style.display === "none")
+                    return; // already hidden
+                var rect = div.getBoundingClientRect();
+                div.style.height = "".concat(rect.height, "px"); // set height in case it's not there yet
+                console.log(div.offsetHeight); // force redraw
+                div.style.height = "0px"; // set height to 0 which runs css animation
+                setTimeout(function () {
+                    if (animationEnd)
+                        animationEnd();
+                }, animationTimeMs || 400); //match css duration
+            }
+        };
         BasicsServices.prototype.init = function () {
             var _this = this;
             this.AnchorHandling.init();
