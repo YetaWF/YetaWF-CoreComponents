@@ -1680,7 +1680,7 @@ namespace YetaWF {
                 div.style.display = "none";// hide
                 div.style.height = "0px";// hide the soon visible div
                 div.style.display = "";// show it now (height 0)
-                console.log(div.offsetHeight);// force redraw
+                this.forceRedraw(div);
                 div.style.height = `${rect.height}px`;// set calculated height which runs animation
             } else {
                 if (animationEnd == undefined) throw new Error(`Missing animationEnd callback for element ${div.outerHTML}`);
