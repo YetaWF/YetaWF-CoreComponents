@@ -1039,6 +1039,43 @@ namespace YetaWF {
             return elem;
         }
         /**
+         * Get all child elements with the specified tag name.
+         */
+        public getChildElementsByTag(tagName: string, elem: HTMLElement): HTMLElement[] {
+            const result: HTMLElement[] = [];
+            tagName = tagName.toUpperCase();
+            const total = elem.children.length;
+            for (let i = 0 ; i < total ; ++i) {
+                const e = elem.children[i] as HTMLElement;
+                if (e.tagName === tagName)
+                    result.push(e);
+            }
+            return result;
+        }
+        /**
+         * Get the first child element with the specified tag name.
+         */
+        public getChildElement1ByTag(tagName: string, elem: HTMLElement): HTMLElement {
+            const result = this.getChildElement1ByTagCond(tagName, elem);
+            if (!result)
+                throw `Child element with tag ${tagName} not found`;
+            return result;
+        }
+        /**
+         * Get the first child element with the specified tag name.
+         */
+        public getChildElement1ByTagCond(tagName: string, elem: HTMLElement): HTMLElement|null {
+            tagName = tagName.toUpperCase();
+            const total = elem.children.length;
+            for (let i = 0 ; i < total ; ++i) {
+                const e = elem.children[i] as HTMLElement;
+                if (e.tagName === tagName)
+                    return e;
+            }
+            return null;
+        }
+
+        /**
          * Removes all input[type='hidden'] fields. (similar to jquery let x = elems.not("input[type='hidden']"); )
          */
         public limitToNotTypeHidden(elems: HTMLElement[]): HTMLElement[] {
@@ -1690,9 +1727,8 @@ namespace YetaWF {
                 div.style.height = `${rect.height}px`;// set height in case it's not there yet
                 this.forceRedraw(div);
                 div.style.height = "0px";// set height to 0 which runs css animation
-
-                if (animationEnd) this.transitionEnd(div, animationEnd);
             }
+            if (animationEnd) this.transitionEnd(div, animationEnd);
         }
 
         public forceRedraw(div: HTMLElement): void {

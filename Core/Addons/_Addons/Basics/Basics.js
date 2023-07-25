@@ -850,6 +850,42 @@ var YetaWF;
             return elem;
         };
         /**
+         * Get all child elements with the specified tag name.
+         */
+        BasicsServices.prototype.getChildElementsByTag = function (tagName, elem) {
+            var result = [];
+            tagName = tagName.toUpperCase();
+            var total = elem.children.length;
+            for (var i = 0; i < total; ++i) {
+                var e = elem.children[i];
+                if (e.tagName === tagName)
+                    result.push(e);
+            }
+            return result;
+        };
+        /**
+         * Get the first child element with the specified tag name.
+         */
+        BasicsServices.prototype.getChildElement1ByTag = function (tagName, elem) {
+            var result = this.getChildElement1ByTagCond(tagName, elem);
+            if (!result)
+                throw "Child element with tag ".concat(tagName, " not found");
+            return result;
+        };
+        /**
+         * Get the first child element with the specified tag name.
+         */
+        BasicsServices.prototype.getChildElement1ByTagCond = function (tagName, elem) {
+            tagName = tagName.toUpperCase();
+            var total = elem.children.length;
+            for (var i = 0; i < total; ++i) {
+                var e = elem.children[i];
+                if (e.tagName === tagName)
+                    return e;
+            }
+            return null;
+        };
+        /**
          * Removes all input[type='hidden'] fields. (similar to jquery let x = elems.not("input[type='hidden']"); )
          */
         BasicsServices.prototype.limitToNotTypeHidden = function (elems) {
@@ -1519,9 +1555,9 @@ var YetaWF;
                 div.style.height = "".concat(rect.height, "px"); // set height in case it's not there yet
                 this.forceRedraw(div);
                 div.style.height = "0px"; // set height to 0 which runs css animation
-                if (animationEnd)
-                    this.transitionEnd(div, animationEnd);
             }
+            if (animationEnd)
+                this.transitionEnd(div, animationEnd);
         };
         BasicsServices.prototype.forceRedraw = function (div) {
             console.log(div.offsetHeight); // force redraw
