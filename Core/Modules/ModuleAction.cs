@@ -182,6 +182,9 @@ namespace YetaWF.Core.Modules {
         [StringLength(Globals.MaxUrl)]
         public string? ImageUrlFinal { get; set; }
 
+        [StringLength(Globals.MaxSVG)]
+        public string? ImageSVG { get; set; }
+
         [StringLength(MaxTooltip)]
         public MultiString Tooltip { get; set; } // hover tooltip text
 

@@ -39,6 +39,7 @@ namespace YetaWF.Core.Skins {
                 List<string> files = await FileSystem.FileSystemProvider.GetFilesAsync(path, "*.svg");
                 foreach (string file in files) {
                     string html = await FileSystem.FileSystemProvider.ReadAllTextAsync(file);
+                    html = html.Trim('\r','\n',' ','\t');
                     string name = Path.GetFileNameWithoutExtension(file);
                     dict.Add(name, html);
                 }

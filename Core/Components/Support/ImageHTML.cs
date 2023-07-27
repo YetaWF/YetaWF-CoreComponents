@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Pages;
+using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
 
 namespace YetaWF.Core.Components {
@@ -79,28 +80,35 @@ namespace YetaWF.Core.Components {
 
             string extraCss = Manager.AddOnManager.CheckInvokedCssModule(cssClass);
 
-            if (sprites.TryGetValue(url, out string? css)) {
-
-                extraCss = CssManager.CombineCss(extraCss, Manager.AddOnManager.CheckInvokedCssModule(css));
-
+            string? css;
+            url = url.Trim();
+            if (url.StartsWith("#")) {
+                if (sprites.TryGetValue(url, out css)) {
+                    extraCss = CssManager.CombineCss(extraCss, Manager.AddOnManager.CheckInvokedCssModule(css));
+                    css = string.Empty;
+                    if (!string.IsNullOrWhiteSpace(extraCss))
+                        css = $" class='{extraCss}'";
+                    return $@"<i{css}{title}{id}{name}></i>";
+                }
+            } else if (url.StartsWith("<")) {
+                if (!url.StartsWith("<svg"))
+                    url = SkinSVGs.GetSkin($"FAV_{url.Substring(1)}");
                 css = string.Empty;
                 if (!string.IsNullOrWhiteSpace(extraCss))
                     css = $" class='{extraCss}'";
-                return $@"<i{css}{title}{id}{name}></i>";
-
-            } else {
-
-                if (string.IsNullOrWhiteSpace(alt))
-                    alt = title;
-                if (!string.IsNullOrWhiteSpace(alt))
-                    alt = $@" alt='{Utility.HAE(alt)}'";
-
-                css = string.Empty;
-                if (!string.IsNullOrWhiteSpace(extraCss))
-                    css = $" class='{extraCss}'";
-
-                return $@"<img src='{Utility.HAE(Manager.GetCDNUrl(url))}'{css}{title}{alt}{id}{name}>";
+                return $@"<svg{css}{title}{id}{name}{url.Substring(4)}";
             }
+
+            if (string.IsNullOrWhiteSpace(alt))
+                alt = title;
+            if (!string.IsNullOrWhiteSpace(alt))
+                alt = $@" alt='{Utility.HAE(alt)}'";
+
+            css = string.Empty;
+            if (!string.IsNullOrWhiteSpace(extraCss))
+                css = $" class='{extraCss}'";
+
+            return $@"<img src='{Utility.HAE(Manager.GetCDNUrl(url))}'{css}{title}{alt}{id}{name}>";
         }
     }
 }

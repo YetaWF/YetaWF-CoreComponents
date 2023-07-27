@@ -104,7 +104,7 @@ namespace YetaWF.Core.Modules {  // This namespace breaks naming standards so it
         public string? DefaultViewName { get; set; }
 
         [JsonIgnore] // so it's not saved when json serializing site properties
-        public virtual List<string> CategoryOrder { get { return new List<string> { "General", "Authorization", "Skin", "References", "Rss", "About", "Variables" }; } }
+        public virtual List<string> CategoryOrder { get { return new List<string> { "General", "Authorization", "Skin", "References", "Rss", "About", "Variables", "Pages" }; } }
 
         [Category("Variables"), Caption("Permanent Guid"), Description("Displays a unique identifier for this type of module. This is typically used for development purposes only and can be used to uniquely identify this module type. This id never changes")]
         [UIHint("Guid"), ReadOnly]

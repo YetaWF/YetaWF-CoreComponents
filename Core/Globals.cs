@@ -11,6 +11,7 @@ namespace YetaWF.Core {
         public const int MaxUser = 100;
         public const int MaxPswd = 100;
         public const int MaxUrl = 400;
+        public const int MaxSVG = 1000;
         public const int MaxEmail = 100;
         public const int MaxColor = 20;
         public const int MaxState = 2; // US State
