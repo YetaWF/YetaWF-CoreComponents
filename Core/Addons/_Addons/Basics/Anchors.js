@@ -38,6 +38,8 @@ var YetaWF;
                 var uri = $YetaWF.parseUrl(url);
                 if (uri.getPath().length === 0 || (!uri.getSchema().startsWith("http:") && !uri.getSchema().startsWith("https:")))
                     return true;
+                if (uri.getHostName() !== "" && uri.getHostName() !== window.document.domain)
+                    return true; // not for this domain
                 // add status/visibility of page control module
                 uri.removeSearch(YConfigs.Basics.Link_PageControl);
                 if (YVolatile.Basics.PageControlVisible)
@@ -115,8 +117,6 @@ var YetaWF;
                 _this.waitForCookie(cookieToReturn); // if any
                 if (cookieToReturn)
                     return true; // expecting cookie return
-                if (uri.getHostName() !== "" && uri.getHostName() !== window.document.domain)
-                    return true; // wrong domain
                 // if we're switching from https->http or from http->https don't use a unified page set
                 if (!window.document.location)
                     return true;

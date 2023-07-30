@@ -247,11 +247,11 @@ select.t_native { // native select (not DropDownList)
 }
 
 .modPanel {
-    margin-top: 1rem;
     background: var(--mpnl-bg);
     color: var(--mpnl-clr);
     border: var(--mpnl-border);
     border-radius: var(--mpnl-border-radius);
+    box-shadow: var(--mpnl-shadow);
     .yModuleTitle {
         display: flex;
         flex-direction: row;
@@ -288,7 +288,7 @@ select.t_native { // native select (not DropDownList)
     .yModuleContents {
         background: var(--body-bg);
         color: var(--body-clr);
-        padding: 1em;
+        padding: var(--mpnl-padding);
 
         transition: height .5s, padding .5s ease-in;
         overflow:hidden;

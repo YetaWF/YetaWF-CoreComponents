@@ -42,6 +42,8 @@ namespace YetaWF {
                 let uri = $YetaWF.parseUrl(url);
                 if (uri.getPath().length === 0 || (!uri.getSchema().startsWith("http:") && !uri.getSchema().startsWith("https:"))) return true;
 
+                if (uri.getHostName() !== "" && uri.getHostName() !== window.document.domain) return true; // not for this domain
+
                 // add status/visibility of page control module
                 uri.removeSearch(YConfigs.Basics.Link_PageControl);
                 if (YVolatile.Basics.PageControlVisible)
@@ -63,6 +65,7 @@ namespace YetaWF {
                     target = "_self";
 
                 // add originating module guid
+
                 if (!uri.hasSearch("__ModuleGuid")) {
                     const formJson = $YetaWF.Forms.getJSONInfo(anchor);
                     uri.addSearch("__ModuleGuid", formJson.ModuleGuid);
@@ -126,7 +129,6 @@ namespace YetaWF {
                 this.waitForCookie(cookieToReturn); // if any
 
                 if (cookieToReturn) return true; // expecting cookie return
-                if (uri.getHostName() !== "" && uri.getHostName() !== window.document.domain) return true; // wrong domain
                 // if we're switching from https->http or from http->https don't use a unified page set
                 if (!window.document.location) return true;
                 if (!url.startsWith("http") || !window.document.location.href.startsWith("http")) return true; // neither http nor https

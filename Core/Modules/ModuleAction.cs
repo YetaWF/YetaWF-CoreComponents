@@ -17,8 +17,8 @@ namespace YetaWF.Core.Modules {
 
         protected static YetaWFManager Manager { get { return YetaWFManager.Manager; } }
 
-        public const int MaxTooltip = 100;
-        public const int MaxLegend = 100;
+        public const int MaxTooltip = 200;
+        public const int MaxLegend = 200;
         public const int MaxConfirmationText = 200;
         public const int MaxPleaseWaitText = 200;
         public const int MaxCssClass = 40;
