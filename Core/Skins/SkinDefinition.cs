@@ -22,6 +22,7 @@ namespace YetaWF.Core.Skins {
         public int Width { get; set; } // popup width
         [System.ComponentModel.DataAnnotations.Required]
         public int Height { get; set; } // popup width
+        public int MaxHeight { get; set; } = 0; // max. popup height (when Height is 0)
         public bool MaximizeButton { get; set; } // popup has maximize button RFFU
     }
 

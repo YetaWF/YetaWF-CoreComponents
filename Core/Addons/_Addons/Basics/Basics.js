@@ -133,7 +133,7 @@ var YetaWF;
                 tags = [];
                 tags.push(document.body);
             }
-            // if the page as a yFocusOnMe css class, ignore element focus requests
+            // if the page has a yFocusOnMe css class, ignore element focus requests
             if ($YetaWF.elementHasClass(document.body, "yFocusOnMe"))
                 return;
             var f = null;
@@ -389,7 +389,7 @@ var YetaWF;
                 if (this.getElementByIdCond(entry.module.id)) { // the module exists
                     if (this.getElementByIdCond(entry.tagId)) {
                         // the tag requesting the callback still exists
-                        if (!this.elementClosestCond(entry.module, ".yPopup, .yPopupDyn")) // don't refresh modules within popups when refreshing the page
+                        if (!this.elementClosestCond(entry.module, ".yPopup")) // don't refresh modules within popups when refreshing the page
                             entry.callback(entry.module);
                     }
                     else {
@@ -1650,24 +1650,17 @@ var YetaWF;
                 $YetaWF.sendCustomEvent(document.body, YetaWF.Content.EVENTNAVPAGELOADED, { containers: [document.body] });
             }, 1);
         };
-        Object.defineProperty(BasicsServices.prototype, "isPrinting", {
-            /* Print support */
-            get: function () {
-                return BasicsServices.printing;
-            },
-            enumerable: false,
-            configurable: true
-        });
+        /* Print support */
         BasicsServices.prototype.DoPrint = function () {
-            YetaWF.BasicsServices.onBeforePrint(); // window.print doesn't generate onBeforePrint
+            YetaWF.BasicsServices.onBeforePrint();
             window.print();
         };
         BasicsServices.onBeforePrint = function () {
-            BasicsServices.printing = true;
+            // console.log("onBeforePrint");
             $YetaWF.sendCustomEvent(window.document, BasicsServices.EVENTBEFOREPRINT);
         };
         BasicsServices.onAfterPrint = function () {
-            BasicsServices.printing = false;
+            // console.log("onAfterPrint");
             $YetaWF.sendCustomEvent(window.document, BasicsServices.EVENTAFTERPRINT);
         };
         Object.defineProperty(BasicsServices.prototype, "pageChanged", {
@@ -1693,7 +1686,6 @@ var YetaWF;
         BasicsServices.EVENTACTIVATEDIV = "activate_div";
         BasicsServices.EVENTPANELSWITCHED = "panel_switched";
         BasicsServices.EVENTADDONCHANGED = "addon_changed";
-        BasicsServices.printing = false;
         return BasicsServices;
     }());
     YetaWF.BasicsServices = BasicsServices;
@@ -1707,12 +1699,14 @@ $YetaWF.ContentHandling = new YetaWF.Content();
 /* Print support */
 if (window.matchMedia) {
     var mediaQueryList = window.matchMedia("print");
-    mediaQueryList.addListener(function (ev) {
+    mediaQueryList.addEventListener("change", function (ev) {
         // eslint-disable-next-line no-invalid-this
         if (this.matches) {
+            // console.log("YetaWF.BasicsServices.onBeforePrint()");
             YetaWF.BasicsServices.onBeforePrint();
         }
         else {
+            // console.log("YetaWF.BasicsServices.onAfterPrint()");
             YetaWF.BasicsServices.onAfterPrint();
         }
     });

@@ -126,6 +126,8 @@ namespace YetaWF.Core.Skins {
                 css = CssManager.CombineCss(css, Manager.AddOnManager.CheckInvokedCssModule(mod.CssClass));
             if (!mod.Print)
                 css = CssManager.CombineCss(css, Manager.AddOnManager.CheckInvokedCssModule(Globals.CssModuleNoPrint));
+            if (mod.WantFocus)
+                css = CssManager.CombineCss(css, "yFocusOnMe");
 
             // add css classes to modules that can't be seen by anonymous users and users
             bool showOwnership = UserSettings.GetProperty<bool>("ShowModuleOwnership") && await Resource.ResourceAccess.IsResourceAuthorizedAsync(CoreInfo.Resource_ViewOwnership);

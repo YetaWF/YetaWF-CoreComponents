@@ -36,6 +36,10 @@ namespace YetaWF.Core.Models {
         public MultiString? ToolTip { get; set; }
         public string? TabCssClasses { get; set; }
         public string? PaneCssClasses { get; set; }
+        /// <summary>
+        /// Defines whether small scrollbars are shown.
+        /// </summary>
+        public bool MiniScroll { get; set; }
         public Func<int, Task<string>>? RenderPaneAsync { get; set; }
     }
 }

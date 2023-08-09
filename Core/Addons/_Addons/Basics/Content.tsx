@@ -9,6 +9,7 @@ namespace YetaWF {
         CacheFailUrl: string | null;
         Path: string;
         QueryString: string;
+        EditMode: boolean;
         UnifiedAddonMods: string[];
         UniqueIdCounters: UniqueIdInfo;
         IsMobile: boolean;
@@ -179,8 +180,6 @@ namespace YetaWF {
          */
         public setContentForce(uriRequested: YetaWF.Url, setState: boolean, popupCB?: (result: ContentResult, done: (dialog: HTMLElement) => void) => void, inplace?: InplaceContents, contentCB?: (result: ContentResult|null) => void): SetContentResult {
 
-            if (YVolatile.Basics.EditModeActive) return SetContentResult.NotContent; // edit mode
-
             // check if we're clicking a link which is part of this unified page
             let uri: YetaWF.Url;
             if (inplace)
@@ -194,8 +193,6 @@ namespace YetaWF {
                 divs = $YetaWF.getElementsBySelector(`.${inplace.FromPane}.yUnified[data-pane]`); // only requested pane
             else
                 divs = $YetaWF.getElementsBySelector(".yUnified[data-pane]"); // all panes
-            if (divs.length === 0) // can occur in popups while in edit mode
-                return SetContentResult.NotContent; // edit mode
 
             // build data context (like scripts, css files we have)
             let data: ContentData = {
@@ -203,6 +200,7 @@ namespace YetaWF {
                 CacheFailUrl: inplace ? inplace.PageUrl : null,
                 Path: path,
                 QueryString: uri.getQuery(),
+                EditMode: YVolatile.Basics.EditModeActive,
                 UnifiedAddonMods: $YetaWF.UnifiedAddonModsLoaded,
                 UniqueIdCounters: YVolatile.Basics.UniqueIdCounters,
                 IsMobile: $YetaWF.isMobile(),
@@ -275,8 +273,8 @@ namespace YetaWF {
             if (result.Redirect != null && result.Redirect.length > 0) {
                 //$YetaWF.setLoading(false);
                 if (popupCB) {
-                    // we want a popup and get a redirect, redirect to iframe popup
-                    $YetaWF.Popups.openPopup(result.Redirect, true);
+                    // we want a popup and get a redirect
+                    $YetaWF.Popups.openPopup(result.Redirect);
                 } else {
                     // simple redirect
                     window.location.assign(result.Redirect);

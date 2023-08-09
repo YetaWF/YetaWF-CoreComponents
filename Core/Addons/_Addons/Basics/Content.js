@@ -105,8 +105,6 @@ var YetaWF;
          */
         Content.prototype.setContentForce = function (uriRequested, setState, popupCB, inplace, contentCB) {
             var _this = this;
-            if (YVolatile.Basics.EditModeActive)
-                return SetContentResult.NotContent; // edit mode
             // check if we're clicking a link which is part of this unified page
             var uri;
             if (inplace)
@@ -119,14 +117,13 @@ var YetaWF;
                 divs = $YetaWF.getElementsBySelector(".".concat(inplace.FromPane, ".yUnified[data-pane]")); // only requested pane
             else
                 divs = $YetaWF.getElementsBySelector(".yUnified[data-pane]"); // all panes
-            if (divs.length === 0) // can occur in popups while in edit mode
-                return SetContentResult.NotContent; // edit mode
             // build data context (like scripts, css files we have)
             var data = {
                 CacheVersion: YVolatile.Basics.CacheVersion,
                 CacheFailUrl: inplace ? inplace.PageUrl : null,
                 Path: path,
                 QueryString: uri.getQuery(),
+                EditMode: YVolatile.Basics.EditModeActive,
                 UnifiedAddonMods: $YetaWF.UnifiedAddonModsLoaded,
                 UniqueIdCounters: YVolatile.Basics.UniqueIdCounters,
                 IsMobile: $YetaWF.isMobile(),
@@ -199,8 +196,8 @@ var YetaWF;
             if (result.Redirect != null && result.Redirect.length > 0) {
                 //$YetaWF.setLoading(false);
                 if (popupCB) {
-                    // we want a popup and get a redirect, redirect to iframe popup
-                    $YetaWF.Popups.openPopup(result.Redirect, true);
+                    // we want a popup and get a redirect
+                    $YetaWF.Popups.openPopup(result.Redirect);
                 }
                 else {
                     // simple redirect

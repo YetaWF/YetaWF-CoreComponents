@@ -281,7 +281,7 @@ namespace YetaWF {
                 tags = [];
                 tags.push(document.body);
             }
-            // if the page as a yFocusOnMe css class, ignore element focus requests
+            // if the page has a yFocusOnMe css class, ignore element focus requests
             if ($YetaWF.elementHasClass(document.body, "yFocusOnMe"))
                 return;
             let f: HTMLElement | null = null;
@@ -564,7 +564,7 @@ namespace YetaWF {
                 if (this.getElementByIdCond(entry.module.id)) { // the module exists
                     if (this.getElementByIdCond(entry.tagId)) {
                         // the tag requesting the callback still exists
-                        if (!this.elementClosestCond(entry.module, ".yPopup, .yPopupDyn")) // don't refresh modules within popups when refreshing the page
+                        if (!this.elementClosestCond(entry.module, ".yPopup")) // don't refresh modules within popups when refreshing the page
                             entry.callback(entry.module);
                     } else {
                         // the tag requesting the callback no longer exists
@@ -1839,23 +1839,18 @@ namespace YetaWF {
         }
 
         /* Print support */
-        public get isPrinting(): boolean {
-            return BasicsServices.printing;
-        }
-
-        private static printing: boolean = false;
 
         public DoPrint(): void {
-            YetaWF.BasicsServices.onBeforePrint(); // window.print doesn't generate onBeforePrint
+            YetaWF.BasicsServices.onBeforePrint();
             window.print();
         }
 
         public static onBeforePrint(): void {
-            BasicsServices.printing = true;
+            // console.log("onBeforePrint");
             $YetaWF.sendCustomEvent(window.document, BasicsServices.EVENTBEFOREPRINT);
         }
         public static onAfterPrint(): void {
-            BasicsServices.printing = false;
+            // console.log("onAfterPrint");
             $YetaWF.sendCustomEvent(window.document, BasicsServices.EVENTAFTERPRINT);
         }
 
@@ -1884,11 +1879,13 @@ $YetaWF.ContentHandling = new YetaWF.Content();
 
 if (window.matchMedia) {
     let mediaQueryList = window.matchMedia("print");
-    mediaQueryList.addListener(function (this: MediaQueryList, ev: MediaQueryListEvent): void {
+    mediaQueryList.addEventListener("change", function (this: MediaQueryList, ev: MediaQueryListEvent): void {
         // eslint-disable-next-line no-invalid-this
         if (this.matches) {
+            // console.log("YetaWF.BasicsServices.onBeforePrint()");
             YetaWF.BasicsServices.onBeforePrint();
         } else {
+            // console.log("YetaWF.BasicsServices.onAfterPrint()");
             YetaWF.BasicsServices.onAfterPrint();
         }
     });

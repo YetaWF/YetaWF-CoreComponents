@@ -111,7 +111,9 @@ select.t_native { // native select (not DropDownList)
 .yPane {
     position: relative;
 }
-
+.yPaneTag {
+    display: none;
+}
 .yModule {
     position: relative;
 }

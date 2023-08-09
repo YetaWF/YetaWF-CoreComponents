@@ -139,7 +139,7 @@ namespace YetaWF.Core.Components {
         public abstract string GetPageName();
 
         public async Task<string> RenderPaneAsync(string pane, string? cssClass = null, bool Unified = false) {
-            return await Manager.CurrentPage.RenderPaneAsync(HtmlHelper, pane, cssClass, Unified: !Manager.EditMode && Unified);
+            return await Manager.CurrentPage.RenderPaneAsync(HtmlHelper, pane, cssClass, Unified: Unified);
         }
     }
 }

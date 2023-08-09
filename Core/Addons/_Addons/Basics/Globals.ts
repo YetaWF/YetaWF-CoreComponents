@@ -79,6 +79,7 @@ namespace YetaWF {
         // Popup information
         PopupWidth: number;
         PopupHeight: number;
+        PopupMaxHeight: number;
         PopupMaximize: boolean;
         PopupCss: string;
         MinWidthForPopups: number;

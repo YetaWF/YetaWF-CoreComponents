@@ -12,13 +12,8 @@ public class Popups : IAddOnSupport {
     public const int DefaultPopupHeight = 600;
 
     public Task AddSupportAsync(YetaWFManager manager) {
-
         ScriptManager scripts = manager.ScriptManager;
-
         scripts.AddVolatileOption("Popups", "AllowPopups", manager.CurrentSite.AllowPopups);
-        scripts.AddConfigOption("Popups", "DefaultPopupWidth", DefaultPopupWidth);
-        scripts.AddConfigOption("Popups", "DefaultPopupHeight", DefaultPopupHeight);
-
         return Task.CompletedTask;
     }
 }

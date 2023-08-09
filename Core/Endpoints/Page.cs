@@ -357,7 +357,7 @@ public class PageEndpoints : YetaWFEndpoints {
         public bool Success { get; set; }
     }
     private static async Task<CanProcessAsStaticPageInfo> CanProcessAsStaticPageAsync(Uri uri) {
-        if (Manager.CurrentSite.StaticPages && !Manager.HaveUser && !PageContentEndpoints.GetTempEditMode() && Manager.CurrentSite.AllowAnonymousUsers && string.Compare(Manager.HostUsed, Manager.CurrentSite.SiteDomain, true) == 0) {
+        if (Manager.CurrentSite.StaticPages && !Manager.HaveUser && !GetTempEditMode() && Manager.CurrentSite.AllowAnonymousUsers && string.Compare(Manager.HostUsed, Manager.CurrentSite.SiteDomain, true) == 0) {
             // support static pages for exact domain match only (so other sites, like blue/green don't use static pages)
             string localUrl = uri.LocalPath;
             if (Manager.ActiveDevice == YetaWFManager.DeviceSelected.Desktop && PageContentEndpoints.GoingToPopup()) {
@@ -379,7 +379,7 @@ public class PageEndpoints : YetaWFEndpoints {
     }
     private static async Task<ProcessingStatus> CanProcessAsDesignedPageAsync(PageDefinition page, Uri uri) {
         // request for a designed page
-        if (!PageContentEndpoints.GetTempEditMode()) { // only redirect if we're not editing
+        if (!GetTempEditMode()) { // only redirect if we're not editing
             if (!string.IsNullOrWhiteSpace(page.RedirectToPageUrl)) {
                 if (page.RedirectToPageUrl.StartsWith("/") && page.RedirectToPageUrl.IndexOf('?') < 0) {
                     PageDefinition? redirectPage = await PageDefinition.LoadFromUrlAsync(page.RedirectToPageUrl);
@@ -403,7 +403,7 @@ public class PageEndpoints : YetaWFEndpoints {
         }
         if ((Manager.HaveUser || Manager.CurrentSite.AllowAnonymousUsers || string.Compare(uri.LocalPath, Manager.CurrentSite.LoginUrl, true) == 0) && page.IsAuthorized_View()) {
             // if the requested page is for desktop but we're on a mobile device, find the correct page to display
-            if (!PageContentEndpoints.GetTempEditMode()) { // only redirect if we're not editing
+            if (!GetTempEditMode()) { // only redirect if we're not editing
                 if (Manager.ActiveDevice == YetaWFManager.DeviceSelected.Mobile && !string.IsNullOrWhiteSpace(page.MobilePageUrl)) {
                     PageDefinition? mobilePage = await PageDefinition.LoadFromUrlAsync(page.MobilePageUrl);
                     if (mobilePage != null) {
@@ -424,7 +424,7 @@ public class PageEndpoints : YetaWFEndpoints {
                 }
             }
             Manager.CurrentPage = page;// Found It!!
-            if (PageContentEndpoints.GetTempEditMode() && Manager.CurrentPage.IsAuthorized_Edit())
+            if (GetTempEditMode() && Manager.CurrentPage.IsAuthorized_Edit())
                 Manager.EditMode = true;
 
             if (Manager.ActiveDevice == YetaWFManager.DeviceSelected.Desktop && PageContentEndpoints.GoingToPopup()) {
@@ -506,7 +506,7 @@ public class PageEndpoints : YetaWFEndpoints {
             PageDefinition page = PageDefinition.Create();
             page.AddModule(Globals.MainPane, module);
             Manager.CurrentPage = page;
-            if (PageContentEndpoints.GetTempEditMode() && Manager.CurrentPage.IsAuthorized_Edit())
+            if (GetTempEditMode() && Manager.CurrentPage.IsAuthorized_Edit())
                 Manager.EditMode = true;
             if (Manager.ActiveDevice == YetaWFManager.DeviceSelected.Desktop && PageContentEndpoints.GoingToPopup()) {
                 // we're going into a popup for this
@@ -563,7 +563,9 @@ public class PageEndpoints : YetaWFEndpoints {
         if (Manager.IsInPopup) {
             Manager.ScriptManager.AddVolatileOption("Skin", "PopupWidth", pageSkin.Width);// Skin size in a popup window
             Manager.ScriptManager.AddVolatileOption("Skin", "PopupHeight", pageSkin.Height);
+            Manager.ScriptManager.AddVolatileOption("Skin", "PopupMaxHeight", pageSkin.MaxHeight);
             Manager.ScriptManager.AddVolatileOption("Skin", "PopupMaximize", pageSkin.MaximizeButton);
+            Manager.ScriptManager.AddVolatileOption("Skin", "PopupCss", pageSkin.CSS);
         }
         Manager.LastUpdated = requestedPage.Updated;
 
@@ -631,5 +633,16 @@ public class PageEndpoints : YetaWFEndpoints {
             pos = index;
         }
         return viewHtml;
+    }
+
+    internal static bool GetTempEditMode() {
+        if (!Manager.HaveUser)
+            return false;
+        try {
+            string? editMode = Manager.RequestQueryString[Globals.Link_EditMode];
+            if (editMode != null)
+                return true;
+        } catch (Exception) { }
+        return false;
     }
 }

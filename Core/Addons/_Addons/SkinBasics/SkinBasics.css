@@ -105,6 +105,10 @@ select.t_native option:focus {
   position: relative;
 }
 
+.yPaneTag {
+  display: none;
+}
+
 .yModule {
   position: relative;
 }

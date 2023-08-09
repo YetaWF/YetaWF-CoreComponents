@@ -31,11 +31,6 @@ namespace YetaWF {
          * Opens a dynamic popup, usually a div added to the current document.
          */
         openDynamicPopup(result: ContentResult, done: (dialog: HTMLElement) => void): void;
-
-        /**
-         * Open a static popup, usually a popup based on iframe.
-         */
-        openStaticPopup(url: string): void;
     }
 
     export interface IVolatile {
@@ -43,14 +38,6 @@ namespace YetaWF {
     }
     export interface IVolatilePopups {
         AllowPopups: boolean;
-    }
-
-    export interface IConfigs {
-        Popups: IConfigsPopups;
-    }
-    export interface IConfigsPopups {
-        DefaultPopupWidth: number;
-        DefaultPopupHeight: number;
     }
 
     export class Popups {
@@ -80,10 +67,9 @@ namespace YetaWF {
         /**
          * opens a popup given a url
          */
-        public openPopup(url: string, forceIframe: boolean, forceContent?: boolean): boolean {
+        public openPopup(url: string, forceContent?: boolean): boolean {
 
             $YetaWF.setLoading(true);
-
             $YetaWF.closeOverlays();
 
             // build a url that has a random portion so the page is not cached - this is so we can have the same page nested within itself
@@ -94,18 +80,10 @@ namespace YetaWF {
             url += new Date().getUTCMilliseconds();
             url += "&" + YConfigs.Basics.Link_ToPopup + "=y";// we're now going into a popup
 
-            if (!forceIframe) {
-                let result: SetContentResult;
-                if (forceContent)
-                    result = $YetaWF.ContentHandling.setContentForce($YetaWF.parseUrl(url), false, YetaWF_PopupsImpl.openDynamicPopup);
-                else
-                    result = $YetaWF.ContentHandling.setContent($YetaWF.parseUrl(url), false, YetaWF_PopupsImpl.openDynamicPopup);
-                if (result !== SetContentResult.NotContent) {
-                    // contents set in dynamic popup or not allowed
-                    return true;
-                }
-            }
-            YetaWF_PopupsImpl.openStaticPopup(url);
+            if (forceContent)
+                $YetaWF.ContentHandling.setContentForce($YetaWF.parseUrl(url), false, YetaWF_PopupsImpl.openDynamicPopup);
+            else
+                $YetaWF.ContentHandling.setContent($YetaWF.parseUrl(url), false, YetaWF_PopupsImpl.openDynamicPopup);
             return true;
         }
 
@@ -132,11 +110,11 @@ namespace YetaWF {
                 (url.startsWith("https://") !== window.document.location.href.startsWith("https://")))
                 return false;
             if (YVolatile.Basics.EditModeActive || YVolatile.Basics.PageControlVisible) {
-                //if we're in edit mode or the page control module is visible, all links bring up a page (no popups) except for modules with the PopupEdit style
+                // if we're in edit mode or the page control module is visible, all links bring up a page (no popups) except for modules with the PopupEdit style
                 if (elem.getAttribute(YConfigs.Basics.CssAttrDataSpecialEdit) == null)
                     return false;
             }
-            return this.openPopup(url, false, true);
+            return this.openPopup(url, true);
         }
 
         /**

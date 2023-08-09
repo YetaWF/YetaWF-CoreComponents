@@ -18,7 +18,6 @@ using YetaWF.Core.Pages;
 using YetaWF.Core.Site;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
-using YetaWF.Core.Support.UrlHistory;
 
 namespace YetaWF.Core.Endpoints;
 
@@ -163,6 +162,10 @@ public class PageContentEndpoints : YetaWFEndpoints {
         /// </summary>
         public string QueryString { get; set; } = null!;
         /// <summary>
+        /// Defines whether the current page is in edit mode.
+        /// </summary>
+        public bool EditMode { get; set; }
+        /// <summary>
         /// A list of "Referenced Modules" that have been loaded by the current page.
         /// </summary>
         public List<Guid>? UnifiedAddonMods { get; set; }
@@ -174,14 +177,6 @@ public class PageContentEndpoints : YetaWFEndpoints {
         /// Defines whether the current page was rendered on a mobile device.
         /// </summary>
         public bool IsMobile { get; set; }
-        /// <summary>
-        /// Defines the skin collection used by the current page.
-        /// </summary>
-        public string UnifiedSkinCollection { get; set; } = null!;
-        /// <summary>
-        /// Defines the skin collection's file used by the current page.
-        /// </summary>
-        public string UnifiedSkinFileName { get; set; } = null!;
         /// <summary>
         /// The collection of pages requested.
         /// </summary>
@@ -208,6 +203,7 @@ public class PageContentEndpoints : YetaWFEndpoints {
             return Results.NotFound(dataIn.Path);
 
         Manager.CurrentUrl = QueryHelper.ToUrl(dataIn.Path, dataIn.QueryString);
+        Manager.EditMode = dataIn.EditMode;
 
         Uri uri = new Uri(Manager.CurrentRequestUrl);
         SiteDefinition site = Manager.CurrentSite;
@@ -217,8 +213,6 @@ public class PageContentEndpoints : YetaWFEndpoints {
 
         // process logging type callbacks
         await PageLogging.HandleCallbacksAsync(dataIn.Path, false);
-
-        if (Manager.EditMode) throw new InternalError("Unified Page Sets can't be used in Site Edit Mode");
 
         if (site.IsLockedAny && !string.IsNullOrWhiteSpace(site.GetLockedForIP()) && !string.IsNullOrWhiteSpace(site.LockedUrl) &&
                 Manager.UserHostAddress != site.GetLockedForIP() && Manager.UserHostAddress != "127.0.0.1" &&
@@ -416,6 +410,10 @@ public class PageContentEndpoints : YetaWFEndpoints {
                 }
             }
             Manager.CurrentPage = page;// Found It!!
+            if (Manager.EditMode && !Manager.CurrentPage.IsAuthorized_Edit()) {
+                cr.Status = Logging.AddErrorLog("403 Not Authorized");
+                return ProcessingStatus.Complete;
+            }
             if (PageContentEndpoints.GoingToPopup()) {
                 // this is a popup request
                 Manager.IsInPopup = true;
@@ -444,6 +442,8 @@ public class PageContentEndpoints : YetaWFEndpoints {
     private static ProcessingStatus CanProcessAsModule(ModuleDefinition module) {
         // direct request for a module without page
         if ((Manager.HaveUser || Manager.CurrentSite.AllowAnonymousUsers) && module.IsAuthorized(ModuleDefinition.RoleDefinition.View)) {
+            if (Manager.EditMode && !module.IsAuthorized(ModuleDefinition.RoleDefinition.Edit))
+                return ProcessingStatus.No;
             PageDefinition page = PageDefinition.Create();
             page.AddModule(Globals.MainPane, module);
             Manager.CurrentPage = page;
@@ -481,6 +481,7 @@ public class PageContentEndpoints : YetaWFEndpoints {
             if (Manager.IsInPopup) {
                 Manager.ScriptManager.AddVolatileOption("Skin", "PopupWidth", pageSkin.Width);// Skin size in a popup window
                 Manager.ScriptManager.AddVolatileOption("Skin", "PopupHeight", pageSkin.Height);
+                Manager.ScriptManager.AddVolatileOption("Skin", "PopupMaxHeight", pageSkin.MaxHeight);
                 Manager.ScriptManager.AddVolatileOption("Skin", "PopupMaximize", pageSkin.MaximizeButton);
                 Manager.ScriptManager.AddVolatileOption("Skin", "PopupCss", pageSkin.CSS);
             }
@@ -558,15 +559,5 @@ public class PageContentEndpoints : YetaWFEndpoints {
             pageControlShown = Manager.RequestQueryString[Globals.Link_PageControl];
         } catch (Exception) { }
         return pageControlShown != null;
-    }
-    internal static bool GetTempEditMode() {
-        if (!Manager.HaveUser)
-            return false;
-        try {
-            string? editMode = Manager.RequestQueryString[Globals.Link_EditMode];
-            if (editMode != null)
-                return true;
-        } catch (Exception) { }
-        return false;
     }
 }

@@ -422,9 +422,8 @@ namespace YetaWF.Core.Pages {
             // render all modules that are on this pane
             HtmlBuilder hb = new HtmlBuilder();
 
-            if (Manager.EditMode && !Manager.IsInPopup) { // add the pane name in edit mode
+            if (!Manager.IsInPopup)
                 hb.Append($@"<div class='{Manager.AddOnManager.CheckInvokedCssModule(Globals.CssPaneTag)}'>{Utility.HE(pane)}</div>");
-            }
 
             foreach (var modEntry in moduleList) {
                 if (string.Compare(modEntry.Pane, pane, true) == 0) {

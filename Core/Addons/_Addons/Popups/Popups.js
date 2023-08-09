@@ -29,7 +29,7 @@ var YetaWF;
         /**
          * opens a popup given a url
          */
-        Popups.prototype.openPopup = function (url, forceIframe, forceContent) {
+        Popups.prototype.openPopup = function (url, forceContent) {
             $YetaWF.setLoading(true);
             $YetaWF.closeOverlays();
             // build a url that has a random portion so the page is not cached - this is so we can have the same page nested within itself
@@ -39,18 +39,10 @@ var YetaWF;
                 url += "&";
             url += new Date().getUTCMilliseconds();
             url += "&" + YConfigs.Basics.Link_ToPopup + "=y"; // we're now going into a popup
-            if (!forceIframe) {
-                var result = void 0;
-                if (forceContent)
-                    result = $YetaWF.ContentHandling.setContentForce($YetaWF.parseUrl(url), false, YetaWF_PopupsImpl.openDynamicPopup);
-                else
-                    result = $YetaWF.ContentHandling.setContent($YetaWF.parseUrl(url), false, YetaWF_PopupsImpl.openDynamicPopup);
-                if (result !== YetaWF.SetContentResult.NotContent) {
-                    // contents set in dynamic popup or not allowed
-                    return true;
-                }
-            }
-            YetaWF_PopupsImpl.openStaticPopup(url);
+            if (forceContent)
+                $YetaWF.ContentHandling.setContentForce($YetaWF.parseUrl(url), false, YetaWF_PopupsImpl.openDynamicPopup);
+            else
+                $YetaWF.ContentHandling.setContent($YetaWF.parseUrl(url), false, YetaWF_PopupsImpl.openDynamicPopup);
             return true;
         };
         /**
@@ -75,11 +67,11 @@ var YetaWF;
                 (url.startsWith("https://") !== window.document.location.href.startsWith("https://")))
                 return false;
             if (YVolatile.Basics.EditModeActive || YVolatile.Basics.PageControlVisible) {
-                //if we're in edit mode or the page control module is visible, all links bring up a page (no popups) except for modules with the PopupEdit style
+                // if we're in edit mode or the page control module is visible, all links bring up a page (no popups) except for modules with the PopupEdit style
                 if (elem.getAttribute(YConfigs.Basics.CssAttrDataSpecialEdit) == null)
                     return false;
             }
-            return this.openPopup(url, false, true);
+            return this.openPopup(url, true);
         };
         /**
          * Handles links in a popup that link to a url in the outer parent (main) window.

@@ -32,7 +32,7 @@ namespace YetaWF.Core.Pages {
                     "/*****************************************/\n" +
                     "/* Powered by Yet Another Web Framework  */\n" +
                     "/* https://YetaWF.com                    */\n" +
-                    $"/* (c) Copyright {DateTime.Now.Year.ToString()} - Softel vdm, Inc. */\n" + // local time
+                    $"/* (c) Copyright {DateTime.Now.Year} - Softel vdm, Inc. */\n" + // local time
                     "/*****************************************/" +
                     "\n";
             }
