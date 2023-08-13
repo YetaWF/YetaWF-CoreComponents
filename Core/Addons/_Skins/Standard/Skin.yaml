@@ -15,7 +15,15 @@ PageSkins:
 PopupSkins:
     - Name: Popup (Default)
       ViewName: Popup
-      Description: Standard popup window
+      Description: Standard popup window (auto height, max. 700px)
+      CSS: popup
+      Width: 1000
+      Height: 0
+      MaxHeight: 700
+      MaximizeButton: false
+    - Name: Popup (Fixed)
+      ViewName: PopupFixed
+      Description: Fixed popup window (1000 x 700px)
       CSS: popup
       Width: 1000
       Height: 700

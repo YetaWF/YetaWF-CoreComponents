@@ -88,6 +88,16 @@ namespace YetaWF.Core.Skins.Pages {
         public override string GetPageName() { return SkinAccess.POPUP_VIEW_DEFAULT; }
     }
     /// <summary>
+    /// Implements the PopupFixed page.
+    /// </summary>
+    public class PopupFixedPage : PopupPageBase {
+        /// <summary>
+        /// Returns the name of the page.
+        /// </summary>
+        /// <returns>Returns the name of the page.</returns>
+        public override string GetPageName() { return SkinAccess.POPUP_VIEW_FIXED; }
+    }
+    /// <summary>
     /// Implements the PopupSmall page.
     /// </summary>
     public class PopupSmallPage : PopupPageBase {

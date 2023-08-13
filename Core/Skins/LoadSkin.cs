@@ -21,11 +21,12 @@ namespace YetaWF.Core.Skins {
         public const string PAGE_VIEW_PLAIN = "Plain";
 
         public const string POPUP_VIEW_DEFAULT = "Popup";
+        public const string POPUP_VIEW_FIXED = "PopupFixed";
         public const string POPUP_VIEW_SMALL = "PopupSmall";
         public const string POPUP_VIEW_MEDIUM = "PopupMedium";
 
         private readonly List<string> RequiredPages = new List<string> { PAGE_VIEW_DEFAULT, PAGE_VIEW_PLAIN };
-        private readonly List<string> RequiredPopups = new List<string> { POPUP_VIEW_DEFAULT, POPUP_VIEW_SMALL, POPUP_VIEW_MEDIUM };
+        private readonly List<string> RequiredPopups = new List<string> { POPUP_VIEW_DEFAULT, POPUP_VIEW_FIXED, POPUP_VIEW_SMALL, POPUP_VIEW_MEDIUM };
         private readonly List<string> RequiredModules = new List<string> { MODULE_SKIN_DEFAULT, MODULE_SKIN_PANEL };
 
         public async Task<SkinCollectionInfo> LoadSkinAsync(Package package, string domain, string product, string name, string folder) {
