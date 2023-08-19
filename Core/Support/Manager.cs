@@ -8,7 +8,6 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Net.Http.Headers;
-using SixLabors.ImageSharp;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -31,7 +30,6 @@ using YetaWF.Core.Site;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support.Repository;
 using YetaWF.Core.Support.StaticPages;
-using YetaWF.Core.Support.UrlHistory;
 
 namespace YetaWF.Core.Support {
 
