@@ -288,6 +288,7 @@ select.t_native { // native select (not DropDownList)
         }
     }
     .yModuleContents {
+        display: block;// fixes simplebar with grids in panels
         background: var(--body-bg);
         color: var(--body-clr);
         padding: var(--mpnl-padding);

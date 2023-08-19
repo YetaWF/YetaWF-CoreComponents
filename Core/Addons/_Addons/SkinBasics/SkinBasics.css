@@ -276,6 +276,7 @@ select.t_native option:focus {
   margin: 0.2em;
 }
 .modPanel .yModuleContents {
+  display: block;
   background: var(--body-bg);
   color: var(--body-clr);
   padding: var(--mpnl-padding);

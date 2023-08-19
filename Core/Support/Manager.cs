@@ -8,6 +8,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Net.Http.Headers;
+using SixLabors.ImageSharp;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -979,6 +980,20 @@ namespace YetaWF.Core.Support {
                 return request;
             }
         }
+        internal Uri ChangeRequest(string newPath, string newQS) {
+            UriBuilder u = new UriBuilder(Manager.CurrentRequestUrl);
+            CurrentContext.Request.Path = u.Path = newPath;
+            CurrentContext.Request.QueryString = QueryHelper.MakeQueryString(newQS);
+            u.Query = CurrentContext.Request.QueryString.ToString();
+            CurrentRequestChanged();
+            return u.Uri;
+        }
+
+        public void CurrentRequestChanged() {
+            _requestQueryString = null;
+            _requestForm = null;
+        }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification = "This is a catastrophic error so we must abort")]
         public HttpResponse CurrentResponse {
             get {
@@ -1044,7 +1059,7 @@ namespace YetaWF.Core.Support {
         }
 
         /// <summary>
-        /// Describes the current URL requested. CurrentRequestUrl may not match the full page URL in UPS requests.
+        /// Describes the current URL requested.
         /// </summary>
         public string CurrentRequestUrl {
             get {
@@ -1060,7 +1075,7 @@ namespace YetaWF.Core.Support {
         private string? _currentRequestUrl;
 
         /// <summary>
-        /// Describes the current URL (path and query string only) requested, as shown by browser, which matches the page URL. CurrentRequestUrl may not match the full page URL in UPS requests.
+        /// Describes the current URL (path and query string only) requested, as shown by browser, which matches the page URL.
         /// </summary>
         public string CurrentUrl { get; set; } = null!;
 
@@ -1292,7 +1307,8 @@ namespace YetaWF.Core.Support {
             s = CssManager.CombineCss(s, ModeCss);// edit/display mode (doesn't change in same Unified page set)
             s = CssManager.CombineCss(s, HaveUser ? "yUser" : "yAnonymous");// add whether we have an authenticated user (doesn't change in same Unified page set)
             s = CssManager.CombineCss(s, IsInPopup ? "yPopup" : "yPage"); // popup or full page (doesn't change in same Unified page set)
-            s = CssManager.CombineCss(s, $"pageTheme{Manager.CurrentSite.Theme}");
+            string theme = UserSettings.GetProperty<string?>("Theme") ?? Manager.CurrentSite.Theme ?? SiteDefinition.DefaultTheme;
+            s = CssManager.CombineCss(s, $"pageTheme{theme}");
 
             string cssClasses = CurrentPage.GetCssClass(); // get page specific Css (once only, used 2x)
 

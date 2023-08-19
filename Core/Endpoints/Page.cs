@@ -11,6 +11,7 @@ using YetaWF.Core.Addons;
 using YetaWF.Core.Components;
 using YetaWF.Core.Extensions;
 using YetaWF.Core.Identity;
+using YetaWF.Core.Localize;
 using YetaWF.Core.Log;
 using YetaWF.Core.Modules;
 using YetaWF.Core.Packages;
@@ -19,7 +20,6 @@ using YetaWF.Core.ResponseFilter;
 using YetaWF.Core.Site;
 using YetaWF.Core.Skins;
 using YetaWF.Core.Support;
-using YetaWF.Core.Support.UrlHistory;
 
 namespace YetaWF.Core.Endpoints;
 
@@ -209,9 +209,7 @@ public class PageEndpoints : YetaWFEndpoints {
                 PageDefinition.GetUrlFromUrlWithSegments(url, uri.Segments, 3, uri.Query, out newUrl, out newQs);
                 if (newUrl != url) {
                     Logging.AddTraceLog("Server.TransferRequest - {0}", newUrl);
-                    context.Request.Path = newUrl;
-                    context.Request.QueryString = QueryHelper.MakeQueryString(newQs);
-                    uri = new Uri(Manager.CurrentRequestUrl);
+                    uri = Manager.ChangeRequest(newUrl, newQs);
                 }
                 ModuleDefinition? module = await ModuleDefinition.FindDesignedModuleAsync(url);
                 if (module == null)
@@ -221,9 +219,7 @@ public class PageEndpoints : YetaWFEndpoints {
                 PageDefinition.GetUrlFromUrlWithSegments(url, uri.Segments, 3, uri.Query, out newUrl, out newQs);
                 if (newUrl != url) {
                     Logging.AddTraceLog("Server.TransferRequest - {0}", newUrl);
-                    context.Request.Path = newUrl;
-                    context.Request.QueryString = QueryHelper.MakeQueryString(newQs);
-                    uri = new Uri(Manager.CurrentRequestUrl);
+                    uri = Manager.ChangeRequest(newUrl, newQs);
                 }
                 pageFound = await PageDefinition.LoadFromUrlAsync(url);
             } else {
@@ -233,9 +229,7 @@ public class PageEndpoints : YetaWFEndpoints {
                     // we have a page, check if the URL was rewritten because it had human readable arguments
                     if (pageInfo.NewUrl != url) {
                         Logging.AddTraceLog("Server.TransferRequest - {0}", pageInfo.NewUrl);
-                        context.Request.Path = pageInfo.NewUrl;
-                        context.Request.QueryString = QueryHelper.MakeQueryString(pageInfo.NewQS);
-                        uri = new Uri(Manager.CurrentRequestUrl);
+                        uri = Manager.ChangeRequest(pageInfo.NewUrl, pageInfo.NewQS);
                     }
                     pageFound = page;
                 } else {
@@ -244,9 +238,7 @@ public class PageEndpoints : YetaWFEndpoints {
                     PageDefinition.GetUrlFromUrlWithSegments(url, uri.Segments, 4, uri.Query, out newUrl, out newQs);
                     if (newUrl != url) {
                         Logging.AddTraceLog("Server.TransferRequest - {0}", newUrl);
-                        context.Request.Path = newUrl;
-                        context.Request.QueryString = QueryHelper.MakeQueryString(newQs);
-                        uri = new Uri(Manager.CurrentRequestUrl);
+                        uri = Manager.ChangeRequest(newUrl, newQs);
                     }
                 }
             }
@@ -570,7 +562,8 @@ public class PageEndpoints : YetaWFEndpoints {
         Manager.LastUpdated = requestedPage.Updated;
 
         // Skins first. Skins can/should really only add CSS files.
-        await Manager.AddOnManager.AddSkinAsync(skinCollection, Manager.CurrentSite.Theme ?? SiteDefinition.DefaultTheme);
+        string theme = UserSettings.GetProperty<string?>("Theme") ?? Manager.CurrentSite.Theme ?? SiteDefinition.DefaultTheme;
+        await Manager.AddOnManager.AddSkinAsync(skinCollection, theme);
         await YetaWFCoreRendering.Render.AddStandardAddOnsAsync();
 
         Manager.ScriptManager.AddVolatileOption("Skin", "MinWidthForPopups", Manager.SkinInfo.MinWidthForPopups);

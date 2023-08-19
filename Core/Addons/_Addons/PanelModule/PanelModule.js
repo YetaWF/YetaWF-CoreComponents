@@ -42,7 +42,9 @@ var YetaWF_Core;
             $YetaWF.elementAddClass(mod, "t_expanded");
             $YetaWF.sendActivateDivEvent([contents]); // init any controls that just became visible
             PanelModuleHandler.saveExpandCollapseStatus(url, expElem, true);
-            $YetaWF.animateHeight(contents, true);
+            $YetaWF.animateHeight(contents, true, function () {
+                contents.style.height = "auto";
+            });
             return false;
         }
         return true;
