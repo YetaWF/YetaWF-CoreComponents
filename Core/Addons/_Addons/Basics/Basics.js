@@ -1538,11 +1538,11 @@ var YetaWF;
                     return; // already shown
                 // show the item growing height from 0 to its maximum height
                 div.style.height = ""; // remove the height
-                div.style.display = "block"; // show the element so we can calculate height
+                div.style.display = ""; // show the element so we can calculate height
                 var rect = div.getBoundingClientRect();
                 div.style.display = "none"; // hide
                 div.style.height = "0px"; // hide the soon visible div
-                div.style.display = "block"; // show it now (height 0)
+                div.style.display = ""; // show it now (height 0)
                 this.forceRedraw(div);
                 div.style.height = "".concat(rect.height, "px"); // set calculated height which runs animation
             }
