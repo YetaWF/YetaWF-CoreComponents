@@ -34,7 +34,9 @@ namespace YetaWF {
                         if (!urlTrack) throw "data-track not defined";/*DEBUG*/
 
                         let uri = $YetaWF.parseUrl(urlTrack);
-                        const formJson = $YetaWF.Forms.getJSONInfo(anchor);
+                        let formJson: FormInfoJSON|null = null;
+                        if ($YetaWF.FormsAvailable())
+                            formJson = $YetaWF.Forms.getJSONInfo(anchor);
                         $YetaWF.postJSONIgnore(uri, formJson, { Url: url }, null);
                     }
                 }
@@ -67,8 +69,10 @@ namespace YetaWF {
                 // add originating module guid
 
                 if (!uri.hasSearch("__ModuleGuid")) {
-                    const formJson = $YetaWF.Forms.getJSONInfo(anchor);
-                    uri.addSearch("__ModuleGuid", formJson.ModuleGuid);
+                    if ($YetaWF.FormsAvailable()) {
+                        const formJson = $YetaWF.Forms.getJSONInfo(anchor);
+                        uri.addSearch("__ModuleGuid", formJson.ModuleGuid);
+                    }
                 }
 
                 anchor.href = uri.toUrl(); // update original href in case default handling takes place
@@ -171,7 +175,9 @@ namespace YetaWF {
         }
         private postLink(url: string, anchorOwner: HTMLElement | null, tag: HTMLElement, cookieToReturn: number | null) : void {
             this.waitForCookie(cookieToReturn);
-            const formJson = $YetaWF.Forms.getJSONInfo(tag);
+            let formJson: FormInfoJSON|null = null;
+            if ($YetaWF.FormsAvailable())
+                formJson = $YetaWF.Forms.getJSONInfo(tag);
             $YetaWF.postJSON($YetaWF.parseUrl(url), formJson, null, null, (success: boolean, data: any) : void => { }, anchorOwner || undefined);
         }
     }

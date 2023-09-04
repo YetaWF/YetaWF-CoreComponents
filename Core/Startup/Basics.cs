@@ -160,6 +160,7 @@ public class Basics : IAddOnSupport {
         scripts.AddConfigOption("Basics", nameof(Globals.Link_EditMode), Globals.Link_EditMode); // site edit mode
         scripts.AddConfigOption("Basics", nameof(Globals.Link_ScrollLeft), Globals.Link_ScrollLeft);
         scripts.AddConfigOption("Basics", nameof(Globals.Link_ScrollTop), Globals.Link_ScrollTop);
+        scripts.AddConfigOption("Basics", nameof(Globals.Link_Language), Globals.Link_Language);
 
         return Task.CompletedTask;
     }

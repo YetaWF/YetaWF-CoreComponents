@@ -289,11 +289,12 @@ namespace YetaWF {
             items = this.limitToVisibleOnly(items); //:visible
             for (let item of items) {
                 if (item.tagName === "DIV") { // if we found a div, find the edit element instead
-                    let i = this.getElementsBySelector("input,select,textarea,.yt_dropdownlist_base", [item]);
-                    i = this.limitToNotTypeHidden(i); // .not("input[type='hidden']")
-                    i = this.limitToVisibleOnly(i); // :visible
-                    if (i.length > 0) {
-                        f = i[0];
+                    let elems = this.getElementsBySelector("input,select,textarea,.yt_dropdownlist_base", [item]);
+                    elems = this.limitToNotTypeHidden(elems); // .not("input[type='hidden']")
+                    elems = this.limitToVisibleOnly(elems); // :visible
+                    elems = this.limitToFocusable(elems); // no elem/parent with .yNoFocusOnMe
+                    if (elems.length > 0) {
+                        f = elems[0];
                         break;
                     }
                 }
@@ -651,7 +652,7 @@ namespace YetaWF {
          * @param query The optional query data sent as query string.
          * @param data The optional data to send as JSON data with the POST request.
          */
-        public postJSONIgnore(uri: Url, formJson: FormInfoJSON, query: any, data: any): void {
+        public postJSONIgnore(uri: Url, formJson: FormInfoJSON|null, query: any, data: any): void {
             const request = this.getPostRequest(uri, formJson, query, data);
             request.send(JSON.stringify(data));
             this.setLoading(false);
@@ -663,15 +664,16 @@ namespace YetaWF {
          * @param callback The callback to call when the POST response is available. Errors are automatically handled.
          * @param tagInModule The optional tag in a module to refresh when AjaxJavascriptReloadModuleParts is returned.
          */
-        public postJSON(uri: Url, formJson: FormInfoJSON, query: any, data: any, callback: (success: boolean, data: any) => void, tagInModule?: HTMLElement): void {
+        public postJSON(uri: Url, formJson: FormInfoJSON|null, query: any, data: any, callback: (success: boolean, data: any) => void, tagInModule?: HTMLElement): void {
             const request = this.getPostRequest(uri, formJson, query, data);
             $YetaWF.handleReadyStateChange(request, callback, tagInModule);
             request.send(JSON.stringify(data));
         }
-        private getPostRequest(uri: Url, formJson: FormInfoJSON, query: any, data: any): XMLHttpRequest {
+        private getPostRequest(uri: Url, formJson: FormInfoJSON|null, query: any, data: any): XMLHttpRequest {
             this.setLoading(true);
             if (!query) query = {};
-            query["__ModuleGuid"] = formJson.ModuleGuid;
+            if (formJson)
+                query["__ModuleGuid"] = formJson.ModuleGuid;
             // if (formJson.UniqueIdCounters)
             //     query[YConfigs.Forms.UniqueIdCounters] = formJson.UniqueIdCounters;
             uri.addSearchSimpleObject(query);
@@ -1093,6 +1095,17 @@ namespace YetaWF {
             let all: HTMLElement[] = [];
             for (const elem of elems) {
                 if (this.isVisible(elem))
+                    all.push(elem);
+            }
+            return all;
+        }
+        /**
+         * Returns items that don't deny focus
+         */
+        public limitToFocusable(elems: HTMLElement[]): HTMLElement[] {
+            let all: HTMLElement[] = [];
+            for (const elem of elems) {
+                if (!this.elementClosestCond(elem, ".yNoFocusOnMe"))
                     all.push(elem);
             }
             return all;

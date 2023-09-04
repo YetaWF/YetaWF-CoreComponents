@@ -226,11 +226,11 @@ public class PageContentEndpoints : YetaWFEndpoints {
             return Results.Ok(cr);
         }
 
-        // Check if site language requested using !yLang= arg
+        // Check if site language requested using !Lang= arg
         string? lang = Manager.CurrentRequest.Query[Globals.Link_Language];
         if (dataIn.CacheVersion != YetaWFManager.CacheBuster || !string.IsNullOrWhiteSpace(lang)) {
             // If the cache version doesn't match, client is using an "old" site which was restarted, so we need to redirect to reload the entire page
-            // !yLang= is only used in <link rel='alternate' href='{0}' hreflang='{1}'> to indicate multi-language support for pages, so we just redirect to that page
+            // !Lang= is only used in <link rel='alternate' href='{0}' hreflang='{1}'> to indicate multi-language support for pages, so we just redirect to that page
             // we need the entire page, content is not sufficient
             PageContentData cr = new PageContentData();
             if (dataIn.CacheFailUrl != null)

@@ -112,7 +112,7 @@ public class PageEndpoints : YetaWFEndpoints {
             }
         }
 
-        // Check if site language requested using !yLang= arg
+        // Check if site language requested using !Lang= arg
         string? lang = Manager.CurrentRequest.Query[Globals.Link_Language];
         if (!string.IsNullOrWhiteSpace(lang))
             await Manager.SetUserLanguageAsync(lang);

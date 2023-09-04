@@ -109,6 +109,7 @@ namespace YetaWF {
         Link_EditMode: string;      // site edit mode
         Link_ScrollLeft: string;
         Link_ScrollTop: string;
+        Link_Language: string;
 
         // Css
         CssTooltip: string;

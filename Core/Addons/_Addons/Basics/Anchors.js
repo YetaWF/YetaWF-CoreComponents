@@ -31,7 +31,9 @@ var YetaWF;
                         if (!urlTrack)
                             throw "data-track not defined"; /*DEBUG*/
                         var uri_1 = $YetaWF.parseUrl(urlTrack);
-                        var formJson = $YetaWF.Forms.getJSONInfo(anchor);
+                        var formJson = null;
+                        if ($YetaWF.FormsAvailable())
+                            formJson = $YetaWF.Forms.getJSONInfo(anchor);
                         $YetaWF.postJSONIgnore(uri_1, formJson, { Url: url }, null);
                     }
                 }
@@ -59,8 +61,10 @@ var YetaWF;
                     target = "_self";
                 // add originating module guid
                 if (!uri.hasSearch("__ModuleGuid")) {
-                    var formJson = $YetaWF.Forms.getJSONInfo(anchor);
-                    uri.addSearch("__ModuleGuid", formJson.ModuleGuid);
+                    if ($YetaWF.FormsAvailable()) {
+                        var formJson = $YetaWF.Forms.getJSONInfo(anchor);
+                        uri.addSearch("__ModuleGuid", formJson.ModuleGuid);
+                    }
                 }
                 anchor.href = uri.toUrl(); // update original href in case default handling takes place
                 var cookieToReturn = null;
@@ -161,7 +165,9 @@ var YetaWF;
         };
         Anchors.prototype.postLink = function (url, anchorOwner, tag, cookieToReturn) {
             this.waitForCookie(cookieToReturn);
-            var formJson = $YetaWF.Forms.getJSONInfo(tag);
+            var formJson = null;
+            if ($YetaWF.FormsAvailable())
+                formJson = $YetaWF.Forms.getJSONInfo(tag);
             $YetaWF.postJSON($YetaWF.parseUrl(url), formJson, null, null, function (success, data) { }, anchorOwner || undefined);
         };
         return Anchors;

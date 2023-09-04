@@ -142,11 +142,12 @@ var YetaWF;
             for (var _i = 0, items_1 = items; _i < items_1.length; _i++) {
                 var item = items_1[_i];
                 if (item.tagName === "DIV") { // if we found a div, find the edit element instead
-                    var i = this.getElementsBySelector("input,select,textarea,.yt_dropdownlist_base", [item]);
-                    i = this.limitToNotTypeHidden(i); // .not("input[type='hidden']")
-                    i = this.limitToVisibleOnly(i); // :visible
-                    if (i.length > 0) {
-                        f = i[0];
+                    var elems = this.getElementsBySelector("input,select,textarea,.yt_dropdownlist_base", [item]);
+                    elems = this.limitToNotTypeHidden(elems); // .not("input[type='hidden']")
+                    elems = this.limitToVisibleOnly(elems); // :visible
+                    elems = this.limitToFocusable(elems); // no elem/parent with .yNoFocusOnMe
+                    if (elems.length > 0) {
+                        f = elems[0];
                         break;
                     }
                 }
@@ -492,7 +493,8 @@ var YetaWF;
             this.setLoading(true);
             if (!query)
                 query = {};
-            query["__ModuleGuid"] = formJson.ModuleGuid;
+            if (formJson)
+                query["__ModuleGuid"] = formJson.ModuleGuid;
             // if (formJson.UniqueIdCounters)
             //     query[YConfigs.Forms.UniqueIdCounters] = formJson.UniqueIdCounters;
             uri.addSearchSimpleObject(query);
@@ -905,6 +907,18 @@ var YetaWF;
             for (var _i = 0, elems_4 = elems; _i < elems_4.length; _i++) {
                 var elem = elems_4[_i];
                 if (this.isVisible(elem))
+                    all.push(elem);
+            }
+            return all;
+        };
+        /**
+         * Returns items that don't deny focus
+         */
+        BasicsServices.prototype.limitToFocusable = function (elems) {
+            var all = [];
+            for (var _i = 0, elems_5 = elems; _i < elems_5.length; _i++) {
+                var elem = elems_5[_i];
+                if (!this.elementClosestCond(elem, ".yNoFocusOnMe"))
                     all.push(elem);
             }
             return all;
