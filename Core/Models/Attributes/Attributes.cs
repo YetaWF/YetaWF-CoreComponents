@@ -191,6 +191,11 @@ namespace YetaWF.Core.Models.Attributes {
         public CaptionAttribute(string caption) : base("Caption", caption) { }
         public new string Value { get { return (string)base.Value; } }
     }
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    public class CaptionStaticAttribute : MoreMetadataAttribute {
+        public CaptionStaticAttribute(string caption) : base("Caption", caption) { }
+        public new string Value { get { return (string)base.Value; } }
+    }
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public class HeaderAttribute : MoreMetadataAttribute {
         public HeaderAttribute(string text) : base("Header", text) { }

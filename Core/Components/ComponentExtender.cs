@@ -156,6 +156,7 @@ namespace YetaWF.Core.Components {
         /// The <paramref name="HtmlAttributes"/> may contain a "Caption" entry which is used as the label's caption (text).
         /// If none is provided, the container model's "<paramref name="propertyName"/>_Label" property is retrieved and used as label caption.
         /// If none is provided, the property's CaptionAttribute is used instead.
+        /// If none is provided, the property's CaptionStaticAttribute is used instead.
         /// If this isn't found, the label does not have a caption (text).
         ///
         /// If the container model's property <paramref name="propertyName"/> has a HelpLinkAttribute, the label has a clickable help icon.
@@ -188,8 +189,13 @@ namespace YetaWF.Core.Components {
                 caption = propData.GetCaption(container);
                 if (string.IsNullOrEmpty(caption)) {
                     PropertyData? propDataLabel = ObjectSupport.TryGetPropertyData(containerType, $"{propertyName}_Label");
-                    if (propDataLabel != null)
+                    if (propDataLabel == null) {
+                        CaptionStaticAttribute? captionStaticAttr = propData.TryGetAttribute<CaptionStaticAttribute>();
+                        if (captionStaticAttr != null)
+                            caption = captionStaticAttr.Value;
+                    } else {
                         caption = propDataLabel.GetPropertyValue<string?>(container);
+                    }
                 }
             }
             if (string.IsNullOrEmpty(caption)) { // we're distinguishing between "" and " "
