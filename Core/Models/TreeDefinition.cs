@@ -25,6 +25,11 @@ namespace YetaWF.Core.Models {
         public bool ContextMenu { get; set; } // Supports context menu
         public string NoRecordsText { get; set; }// text shown when there are no records
 
+        /// <summary>
+        /// Defines whether small scrollbars are shown.
+        /// </summary>
+        public bool MiniScroll { get; set; }
+
         public string? AjaxUrl { get; set; } // for dynamic population during expand
         public bool JSONData { get; set; } // defines whether JSON data is attached to each entry
 

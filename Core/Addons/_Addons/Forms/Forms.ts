@@ -113,13 +113,19 @@ namespace YetaWF {
         FormErrors: string;
     }
 
-    interface ModuleSubmitData {
+    interface ModuleSubmitData extends TemplateSubmitData {
         Model: any;
         __Apply: boolean;
         __Reload: boolean;
         UniqueIdCounters: UniqueIdInfo;
         __Pagectl: boolean;
         __InPopup: boolean;
+    }
+
+    interface TemplateSubmitData {
+        __TemplateName?: string;
+        __TemplateAction?: number;
+        __TemplateExtraData?: string;
     }
 
     export interface SubmitHandlerEntry {
@@ -130,15 +136,6 @@ namespace YetaWF {
     export interface FormInfoJSON {
         ModuleGuid: string;
         UniqueIdCounters: UniqueIdInfo;
-    }
-
-    export enum PanelAction {
-        Apply = 0,
-        MoveLeft = 1,
-        MoveRight = 2,
-        Add = 3,
-        Insert = 4,
-        Remove = 5,
     }
 
     export interface DetailsPreSubmit {
@@ -266,10 +263,10 @@ namespace YetaWF {
          * @param customEventData
          * @returns Optional event information sent with EVENTPRESUBMIT/EVENTPOSTSUBMIT events as event.detail.customEventData.
          */
-        public submit(form: HTMLFormElement, useValidation: boolean, extraData?: any, customEventData?: any): void {
+        public submit(form: HTMLFormElement, useValidation: boolean, extraData?: any, customEventData?: any, templateData?: TemplateSubmitData): void {
             let method = form.getAttribute("method");
             if (!method) return; // no method, don't submit
-            this.submitExplicit(form, method, form.action, useValidation, extraData, customEventData);
+            this.submitExplicit(form, method, form.action, useValidation, extraData, customEventData, templateData);
         }
 
         /**
@@ -282,7 +279,7 @@ namespace YetaWF {
          * @param customEventData
          * @returns Optional event information sent with EVENTPRESUBMIT/EVENTPOSTSUBMIT events as event.detail.customEventData.
          */
-        public submitExplicit(form: HTMLFormElement, method: string, action: string, useValidation: boolean, extraData?: any, customEventData?: any): void  {
+        private submitExplicit(form: HTMLFormElement, method: string, action: string, useValidation: boolean, extraData?: any, customEventData?: any, templateData?: TemplateSubmitData): void  {
 
             $YetaWF.pageChanged = false;// suppress navigate error
 
@@ -313,6 +310,9 @@ namespace YetaWF {
                     UniqueIdCounters: YVolatile.Basics.UniqueIdCounters,
                     __Pagectl: YVolatile.Basics.PageControlVisible,
                     __InPopup: $YetaWF.isInPopup(),
+                    __TemplateName: templateData?.__TemplateName,
+                    __TemplateAction: templateData?.__TemplateAction,
+                    __TemplateExtraData: templateData?.__TemplateExtraData,
                 };
 
                 // add extra data
@@ -326,6 +326,7 @@ namespace YetaWF {
                         delete model[YConfigs.Basics.Link_SubmitIsReload];
                     }
                 }
+
                 if (extraData)
                     uri.addSearchSimpleObject(extraData);
                 uri.addSearch("__CurrentUrl", window.location.href);
@@ -367,17 +368,17 @@ namespace YetaWF {
                 $YetaWF.removeElement(div);
         }
 
-        public submitTemplate(tag: HTMLElement, useValidation: boolean, templateName: string, templateAction: PanelAction, templateExtraData: string) : void {
+        public submitTemplate(tag: HTMLElement, useValidation: boolean, templateName: string, templateAction: number, templateExtraData?: string) : void {
             let form = this.getForm(tag);
             if ($YetaWF.elementHasClass(form, YConfigs.Forms.CssFormNoSubmit)) return;
-            let extraData = {};
-            extraData[YConfigs.Basics.TemplateName] = templateName;
+            const templateData: TemplateSubmitData = {
+                __TemplateName: templateName,
+                __TemplateAction: templateAction,
+                __TemplateExtraData: templateExtraData,
+            };
+            const extraData = {};
             extraData[YConfigs.Basics.Link_SubmitIsApply] = true;
-            if (templateAction)
-                extraData[YConfigs.Basics.TemplateAction] = templateAction;
-            if (templateExtraData)
-                extraData[YConfigs.Basics.TemplateExtraData] = templateExtraData;//$$$$
-            this.submit(form, useValidation, extraData);
+            this.submit(form, useValidation, extraData, undefined, templateData);
         }
 
         public serializeForm(form: HTMLFormElement): string {
@@ -544,7 +545,6 @@ namespace YetaWF {
             });
 
             // apply
-
             $YetaWF.registerEventHandlerBody("change", ".yapplyonchange select,.yapplyonchange input[type=\"checkbox\"]", (ev: Event): boolean => {
                 this.applyOnChange(ev.target as HTMLElement);
                 return false;
@@ -558,7 +558,6 @@ namespace YetaWF {
             });
 
             // reload
-
             $YetaWF.registerEventHandlerBody("change", ".yreloadonchange select,.yreloadonchange input[type=\"checkbox\"]", (ev: Event): boolean => {
                 this.reloadOnChange(ev.target as HTMLElement);
                 return false;

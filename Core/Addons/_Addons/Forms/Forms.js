@@ -2,15 +2,6 @@
 /* Copyright © 2023 Softel vdm, Inc. - https://yetawf.com/Documentation/YetaWF/Licensing */
 var YetaWF;
 (function (YetaWF) {
-    var PanelAction;
-    (function (PanelAction) {
-        PanelAction[PanelAction["Apply"] = 0] = "Apply";
-        PanelAction[PanelAction["MoveLeft"] = 1] = "MoveLeft";
-        PanelAction[PanelAction["MoveRight"] = 2] = "MoveRight";
-        PanelAction[PanelAction["Add"] = 3] = "Add";
-        PanelAction[PanelAction["Insert"] = 4] = "Insert";
-        PanelAction[PanelAction["Remove"] = 5] = "Remove";
-    })(PanelAction = YetaWF.PanelAction || (YetaWF.PanelAction = {}));
     var Forms = /** @class */ (function () {
         function Forms() {
             // Submit
@@ -116,11 +107,11 @@ var YetaWF;
          * @param customEventData
          * @returns Optional event information sent with EVENTPRESUBMIT/EVENTPOSTSUBMIT events as event.detail.customEventData.
          */
-        Forms.prototype.submit = function (form, useValidation, extraData, customEventData) {
+        Forms.prototype.submit = function (form, useValidation, extraData, customEventData, templateData) {
             var method = form.getAttribute("method");
             if (!method)
                 return; // no method, don't submit
-            this.submitExplicit(form, method, form.action, useValidation, extraData, customEventData);
+            this.submitExplicit(form, method, form.action, useValidation, extraData, customEventData, templateData);
         };
         /**
          * Submit a form.
@@ -132,7 +123,7 @@ var YetaWF;
          * @param customEventData
          * @returns Optional event information sent with EVENTPRESUBMIT/EVENTPOSTSUBMIT events as event.detail.customEventData.
          */
-        Forms.prototype.submitExplicit = function (form, method, action, useValidation, extraData, customEventData) {
+        Forms.prototype.submitExplicit = function (form, method, action, useValidation, extraData, customEventData, templateData) {
             var _this = this;
             $YetaWF.pageChanged = false; // suppress navigate error
             var divs = $YetaWF.getElementsBySelector("div." + this.DATACLASS);
@@ -158,6 +149,9 @@ var YetaWF;
                     UniqueIdCounters: YVolatile.Basics.UniqueIdCounters,
                     __Pagectl: YVolatile.Basics.PageControlVisible,
                     __InPopup: $YetaWF.isInPopup(),
+                    __TemplateName: templateData === null || templateData === void 0 ? void 0 : templateData.__TemplateName,
+                    __TemplateAction: templateData === null || templateData === void 0 ? void 0 : templateData.__TemplateAction,
+                    __TemplateExtraData: templateData === null || templateData === void 0 ? void 0 : templateData.__TemplateExtraData,
                 };
                 // add extra data
                 if (extraData) {
@@ -217,14 +211,14 @@ var YetaWF;
             var form = this.getForm(tag);
             if ($YetaWF.elementHasClass(form, YConfigs.Forms.CssFormNoSubmit))
                 return;
+            var templateData = {
+                __TemplateName: templateName,
+                __TemplateAction: templateAction,
+                __TemplateExtraData: templateExtraData,
+            };
             var extraData = {};
-            extraData[YConfigs.Basics.TemplateName] = templateName;
             extraData[YConfigs.Basics.Link_SubmitIsApply] = true;
-            if (templateAction)
-                extraData[YConfigs.Basics.TemplateAction] = templateAction;
-            if (templateExtraData)
-                extraData[YConfigs.Basics.TemplateExtraData] = templateExtraData; //$$$$
-            this.submit(form, useValidation, extraData);
+            this.submit(form, useValidation, extraData, undefined, templateData);
         };
         Forms.prototype.serializeForm = function (form) {
             var pairs = this.serializeFormArray(form);
